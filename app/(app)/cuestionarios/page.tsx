@@ -1,3 +1,5 @@
-﻿export default function Page() {
-  return <div>Page</div>;
+﻿import QuestionnaireForm from "@/components/cuestionarios/QuestionnaireForm";
+
+export default function QuestionnairePage() {
+  return <QuestionnaireForm />;
 }
