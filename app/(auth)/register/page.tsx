@@ -1,16 +1,14 @@
-﻿export default function VerifyEmailPage() {
+﻿import RegisterForm from "@/components/auth/RegisterForm";
+
+export default function RegisterPage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="max-w-md text-center">
-        <h1 className="text-3xl font-bold mb-4">
-          Verifica tu correo
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-6">
+          Crear cuenta
         </h1>
 
-        <p>
-          Te hemos enviado un enlace de
-          confirmación a tu correo
-          electrónico.
-        </p>
+        <RegisterForm />
       </div>
     </main>
   );
