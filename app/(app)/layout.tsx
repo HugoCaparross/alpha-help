@@ -7,16 +7,24 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
+    <div className="min-h-screen bg-slate-50">
 
-      <div className="flex-1">
-        <Topbar />
+      <div className="flex">
 
-        <main className="p-6">
-          {children}
-        </main>
+        <Sidebar />
+
+        <div className="flex-1 min-h-screen flex flex-col">
+
+          <Topbar />
+
+          <main className="flex-1 p-8">
+            {children}
+          </main>
+
+        </div>
+
       </div>
+
     </div>
   );
 }

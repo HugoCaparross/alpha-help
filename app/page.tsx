@@ -12,7 +12,7 @@ export default function HomePage() {
 
             <div className="mb-8">
               <Image
-                src="/logo.png"
+                src="/images/logo.png"
                 alt="ALPHA-HELP"
                 width={140}
                 height={140}

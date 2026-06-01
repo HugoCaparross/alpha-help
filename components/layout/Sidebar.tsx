@@ -57,35 +57,22 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200">
+      <div className="p-8 border-b border-slate-200 flex flex-col items-center">
+        <Image src="/images/logo.png" alt="ALPHA HELP" width={90} height={90} />
 
-      <div className="p-6 border-b">
+        <h1 className="mt-4 text-2xl font-bold text-slate-900">ALPHA-HELP</h1>
 
-        <Image
-          src="/logo.png"
-          alt="ALPHA HELP"
-          width={70}
-          height={70}
-        />
-
-        <h1 className="mt-4 text-xl font-bold">
-          ALPHA-HELP
-        </h1>
-
-        <p className="text-sm text-slate-500">
+        <p className="text-center text-sm text-slate-500 mt-2">
           Formación para la intervención eficaz
         </p>
-
       </div>
 
       <nav className="flex-1 p-4">
-
         <div className="space-y-2">
-
           {items.map((item) => {
             const Icon = item.icon;
 
-            const active =
-              pathname === item.href;
+            const active = pathname === item.href;
 
             return (
               <Link
@@ -103,11 +90,8 @@ export default function Sidebar() {
               </Link>
             );
           })}
-
         </div>
-
       </nav>
-
     </aside>
   );
 }

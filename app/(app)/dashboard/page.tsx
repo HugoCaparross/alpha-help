@@ -3,41 +3,29 @@
 export default function DashboardPage() {
   return (
     <div className="space-y-8">
-
       <div>
-
-        <h1 className="text-3xl font-bold">
-          Dashboard
-        </h1>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
 
         <p className="text-slate-500 mt-2">
           Accede rápidamente a los elementos pendientes.
         </p>
-
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-
+      <div className="grid gap-6 xl:grid-cols-3 lg:grid-cols-2">
         <Link
           href="/cuestionarios/pre"
-          className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition"
+          className="bg-white rounded-3xl border border-slate-200 p-8 hover:shadow-md transition"
         >
-          <h2 className="font-semibold text-lg">
-            Cuestionario PRE
-          </h2>
+          <h2 className="font-semibold text-lg">Cuestionario PRE</h2>
 
-          <p className="text-slate-500 mt-2">
-            Completar cuestionario inicial.
-          </p>
+          <p className="text-slate-500 mt-2">Completar cuestionario inicial.</p>
         </Link>
 
         <Link
           href="/cuestionarios/post"
           className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition"
         >
-          <h2 className="font-semibold text-lg">
-            Cuestionario POST
-          </h2>
+          <h2 className="font-semibold text-lg">Cuestionario POST</h2>
 
           <p className="text-slate-500 mt-2">
             Disponible al finalizar la formación.
@@ -48,17 +36,11 @@ export default function DashboardPage() {
           href="/sesiones"
           className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition"
         >
-          <h2 className="font-semibold text-lg">
-            Sesiones
-          </h2>
+          <h2 className="font-semibold text-lg">Sesiones</h2>
 
-          <p className="text-slate-500 mt-2">
-            Ver sesiones disponibles.
-          </p>
+          <p className="text-slate-500 mt-2">Ver sesiones disponibles.</p>
         </Link>
-
       </div>
-
     </div>
   );
 }
