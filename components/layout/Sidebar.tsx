@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -55,37 +56,58 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r bg-white h-screen p-4">
-      <div className="mb-8">
-        <h1 className="text-xl font-bold">
+    <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200">
+
+      <div className="p-6 border-b">
+
+        <Image
+          src="/logo.png"
+          alt="ALPHA HELP"
+          width={70}
+          height={70}
+        />
+
+        <h1 className="mt-4 text-xl font-bold">
           ALPHA-HELP
         </h1>
+
+        <p className="text-sm text-slate-500">
+          Formación para la intervención eficaz
+        </p>
+
       </div>
 
-      <nav className="space-y-2">
-        {items.map((item) => {
-          const Icon = item.icon;
+      <nav className="flex-1 p-4">
 
-          const active =
-            pathname === item.href;
+        <div className="space-y-2">
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-lg p-3 transition ${
-                active
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              <Icon size={18} />
+          {items.map((item) => {
+            const Icon = item.icon;
 
-              {item.label}
-            </Link>
-          );
-        })}
+            const active =
+              pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
+                  active
+                    ? "bg-sky-500 text-white"
+                    : "hover:bg-slate-100 text-slate-700"
+                }`}
+              >
+                <Icon size={18} />
+
+                {item.label}
+              </Link>
+            );
+          })}
+
+        </div>
+
       </nav>
+
     </aside>
   );
 }
