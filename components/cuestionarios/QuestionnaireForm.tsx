@@ -4,6 +4,10 @@ import { useState } from "react";
 
 import QuestionBlock from "./QuestionBlock";
 
+import LikertQuestion from "./LikertQuestion";
+
+import ChildrenInformationForm from "./ChildrenInformationForm";
+
 import {
   QUESTIONNAIRE_STEPS,
   DEMOGRAPHIC_FIELDS,
@@ -12,6 +16,7 @@ import {
   ECPP_QUESTIONS,
   PSS_QUESTIONS,
   KIDSCREEN_QUESTIONS,
+  SCALES,
 } from "@/lib/constants/questionnaires";
 
 export default function QuestionnaireForm() {
@@ -30,13 +35,33 @@ export default function QuestionnaireForm() {
 
   function isCurrentStepValid() {
     if (currentStep.id === "demographics") {
-      return DEMOGRAPHIC_FIELDS.every(
+      const demographicsValid = DEMOGRAPHIC_FIELDS.every(
         (field) => answers[field.id] !== undefined && answers[field.id] !== "",
       );
+
+      if (!demographicsValid) {
+        return false;
+      }
+
+      const childrenCount = Number(answers.children_count || 0);
+
+      for (let i = 1; i <= childrenCount; i++) {
+        if (
+          !answers[`child_${i}_age`] ||
+          !answers[`child_${i}_gender`] ||
+          !answers[`child_${i}_psychological_help`]
+        ) {
+          return false;
+        }
+      }
+
+      return true;
     }
 
     if (currentStep.id === "capsm") {
-      return CAPSM_QUESTIONS.every((question) => answers[question.id]);
+      return CAPSM_QUESTIONS.every(
+        (question) => answers[question.id] !== undefined,
+      );
     }
 
     if (currentStep.id === "psoc") {
@@ -118,52 +143,46 @@ export default function QuestionnaireForm() {
                   </select>
                 )}
 
-                {field.id === "child_age" && (
+                {field.type === "select" && field.id !== "age" && (
                   <select
-                    value={answers.child_age || ""}
-                    onChange={(e) =>
-                      updateAnswer("child_age", Number(e.target.value))
-                    }
+                    value={answers[field.id] || ""}
+                    onChange={(e) => updateAnswer(field.id, e.target.value)}
                     className="w-full border rounded-xl p-3"
                   >
-                    <option value="">Seleccione edad</option>
+                    <option value="">Seleccione una opción</option>
 
-                    {Array.from({ length: 18 }, (_, i) => i).map((age) => (
-                      <option key={age} value={age}>
-                        {age}
+                    {field.options?.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>
                 )}
 
-                {field.type === "select" &&
-                  field.id !== "age" &&
-                  field.id !== "child_age" && (
-                    <select
-                      value={answers[field.id] || ""}
-                      onChange={(e) => updateAnswer(field.id, e.target.value)}
-                      className="w-full border rounded-xl p-3"
-                    >
-                      <option value="">Seleccione una opción</option>
-
-                      {field.options?.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                {field.id === "children_count" && answers.children_count && (
+                  <ChildrenInformationForm
+                    childrenCount={Number(answers.children_count)}
+                    answers={answers}
+                    updateAnswer={updateAnswer}
+                  />
+                )}
               </div>
             ))}
           </div>
         )}
 
         {currentStep.id === "capsm" && (
-          <QuestionBlock
-            questions={CAPSM_QUESTIONS}
-            answers={answers}
-            updateAnswer={updateAnswer}
-          />
+          <div className="space-y-8">
+            {CAPSM_QUESTIONS.map((question) => (
+              <LikertQuestion
+                key={question.id}
+                question={question.question}
+                options={SCALES[question.scaleType as keyof typeof SCALES]}
+                value={answers[question.id]}
+                onChange={(value) => updateAnswer(question.id, value)}
+              />
+            ))}
+          </div>
         )}
 
         {currentStep.id === "psoc" && (
