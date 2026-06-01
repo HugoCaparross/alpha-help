@@ -1,13 +1,15 @@
-﻿export default function DashboardPage() {
-  return (
-    <main className="p-10">
-      <h1 className="text-3xl font-bold">
-        Dashboard
-      </h1>
+﻿import LoginForm from "@/components/auth/LoginForm";
 
-      <p>
-        Bienvenido a ALPHA-HELP
-      </p>
+export default function LoginPage() {
+  return (
+    <main className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-6">
+          Iniciar sesión
+        </h1>
+
+        <LoginForm />
+      </div>
     </main>
   );
 }
