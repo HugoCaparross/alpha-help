@@ -30,8 +30,8 @@ export default function QuestionnaireForm() {
 
   function isCurrentStepValid() {
     if (currentStep.id === "demographics") {
-      return (
-        answers.gender && answers.age && answers.education && answers.employment
+      return DEMOGRAPHIC_FIELDS.every(
+        (field) => answers[field.id] !== undefined && answers[field.id] !== "",
       );
     }
 
@@ -65,9 +65,10 @@ export default function QuestionnaireForm() {
       <div className="mb-8">
         <div className="flex justify-between mb-2">
           <h1 className="text-2xl font-bold">{currentStep.title}</h1>
+          <p className="text-slate-500 mt-2">{currentStep.description}</p>
 
           <span className="text-sm text-slate-500">
-            {step + 1} / {QUESTIONNAIRE_STEPS.length}
+            Paso {step + 1} de {QUESTIONNAIRE_STEPS.length}
           </span>
         </div>
 
@@ -86,32 +87,72 @@ export default function QuestionnaireForm() {
           <div className="space-y-6">
             {DEMOGRAPHIC_FIELDS.map((field) => (
               <div key={field.id}>
-                <label className="block mb-2 font-medium">{field.label}</label>
+                <label className="block mb-2 font-medium">
+                  {field.label} *
+                </label>
 
-                {field.type === "number" && (
+                {field.type === "text" && (
                   <input
-                    type="number"
+                    type="text"
                     value={answers[field.id] || ""}
                     onChange={(e) => updateAnswer(field.id, e.target.value)}
                     className="w-full border rounded-xl p-3"
                   />
                 )}
 
-                {field.type === "select" && (
+                {field.id === "age" && (
                   <select
-                    value={answers[field.id] || ""}
-                    onChange={(e) => updateAnswer(field.id, e.target.value)}
+                    value={answers.age || ""}
+                    onChange={(e) =>
+                      updateAnswer("age", Number(e.target.value))
+                    }
                     className="w-full border rounded-xl p-3"
                   >
-                    <option value="">Seleccione una opción</option>
+                    <option value="">Seleccione edad</option>
 
-                    {field.options?.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
+                    {Array.from({ length: 82 }, (_, i) => i + 18).map((age) => (
+                      <option key={age} value={age}>
+                        {age}
                       </option>
                     ))}
                   </select>
                 )}
+
+                {field.id === "child_age" && (
+                  <select
+                    value={answers.child_age || ""}
+                    onChange={(e) =>
+                      updateAnswer("child_age", Number(e.target.value))
+                    }
+                    className="w-full border rounded-xl p-3"
+                  >
+                    <option value="">Seleccione edad</option>
+
+                    {Array.from({ length: 18 }, (_, i) => i).map((age) => (
+                      <option key={age} value={age}>
+                        {age}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {field.type === "select" &&
+                  field.id !== "age" &&
+                  field.id !== "child_age" && (
+                    <select
+                      value={answers[field.id] || ""}
+                      onChange={(e) => updateAnswer(field.id, e.target.value)}
+                      className="w-full border rounded-xl p-3"
+                    >
+                      <option value="">Seleccione una opción</option>
+
+                      {field.options?.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  )}
               </div>
             ))}
           </div>
@@ -160,12 +201,21 @@ export default function QuestionnaireForm() {
 
       {!canContinue && (
         <p className="mt-4 text-sm text-red-500">
-          Debes responder todas las preguntas para continuar.
+          Debes completar todos los campos obligatorios para continuar.
         </p>
       )}
 
+      {currentStep.id === "demographics" &&
+        answers.age &&
+        Number(answers.age) < 18 && (
+          <p className="mt-2 text-sm text-red-500">
+            Debes ser mayor de edad para participar en el estudio.
+          </p>
+        )}
+
       <div className="flex items-center justify-between mt-8">
         <button
+          type="button"
           onClick={() => setStep(step - 1)}
           disabled={step === 0}
           className="px-5 py-3 rounded-xl border disabled:opacity-50"
@@ -175,18 +225,19 @@ export default function QuestionnaireForm() {
 
         <button
           type="button"
-          onClick={() => console.log(answers)}
-          className="px-4 py-2 text-sm rounded-xl border border-slate-300 hover:bg-slate-50"
-        >
-          Ver respuestas
-        </button>
-
-        <button
-          onClick={() => setStep(step + 1)}
-          disabled={step === QUESTIONNAIRE_STEPS.length - 1 || !canContinue}
+          onClick={() => {
+            if (step < QUESTIONNAIRE_STEPS.length - 1) {
+              setStep(step + 1);
+            } else {
+              console.log("Finalizar cuestionario");
+            }
+          }}
+          disabled={!canContinue}
           className="px-5 py-3 rounded-xl bg-sky-500 text-white disabled:opacity-50"
         >
-          Siguiente
+          {step === QUESTIONNAIRE_STEPS.length - 1
+            ? "Finalizar cuestionario"
+            : "Siguiente"}
         </button>
       </div>
     </div>

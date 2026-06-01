@@ -13,26 +13,43 @@ export const QUESTIONNAIRE_STEPS = [
   {
     id: "demographics",
     title: "Datos familiares",
+    description:
+      "Información sociodemográfica básica.",
   },
+
   {
     id: "capsm",
     title: "CAPSM-IJ",
+    description:
+      "Conocimientos y creencias sobre salud mental infantojuvenil.",
   },
+
   {
     id: "psoc",
     title: "PSOC",
+    description:
+      "Percepción de competencia parental.",
   },
+
   {
     id: "ecpp",
     title: "ECPP-P",
+    description:
+      "Competencias parentales percibidas.",
   },
+
   {
     id: "pss",
     title: "PSS",
+    description:
+      "Nivel de estrés parental.",
   },
+
   {
     id: "kidscreen",
     title: "KIDSCREEN",
+    description:
+      "Bienestar y calidad de vida del menor.",
   },
 ];
 
@@ -113,6 +130,12 @@ export const KIDSCREEN_QUESTIONS: Question[] = [];
 
 export const DEMOGRAPHIC_FIELDS = [
   {
+    id: "school",
+    label: "Centro escolar",
+    type: "text",
+  },
+
+  {
     id: "gender",
     label: "Sexo",
     type: "select",
@@ -127,7 +150,7 @@ export const DEMOGRAPHIC_FIELDS = [
   {
     id: "age",
     label: "Edad",
-    type: "number",
+    type: "select",
   },
 
   {
@@ -136,12 +159,13 @@ export const DEMOGRAPHIC_FIELDS = [
     type: "select",
     options: [
       "Sin estudios",
-      "Primaria",
-      "Secundaria",
+      "Educación primaria",
+      "Educación secundaria",
       "Bachillerato",
       "Formación Profesional",
       "Universitarios",
-      "Postgrado",
+      "Máster",
+      "Doctorado",
     ],
   },
 
@@ -156,6 +180,65 @@ export const DEMOGRAPHIC_FIELDS = [
       "Estudiante",
       "Jubilado/a",
       "Otro",
+    ],
+  },
+
+  {
+    id: "marital_status",
+    label: "Estado civil",
+    type: "select",
+    options: [
+      "Soltero/a",
+      "Casado/a",
+      "Pareja de hecho",
+      "Separado/a",
+      "Divorciado/a",
+      "Viudo/a",
+    ],
+  },
+
+  {
+    id: "socioeconomic_level",
+    label: "Nivel socioeconómico percibido",
+    type: "select",
+    options: [
+      "Muy bajo",
+      "Bajo",
+      "Medio-bajo",
+      "Medio",
+      "Medio-alto",
+      "Alto",
+    ],
+  },
+
+  {
+    id: "children_count",
+    label: "Número de hijos",
+    type: "select",
+    options: [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5 o más",
+    ],
+  },
+
+  {
+    id: "child_age",
+    label: "Edad del hijo/a participante",
+    type: "select",
+  },
+
+  {
+    id: "child_gender",
+    label: "Sexo del hijo/a participante",
+    type: "select",
+    options: [
+      "Niño",
+      "Niña",
+      "Otro",
+      "Prefiero no responder",
     ],
   },
 ];
