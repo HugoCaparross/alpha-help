@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import "./globals.css";
+import "@/components/styles/landing.css";
 
 import SupabaseProvider from "@/components/providers/SupabaseProvider";
 
@@ -16,9 +17,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
-        <SupabaseProvider>
-          {children}
-        </SupabaseProvider>
+        <SupabaseProvider>{children}</SupabaseProvider>
       </body>
     </html>
   );

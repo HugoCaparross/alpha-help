@@ -1,37 +1,62 @@
 @import "tailwindcss";
 
+/* ==========================================
+   DESIGN SYSTEM
+========================================== */
+
 :root {
-  --primary-900: #0F172A;
-  --primary-700: #1E293B;
+  /* Primary */
 
-  --accent: #0EA5E9;
-  --accent-light: #38BDF8;
+  --primary-900: #0f172a;
+  --primary-700: #1e293b;
 
-  --success: #10B981;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --info: #6366F1;
+  /* Accent */
 
-  --neutral-900: #0F172A;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --accent-light: #38bdf8;
+
+  /* Status */
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #6366f1;
+
+  /* Neutrals */
+
+  --neutral-900: #0f172a;
   --neutral-700: #334155;
-  --neutral-600: #64748B;
-  --neutral-300: #CBD5E1;
-  --neutral-200: #E2E8F0;
-  --neutral-100: #F1F5F9;
+  --neutral-600: #64748b;
+  --neutral-500: #94a3b8;
+  --neutral-300: #cbd5e1;
+  --neutral-200: #e2e8f0;
+  --neutral-100: #f1f5f9;
 
-  --background: #F8FAFC;
-  --surface: #FFFFFF;
+  /* Surfaces */
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --background: #f8fafc;
+  --surface: #ffffff;
 
-  --shadow-card:
-    0 1px 3px rgba(15, 23, 42, .08);
+  /* Radius */
 
-  --shadow-hover:
-    0 4px 12px rgba(15, 23, 42, .12);
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+
+  /* Shadows */
+
+  --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.05);
+
+  --shadow-hover: 0 20px 40px rgba(15, 23, 42, 0.08);
+
+  --shadow-button: 0 8px 24px rgba(14, 165, 233, 0.25);
 }
+
+/* ==========================================
+   RESET
+========================================== */
 
 * {
   margin: 0;
@@ -43,24 +68,285 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--neutral-900);
-  font-family: Inter, sans-serif;
+  overflow-x: hidden;
+}
+
+body {
   min-height: 100vh;
+
+  background: var(--background);
+
+  color: var(--neutral-900);
+
+  font-family: Inter, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }
 
 a {
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
 }
 
 button {
   cursor: pointer;
+  border: none;
+  background: transparent;
 }
 
 input,
 select,
 textarea {
   font: inherit;
+}
+
+/* ==========================================
+   CONTAINERS
+========================================== */
+
+.container-custom {
+  width: 100%;
+  max-width: 1600px;
+
+  margin: 0 auto;
+
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+}
+
+/* ==========================================
+   SECTIONS
+========================================== */
+
+.section {
+  padding: 80px 0;
+}
+
+.section-small {
+  padding: 56px 0;
+}
+
+.section-header {
+  max-width: 900px;
+
+  margin: 0 auto 40px;
+
+  text-align: center;
+}
+
+/* ==========================================
+   TYPOGRAPHY
+========================================== */
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 8px 16px;
+
+  border-radius: 999px;
+
+  background: #e0f2fe;
+
+  color: #0369a1;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.section-title {
+  margin-top: 16px;
+
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+
+  line-height: 1.1;
+
+  font-weight: 800;
+
+  color: var(--neutral-900);
+}
+
+.section-description {
+  margin-top: 20px;
+
+  font-size: 20px;
+  line-height: 1.8;
+
+  color: var(--neutral-600);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 56px;
+
+  padding: 0 32px;
+
+  border-radius: var(--radius-md);
+
+  background: var(--accent);
+
+  color: white;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 56px;
+
+  padding: 0 32px;
+
+  border-radius: var(--radius-md);
+
+  background: white;
+
+  border: 1px solid var(--neutral-300);
+
+  color: var(--neutral-700);
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--neutral-100);
+}
+
+/* ==========================================
+   CARDS
+========================================== */
+
+.card {
+  background: white;
+
+  border: 1px solid var(--neutral-200);
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
+
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+
+  box-shadow: var(--shadow-hover);
+}
+
+.card-padding {
+  padding: 32px;
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 64px;
+  height: 64px;
+
+  border-radius: 20px;
+
+  background: #e0f2fe;
+
+  color: var(--accent);
+}
+
+/* ==========================================
+   HELPERS
+========================================== */
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.mx-auto {
+  margin-inline: auto;
+}
+
+.bg-surface {
+  background: var(--surface);
+}
+
+.bg-background {
+  background: var(--background);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1024px) {
+  .section {
+    padding: 96px 0;
+  }
+
+  .section-title {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 72px 0;
+  }
+
+  .section-title {
+    font-size: 32px;
+  }
+
+  .section-description {
+    font-size: 18px;
+  }
 }
