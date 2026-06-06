@@ -12,7 +12,7 @@ export default function FinalCTA() {
           </h2>
 
           <p className="final-cta-description">
-            Únase a un proyecto universitario basado en evidencia científica y
+            Únase a un proyecto basado en evidencia científica y
             acceda a recursos diseñados para ayudar a las familias a afrontar
             los desafíos emocionales de la adolescencia.
           </p>

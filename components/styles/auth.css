@@ -1,0 +1,645 @@
+/* ==========================================
+   AUTH LAYOUT
+========================================== */
+
+.auth-layout {
+  display: grid;
+
+  grid-template-columns: 38% 62%;
+
+  height: 100vh;
+
+  background: var(--background);
+}
+
+.auth-form-section {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding: 20px 32px;
+
+  overflow: hidden;
+
+  background: #f8fafc;
+}
+
+/* ==========================================
+   AUTH HERO
+========================================== */
+
+.auth-hero {
+  position: relative;
+
+  overflow: hidden;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    linear-gradient(180deg, rgba(6, 22, 43, 0.75), rgba(6, 22, 43, 0.92)),
+    url("/images/auth/auth-family.jpg");
+
+  background-size: cover;
+
+  background-position: center;
+
+  height: 100vh;
+}
+
+.auth-hero-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background: radial-gradient(
+    circle at top,
+    rgba(14, 165, 233, 0.18),
+    transparent 60%
+  );
+}
+
+.auth-hero-content {
+  position: relative;
+
+  z-index: 2;
+
+  max-width: 420px;
+
+  padding: 40px;
+}
+
+.auth-hero-title {
+  color: white;
+
+  font-size: 3rem;
+
+  font-weight: 800;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.03em;
+
+  margin-bottom: 24px;
+}
+
+.auth-hero-description {
+  color: rgba(255, 255, 255, 0.82);
+
+  font-size: 1rem;
+
+  line-height: 1.8;
+}
+
+/* ==========================================
+   REGISTER CARD
+========================================== */
+
+.register-card {
+  width: 100%;
+
+  max-width: 620px;
+
+  background: white;
+
+  border: 1px solid var(--neutral-200);
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  margin: 0;
+
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+
+  animation: registerFade 0.4s ease;
+
+  padding-right: 8px;
+}
+
+@keyframes registerFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-header {
+  margin-bottom: 16px;
+}
+
+.register-title {
+  font-size: 28px;
+
+  font-weight: 700;
+
+  color: var(--neutral-900);
+
+  margin-bottom: 0px;
+}
+
+.register-description {
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  color: var(--neutral-600);
+
+  margin-bottom: 0;
+}
+
+/* ==========================================
+   PROGRESS
+========================================== */
+
+.register-progress {
+  margin-bottom: 36px;
+}
+
+.register-progress-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: var(--neutral-600);
+}
+
+.register-progress-bar {
+  height: 8px;
+
+  border-radius: 999px;
+
+  overflow: hidden;
+
+  background: var(--neutral-200);
+}
+
+.register-progress-fill {
+  height: 100%;
+
+  background: var(--accent);
+
+  border-radius: 999px;
+
+  transition: 0.3s ease;
+}
+
+/* ==========================================
+   STEPPER
+========================================== */
+
+.register-stepper {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+
+  position: relative;
+}
+
+.step-item {
+  position: relative;
+
+  flex: 1;
+
+  text-align: center;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  color: var(--neutral-400);
+
+  transition: all 0.3s ease;
+}
+
+.step-item::before {
+  content: "";
+
+  display: block;
+
+  width: 16px;
+  height: 16px;
+
+  margin: 0 auto 12px;
+
+  border-radius: 50%;
+
+  border: 2px solid var(--neutral-300);
+
+  background: white;
+
+  transition: all 0.3s ease;
+}
+
+.step-item:not(:last-child)::after {
+  content: "";
+
+  position: absolute;
+
+  top: 16px;
+  left: calc(50% + 24px);
+
+  width: calc(100% - 48px);
+
+  height: 2px;
+
+  background: var(--neutral-200);
+
+  z-index: 0;
+}
+
+.step-item.active {
+  color: var(--neutral-900);
+}
+
+.step-item.active::before {
+  background: var(--accent);
+
+  border-color: var(--accent);
+
+  box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.12);
+}
+
+/* ==========================================
+   STEP CONTENT
+========================================== */
+
+.step-title {
+  font-size: 20px;
+
+  font-weight: 800;
+
+  color: var(--neutral-900);
+
+  margin-bottom: 6px;
+}
+
+.step-description {
+  font-size: 14px;
+
+  line-height: 1.8;
+
+  color: var(--neutral-600);
+
+  margin-bottom: 14px;
+}
+
+.family-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+/* ==========================================
+   FORM FIELDS
+========================================== */
+
+.auth-field {
+  margin-bottom: 10px;
+}
+
+.auth-label {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: var(--neutral-700);
+}
+
+.auth-input,
+select.auth-input {
+  width: 100%;
+
+  height: 48px;
+
+  padding: 0 18px;
+
+  border: 1px solid var(--neutral-300);
+
+  border-radius: 12px;
+
+  background: white;
+
+  color: var(--neutral-900);
+
+  font-size: 14px;
+
+  transition: all 0.25s ease;
+}
+
+.auth-input:hover {
+  border-color: var(--neutral-500);
+}
+
+.auth-input:focus {
+  outline: none;
+
+  border-color: var(--accent);
+
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+.auth-input-wrapper {
+  position: relative;
+}
+
+.auth-toggle {
+  position: absolute;
+
+  right: 18px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  color: var(--neutral-500);
+
+  transition: 0.2s ease;
+}
+
+.auth-toggle:hover {
+  color: var(--accent);
+}
+
+.auth-checkbox {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  margin-top: 16px;
+
+  margin-bottom: 16px;
+
+  color: var(--neutral-700);
+
+  line-height: 1.6;
+
+  font-size: 14px;
+}
+
+.auth-checkbox input {
+  width: 18px;
+
+  height: 18px;
+
+  margin-top: 2px;
+}
+
+.auth-error {
+  margin-top: 12px;
+
+  color: var(--danger);
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+/* ==========================================
+   REGION SELECTOR
+========================================== */
+
+.region-selector {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+.region-card {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  height: 92px;
+
+  border: 1px solid var(--neutral-300);
+
+  border-radius: 12px;
+
+  background: white;
+
+  transition: all 0.25s ease;
+
+  cursor: pointer;
+}
+
+.region-card:hover {
+  border-color: var(--accent);
+
+  transform: translateY(-2px);
+}
+
+.region-card.active {
+  border-color: var(--accent);
+
+  background: rgba(14, 165, 233, 0.08);
+
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+.region-card-icon {
+  font-size: 24px;
+
+  line-height: 1;
+}
+
+.region-card-title {
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: var(--neutral-900);
+}
+
+/* ==========================================
+   ACTIONS
+========================================== */
+
+.step-actions {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  margin-top: 24px;
+}
+
+.step-actions .btn-primary,
+.step-actions .btn-secondary {
+  min-width: 180px;
+}
+
+/* ==========================================
+   SUMMARY
+========================================== */
+
+.register-summary {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  max-height: 420px;
+  flex-direction: column;
+
+  gap: 14px;
+
+  margin-top: 24px;
+}
+
+.summary-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 18px 20px;
+
+  border: 1px solid var(--neutral-200);
+
+  border-radius: 16px;
+
+  background: white;
+
+  transition: 0.25s ease;
+}
+
+.summary-item:hover {
+  border-color: var(--accent);
+
+  transform: translateY(-2px);
+}
+
+.summary-item span {
+  color: var(--neutral-600);
+}
+
+.summary-item strong {
+  color: var(--neutral-900);
+
+  font-weight: 600;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1200px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-hero {
+    display: none;
+  }
+
+  .auth-form-section {
+    padding: 24px;
+  }
+
+  .register-card {
+    max-width: 100%;
+
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 24px;
+  }
+
+  .family-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-actions {
+    flex-direction: column;
+  }
+
+  .step-actions button {
+    width: 100%;
+  }
+}
+
+.auth-input-icon {
+  position: absolute;
+
+  left: 16px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  color: var(--neutral-400);
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+.auth-input-with-icon {
+  padding-left: 46px !important;
+}
+
+.step-actions-full {
+  width: 100%;
+}
+
+.btn-full {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+}

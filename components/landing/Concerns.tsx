@@ -3,23 +3,23 @@ import Image from "next/image";
 const concerns = [
   {
     title: "Cambios bruscos de comportamiento",
-    icon: "/images/landing/icons/behavior.png",
+    icon: "/images/landing/icons/comportamiento.png",
   },
   {
     title: "Ansiedad o tristeza persistente",
-    icon: "/images/landing/icons/anxiety.png",
+    icon: "/images/landing/icons/ansiedad.png",
   },
   {
     title: "Problemas con redes sociales y videojuegos",
-    icon: "/images/landing/icons/social.png",
+    icon: "/images/landing/icons/videojuegos.png",
   },
   {
     title: "Acoso o ciberacoso escolar",
-    icon: "/images/landing/icons/bullying.png",
+    icon: "/images/landing/icons/acoso.png",
   },
   {
     title: "Consumo de sustancias",
-    icon: "/images/landing/icons/substances.png",
+    icon: "/images/landing/icons/medicinas.png",
   },
   {
     title: "Problemas de autoestima e imagen corporal",

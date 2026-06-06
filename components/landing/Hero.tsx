@@ -29,7 +29,7 @@ export default function Hero() {
                   Crear cuenta gratuita
                 </Link>
 
-                <Link href="#proyecto" className="btn-secondary hero-btn">
+                <Link href="/proyecto" className="btn-secondary hero-btn">
                   Conocer el proyecto
                 </Link>
               </div>

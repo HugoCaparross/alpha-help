@@ -21,36 +21,36 @@ export default function Navbar() {
             <div className="navbar-brand-content">
               <span className="navbar-title">ALPHA-HELP</span>
 
-              <span className="navbar-subtitle">Ayudando a las familias en la adolescencia</span>
+              <span className="navbar-subtitle">
+                Ayudando a las familias en la adolescencia
+              </span>
             </div>
           </Link>
 
           {/* Navegación */}
 
-          <nav className="navbar-nav">
-            <Link href="#proyecto" className="navbar-link">
-              Proyecto
-            </Link>
+          <div className="navbar-right">
+            <nav className="navbar-nav">
+              <Link href="/faq" className="navbar-link">
+                FAQ
+              </Link>
 
-            <Link href="/faq" className="navbar-link">
-              FAQ
-            </Link>
+              <Link href="/contacto" className="navbar-link">
+                Contacto
+              </Link>
+            </nav>
 
-            <Link href="/contacto" className="navbar-link">
-              Contacto
-            </Link>
-          </nav>
+            <div className="navbar-divider"></div>
 
-          {/* Acciones */}
+            <div className="navbar-actions">
+              <Link href="/login" className="btn-outline">
+                Iniciar sesión
+              </Link>
 
-          <div className="navbar-actions">
-            <Link href="/login" className="btn-outline">
-              Iniciar sesión
-            </Link>
-
-            <Link href="/register" className="btn-primary">
-              Crear cuenta
-            </Link>
+              <Link href="/register" className="btn-primary">
+                Crear cuenta
+              </Link>
+            </div>
           </div>
         </div>
       </div>
