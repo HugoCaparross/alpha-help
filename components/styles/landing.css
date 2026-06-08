@@ -108,6 +108,16 @@
   transition: color 0.25s ease;
 }
 
+.navbar-link.active {
+  color: var(--accent);
+
+  font-weight: 600;
+}
+
+.navbar-link.active::after {
+  width: 100%;
+}
+
 .navbar-link:hover {
   color: var(--accent);
 }

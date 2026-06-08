@@ -1,13 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
   return (
     <header className="navbar">
       <div className="container-custom">
         <div className="navbar-inner">
-          {/* Logo */}
-
           <Link href="/" className="navbar-brand">
             <Image
               src="/images/logo_sin_letras.png"
@@ -27,15 +30,28 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Navegación */}
-
           <div className="navbar-right">
             <nav className="navbar-nav">
-              <Link href="/faq" className="navbar-link">
+              <Link
+                href="/"
+                className={`navbar-link ${pathname === "/" ? "active" : ""}`}
+              >
+                Inicio
+              </Link>
+
+              <Link
+                href="/faq"
+                className={`navbar-link ${pathname === "/faq" ? "active" : ""}`}
+              >
                 FAQ
               </Link>
 
-              <Link href="/contacto" className="navbar-link">
+              <Link
+                href="/contacto"
+                className={`navbar-link ${
+                  pathname === "/contacto" ? "active" : ""
+                }`}
+              >
                 Contacto
               </Link>
             </nav>
