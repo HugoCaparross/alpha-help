@@ -104,17 +104,6 @@ export default function RegisterWizard() {
         },
       });
 
-      console.log("========== SIGNUP RESULT ==========");
-      console.log("DATA:", data);
-      console.log("ERROR:", error);
-
-      if (error) {
-        console.log("ERROR MESSAGE:", error.message);
-        console.log("ERROR STATUS:", error.status);
-        console.log("ERROR CODE:", error.code);
-        console.log("FULL ERROR:", JSON.stringify(error, null, 2));
-      }
-
       if (error) {
         console.error("SUPABASE ERROR:", error);
 
@@ -138,74 +127,104 @@ export default function RegisterWizard() {
   return (
     <div className="register-card">
       <div className="register-stepper">
-        <div className={`step-item ${step >= 1 ? "active" : ""}`}>Cuenta</div>
+        <div
+          className={`step-item ${
+            step > 1 ? "completed" : step === 1 ? "active" : ""
+          }`}
+        >
+          Cuenta
+        </div>
 
-        <div className={`step-item ${step >= 2 ? "active" : ""}`}>
+        <div
+          className={`step-item ${
+            step > 2 ? "completed" : step === 2 ? "active" : ""
+          }`}
+        >
           Participante
         </div>
 
-        <div className={`step-item ${step >= 3 ? "active" : ""}`}>Familia</div>
+        <div
+          className={`step-item ${
+            step > 3 ? "completed" : step === 3 ? "active" : ""
+          }`}
+        >
+          Familia
+        </div>
 
-        <div className={`step-item ${step >= 4 ? "active" : ""}`}>Centro</div>
+        <div
+          className={`step-item ${
+            step > 4 ? "completed" : step === 4 ? "active" : ""
+          }`}
+        >
+          Centro
+        </div>
 
-        <div className={`step-item ${step >= 5 ? "active" : ""}`}>Hijos</div>
+        <div
+          className={`step-item ${
+            step > 5 ? "completed" : step === 5 ? "active" : ""
+          }`}
+        >
+          Hijos
+        </div>
 
-        <div className={`step-item ${step >= 6 ? "active" : ""}`}>Resumen</div>
+        <div className={`step-item ${step === 6 ? "active" : ""}`}>Resumen</div>
       </div>
 
-      {step === 1 && (
-        <RegisterStepAccount
-          formData={formData}
-          setFormData={setFormData}
-          nextStep={nextStep}
-        />
-      )}
+      <div className="register-step-content">
+        {step === 1 && (
+          <RegisterStepAccount
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+          />
+        )}
 
-      {step === 2 && (
-        <RegisterStepParticipant
-          formData={formData}
-          setFormData={setFormData}
-          nextStep={nextStep}
-          previousStep={previousStep}
-        />
-      )}
+        {step === 2 && (
+          <RegisterStepParticipant
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            previousStep={previousStep}
+          />
+        )}
 
-      {step === 3 && (
-        <RegisterStepFamily
-          formData={formData}
-          setFormData={setFormData}
-          nextStep={nextStep}
-          previousStep={previousStep}
-        />
-      )}
+        {step === 3 && (
+          <RegisterStepFamily
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            previousStep={previousStep}
+          />
+        )}
 
-      {step === 4 && (
-        <RegisterStepSchool
-          formData={formData}
-          setFormData={setFormData}
-          nextStep={nextStep}
-          previousStep={previousStep}
-        />
-      )}
+        {step === 4 && (
+          <RegisterStepSchool
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            previousStep={previousStep}
+          />
+        )}
 
-      {step === 5 && (
-        <RegisterStepChild
-          formData={formData}
-          setFormData={setFormData}
-          nextStep={nextStep}
-          previousStep={previousStep}
-        />
-      )}
+        {step === 5 && (
+          <RegisterStepChild
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            previousStep={previousStep}
+          />
+        )}
 
-      {step === 6 && (
-        <RegisterStepSummary
-          formData={formData}
-          previousStep={previousStep}
-          handleSubmit={handleSubmit}
-          loading={loading}
-          submitError={submitError}
-        />
-      )}
+        {step === 6 && (
+          <RegisterStepSummary
+            formData={formData}
+            previousStep={previousStep}
+            handleSubmit={handleSubmit}
+            loading={loading}
+            submitError={submitError}
+          />
+        )}
+      </div>
     </div>
   );
 }

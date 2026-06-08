@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+
 import { supabase } from "@/lib/supabase/client";
 
 export default function LoginForm() {
@@ -11,32 +13,28 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
 
-  async function handleLogin(
-    e: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setLoading(true);
     setError("");
 
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
-      setError(
-        "Correo o contraseña incorrectos."
-      );
+      setError("Correo o contraseña incorrectos.");
+
       setLoading(false);
+
       return;
     }
 
@@ -45,73 +43,72 @@ export default function LoginForm() {
   }
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="space-y-4"
-    >
-      <div>
-        <label>Email</label>
+    <form onSubmit={handleLogin}>
+      <div className="register-header">
+        <h1 className="register-title">Iniciar sesión</h1>
 
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          className="w-full border rounded p-2"
-        />
+        <p className="register-description">
+          Accede a tu cuenta para continuar.
+        </p>
       </div>
 
-      <div>
-        <label>Contraseña</label>
+      {/* EMAIL */}
 
-        <div className="relative">
+      <div className="auth-field">
+        <div className="auth-input-wrapper">
+          <Mail size={18} className="auth-input-icon" />
+
           <input
-            type={
-              showPassword
-                ? "text"
-                : "password"
-            }
+            type="email"
             required
+            placeholder="Correo electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="auth-input auth-input-with-icon"
+          />
+        </div>
+      </div>
+
+      {/* PASSWORD */}
+
+      <div className="auth-field">
+        <div className="auth-input-wrapper">
+          <Lock size={18} className="auth-input-icon" />
+
+          <input
+            type={showPassword ? "text" : "password"}
+            required
+            placeholder="Contraseña"
             value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            className="w-full border rounded p-2 pr-10"
+            onChange={(e) => setPassword(e.target.value)}
+            className="auth-input auth-input-with-icon"
           />
 
           <button
             type="button"
-            onClick={() =>
-              setShowPassword(!showPassword)
-            }
-            className="absolute right-3 top-3"
+            className="auth-toggle"
+            onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? (
-              <EyeOff size={18} />
-            ) : (
-              <Eye size={18} />
-            )}
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
       </div>
 
-      {error && (
-        <p className="text-red-500 text-sm">
-          {error}
-        </p>
-      )}
+      <div className="login-links">
+        <a href="/forgot-password">¿Has olvidado tu contraseña?</a>
+      </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white rounded p-2"
-      >
-        {loading
-          ? "Iniciando sesión..."
-          : "Iniciar sesión"}
+      {error && <p className="auth-error">{error}</p>}
+
+      <button type="submit" disabled={loading} className="btn-primary btn-full">
+        {loading ? "Iniciando sesión..." : "Iniciar sesión"}
       </button>
+
+      <div className="login-footer">
+        <span>¿No tienes cuenta?</span>
+
+        <a href="/register">Crear cuenta</a>
+      </div>
     </form>
   );
 }

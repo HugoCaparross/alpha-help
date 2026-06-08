@@ -102,22 +102,28 @@
 
 .register-card {
   width: 100%;
-
   max-width: 620px;
 
+  display: flex;
+  flex-direction: column;
+
+  height: 88vh;
+
   background: white;
-
   border: 1px solid var(--neutral-200);
-
   border-radius: 24px;
 
   padding: 24px;
 
-  margin: 0;
-
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+}
 
-  animation: registerFade 0.4s ease;
+.register-step-content {
+  flex: 1;
+
+  overflow-y: auto;
+
+  min-height: 0;
 
   padding-right: 8px;
 }
@@ -135,7 +141,7 @@
 }
 
 .register-header {
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
 
 .register-title {
@@ -145,7 +151,7 @@
 
   color: var(--neutral-900);
 
-  margin-bottom: 0px;
+  margin-bottom: 8px;
 }
 
 .register-description {
@@ -211,7 +217,7 @@
 
   justify-content: space-between;
 
-  margin-bottom: 12px;
+  margin-bottom: 32px;
 
   position: relative;
 }
@@ -223,7 +229,7 @@
 
   text-align: center;
 
-  font-size: 12px;
+  font-size: 13px;
 
   font-weight: 600;
 
@@ -237,8 +243,8 @@
 
   display: block;
 
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 
   margin: 0 auto 12px;
 
@@ -277,7 +283,20 @@
 
   border-color: var(--accent);
 
-  box-shadow: 0 0 0 6px rgba(14, 165, 233, 0.12);
+  box-shadow: 0 0 0 8px rgba(14, 165, 233, 0.12);
+}
+
+.step-item.completed {
+  color: var(--neutral-900);
+}
+
+.step-item.completed::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.step-item.completed::after {
+  background: var(--accent);
 }
 
 /* ==========================================
@@ -448,13 +467,15 @@ select.auth-input {
 
   flex-direction: column;
 
-  align-items: center;
+  align-items: flex-start;
 
   justify-content: center;
 
   gap: 8px;
 
-  height: 92px;
+  padding: 20px;
+
+  height: 120px;
 
   border: 1px solid var(--neutral-300);
 
@@ -476,23 +497,27 @@ select.auth-input {
 .region-card.active {
   border-color: var(--accent);
 
-  background: rgba(14, 165, 233, 0.08);
+  background: rgba(14, 165, 233, 0.06);
 
-  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
-}
-
-.region-card-icon {
-  font-size: 24px;
-
-  line-height: 1;
+  box-shadow:
+    0 0 0 4px rgba(14, 165, 233, 0.1),
+    0 8px 24px rgba(14, 165, 233, 0.08);
 }
 
 .region-card-title {
-  font-size: 14px;
+  font-size: 16px;
 
-  font-weight: 600;
+  font-weight: 700;
 
   color: var(--neutral-900);
+}
+
+.region-card-description {
+  font-size: 13px;
+
+  line-height: 1.4;
+
+  color: var(--neutral-600);
 }
 
 /* ==========================================
@@ -521,15 +546,20 @@ select.auth-input {
 ========================================== */
 
 .register-summary {
-  max-height: 420px;
+  flex: 1;
+
+  min-height: 0;
+
   overflow-y: auto;
+
   display: flex;
-  max-height: 420px;
   flex-direction: column;
 
-  gap: 14px;
+  gap: 12px;
 
-  margin-top: 24px;
+  padding-right: 8px;
+
+  margin-top: 20px;
 }
 
 .summary-item {
@@ -642,4 +672,153 @@ select.auth-input {
   justify-content: center;
 
   gap: 8px;
+}
+
+.child-card {
+  display: grid;
+
+  grid-template-columns: 140px 1fr;
+
+  padding: 16px;
+
+  margin-bottom: 20px;
+
+  border: 1px solid var(--neutral-200);
+
+  border-radius: 20px;
+
+  background: white;
+}
+
+.child-full-width {
+  grid-column: 1 / -1;
+}
+.child-title {
+  margin-bottom: 20px;
+
+  font-size: 18px;
+
+  font-weight: 700;
+
+  color: var(--neutral-900);
+}
+
+.summary-layout {
+  display: flex;
+
+  flex-direction: column;
+
+  flex: 1;
+
+  min-height: 0;
+}
+
+.summary-notice {
+  flex-shrink: 0;
+
+  margin-top: 16px;
+
+  padding: 16px;
+
+  border-radius: 14px;
+
+  background: rgba(14, 165, 233, 0.05);
+
+  border: 1px solid rgba(14, 165, 233, 0.15);
+}
+
+.summary-notice-text {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+
+  color: var(--neutral-700);
+}
+
+.login-links {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin: 8px 0 24px;
+}
+
+.login-links a {
+  font-size: 14px;
+
+  color: var(--accent);
+
+  text-decoration: none;
+
+  font-weight: 500;
+
+  transition: opacity 0.2s ease;
+}
+
+.login-links a:hover {
+  text-decoration: underline;
+
+  opacity: 0.8;
+}
+
+.login-footer {
+  margin-top: 28px;
+
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+
+  font-size: 14px;
+  color: var(--neutral-600);
+}
+
+.login-footer a {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+.register-login-link {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin-bottom: 18px;
+
+  font-size: 14px;
+
+  color: var(--neutral-600);
+}
+
+.register-login-link a {
+  color: var(--accent);
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  transition: 0.2s ease;
+}
+
+.register-login-link a:hover {
+  color: var(--accent-hover);
+
+  text-decoration: underline;
+}
+
+.login-card {
+  height: auto;
 }

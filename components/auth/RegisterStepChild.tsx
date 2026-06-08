@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import type { RegisterData, ChildData } from "./register.types";
-
 import { childSchema } from "@/lib/utils/validators";
 
 interface Props {
   formData: RegisterData;
-
   setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
-
   nextStep: () => void;
-
   previousStep: () => void;
 }
 
@@ -76,12 +71,10 @@ export default function RegisterStepChild({
 
     if (!result.success) {
       setError(result.error.issues[0].message);
-
       return;
     }
 
     setError("");
-
     nextStep();
   }
 
@@ -94,70 +87,59 @@ export default function RegisterStepChild({
       </p>
 
       {formData.children.map((child, index) => (
-        <div
-          key={index}
-          className="summary-item"
-          style={{
-            marginBottom: "16px",
-          }}
-        >
-          <h3
-            style={{
-              marginBottom: "16px",
-            }}
-          >
+        <div key={index} className="child-card">
+          <h3 className="child-title">
             {["Primer", "Segundo", "Tercer", "Cuarto", "Quinto"][index]} hijo/a
           </h3>
 
-          <div className="auth-field">
-            <label className="auth-label">Edad</label>
+          <div className="child-grid">
+            <div className="auth-field">
+              <label className="auth-label">Edad</label>
 
-            <input
-              type="number"
-              min="10"
-              max="17"
-              className="auth-input"
-              value={child.age}
-              onChange={(e) => updateChild(index, "age", e.target.value)}
-            />
-          </div>
+              <input
+                type="number"
+                min="10"
+                max="17"
+                className="auth-input"
+                value={child.age}
+                onChange={(e) => updateChild(index, "age", e.target.value)}
+              />
+            </div>
 
-          <div className="auth-field">
-            <label className="auth-label">Sexo</label>
+            <div className="auth-field">
+              <label className="auth-label">Sexo</label>
 
-            <select
-              className="auth-input"
-              value={child.gender}
-              onChange={(e) => updateChild(index, "gender", e.target.value)}
-            >
-              <option value="">Selecciona una opción</option>
+              <select
+                className="auth-input"
+                value={child.gender}
+                onChange={(e) => updateChild(index, "gender", e.target.value)}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="Mujer">Mujer</option>
+                <option value="Hombre">Hombre</option>
+              </select>
+            </div>
 
-              <option value="Mujer">Mujer</option>
+            <div className="auth-field child-full-width">
+              <label className="auth-label">
+                ¿Ha recibido atención psicológica?
+              </label>
 
-              <option value="Hombre">Hombre</option>
-            </select>
-          </div>
-
-          <div className="auth-field">
-            <label className="auth-label">
-              ¿Ha recibido atención psicológica?
-            </label>
-
-            <select
-              className="auth-input"
-              value={child.psychologicalSupport ? "Sí" : "No"}
-              onChange={(e) =>
-                updateChild(
-                  index,
-                  "psychologicalSupport",
-                  e.target.value === "Sí",
-                )
-              }
-            >
-              <option value="No">No</option>
-
-              <option value="Sí">Sí</option>
-            </select>
+              <select
+                className="auth-input"
+                value={child.psychologicalSupport ? "Sí" : "No"}
+                onChange={(e) =>
+                  updateChild(
+                    index,
+                    "psychologicalSupport",
+                    e.target.value === "Sí",
+                  )
+                }
+              >
+                <option value="No">No</option>
+                <option value="Sí">Sí</option>
+              </select>
+            </div>
           </div>
         </div>
       ))}

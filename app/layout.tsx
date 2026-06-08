@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import "./globals.css";
 import "@/components/styles/landing.css";
+import "@/components/styles/auth.css"
 
 import SupabaseProvider from "@/components/providers/SupabaseProvider";
 

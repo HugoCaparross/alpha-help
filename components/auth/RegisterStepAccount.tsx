@@ -2,6 +2,7 @@
 
 import { Eye, EyeOff, ArrowRight, Mail, Lock } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 import type { RegisterData } from "./register.types";
 
@@ -87,9 +88,11 @@ export default function RegisterStepAccount({
             }))
           }
         >
-          <span className="region-card-icon">🇪🇸</span>
-
           <span className="region-card-title">España</span>
+
+          <span className="region-card-description">
+            Participantes residentes en España
+          </span>
         </button>
 
         <button
@@ -104,12 +107,14 @@ export default function RegisterStepAccount({
             }))
           }
         >
-          <span className="region-card-icon">🌎</span>
-
           <span className="region-card-title">Latinoamérica</span>
+
+          <span className="region-card-description">
+            Participantes residentes en Latinoamérica
+          </span>
         </button>
       </div>
-      
+
       {/* PASSWORD */}
 
       <div className="auth-field">
@@ -189,6 +194,12 @@ export default function RegisterStepAccount({
       </label>
 
       {error && <p className="auth-error">{error}</p>}
+
+      <div className="register-login-link">
+        <span>¿Ya tienes cuenta?</span>
+
+        <Link href="/login">Iniciar sesión</Link>
+      </div>
 
       <div className="step-actions step-actions-full">
         <button

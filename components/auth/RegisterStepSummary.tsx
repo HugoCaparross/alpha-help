@@ -31,116 +31,116 @@ export default function RegisterStepSummary({
         Revisa la información antes de completar el registro.
       </p>
 
-      <div className="register-summary">
-        {/* CUENTA */}
+      <div className="summary-layout">
+        <div className="register-summary">
+          {/* CUENTA */}
 
-        <div className="summary-item">
-          <span>Email</span>
+          <div className="summary-item">
+            <span>Email</span>
 
-          <strong>{formData.email}</strong>
-        </div>
+            <strong>{formData.email}</strong>
+          </div>
 
-        <div className="summary-item">
-          <span>Región</span>
-
-          <strong>
-            {formData.region === "spain" ? "España" : "Latinoamérica"}
-          </strong>
-        </div>
-
-        {/* PARTICIPANTE */}
-
-        <div className="summary-item">
-          <span>Sexo</span>
-
-          <strong>{formData.gender}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Edad</span>
-
-          <strong>{formData.age} años</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Estudios</span>
-
-          <strong>{formData.educationLevel}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Situación laboral</span>
-
-          <strong>{formData.employmentStatus}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Estado civil</span>
-
-          <strong>{formData.maritalStatus}</strong>
-        </div>
-
-        {/* FAMILIA */}
-
-        <div className="summary-item">
-          <span>Nivel socioeconómico</span>
-
-          <strong>{formData.socioeconomicLevel}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Tipo de centro</span>
-
-          <strong>{formData.schoolType}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Número de hijos</span>
-
-          <strong>{formData.numberOfChildren}</strong>
-        </div>
-
-        <div className="summary-item">
-          <span>Estructura familiar</span>
-
-          <strong>{formData.familyStructure}</strong>
-        </div>
-
-        {/* CENTRO ESCOLAR */}
-
-        <div className="summary-item">
-          <span>Centro escolar</span>
-
-          <strong>{formData.schoolCenter}</strong>
-        </div>
-
-        {/* HIJOS */}
-
-        {formData.children.map((child, index) => (
-          <div key={index} className="summary-item">
-            <span>
-              {["Primer", "Segundo", "Tercer", "Cuarto", "Quinto"][index]}{" "}
-              hijo/a
-            </span>
+          <div className="summary-item">
+            <span>Región</span>
 
             <strong>
-              {child.age} años · {child.gender} ·{" "}
-              {child.psychologicalSupport
-                ? "Con atención psicológica"
-                : "Sin atención psicológica"}
+              {formData.region === "spain" ? "España" : "Latinoamérica"}
             </strong>
           </div>
-        ))}
-      </div>
 
-      {/* AVISO */}
+          {/* PARTICIPANTE */}
 
-      <div className="summary-notice">
-        <p className="summary-notice-text">
-          <CheckCircle size={18} />
-          Toda la información será tratada de forma confidencial y utilizada
-          exclusivamente para investigación científica.
-        </p>
+          <div className="summary-item">
+            <span>Sexo</span>
+
+            <strong>{formData.gender}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Edad</span>
+
+            <strong>{formData.age} años</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Estudios</span>
+
+            <strong>{formData.educationLevel}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Situación laboral</span>
+
+            <strong>{formData.employmentStatus}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Estado civil</span>
+
+            <strong>{formData.maritalStatus}</strong>
+          </div>
+
+          {/* FAMILIA */}
+
+          <div className="summary-item">
+            <span>Nivel socioeconómico</span>
+
+            <strong>{formData.socioeconomicLevel}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Tipo de centro</span>
+
+            <strong>{formData.schoolType}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Número de hijos</span>
+
+            <strong>{formData.numberOfChildren}</strong>
+          </div>
+
+          <div className="summary-item">
+            <span>Estructura familiar</span>
+
+            <strong>{formData.familyStructure}</strong>
+          </div>
+
+          {/* CENTRO ESCOLAR */}
+
+          <div className="summary-item">
+            <span>Centro escolar</span>
+
+            <strong>{formData.schoolCenter}</strong>
+          </div>
+
+          {/* HIJOS */}
+
+          {formData.children.map((child, index) => (
+            <div key={index} className="summary-item">
+              <span>
+                {["Primer", "Segundo", "Tercer", "Cuarto", "Quinto"][index]}{" "}
+                hijo/a
+              </span>
+
+              <strong>
+                {child.age} años · {child.gender} ·{" "}
+                {child.psychologicalSupport
+                  ? "Con atención psicológica"
+                  : "Sin atención psicológica"}
+              </strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="summary-notice">
+          <p className="summary-notice-text">
+            <CheckCircle size={18} />
+            Toda la información será tratada de forma confidencial y utilizada
+            exclusivamente para investigación científica.
+          </p>
+        </div>
       </div>
 
       {submitError && <p className="auth-error">{submitError}</p>}
