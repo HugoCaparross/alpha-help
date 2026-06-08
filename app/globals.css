@@ -198,67 +198,54 @@ textarea {
    BUTTONS
 ========================================== */
 
-.btn-primary {
+.btn-primary,
+.btn-secondary,
+.btn-outline {
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 8px;
-
-  height: 48px;
-
-  padding: 0 24px;
-
-  border-radius: 12px;
-
-  background: var(--accent);
-
-  color: white;
-
-  font-size: 14px;
-
+  height: 52px;
+  padding: 0 28px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
   font-weight: 600;
-
   transition: all 0.25s ease;
+  font-family: inherit;
+}
 
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
   box-shadow: 0 8px 20px rgba(14, 165, 233, 0.18);
 }
 
 .btn-primary:hover {
   background: var(--accent-hover);
-
   transform: translateY(-1px);
-
   box-shadow: 0 12px 28px rgba(14, 165, 233, 0.25);
 }
 
 .btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  height: 56px;
-
-  padding: 0 32px;
-
-  border-radius: var(--radius-md);
-
   background: white;
-
   border: 1px solid var(--neutral-300);
-
   color: var(--neutral-700);
-
-  font-size: 15px;
-  font-weight: 600;
-
-  transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
   background: var(--neutral-100);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--neutral-300);
+  color: var(--neutral-700);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ==========================================

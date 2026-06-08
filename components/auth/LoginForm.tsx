@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import Link from "next/link";
 
 import { supabase } from "@/lib/supabase/client";
 
@@ -95,7 +96,7 @@ export default function LoginForm() {
       </div>
 
       <div className="login-links">
-        <a href="/forgot-password">¿Has olvidado tu contraseña?</a>
+        <Link href="/recuperar-password">¿Has olvidado tu contraseña?</Link>
       </div>
 
       {error && <p className="auth-error">{error}</p>}
