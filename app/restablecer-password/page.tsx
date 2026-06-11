@@ -2,86 +2,145 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/landing/NavBar";
-import Footer from "@/components/landing/Footer";
+
+import Navbar from "@/components/public/landing/NavBar";
+import Footer from "@/components/public/landing/Footer";
+
 import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+
 import { supabase } from "@/lib/supabase/client";
+
+import "@/components/styles/reset-password.css";
 
 export default function ResetPassword() {
   const router = useRouter();
+
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
+
   const [error, setError] = useState("");
+
   const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.updateUser({ password });
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+
+      setLoading(false);
+
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+
+      setLoading(false);
+
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
 
     setLoading(false);
 
     if (error) {
       setError(error.message || "Error al restablecer la contraseña.");
-    } else {
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 3000);
+
+      return;
     }
+
+    setSuccess(true);
+
+    setTimeout(() => {
+      router.push("/login");
+    }, 3000);
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="reset-password-page">
       <Navbar />
-      <main className="flex-1 flex items-center justify-center bg-slate-50 py-16">
-        <div className="container-custom max-w-md mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10">
+
+      <main className="reset-password-main">
+        <div className="reset-password-container">
+          <div className="reset-password-card">
             {success ? (
-              <div className="text-center">
-                <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="text-emerald-500" size={28} />
+              <div className="reset-password-success">
+                <div className="reset-password-success-icon">
+                  <CheckCircle size={32} className="text-green-600" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 mb-4">¡Contraseña actualizada!</h1>
-                <p className="text-slate-600 mb-8 leading-relaxed">
-                  Tu contraseña se ha restablecido correctamente. Te estamos redirigiendo al panel...
+
+                <h1 className="reset-password-title">
+                  ¡Contraseña actualizada!
+                </h1>
+
+                <p className="reset-password-description">
+                  Tu contraseña se ha restablecido correctamente. Serás
+                  redirigido al inicio de sesión en unos segundos.
                 </p>
               </div>
             ) : (
               <>
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold text-slate-900 mb-2">Nueva contraseña</h1>
-                  <p className="text-slate-600 text-sm">
-                    Introduce tu nueva contraseña para tu cuenta de Alpha-Help.
+                <div className="reset-password-header">
+                  <h1 className="reset-password-title">Nueva contraseña</h1>
+
+                  <p className="reset-password-description">
+                    Introduce tu nueva contraseña para acceder a Alpha-Help.
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                  <div className="relative">
-                    <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <form onSubmit={handleSubmit} className="reset-password-form">
+                  <div className="reset-password-input-wrapper">
+                    <Lock size={18} className="reset-password-icon" />
+
                     <input
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="Nueva contraseña"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full h-12 pl-12 pr-12 border border-slate-300 rounded-xl bg-white text-slate-900 text-sm transition-colors focus:outline-none focus:border-accent focus:ring-4 focus:ring-sky-100"
+                      className="reset-password-input"
                     />
+
                     <button
                       type="button"
+                      className="reset-password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
 
-                  {error && <p className="text-danger text-sm font-medium">{error}</p>}
+                  <div className="reset-password-input-wrapper">
+                    <Lock size={18} className="reset-password-icon" />
 
-                  <button type="submit" disabled={loading} className="btn-primary w-full justify-center">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Confirmar contraseña"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="reset-password-input"
+                    />
+                  </div>
+
+                  {error && <p className="reset-password-error">{error}</p>}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="btn-primary btn-full"
+                  >
                     {loading ? "Guardando..." : "Guardar contraseña"}
                   </button>
                 </form>
@@ -90,6 +149,7 @@ export default function ResetPassword() {
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );

@@ -1,5 +1,10 @@
 "use client";
 
+import LegalModal from "@/components/legal/LegalModal";
+import PrivacyContent from "@/components/legal/PrivacyContent";
+import LegalContent from "@/components/legal/LegalContent";
+import CookiesContent from "@/components/legal/CookiesContent";
+
 import { Eye, EyeOff, ArrowRight, Mail, Lock } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -26,6 +31,12 @@ export default function RegisterStepAccount({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [error, setError] = useState("");
+
+  const [openPrivacy, setOpenPrivacy] = useState(false);
+
+  const [openLegal, setOpenLegal] = useState(false);
+
+  const [openCookies, setOpenCookies] = useState(false);
 
   function validateStep() {
     const result = accountSchema.safeParse({
@@ -188,8 +199,31 @@ export default function RegisterStepAccount({
         />
 
         <span>
-          He leído y acepto la política de privacidad y el tratamiento de datos
-          para fines de investigación.
+          He leído y acepto la{" "}
+          <button
+            type="button"
+            className="auth-legal-link"
+            onClick={() => setOpenPrivacy(true)}
+          >
+            Política de Privacidad
+          </button>
+          , el{" "}
+          <button
+            type="button"
+            className="auth-legal-link"
+            onClick={() => setOpenLegal(true)}
+          >
+            Aviso Legal
+          </button>{" "}
+          y la{" "}
+          <button
+            type="button"
+            className="auth-legal-link"
+            onClick={() => setOpenCookies(true)}
+          >
+            Política de Cookies
+          </button>
+          .
         </span>
       </label>
 
@@ -211,6 +245,30 @@ export default function RegisterStepAccount({
           <ArrowRight size={18} />
         </button>
       </div>
+
+      <LegalModal
+        open={openPrivacy}
+        title="Política de Privacidad"
+        onClose={() => setOpenPrivacy(false)}
+      >
+        <PrivacyContent />
+      </LegalModal>
+
+      <LegalModal
+        open={openLegal}
+        title="Aviso Legal"
+        onClose={() => setOpenLegal(false)}
+      >
+        <LegalContent />
+      </LegalModal>
+
+      <LegalModal
+        open={openCookies}
+        title="Política de Cookies"
+        onClose={() => setOpenCookies(false)}
+      >
+        <CookiesContent />
+      </LegalModal>
     </>
   );
 }

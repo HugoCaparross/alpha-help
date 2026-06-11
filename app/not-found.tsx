@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Navbar from "@/components/landing/NavBar";
-import Footer from "@/components/landing/Footer";
+import Navbar from "@/components/public/landing/NavBar";
+import Footer from "@/components/public/landing/Footer";
 
 export default function NotFound() {
   return (

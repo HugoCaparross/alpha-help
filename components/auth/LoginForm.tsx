@@ -32,7 +32,16 @@ export default function LoginForm() {
     });
 
     if (error) {
-      setError("Correo o contraseña incorrectos.");
+      if (
+        error.message.toLowerCase().includes("email") ||
+        error.message.toLowerCase().includes("confirm")
+      ) {
+        setError(
+          "Debes verificar tu correo electrónico antes de iniciar sesión.",
+        );
+      } else {
+        setError("Correo o contraseña incorrectos.");
+      }
 
       setLoading(false);
 

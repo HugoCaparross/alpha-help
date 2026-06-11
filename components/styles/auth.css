@@ -822,3 +822,109 @@ select.auth-input {
 .login-card {
   height: auto;
 }
+
+.auth-legal-link {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: var(--accent);
+
+  font: inherit;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.auth-legal-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================
+   LEGAL MODAL
+========================================== */
+
+.legal-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(4px);
+
+  z-index: 9999;
+}
+
+.legal-modal {
+  width: 100%;
+
+  max-width: 850px;
+
+  max-height: 85vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background: white;
+
+  border-radius: 24px;
+
+  overflow: hidden;
+
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+}
+
+.legal-modal-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 24px 28px;
+
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.legal-modal-header h2 {
+  margin: 0;
+
+  font-size: 22px;
+
+  font-weight: 700;
+
+  color: var(--neutral-900);
+}
+
+.legal-modal-close {
+  border: none;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  color: var(--neutral-500);
+}
+
+.legal-modal-content {
+  padding: 28px;
+
+  overflow-y: auto;
+
+  line-height: 1.8;
+
+  color: var(--neutral-700);
+} 

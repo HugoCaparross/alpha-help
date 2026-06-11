@@ -71,7 +71,7 @@ export default function RegisterWizard() {
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
 
@@ -105,14 +105,24 @@ export default function RegisterWizard() {
       });
 
       if (error) {
-        console.error("SUPABASE ERROR:", error);
+        const message = error.message.toLowerCase();
 
-        setSubmitError(error.message);
+        if (message.includes("rate limit")) {
+          setSubmitError(
+            "Se han realizado demasiadas solicitudes recientemente. Inténtalo de nuevo dentro de unos minutos.",
+          );
+        } else if (message.includes("already registered")) {
+          setSubmitError(
+            "Ya existe una cuenta registrada con este correo electrónico.",
+          );
+        } else {
+          setSubmitError(error.message);
+        }
 
         return;
       }
 
-      router.push("/verify-email");
+      router.push("/login?registered=true");
     } catch (error) {
       console.error("CATCH ERROR:", error);
 

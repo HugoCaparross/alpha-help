@@ -1,12 +1,12 @@
-﻿import NavBar from "@/components/landing/NavBar";
-import Hero from "@/components/landing/Hero";
-import Concerns from "@/components/landing/Concerns";
-import Benefits from "@/components/landing/Benefits";
-import Features from "@/components/landing/Features";
-import Research from "@/components/landing/Research";
-import Participation from "@/components/landing/Participation";
-import FinalCTA from "@/components/landing/FinalCTA";
-import Footer from "@/components/landing/Footer";
+﻿import NavBar from "@/components/public/landing/NavBar";
+import Hero from "@/components/public/landing/Hero";
+import Concerns from "@/components/public/landing/Concerns";
+import Benefits from "@/components/public/landing/Benefits";
+import Features from "@/components/public/landing/Features";
+import Research from "@/components/public/landing/Research";
+import Participation from "@/components/public/landing/Participation";
+import FinalCTA from "@/components/public/landing/FinalCTA";
+import Footer from "@/components/public/landing/Footer";
 
 import "@/components/styles/landing.css";
 

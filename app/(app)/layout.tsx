@@ -1,19 +1,24 @@
-﻿import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
+﻿import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+import Sidebar from "@/components/private/layout/Sidebar";
+import RightPanel from "@/components/private/layout/RightPanel";
+
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-slate-50">
-        <div className="flex">
+        <div className="flex min-h-screen">
           <Sidebar />
 
-          <div className="flex-1 min-h-screen flex flex-col">
-            <Topbar />
+          <main className="flex-1 overflow-y-auto p-8">
+            {children}
+          </main>
 
-            <main className="flex-1 p-8">{children}</main>
-          </div>
+          <RightPanel />
         </div>
       </div>
     </ProtectedRoute>
