@@ -1,0 +1,118 @@
+/* ==========================================
+   SIDEBAR — Navegación privada
+========================================== */
+
+/* SIDEBAR CONTAINER */
+
+.sidebar {
+  display: none;
+  width: 18rem;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--neutral-200);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    display: flex;
+  }
+}
+
+/* SIDEBAR HEADER */
+
+.sidebar-header {
+  padding: 2rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  line-height: 1.5rem;
+}
+
+.sidebar-subtitle {
+  font-size: 0.875rem;
+  color: var(--neutral-500);
+  margin-top: 0.5rem;
+}
+
+/* SIDEBAR NAVIGATION */
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem;
+}
+
+.sidebar-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* SIDEBAR ITEM */
+
+.sidebar-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  transition: all 150ms ease-out;
+  text-decoration: none;
+  color: var(--neutral-700);
+}
+
+.sidebar-item:hover {
+  background: var(--background);
+}
+
+.sidebar-item--active {
+  background: #e0f2fe;
+  border: 1px solid #bae6fd;
+  color: var(--neutral-900);
+  box-shadow: var(--shadow-card);
+}
+
+.sidebar-item-icon {
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--neutral-100);
+  color: var(--neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-item--active .sidebar-item-icon {
+  background: var(--accent);
+  color: white;
+}
+
+.sidebar-item-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-item-label {
+  font-weight: 500;
+}
+
+/* SIDEBAR FOOTER */
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--neutral-200);
+}
+
+.sidebar-footer .sidebar-item {
+  color: var(--neutral-700);
+}
+
+.sidebar-footer .sidebar-item:hover {
+  background: var(--neutral-100);
+}

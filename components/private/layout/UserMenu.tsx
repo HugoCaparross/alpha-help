@@ -1,68 +1,102 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronDown, LogOut, User } from "lucide-react";
 
 import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
+import type { UserProfile } from "@/types/user";
 
 export default function UserMenu() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
-
-  const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     async function loadProfile() {
-      const data = await getProfile();
-
-      setProfile(data);
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getProfile();
+        setProfile(data);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Error loading profile";
+        setError(message);
+        console.error("Failed to load profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     loadProfile();
   }, []);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+      router.push("/login");
+    } catch (err) {
+      console.error("Failed to logout:", err);
+      setError("Error closing session");
+    }
+  }
 
-    window.location.href = "/login";
+  if (error) {
+    return (
+      <div className="user-menu-error">
+        <div className="user-menu-avatar user-menu-avatar--error">
+          !
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="relative">
+    <div className="user-menu">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-3 rounded-xl px-3 py-2 hover:bg-slate-100 transition"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="user-menu-trigger"
+        disabled={isLoading}
       >
-        <div className="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center font-semibold">
-          {profile?.email?.charAt(0)?.toUpperCase() || "U"}
+        <div className="user-menu-avatar">
+          {isLoading ? "..." : profile?.email?.charAt(0)?.toUpperCase() || "U"}
         </div>
 
-        <div className="hidden md:block text-left">
-          <p className="text-sm font-medium text-slate-900 max-w-[180px] truncate">
-            {profile?.email || "Usuario"}
+        <div className="user-menu-text">
+          <p className="user-menu-email">
+            {isLoading ? "Cargando..." : profile?.email || "Usuario"}
           </p>
 
-          <p className="text-xs text-slate-500">
+          <p className="user-menu-role">
             {profile?.role === "admin" ? "Administrador" : "Usuario"}
           </p>
         </div>
 
-        <ChevronDown size={18} className="text-slate-500" />
+        <ChevronDown size={18} className="user-menu-chevron" />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-3 w-60 bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden z-50">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <p className="text-sm font-medium text-slate-900 truncate">
+        <div
+          className="user-menu-dropdown"
+          role="menu"
+        >
+          <div className="user-menu-dropdown-header">
+            <p className="user-menu-dropdown-email">
               {profile?.email || "Usuario"}
             </p>
 
-            <p className="text-xs text-slate-500">{profile?.region || ""}</p>
+            <p className="user-menu-dropdown-region">{profile?.region || ""}</p>
           </div>
 
           <a
             href="/perfil"
-            className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition"
+            className="user-menu-dropdown-item"
+            role="menuitem"
           >
             <User size={18} />
             Perfil
@@ -70,7 +104,8 @@ export default function UserMenu() {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition"
+            className="user-menu-dropdown-item user-menu-dropdown-button"
+            role="menuitem"
           >
             <LogOut size={18} />
             Cerrar sesión

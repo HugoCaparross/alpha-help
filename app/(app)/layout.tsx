@@ -2,6 +2,10 @@
 
 import Sidebar from "@/components/private/layout/Sidebar";
 import RightPanel from "@/components/private/layout/RightPanel";
+import "@/components/private/layout/sidebar.css";
+import "@/components/private/layout/rightpanel.css";
+import "@/components/private/layout/usermenu.css";
+import "@/components/private/layout/layout.css";
 
 export default function AppLayout({
   children,
@@ -10,11 +14,11 @@ export default function AppLayout({
 }) {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-slate-50">
-        <div className="flex min-h-screen">
+      <div className="private-layout">
+        <div className="private-layout-shell">
           <Sidebar />
 
-          <main className="flex-1 overflow-y-auto p-8">
+          <main className="private-layout-main">
             {children}
           </main>
 

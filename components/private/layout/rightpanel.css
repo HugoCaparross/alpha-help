@@ -1,0 +1,138 @@
+/* ==========================================
+   RIGHT PANEL — Panel lateral derecho
+========================================== */
+
+/* RIGHT PANEL CONTAINER */
+
+.right-panel {
+  display: none;
+  width: 20rem;
+  border-left: 1px solid var(--neutral-200);
+  background: var(--surface);
+}
+
+@media (min-width: 1280px) {
+  .right-panel {
+    display: flex;
+  }
+}
+
+/* RIGHT PANEL CONTENT */
+
+.right-panel-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 1.5rem;
+  gap: 1.5rem;
+}
+
+/* RIGHT PANEL CARD */
+
+.right-panel-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--neutral-200);
+  padding: 1rem;
+}
+
+/* FLEX ROW (multipurpose) */
+
+.right-panel-flex-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* AVATAR */
+
+.right-panel-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* PROFILE NAME */
+
+.right-panel-name {
+  font-weight: 500;
+  color: var(--neutral-900);
+}
+
+/* SECONDARY TEXT (email, values, info) */
+
+.right-panel-secondary-text {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+}
+
+/* LINK WRAPPER (margin-top) */
+
+.right-panel-link-wrapper {
+  margin-top: 1rem;
+}
+
+/* LINK STYLING */
+
+.right-panel-link {
+  display: inline-block;
+  font-size: 0.875rem;
+  color: var(--accent-hover);
+  text-decoration: none;
+}
+
+.right-panel-link:hover {
+  text-decoration: underline;
+}
+
+/* TITLES (H3) */
+
+.right-panel-title {
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+/* SUBTITLES (H4) */
+
+.right-panel-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+/* ITEMS LIST (progress items container) */
+
+.right-panel-items-list {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* LABELS (progress item titles) */
+
+.right-panel-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--neutral-900);
+}
+
+/* ICONS COLOR */
+
+.right-panel-icon {
+  color: var(--accent);
+}
+
+/* INFO TEXT */
+
+.right-panel-info-text {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  margin-top: 0.5rem;
+}

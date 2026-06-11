@@ -8,68 +8,66 @@ import {
   ClipboardList,
   FileText,
   Video,
-  CircleHelp,
-  Mail,
   User,
+  Book,
+  Users,
+  FileWarning,
+  Mail,
 } from "lucide-react";
 
 const navigation = [
   {
-    href: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
     href: "/estudio",
     label: "El estudio",
+    description: "Información detallada sobre el estudio",
     icon: FileText,
   },
   {
+    href: "/quienes-somos",
+    label: "¿Quiénes somos?",
+    description: "Conoce al equipo del proyecto",
+    icon: Users,
+  },
+  {
     href: "/cuestionarios",
-    label: "Cuestionarios",
+    label: "Formularios",
+    description: "Accede a los cuestionarios del estudio",
     icon: ClipboardList,
   },
   {
     href: "/recursos",
-    label: "Recursos",
-    icon: FileText,
+    label: "Manuales",
+    description: "Descarga materiales y guías prácticas",
+    icon: Book,
   },
   {
     href: "/sesiones",
     label: "Sesiones",
+    description: "Sesiones formativas del programa",
     icon: Video,
   },
-  {
-    href: "/faq",
-    label: "FAQ",
-    icon: CircleHelp,
-  },
-  {
-    href: "/contacto",
-    label: "Contacto",
-    icon: Mail,
-  },
+  
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex w-72 flex-col bg-white border-r border-slate-200">
-      <div className="px-8 py-8 border-b border-slate-200">
-        <h1 className="text-xl font-bold text-slate-900">
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <h1 className="sidebar-title">
           ALPHA-HELP
         </h1>
 
-        <p className="text-sm text-slate-500 mt-2">
+        <p className="sidebar-subtitle">
           Bienestar emocional y acompañamiento familiar
         </p>
       </div>
 
-      <nav className="flex-1 p-4">
-        <div className="space-y-2">
+      <nav className="sidebar-nav">
+        <div className="sidebar-items">
           {navigation.map((item) => {
-            const Icon = item.icon;
+            const Icon = item.icon as React.ComponentType<{ size?: number }>;
 
             const active = pathname === item.href;
 
@@ -77,29 +75,33 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-xl px-4 py-3 transition ${
-                  active
-                    ? "bg-sky-500 text-white"
-                    : "text-slate-700 hover:bg-slate-100"
-                }`}
+                className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
               >
-                <Icon size={18} />
+                <div className="sidebar-item-icon">
+                  <Icon size={18} />
+                </div>
 
-                <span>{item.label}</span>
+                <div className="sidebar-item-content">
+                  <span className="sidebar-item-label">{item.label}</span>
+                </div>
               </Link>
             );
           })}
         </div>
       </nav>
 
-      <div className="p-4 border-t border-slate-200">
+      <div className="sidebar-footer">
         <Link
           href="/perfil"
-          className="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 hover:bg-slate-100"
+          className={`sidebar-item ${pathname === "/perfil" ? "sidebar-item--active" : ""}`}
         >
-          <User size={18} />
+          <div className="sidebar-item-icon">
+            <User size={18} />
+          </div>
 
-          <span>Perfil</span>
+          <div className="sidebar-item-content">
+            <span className="sidebar-item-label">Perfil</span>
+          </div>
         </Link>
       </div>
     </aside>

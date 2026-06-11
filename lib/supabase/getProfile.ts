@@ -1,17 +1,24 @@
 import { supabase } from "./client";
+import type { UserProfile } from "@/types/user";
 
-export async function getProfile() {
+export async function getProfile(): Promise<UserProfile | null> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  return data;
+  if (error) {
+    throw error;
+  }
+
+  return data as UserProfile;
 }
