@@ -13,7 +13,7 @@ export default function Navbar() {
         <div className="navbar-inner">
           <Link href="/" className="navbar-brand">
             <Image
-              src="/images/logo_sin_letras.png"
+              src="/images/logo_sin_letras.svg"
               alt="ALPHA-HELP"
               width={68}
               height={68}

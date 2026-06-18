@@ -4,106 +4,140 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
-  LayoutDashboard,
   ClipboardList,
   FileText,
   Video,
   User,
   Book,
   Users,
-  FileWarning,
-  Mail,
 } from "lucide-react";
 
-const navigation = [
+const studyNavigation = [
   {
     href: "/estudio",
     label: "El estudio",
-    description: "Información detallada sobre el estudio",
     icon: FileText,
-  },
-  {
-    href: "/quienes-somos",
-    label: "¿Quiénes somos?",
-    description: "Conoce al equipo del proyecto",
-    icon: Users,
   },
   {
     href: "/cuestionarios",
     label: "Formularios",
-    description: "Accede a los cuestionarios del estudio",
     icon: ClipboardList,
+  },
+];
+
+const resourcesNavigation = [
+  {
+    href: "/sesiones",
+    label: "Sesiones",
+    icon: Video,
   },
   {
     href: "/recursos",
     label: "Manuales",
-    description: "Descarga materiales y guías prácticas",
     icon: Book,
   },
-  {
-    href: "/sesiones",
-    label: "Sesiones",
-    description: "Sesiones formativas del programa",
-    icon: Video,
-  },
-  
 ];
+
+const infoNavigation = [
+  {
+    href: "/quienes-somos",
+    label: "¿Quiénes somos?",
+    icon: Users,
+  },
+];
+
+type NavigationItem = {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
 
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <h1 className="sidebar-title">
-          ALPHA-HELP
-        </h1>
+  const renderNavigationItems = (items: NavigationItem[]) =>
+    items.map((item) => {
+      const Icon = item.icon;
+      const active = pathname === item.href;
 
-        <p className="sidebar-subtitle">
-          Bienestar emocional y acompañamiento familiar
-        </p>
-      </div>
-
-      <nav className="sidebar-nav">
-        <div className="sidebar-items">
-          {navigation.map((item) => {
-            const Icon = item.icon as React.ComponentType<{ size?: number }>;
-
-            const active = pathname === item.href;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
-              >
-                <div className="sidebar-item-icon">
-                  <Icon size={18} />
-                </div>
-
-                <div className="sidebar-item-content">
-                  <span className="sidebar-item-label">{item.label}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
-      <div className="sidebar-footer">
+      return (
         <Link
-          href="/perfil"
-          className={`sidebar-item ${pathname === "/perfil" ? "sidebar-item--active" : ""}`}
+          key={item.href}
+          href={item.href}
+          className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
         >
           <div className="sidebar-item-icon">
-            <User size={18} />
+            <Icon size={20} />
           </div>
 
-          <div className="sidebar-item-content">
-            <span className="sidebar-item-label">Perfil</span>
+          <span className="sidebar-item-label">{item.label}</span>
+        </Link>
+      );
+    });
+
+  return (
+    <aside className="sidebar">
+      {/* HEADER */}
+      <header className="sidebar-header">
+        <div className="sidebar-brand">
+          <div className="sidebar-brand-mark" aria-hidden="true" />
+
+          <div className="sidebar-brand-content">
+            <h1 className="sidebar-title">ALPHA-HELP</h1>
+
+            <p className="sidebar-subtitle">
+              Investigación y bienestar adolescente
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {/* NAVIGATION */}
+      <nav className="sidebar-nav">
+        <section className="sidebar-section">
+          <span className="sidebar-section-title">Área de estudio</span>
+
+          <div className="sidebar-items">
+            {renderNavigationItems(studyNavigation)}
+          </div>
+        </section>
+
+        <section className="sidebar-section">
+          <span className="sidebar-section-title">Recursos</span>
+
+          <div className="sidebar-items">
+            {renderNavigationItems(resourcesNavigation)}
+          </div>
+        </section>
+
+        <section className="sidebar-section">
+          <span className="sidebar-section-title">Información</span>
+
+          <div className="sidebar-items">
+            {renderNavigationItems(infoNavigation)}
+          </div>
+        </section>
+      </nav>
+
+      {/* FOOTER */}
+      <footer className="sidebar-footer">
+        <Link
+          href="/perfil"
+          className={`sidebar-profile ${
+            pathname === "/perfil" ? "sidebar-profile--active" : ""
+          }`}
+        >
+          <div className="sidebar-profile-avatar">
+            <User size={20} />
+          </div>
+
+          <div className="sidebar-profile-content">
+            <span className="sidebar-profile-title">Mi perfil</span>
+
+            <span className="sidebar-profile-subtitle">Área personal</span>
           </div>
         </Link>
-      </div>
+      </footer>
     </aside>
   );
 }

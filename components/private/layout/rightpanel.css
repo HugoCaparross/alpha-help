@@ -6,8 +6,16 @@
 
 .right-panel {
   display: none;
+
   width: 20rem;
+  height: 100vh;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
+
   border-left: 1px solid var(--neutral-200);
+
   background: var(--surface);
 }
 

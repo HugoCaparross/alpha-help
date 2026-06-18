@@ -1,5 +1,7 @@
-import { Users, Heart, Microscope } from "lucide-react";
+import { Users } from "lucide-react";
+
 import TeamMemberCard from "@/components/private/about/TeamMemberCard";
+
 import "@/components/styles/about.css";
 
 const leadResearcher = {
@@ -55,51 +57,67 @@ const teamMembers = [
 
 export default function QuienesSomosPage() {
   return (
-    <div className="about-page">
-      <div className="about-container">
+    <main className="about-page section-small">
+      <div className="container-custom about-container">
         {/* HEADER */}
-        <header className="about-header">
-          <h1 className="about-title">¿Quiénes somos?</h1>
-          <p className="about-description">
-            Conoce al equipo que hace posible el estudio Alpha-Help.
+
+        <header className="section-header about-header">
+          <span className="section-badge">Investigación científica</span>
+
+          <h1 className="section-title about-title">¿Quiénes somos?</h1>
+
+          <p className="section-description about-description">
+            Conoce al equipo multidisciplinar que hace posible el proyecto
+            Alpha-Help y trabaja para mejorar el bienestar emocional de
+            adolescentes y familias.
           </p>
         </header>
 
-        {/* HERO SECTION */}
-        <section className="about-hero">
+        {/* HERO */}
+
+        <section className="card card-padding about-hero">
           <div className="about-hero-content">
-            <div className="about-hero-icon">
-              <Users size={48} />
+            <div className="card-icon about-hero-icon">
+              <Users size={36} />
             </div>
+
             <h2 className="about-hero-title">
-              Un equipo multidisciplinario dedicado al bienestar adolescente
+              Un equipo comprometido con la salud emocional y la investigación
             </h2>
+
             <p className="about-hero-text">
-              Somos un grupo de profesionales apasionados por la investigación en
-              salud mental y bienestar familiar. Nuestro objetivo es entender
-              mejor los desafíos emocionales de los adolescentes y ofrecer
-              herramientas prácticas a las familias.
+              Somos un grupo de profesionales especializados en psicología,
+              investigación y desarrollo de programas de prevención e
+              intervención dirigidos a adolescentes y familias.
+            </p>
+
+            <p className="about-hero-text">
+              Nuestro propósito es transformar la evidencia científica en
+              herramientas prácticas que contribuyan a mejorar el bienestar
+              emocional y la calidad de vida de las personas.
             </p>
           </div>
 
-          {/* LEAD RESEARCHER CARD */}
-          <aside className="about-lead-card">
-            <div className="about-lead-avatar">
-              {leadResearcher.initials}
-            </div>
+          <aside className="card card-padding about-lead-card">
+            <div className="about-lead-avatar">{leadResearcher.initials}</div>
+
             <div>
               <p className="about-lead-name">{leadResearcher.name}</p>
+
               <p className="about-lead-role">{leadResearcher.role}</p>
             </div>
+
             <a href="/perfil" className="about-lead-link">
               Ver perfil completo
             </a>
           </aside>
         </section>
 
-        {/* TEAM SECTION */}
+        {/* TEAM */}
+
         <section className="about-team">
           <h2 className="about-team-title">Nuestro equipo</h2>
+
           <div className="about-team-list">
             {teamMembers.map((member) => (
               <TeamMemberCard
@@ -112,45 +130,7 @@ export default function QuienesSomosPage() {
             ))}
           </div>
         </section>
-
-        {/* FOOTER CARD */}
-        <section className="about-footer-card">
-          <div>
-            <div className="about-footer-icon">
-              <Heart size={24} />
-            </div>
-            <p className="about-footer-text">
-              <strong>Compromiso</strong>
-              <br />
-              Dedicados a mejorar la salud emocional y el bienestar de las
-              familias.
-            </p>
-          </div>
-
-          <div>
-            <div className="about-footer-icon">
-              <Microscope size={24} />
-            </div>
-            <p className="about-footer-text">
-              <strong>Investigación</strong>
-              <br />
-              Basamos nuestro trabajo en evidencia científica rigurosa y
-              metodologías validadas.
-            </p>
-          </div>
-
-          <div>
-            <div className="about-footer-icon">
-              <Users size={24} />
-            </div>
-            <p className="about-footer-text">
-              <strong>Familia</strong>
-              <br />
-              Entendemos que el apoyo familiar es fundamental en la adolescencia.
-            </p>
-          </div>
-        </section>
       </div>
-    </div>
+    </main>
   );
 }

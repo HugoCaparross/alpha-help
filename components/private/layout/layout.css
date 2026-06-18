@@ -5,21 +5,42 @@
 /* PRIVATE LAYOUT CONTAINER */
 
 .private-layout {
-  min-height: 100vh;
+  height: 100vh;
+
+  overflow: hidden;
+
   background: var(--background);
 }
 
-/* PRIVATE LAYOUT SHELL */
-
 .private-layout-shell {
   display: flex;
-  min-height: 100vh;
+
+  height: 100vh;
+
+  overflow: hidden;
 }
 
 /* PRIVATE LAYOUT MAIN */
 
 .private-layout-main {
-  flex: 1 1 0%;
+  flex: 1;
+  min-width: 0;
+
+  height: 100vh;
+
   overflow-y: auto;
+  overflow-x: hidden;
+
   padding: 2rem;
+}
+
+/* LATERAL PANELS */
+
+.sidebar,
+.right-panel {
+  flex-shrink: 0;
+
+  height: 100vh;
+
+  overflow: hidden;
 }

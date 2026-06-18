@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-1">
             <Link href="/" className="inline-block mb-6">
               <Image
-                src="/images/logo_sin_letras.png"
+                src="/images/logo_sin_letras.svg"
                 alt="ALPHA-HELP"
                 width={56}
                 height={56}
