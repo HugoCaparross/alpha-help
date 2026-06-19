@@ -10,6 +10,7 @@ export default function EvaluationStatusBadge({
   const labels: Record<QuestionnaireStatus, string> = {
     pending: "Pendiente",
     completed: "Completada",
+    locked: "Bloqueada",
   };
 
   return (

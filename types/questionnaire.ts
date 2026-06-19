@@ -1,9 +1,10 @@
 export type QuestionnaireStatus =
   | "pending"
-  | "completed";
+  | "completed"
+  | "locked";
 
 export interface Questionnaire {
-  id: string;
+  id: "pre" | "post";
   title: string;
   description: string;
   blocks: number;

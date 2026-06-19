@@ -288,135 +288,24 @@ export const PSS_QUESTIONS: Question[] = [];
 
 export const KIDSCREEN_QUESTIONS: Question[] = [];
 
-export const DEMOGRAPHIC_FIELDS = [
-  {
-    id: "school",
-    label: "1. Centro escolar del hijo/s",
-    type: "select",
-    options: [
-      "Nuestra Señora del Pilar (Jerez de la Frontera)",
-      'Jesús María "El Cuco" (Jerez de la Frontera)',
-      "C. E. Marni (Rascanya)",
-      "Innovación Educativa Montessori",
-      'Escuela Telesecundaria "5 de mayo"',
-      'Escuela Telesecundaria "Guadalupe Victoria"',
-      'Escuela Telesecundaria "Leona Vicario"',
-      'Escuela Telesecundaria "Manuel C. Tello"',
-      'Escuela Telesecundaria "Rafael Ramires"',
-      "Otro centro",
-    ],
-  },
-
-  {
-    id: "gender",
-    label: "2. Soy",
-    type: "select",
-    options: [
-      "Mujer",
-      "Hombre",
-    ],
-  },
-
-  {
-    id: "age",
-    label: "3. Tengo ___ años",
-    type: "select",
-  },
-
-  {
-    id: "education",
-    label: "4. Mi nivel máximo de estudios alcanzados es",
-    type: "select",
-    options: [
-      "Primarios",
-      "Secundarios",
-      "Universitarios",
-      "Doctorado",
-    ],
-  },
-
-  {
-    id: "employment",
-    label: "5. Mi situación laboral actual es",
-    type: "select",
-    options: [
-      "Estudiante",
-      "Trabajo",
-      "Parado/a",
-      "Gestión doméstica",
-      "Jubilado/a",
-      "Incapacitado/a",
-    ],
-  },
-
-  {
-    id: "marital_status",
-    label: "6. Mi estado civil actual es",
-    type: "select",
-    options: [
-      "Soltero/a",
-      "Casado/a",
-      "Separado/a, Divorciado/a",
-      "Viudo/a",
-    ],
-  },
-
-  {
-    id: "socioeconomic_level",
-    label: "7. El nivel socioeconómico familiar es",
-    type: "select",
-    options: [
-      "Bajo",
-      "Medio",
-      "Alto",
-    ],
-  },
-
-  {
-    id: "school_type",
-    label: "8. El centro escolar al que acuden mis hijos es",
-    type: "select",
-    options: [
-      "Público",
-      "Concertado",
-      "Privado",
-    ],
-  },
-
-  {
-    id: "children_count",
-    label: "9. Tengo ___ hijos/as",
-    type: "select",
-    options: [
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-    ],
-  },
-
-  {
-    id: "family_structure",
-    label: "11. Tipo de estructura familiar",
-    type: "select",
-    options: [
-      "Biparental",
-      "Monoparental",
-      "Reconstituida",
-      "Otra",
-    ],
-  },
-];
-
 export const EVALUATIONS: Questionnaire[] = [
   {
     id: "pre",
     title: "Evaluación inicial",
     description:
-      "Cuestionario compuesto por varios bloques sobre bienestar emocional, salud mental y experiencia familiar.",
+      "Cuestionario previo al programa de acompañamiento familiar. Debe completarse antes de acceder a la evaluación final.",
     blocks: QUESTIONNAIRE_STEPS.length,
     estimatedMinutes: 25,
     status: "pending",
+  },
+
+  {
+    id: "post",
+    title: "Evaluación final",
+    description:
+      "Disponible una vez se haya completado la evaluación inicial.",
+    blocks: QUESTIONNAIRE_STEPS.length,
+    estimatedMinutes: 25,
+    status: "locked",
   },
 ];

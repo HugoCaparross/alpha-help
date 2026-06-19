@@ -36,7 +36,6 @@
   /* Borders */
 
   --border-light: 1px solid var(--neutral-200);
-
   --border-input: 1px solid var(--neutral-300);
 
   /* Surfaces */
@@ -54,12 +53,15 @@
   /* Shadows */
 
   --shadow-card:
-    0 10px 30px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
+    0 10px 30px rgba(15, 23, 42, 0.04),
+    0 1px 2px rgba(15, 23, 42, 0.03);
 
   --shadow-hover:
-    0 16px 32px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.03);
+    0 16px 32px rgba(15, 23, 42, 0.05),
+    0 2px 4px rgba(15, 23, 42, 0.03);
 
-  --shadow-button: 0 8px 24px rgba(14, 165, 233, 0.25);
+  --shadow-button:
+    0 8px 24px rgba(14, 165, 233, 0.25);
 
   /* Focus */
 
@@ -68,7 +70,8 @@
   --focus-border: rgba(14, 165, 233, 0.5);
 
   --focus-shadow:
-    0 0 0 4px var(--focus-ring), 0 4px 12px rgba(14, 165, 233, 0.08);
+    0 0 0 4px var(--focus-ring),
+    0 4px 12px rgba(14, 165, 233, 0.08);
 }
 
 /* ==========================================
@@ -94,7 +97,6 @@ body {
   min-height: 100vh;
 
   background: var(--background);
-
   color: var(--neutral-900);
 
   font-family: Inter, sans-serif;
@@ -114,9 +116,9 @@ a {
 }
 
 button {
-  cursor: pointer;
   border: none;
   background: transparent;
+  cursor: pointer;
 }
 
 input,
@@ -179,7 +181,6 @@ textarea {
   border-radius: 999px;
 
   background: #e0f2fe;
-
   color: #0369a1;
 
   font-size: 14px;
@@ -190,9 +191,7 @@ textarea {
   margin-top: 16px;
 
   font-size: clamp(2.5rem, 4vw, 3.5rem);
-
   line-height: 1.1;
-
   font-weight: 800;
 
   color: var(--neutral-900);
@@ -208,101 +207,6 @@ textarea {
 }
 
 .text-accent {
-  color: var(--accent);
-}
-
-/* ==========================================
-   BUTTONS
-========================================== */
-
-.btn-primary,
-.btn-secondary,
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 52px;
-  padding: 0 28px;
-  border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 600;
-  transition: all 0.25s ease;
-  font-family: inherit;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  border: none;
-  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.18);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(14, 165, 233, 0.25);
-}
-
-.btn-secondary {
-  background: white;
-  border: 1px solid var(--neutral-300);
-  color: var(--neutral-700);
-}
-
-.btn-secondary:hover {
-  background: var(--neutral-100);
-}
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--neutral-300);
-  color: var(--neutral-700);
-}
-
-.btn-outline:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ==========================================
-   CARDS
-========================================== */
-
-.card {
-  background: white;
-
-  border: 1px solid var(--neutral-200);
-
-  border-radius: var(--radius-lg);
-
-  box-shadow: var(--shadow-card);
-
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-
-  box-shadow: var(--shadow-hover);
-}
-
-.card-padding {
-  padding: 32px;
-}
-
-.card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 64px;
-  height: 64px;
-
-  border-radius: 20px;
-
-  background: #e0f2fe;
-
   color: var(--accent);
 }
 
@@ -367,11 +271,11 @@ textarea {
 ========================================== */
 
 @import "../components/styles/ui.css";
-@import "../components/styles/cuestionarios.css";
-@import "../components/styles/auth.css";
 @import "../components/styles/about.css";
+@import "../components/styles/auth.css";
 @import "../components/styles/contact.css";
 @import "../components/styles/cookies.css";
+@import "../components/styles/cuestionarios.css";
 @import "../components/styles/estudio.css";
 @import "../components/styles/faq.css";
 @import "../components/styles/landing.css";

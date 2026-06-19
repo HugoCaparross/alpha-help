@@ -1,5 +1,9 @@
-import Card from "@/components/ui/Card";
+"use client";
+
+import { useRouter } from "next/navigation";
+
 import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 import type { Questionnaire } from "@/types/questionnaire";
 
@@ -10,6 +14,20 @@ interface EvaluationCardProps {
 }
 
 export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
+  const router = useRouter();
+
+  const isLocked = evaluation.status === "locked";
+
+  const buttonLabel = evaluation.status === "locked" ? "Bloqueado" : "Comenzar";
+
+  const handleClick = () => {
+    if (isLocked) {
+      return;
+    }
+
+    router.push(`/cuestionarios/${evaluation.id}`);
+  };
+
   return (
     <Card className="evaluation-card">
       <div className="evaluation-card__content">
@@ -32,7 +50,9 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
         <div className="evaluation-card__footer">
           <EvaluationStatusBadge status={evaluation.status} />
 
-          <Button>Comenzar</Button>
+          <Button disabled={isLocked} onClick={handleClick}>
+            {buttonLabel}
+          </Button>
         </div>
       </div>
     </Card>
