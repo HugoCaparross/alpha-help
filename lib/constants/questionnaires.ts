@@ -1,3 +1,5 @@
+import type { Questionnaire } from "@/types/questionnaire";
+
 export interface Question {
   id: string;
   question: string;
@@ -12,13 +14,6 @@ export interface Question {
 }
 
 export const QUESTIONNAIRE_STEPS = [
-  {
-    id: "demographics",
-    title: "Datos familiares",
-    description:
-      "Información sociodemográfica básica.",
-  },
-
   {
     id: "capsm",
     title: "CAPSM-IJ",
@@ -411,5 +406,17 @@ export const DEMOGRAPHIC_FIELDS = [
       "Reconstituida",
       "Otra",
     ],
+  },
+];
+
+export const EVALUATIONS: Questionnaire[] = [
+  {
+    id: "pre",
+    title: "Evaluación inicial",
+    description:
+      "Cuestionario compuesto por varios bloques sobre bienestar emocional, salud mental y experiencia familiar.",
+    blocks: QUESTIONNAIRE_STEPS.length,
+    estimatedMinutes: 25,
+    status: "pending",
   },
 ];

@@ -35,9 +35,9 @@
 
   /* Borders */
 
-  --border-light: 1px solid var(--border-light);
+  --border-light: 1px solid var(--neutral-200);
 
-  --border-input: 1px solid var(--border-input);
+  --border-input: 1px solid var(--neutral-300);
 
   /* Surfaces */
 
@@ -61,18 +61,15 @@
 
   --shadow-button: 0 8px 24px rgba(14, 165, 233, 0.25);
 
-  
-/* Focus */
+  /* Focus */
 
---focus-ring: rgba(14, 165, 233, 0.12);
+  --focus-ring: rgba(14, 165, 233, 0.12);
 
---focus-border: rgba(14, 165, 233, 0.5);
+  --focus-border: rgba(14, 165, 233, 0.5);
 
---focus-shadow:
-  0 0 0 4px var(--focus-ring),
-  0 4px 12px rgba(14, 165, 233, 0.08);
+  --focus-shadow:
+    0 0 0 4px var(--focus-ring), 0 4px 12px rgba(14, 165, 233, 0.08);
 }
-
 
 /* ==========================================
    RESET
@@ -364,3 +361,21 @@ textarea {
     font-size: 18px;
   }
 }
+
+/* ==========================================
+   COMPONENT STYLES
+========================================== */
+
+@import "../components/styles/ui.css";
+@import "../components/styles/cuestionarios.css";
+@import "../components/styles/auth.css";
+@import "../components/styles/about.css";
+@import "../components/styles/contact.css";
+@import "../components/styles/cookies.css";
+@import "../components/styles/estudio.css";
+@import "../components/styles/faq.css";
+@import "../components/styles/landing.css";
+@import "../components/styles/legal.css";
+@import "../components/styles/perfil.css";
+@import "../components/styles/project.css";
+@import "../components/styles/reset-password.css";
