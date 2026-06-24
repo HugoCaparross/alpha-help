@@ -1,8 +1,6 @@
 /* ==========================================
-   PRIVATE LAYOUT - Shell privado
+   PRIVATE LAYOUT
 ========================================== */
-
-/* PRIVATE LAYOUT CONTAINER */
 
 .private-layout {
   height: 100vh;
@@ -12,15 +10,21 @@
   background: var(--background);
 }
 
+/* ==========================================
+   PRIVATE LAYOUT SHELL
+========================================== */
+
 .private-layout-shell {
   display: flex;
 
-  height: 100vh;
+  height: 100%;
 
   overflow: hidden;
 }
 
-/* PRIVATE LAYOUT MAIN */
+/* ==========================================
+   PRIVATE LAYOUT MAIN
+========================================== */
 
 .private-layout-main {
   flex: 1;
@@ -34,11 +38,16 @@
   padding: 2rem;
 }
 
-/* LATERAL PANELS */
+/* ==========================================
+   LATERAL PANELS
+========================================== */
 
 .sidebar,
 .right-panel {
   flex-shrink: 0;
+
+  position: sticky;
+  top: 0;
 
   height: 100vh;
 

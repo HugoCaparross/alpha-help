@@ -1,4 +1,6 @@
-import QuestionnaireIntroduction from "@/components/private/cuestionarios/QuestionnaireIntroduction";
+import { notFound } from "next/navigation";
+
+import QuestionnaireFlow from "@/components/private/cuestionarios/QuestionnaireFlow";
 
 interface QuestionnairePageProps {
   params: Promise<{
@@ -11,9 +13,11 @@ export default async function QuestionnairePage({
 }: QuestionnairePageProps) {
   const { id } = await params;
 
-  return (
-    <QuestionnaireIntroduction
-      questionnaireId={id}
-    />
-  );
+  const isValidQuestionnaire = id === "pre" || id === "post";
+
+  if (!isValidQuestionnaire) {
+    notFound();
+  }
+
+  return <QuestionnaireFlow questionnaireId={id} />;
 }

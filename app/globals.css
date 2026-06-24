@@ -33,15 +33,15 @@
   --neutral-200: #e2e8f0;
   --neutral-100: #f1f5f9;
 
-  /* Borders */
-
-  --border-light: 1px solid var(--neutral-200);
-  --border-input: 1px solid var(--neutral-300);
-
   /* Surfaces */
 
   --background: #f8fafc;
   --surface: #ffffff;
+
+  /* Borders */
+
+  --border-light: 1px solid var(--neutral-200);
+  --border-input: 1px solid var(--neutral-300);
 
   /* Radius */
 
@@ -78,10 +78,13 @@
    RESET
 ========================================== */
 
-* {
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 html {
@@ -90,24 +93,40 @@ html {
 
 html,
 body {
+  min-height: 100%;
   overflow-x: hidden;
 }
 
 body {
-  min-height: 100vh;
-
   background: var(--background);
   color: var(--neutral-900);
 
   font-family: Inter, sans-serif;
+  line-height: 1.5;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-img {
+img,
+picture,
+svg,
+video {
   display: block;
   max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 a {
@@ -115,16 +134,9 @@ a {
   text-decoration: none;
 }
 
-button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-input,
-select,
-textarea {
-  font: inherit;
+ul,
+ol {
+  list-style: none;
 }
 
 /* ==========================================
@@ -135,16 +147,14 @@ textarea {
   width: 100%;
   max-width: 1600px;
 
-  margin: 0 auto;
+  margin-inline: auto;
 
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-inline: 24px;
 }
 
 @media (min-width: 1024px) {
   .container-custom {
-    padding-left: 56px;
-    padding-right: 56px;
+    padding-inline: 56px;
   }
 }
 
@@ -153,17 +163,18 @@ textarea {
 ========================================== */
 
 .section {
-  padding: 80px 0;
+  padding-block: 80px;
 }
 
 .section-small {
-  padding: 56px 0;
+  padding-block: 56px;
 }
 
 .section-header {
   max-width: 900px;
 
-  margin: 0 auto 40px;
+  margin-inline: auto;
+  margin-bottom: 40px;
 
   text-align: center;
 }
@@ -183,12 +194,12 @@ textarea {
   background: #e0f2fe;
   color: #0369a1;
 
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .section-title {
-  margin-top: 16px;
+  margin-top: 1rem;
 
   font-size: clamp(2.5rem, 4vw, 3.5rem);
   line-height: 1.1;
@@ -198,9 +209,9 @@ textarea {
 }
 
 .section-description {
-  margin-top: 20px;
+  margin-top: 1.25rem;
 
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1.8;
 
   color: var(--neutral-600);
@@ -244,25 +255,25 @@ textarea {
 
 @media (max-width: 1024px) {
   .section {
-    padding: 96px 0;
+    padding-block: 96px;
   }
 
   .section-title {
-    font-size: 42px;
+    font-size: 2.625rem;
   }
 }
 
 @media (max-width: 768px) {
   .section {
-    padding: 72px 0;
+    padding-block: 72px;
   }
 
   .section-title {
-    font-size: 32px;
+    font-size: 2rem;
   }
 
   .section-description {
-    font-size: 18px;
+    font-size: 1.125rem;
   }
 }
 
@@ -271,6 +282,7 @@ textarea {
 ========================================== */
 
 @import "../components/styles/ui.css";
+
 @import "../components/styles/about.css";
 @import "../components/styles/auth.css";
 @import "../components/styles/contact.css";

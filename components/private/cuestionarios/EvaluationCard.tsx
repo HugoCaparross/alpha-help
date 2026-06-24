@@ -29,7 +29,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
   };
 
   return (
-    <Card className="evaluation-card">
+    <Card className="evaluation-card card-padding">
       <div className="evaluation-card__content">
         <div className="evaluation-card__header">
           <h2 className="evaluation-card__title">{evaluation.title}</h2>

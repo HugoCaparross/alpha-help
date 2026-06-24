@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
 
 import Button from "@/components/ui/Button";
@@ -7,14 +10,16 @@ import { EVALUATIONS } from "@/lib/constants/questionnaires";
 
 interface QuestionnaireIntroductionProps {
   questionnaireId: string;
+  onStart: () => void;
 }
 
 export default function QuestionnaireIntroduction({
   questionnaireId,
+  onStart,
 }: QuestionnaireIntroductionProps) {
-  const evaluation = EVALUATIONS.find(
-    (item) => item.id === questionnaireId
-  );
+  const router = useRouter();
+
+  const evaluation = EVALUATIONS.find((item) => item.id === questionnaireId);
 
   if (!evaluation) {
     notFound();
@@ -28,63 +33,67 @@ export default function QuestionnaireIntroduction({
         </h1>
 
         <p className="questionnaire-introduction__description">
-          Antes de comenzar, te recomendamos disponer del tiempo suficiente y
-          realizar la evaluación en un entorno tranquilo.
+          Reserva aproximadamente {evaluation.estimatedMinutes} minutos y
+          realiza la evaluación en un entorno tranquilo, sin interrupciones.
         </p>
       </div>
 
-      <Card>
+      <Card className="card-padding">
         <div className="questionnaire-introduction__content">
-          <div className="questionnaire-introduction__section">
-            <h2 className="questionnaire-introduction__section-title">
-              Duración aproximada
-            </h2>
+          <div className="questionnaire-introduction__grid">
+            <div className="questionnaire-introduction__item">
+              <h2 className="questionnaire-introduction__item-title">
+                Duración estimada
+              </h2>
 
-            <p className="questionnaire-introduction__section-text">
-              {evaluation.estimatedMinutes} minutos
-            </p>
-          </div>
+              <p className="questionnaire-introduction__item-text">
+                {evaluation.estimatedMinutes} minutos
+              </p>
+            </div>
 
-          <div className="questionnaire-introduction__section">
-            <h2 className="questionnaire-introduction__section-title">
-              Número de bloques
-            </h2>
+            <div className="questionnaire-introduction__item">
+              <h2 className="questionnaire-introduction__item-title">
+                Cuestionarios
+              </h2>
 
-            <p className="questionnaire-introduction__section-text">
-              {evaluation.blocks} bloques de preguntas
-            </p>
-          </div>
+              <p className="questionnaire-introduction__item-text">
+                {evaluation.blocks} bloques de evaluación
+              </p>
+            </div>
 
-          <div className="questionnaire-introduction__section">
-            <h2 className="questionnaire-introduction__section-title">
-              Confidencialidad
-            </h2>
+            <div className="questionnaire-introduction__item">
+              <h2 className="questionnaire-introduction__item-title">
+                Confidencialidad
+              </h2>
 
-            <p className="questionnaire-introduction__section-text">
-              Tus respuestas son confidenciales y se utilizan únicamente con
-              fines de investigación.
-            </p>
-          </div>
+              <p className="questionnaire-introduction__item-text">
+                Tus respuestas serán tratadas de forma confidencial y utilizadas
+                exclusivamente con fines de investigación.
+              </p>
+            </div>
 
-          <div className="questionnaire-introduction__section">
-            <h2 className="questionnaire-introduction__section-title">
-              Importante
-            </h2>
+            <div className="questionnaire-introduction__item">
+              <h2 className="questionnaire-introduction__item-title">
+                Importante
+              </h2>
 
-            <p className="questionnaire-introduction__section-text">
-              La evaluación debe completarse en una única sesión. Las respuestas
-              no se guardan de forma parcial.
-            </p>
+              <p className="questionnaire-introduction__item-text">
+                Una vez iniciada, la evaluación debe completarse en una única
+                sesión. Si abandonas el cuestionario antes de finalizarlo, las
+                respuestas no se conservarán.
+              </p>
+            </div>
           </div>
 
           <div className="questionnaire-introduction__actions">
-            <Button variant="secondary">
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/cuestionarios")}
+            >
               Atrás
             </Button>
 
-            <Button>
-              Comenzar evaluación
-            </Button>
+            <Button onClick={onStart}>Comenzar evaluación</Button>
           </div>
         </div>
       </Card>
