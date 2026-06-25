@@ -1,0 +1,372 @@
+/* ============================================================
+   MATERIALES
+   ============================================================ */
+
+.materiales-page {
+  padding: 48px 0 80px;
+}
+
+.materiales-page__header {
+  max-width: 640px;
+  margin-bottom: 40px;
+}
+
+.materiales-page__eyebrow {
+  display: inline-block;
+
+  margin-bottom: 10px;
+
+  color: var(--accent);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.materiales-page__title {
+  margin-bottom: 12px;
+
+  color: var(--neutral-900);
+
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.materiales-page__description {
+  color: var(--neutral-600);
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ============================================================
+   LOADING / ERROR
+   ============================================================ */
+
+.materiales-page__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 64px 24px;
+
+  border: 1px dashed var(--neutral-200);
+  border-radius: var(--radius-lg);
+
+  background: var(--background);
+}
+
+.materiales-page__state--error {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.materiales-page__state-text {
+  color: var(--neutral-600);
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.materiales-page__state--error .materiales-page__state-text {
+  color: #dc2626;
+}
+
+.materiales-page__spinner {
+  display: inline-block;
+
+  width: 28px;
+  height: 28px;
+
+  border: 3px solid var(--neutral-200);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+
+  animation: materiales-spin 0.7s linear infinite;
+}
+
+@keyframes materiales-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   GRID
+   ============================================================ */
+
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  margin-bottom: 1rem;
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+.material-card {
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+
+  box-shadow: var(--shadow-card);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.material-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: var(--shadow-hover);
+}
+
+.material-card--locked {
+  opacity: 0.92;
+}
+
+.material-card__thumb {
+  position: relative;
+
+  overflow: hidden;
+
+  aspect-ratio: 16 / 9;
+
+  background: var(--neutral-100);
+}
+
+.material-card__thumb-img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.material-card--locked .material-card__thumb-img {
+  filter: grayscale(0.4) brightness(0.7);
+}
+
+.material-card__order {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+
+  padding: 4px 10px;
+
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.65);
+
+  backdrop-filter: blur(4px);
+
+  color: white;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.material-card__lock-overlay {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(15, 23, 42, 0.35);
+
+  color: white;
+}
+
+.material-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  padding: 20px;
+}
+
+.material-card__title {
+  margin-bottom: 8px;
+
+  color: var(--neutral-900);
+
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.material-card__desc {
+  flex: 1;
+
+  margin-bottom: 16px;
+
+  color: var(--neutral-600);
+
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.material-card__date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 16px;
+
+  color: var(--neutral-500);
+
+  font-size: 12.5px;
+}
+
+.material-card__date svg {
+  flex-shrink: 0;
+
+  color: var(--neutral-500);
+}
+
+/* ============================================================
+   CTA
+   ============================================================ */
+
+.material-card__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  height: 44px;
+
+  border-radius: var(--radius-sm);
+
+  background: var(--accent);
+
+  color: white;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.material-card__cta:hover {
+  transform: translateY(-1px);
+
+  background: var(--accent-hover);
+}
+
+.material-card__cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   LOCKED
+   ============================================================ */
+
+.material-card__locked-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  height: 44px;
+
+  border-radius: var(--radius-sm);
+
+  background: var(--neutral-100);
+
+  color: var(--neutral-500);
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.material-card__locked-cta svg {
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.materials-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 64px 24px;
+
+  border: 1px dashed var(--neutral-200);
+  border-radius: var(--radius-lg);
+
+  background: var(--background);
+
+  text-align: center;
+}
+
+.materials-empty__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+
+  margin-bottom: 16px;
+
+  border-radius: 50%;
+
+  background: var(--neutral-100);
+
+  color: var(--neutral-500);
+}
+
+.materials-empty__text {
+  color: var(--neutral-600);
+
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .materials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .materials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .materiales-page {
+    padding: 32px 0 56px;
+  }
+}
