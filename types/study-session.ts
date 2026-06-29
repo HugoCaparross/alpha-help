@@ -1,38 +1,55 @@
-/**
- * Región del usuario, tal y como se almacena en profiles.region.
- * Determina qué fecha de publicación (release_date_spain / release_date_latam)
- * se resuelve para cada sesión.
- */
-export type Region = 'spain' | 'latam';
+import type { Region } from "@/lib/utils/regions";
 
 /**
- * Estado de una sesión una vez resuelto contra la fecha de la región.
- * No existen estados intermedios (completada, en progreso, etc.).
+ * Estado de una sesión dentro del programa.
+ * Una sesión únicamente puede estar disponible
+ * o bloqueada según su fecha de publicación.
  */
-export type SessionStatus = 'available' | 'locked';
+export type SessionStatus = "available" | "locked";
 
 /**
- * Modelo de sesión tal y como se mapea desde la tabla `sessions`.
+ * Modelo de una sesión tal y como se consume
+ * dentro de la aplicación.
+ *
+ * Todos los nombres utilizan camelCase,
+ * independientemente del formato utilizado
+ * en la base de datos.
  */
 export interface Session {
   id: string;
+
   title: string;
+
   description: string;
+
   youtubeUrl: string;
+
   thumbnailUrl: string;
+
   sessionOrder: number;
+
   releaseDateSpain: string;
+
   releaseDateLatam: string;
 }
 
 /**
- * Sesión con la fecha de publicación y el estado ya resueltos
- * según la región del usuario. Es lo que consumen los componentes
- * de presentación: nunca eligen entre releaseDateSpain/releaseDateLatam.
+ * Sesión con la fecha de publicación ya resuelta
+ * según la región del usuario.
+ *
+ * Los componentes nunca deben decidir
+ * qué fecha utilizar.
+ * Esa lógica pertenece exclusivamente al servicio.
  */
 export interface SessionWithStatus extends Session {
-  /** Fecha de publicación ya resuelta para la región del usuario. */
+  /**
+   * Fecha de publicación correspondiente
+   * a la región del usuario.
+   */
   releaseDate: string;
-  /** Estado resuelto: disponible o bloqueada. */
+
+  /**
+   * Estado calculado automáticamente.
+   */
   status: SessionStatus;
 }

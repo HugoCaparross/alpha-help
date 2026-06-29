@@ -1,45 +1,56 @@
 ﻿import Link from "next/link";
 
+type DashboardCard = {
+  href: string;
+  title: string;
+  description: string;
+};
+
+const dashboardCards: DashboardCard[] = [
+  {
+    href: "/cuestionarios/pre",
+    title: "Cuestionario PRE",
+    description: "Completar cuestionario inicial.",
+  },
+  {
+    href: "/cuestionarios/post",
+    title: "Cuestionario POST",
+    description: "Disponible al finalizar la formación.",
+  },
+  {
+    href: "/sesiones",
+    title: "Sesiones",
+    description: "Ver sesiones disponibles.",
+  },
+];
+
+const cardClass =
+  "bg-white rounded-2xl border border-slate-200 p-6 transition hover:shadow-md";
+
 export default function DashboardPage() {
   return (
     <div className="space-y-8">
-      <div>
+      <header>
         <h1 className="text-3xl font-bold">Dashboard</h1>
 
-        <p className="text-slate-500 mt-2">
+        <p className="mt-2 text-slate-500">
           Accede rápidamente a los elementos pendientes.
         </p>
-      </div>
+      </header>
 
-      <div className="grid gap-6 xl:grid-cols-3 lg:grid-cols-2">
-        <Link
-          href="/cuestionarios/pre"
-          className="bg-white rounded-3xl border border-slate-200 p-8 hover:shadow-md transition"
-        >
-          <h2 className="font-semibold text-lg">Cuestionario PRE</h2>
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        {dashboardCards.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            aria-label={card.title}
+            className={cardClass}
+          >
+            <h2 className="text-lg font-semibold">{card.title}</h2>
 
-          <p className="text-slate-500 mt-2">Completar cuestionario inicial.</p>
-        </Link>
-
-        <Link
-          href="/cuestionarios/post"
-          className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition"
-        >
-          <h2 className="font-semibold text-lg">Cuestionario POST</h2>
-
-          <p className="text-slate-500 mt-2">
-            Disponible al finalizar la formación.
-          </p>
-        </Link>
-
-        <Link
-          href="/sesiones"
-          className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition"
-        >
-          <h2 className="font-semibold text-lg">Sesiones</h2>
-
-          <p className="text-slate-500 mt-2">Ver sesiones disponibles.</p>
-        </Link>
+            <p className="mt-2 text-slate-500">{card.description}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );

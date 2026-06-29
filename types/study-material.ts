@@ -52,5 +52,3 @@ export interface StudyMaterialWithStatus
    */
   status: MaterialStatus;
 }
-
-export type { Region };

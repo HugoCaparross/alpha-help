@@ -15,53 +15,68 @@ export default function PerfilPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadProfile() {
       try {
-        setIsLoading(true);
-        setError(null);
+        if (isMounted) {
+          setIsLoading(true);
+          setError(null);
+        }
 
         const data = await getProfile();
 
-        setProfile(data);
+        if (isMounted) {
+          setProfile(data);
+        }
       } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Error al cargar el perfil";
+        if (isMounted) {
+          const message =
+            err instanceof Error ? err.message : "Error al cargar el perfil";
 
-        setError(message);
+          setError(message);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   if (isLoading) {
     return (
-      <div>
+      <section>
         <h1>Perfil</h1>
-        <p>Cargando perfil...</p>
-      </div>
+
+        <p role="status">Cargando perfil...</p>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div>
+      <section>
         <h1>Perfil</h1>
+
         <p>{error}</p>
-      </div>
+      </section>
     );
   }
 
   if (!profile) {
     return (
-      <div>
+      <section>
         <h1>Perfil</h1>
+
         <p>No se encontró información del usuario.</p>
-      </div>
+      </section>
     );
   }
 

@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { ChevronDown, LogOut, User } from "lucide-react";
 
 import { supabase } from "@/lib/supabase/client";
@@ -10,36 +12,58 @@ import type { UserProfile } from "@/types/user";
 
 export default function UserMenu() {
   const router = useRouter();
+
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadProfile() {
       try {
-        setIsLoading(true);
-        setError(null);
+        if (isMounted) {
+          setIsLoading(true);
+          setError(null);
+        }
+
         const data = await getProfile();
-        setProfile(data);
+
+        if (isMounted) {
+          setProfile(data);
+        }
       } catch (err) {
-        const message = err instanceof Error ? err.message : "Error loading profile";
-        setError(message);
+        if (isMounted) {
+          const message =
+            err instanceof Error ? err.message : "Error loading profile";
+
+          setError(message);
+        }
+
         console.error("Failed to load profile:", err);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   async function handleLogout() {
     try {
       await supabase.auth.signOut();
-      router.push("/login");
+
+      router.replace("/login");
     } catch (err) {
       console.error("Failed to logout:", err);
+
       setError("Error closing session");
     }
   }
@@ -47,9 +71,7 @@ export default function UserMenu() {
   if (error) {
     return (
       <div className="user-menu-error">
-        <div className="user-menu-avatar user-menu-avatar--error">
-          !
-        </div>
+        <div className="user-menu-avatar user-menu-avatar--error">!</div>
       </div>
     );
   }
@@ -57,7 +79,9 @@ export default function UserMenu() {
   return (
     <div className="user-menu">
       <button
-        onClick={() => setOpen(!open)}
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-label="Menú de usuario"
         aria-expanded={open}
         aria-haspopup="menu"
         className="user-menu-trigger"
@@ -81,10 +105,7 @@ export default function UserMenu() {
       </button>
 
       {open && (
-        <div
-          className="user-menu-dropdown"
-          role="menu"
-        >
+        <div className="user-menu-dropdown" role="menu">
           <div className="user-menu-dropdown-header">
             <p className="user-menu-dropdown-email">
               {profile?.email || "Usuario"}
@@ -93,16 +114,17 @@ export default function UserMenu() {
             <p className="user-menu-dropdown-region">{profile?.region || ""}</p>
           </div>
 
-          <a
+          <Link
             href="/perfil"
             className="user-menu-dropdown-item"
             role="menuitem"
           >
             <User size={18} />
             Perfil
-          </a>
+          </Link>
 
           <button
+            type="button"
             onClick={handleLogout}
             className="user-menu-dropdown-item user-menu-dropdown-button"
             role="menuitem"

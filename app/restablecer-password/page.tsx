@@ -32,39 +32,34 @@ export default function ResetPassword() {
     setLoading(true);
     setError("");
 
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+    try {
+      if (password.length < 8) {
+        setError("La contraseña debe tener al menos 8 caracteres.");
+        return;
+      }
 
+      if (password !== confirmPassword) {
+        setError("Las contraseñas no coinciden.");
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password,
+      });
+
+      if (error) {
+        setError(error.message || "Error al restablecer la contraseña.");
+        return;
+      }
+
+      setSuccess(true);
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 3000);
+    } finally {
       setLoading(false);
-
-      return;
     }
-
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
-
-      setLoading(false);
-
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setError(error.message || "Error al restablecer la contraseña.");
-
-      return;
-    }
-
-    setSuccess(true);
-
-    setTimeout(() => {
-      router.push("/login");
-    }, 3000);
   }
 
   return (
@@ -115,7 +110,7 @@ export default function ResetPassword() {
                     <button
                       type="button"
                       className="reset-password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowPassword((prev) => !prev)}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
