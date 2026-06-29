@@ -1,19 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+function getRequiredEnv(name: string): string {
+  const value = process.env[name];
 
-if (!supabaseUrl) {
-  throw new Error(
-    "Falta la variable NEXT_PUBLIC_SUPABASE_URL.",
-  );
+  if (!value) {
+    throw new Error(`Falta la variable ${name}.`);
+  }
+
+  return value;
 }
 
-if (!serviceRoleKey) {
-  throw new Error(
-    "Falta la variable SUPABASE_SERVICE_ROLE_KEY.",
-  );
-}
+const supabaseUrl = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
+const serviceRoleKey = getRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
 
 /**
  * Cliente de Supabase con permisos administrativos.
@@ -23,8 +21,5 @@ if (!serviceRoleKey) {
  * Server Actions, Cron Jobs, etc.).
  */
 export function createServerClient() {
-  return createClient(
-    supabaseUrl,
-    serviceRoleKey,
-  );
+  return createClient(supabaseUrl, serviceRoleKey);
 }

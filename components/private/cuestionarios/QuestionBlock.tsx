@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import QuestionCard from "./QuestionCard";
 import QuestionnaireProgress from "./QuestionnaireProgress";
@@ -14,15 +14,34 @@ import {
   KIDSCREEN_QUESTIONS,
 } from "@/lib/constants/questionnaires";
 
-import {
-  submitQuestionnaire,
-  type QuestionnaireType,
-} from "@/services/supabase/questionnaire.service";
+import type { QuestionnaireType } from "@/types/questionnaire";
+
+import { submitQuestionnaire } from "@/services/supabase/questionnaire.service";
 
 interface QuestionBlockProps {
-  questionnaireId: string;
+  questionnaireId: QuestionnaireType;
   onComplete: () => void;
 }
+
+const QUESTIONS_BY_STEP = {
+  capsm: CAPSM_QUESTIONS,
+  psoc: PSOC_QUESTIONS,
+  ecpp: ECPP_QUESTIONS,
+  pss: PSS_QUESTIONS,
+  kidscreen: KIDSCREEN_QUESTIONS,
+} as const;
+
+const ALL_QUESTIONS = [
+  ...CAPSM_QUESTIONS,
+  ...PSOC_QUESTIONS,
+  ...ECPP_QUESTIONS,
+  ...PSS_QUESTIONS,
+  ...KIDSCREEN_QUESTIONS,
+];
+
+const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
+  (question) => question.required,
+).map((question) => question.id);
 
 export default function QuestionBlock({
   questionnaireId,
@@ -34,7 +53,7 @@ export default function QuestionBlock({
 
   const [answers, setAnswers] = useState<Record<string, number>>({});
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,72 +63,36 @@ export default function QuestionBlock({
 
   const currentStep = QUESTIONNAIRE_STEPS[currentStepIndex];
 
+  const questions =
+    QUESTIONS_BY_STEP[
+      currentStep.id as keyof typeof QUESTIONS_BY_STEP
+    ];
+
+  const currentQuestion = questions[currentQuestionIndex];
+
   const sectionTitle = currentStep.title;
 
   const isFirstStep = currentStepIndex === 0;
 
-  const isLastStep = currentStepIndex === QUESTIONNAIRE_STEPS.length - 1;
-
-  const questions = useMemo(() => {
-    switch (currentStep.id) {
-      case "capsm":
-        return CAPSM_QUESTIONS;
-
-      case "psoc":
-        return PSOC_QUESTIONS;
-
-      case "ecpp":
-        return ECPP_QUESTIONS;
-
-      case "pss":
-        return PSS_QUESTIONS;
-
-      case "kidscreen":
-        return KIDSCREEN_QUESTIONS;
-
-      default:
-        return [];
-    }
-  }, [currentStep.id]);
-
-  const questionsByStep = useMemo(
-    () => ({
-      capsm: CAPSM_QUESTIONS,
-      psoc: PSOC_QUESTIONS,
-      ecpp: ECPP_QUESTIONS,
-      pss: PSS_QUESTIONS,
-      kidscreen: KIDSCREEN_QUESTIONS,
-    }),
-    [],
-  );
-
-  const currentQuestion = questions[currentQuestionIndex];
+  const isLastStep =
+    currentStepIndex === QUESTIONNAIRE_STEPS.length - 1;
 
   const isFirstQuestion = currentQuestionIndex === 0;
 
-  const isLastQuestionInStep = currentQuestionIndex === questions.length - 1;
+  const isLastQuestionInStep =
+    currentQuestionIndex === questions.length - 1;
 
-  const allQuestions = [
-    ...CAPSM_QUESTIONS,
-    ...PSOC_QUESTIONS,
-    ...ECPP_QUESTIONS,
-    ...PSS_QUESTIONS,
-    ...KIDSCREEN_QUESTIONS,
-  ];
-
-  const requiredQuestionIds = allQuestions
-    .filter((question) => question.required)
-    .map((question) => question.id);
-
-  const isQuestionnaireCompleted = requiredQuestionIds.every(
-    (questionId) => answers[questionId] !== undefined,
-  );
+  const isQuestionnaireCompleted =
+    REQUIRED_QUESTION_IDS.every(
+      (questionId) => answers[questionId] !== undefined,
+    );
 
   const currentQuestionPosition =
-    allQuestions.findIndex((question) => question.id === currentQuestion?.id) +
-    1;
+    ALL_QUESTIONS.findIndex(
+      (question) => question.id === currentQuestion?.id,
+    ) + 1;
 
-  const totalQuestions = allQuestions.length;
+  const totalQuestions = ALL_QUESTIONS.length;
 
   useEffect(() => {
     return () => {
@@ -155,7 +138,10 @@ export default function QuestionBlock({
     try {
       setIsSubmitting(true);
 
-      await submitQuestionnaire(questionnaireId as QuestionnaireType, answers);
+      await submitQuestionnaire(
+        questionnaireId,
+        answers,
+      );
 
       onComplete();
     } catch {
@@ -164,11 +150,15 @@ export default function QuestionBlock({
       );
 
       setIsSubmitting(false);
+
       setIsTransitioning(false);
     }
   };
 
-  const handleAnswerChange = (questionId: string, value: number) => {
+  const handleAnswerChange = (
+    questionId: string,
+    value: number,
+  ) => {
     if (isSubmitting || isTransitioning) {
       return;
     }
@@ -178,7 +168,7 @@ export default function QuestionBlock({
       [questionId]: value,
     }));
 
-    setError("");
+    setError(null);
 
     setIsTransitioning(true);
 
@@ -200,7 +190,7 @@ export default function QuestionBlock({
       window.clearTimeout(autoAdvanceTimeout.current);
     }
 
-    setError("");
+    setError(null);
 
     if (!isFirstQuestion) {
       setCurrentQuestionIndex((prev) => prev - 1);
@@ -211,23 +201,30 @@ export default function QuestionBlock({
     if (!isFirstStep) {
       const previousStepIndex = currentStepIndex - 1;
 
-      const previousStep = QUESTIONNAIRE_STEPS[previousStepIndex];
+      const previousStep =
+        QUESTIONNAIRE_STEPS[previousStepIndex];
 
       const previousQuestions =
-        questionsByStep[previousStep.id as keyof typeof questionsByStep];
+        QUESTIONS_BY_STEP[
+          previousStep.id as keyof typeof QUESTIONS_BY_STEP
+        ];
 
       setCurrentStepIndex(previousStepIndex);
 
-      setCurrentQuestionIndex(previousQuestions.length - 1);
+      setCurrentQuestionIndex(
+        previousQuestions.length - 1,
+      );
     }
   };
 
-  return (
+    return (
     <section className="question-block">
       <div className="question-block__body">
         <div
           className={`question-block__questions ${
-            isTransitioning ? "question-block__questions--transition" : ""
+            isTransitioning
+              ? "question-block__questions--transition"
+              : ""
           }`}
         >
           {currentQuestion && (
@@ -236,7 +233,7 @@ export default function QuestionBlock({
               question={currentQuestion}
               questionNumber={currentQuestionPosition}
               selectedValue={answers[currentQuestion.id]}
-              showError={!!error}
+              showError={Boolean(error)}
               disabled={isTransitioning}
               showPrevious={!(isFirstStep && isFirstQuestion)}
               onPrevious={handlePrevious}
@@ -246,7 +243,11 @@ export default function QuestionBlock({
         </div>
 
         {error && (
-          <div className="question-block__error">
+          <div
+            className="question-block__error"
+            role="alert"
+            aria-live="polite"
+          >
             <p>{error}</p>
           </div>
         )}

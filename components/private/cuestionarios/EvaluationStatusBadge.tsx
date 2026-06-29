@@ -4,18 +4,24 @@ interface EvaluationStatusBadgeProps {
   status: QuestionnaireStatus;
 }
 
+const STATUS_LABELS: Record<QuestionnaireStatus, string> = {
+  pending: "Pendiente",
+  completed: "Completada",
+  locked: "Bloqueada",
+};
+
 export default function EvaluationStatusBadge({
   status,
 }: EvaluationStatusBadgeProps) {
-  const labels: Record<QuestionnaireStatus, string> = {
-    pending: "Pendiente",
-    completed: "Completada",
-    locked: "Bloqueada",
-  };
+  const label = STATUS_LABELS[status];
 
   return (
-    <span className="evaluation-status-badge" data-status={status}>
-      {labels[status]}
+    <span
+      className="evaluation-status-badge"
+      data-status={status}
+      aria-label={`Estado: ${label}`}
+    >
+      {label}
     </span>
   );
 }

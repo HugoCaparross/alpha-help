@@ -7,23 +7,25 @@ import QuestionBlock from "./QuestionBlock";
 import QuestionnaireCompletion from "./QuestionnaireCompletion";
 import QuestionnaireIntroduction from "./QuestionnaireIntroduction";
 
+import type { QuestionnaireType } from "@/types/questionnaire";
+
 import { hasCompletedQuestionnaire } from "@/services/supabase/questionnaire.service";
 
 interface QuestionnaireFlowProps {
-  questionnaireId: string;
+  questionnaireId: QuestionnaireType;
 }
+
+type FlowScreen = "loading" | "introduction" | "in_progress" | "completed";
 
 export default function QuestionnaireFlow({
   questionnaireId,
 }: QuestionnaireFlowProps) {
   const router = useRouter();
 
-  const [screen, setScreen] = useState<
-    "loading" | "introduction" | "in_progress" | "completed"
-  >("loading");
+  const [screen, setScreen] = useState<FlowScreen>("loading");
 
   useEffect(() => {
-    const validateAccess = async () => {
+    async function validateAccess() {
       try {
         if (questionnaireId === "post") {
           const hasCompletedPre = await hasCompletedQuestionnaire("pre");
@@ -38,37 +40,37 @@ export default function QuestionnaireFlow({
       } catch {
         router.replace("/cuestionarios");
       }
-    };
+    }
 
     void validateAccess();
   }, [questionnaireId, router]);
 
-  if (screen === "loading") {
-    return null;
-  }
+  switch (screen) {
+    case "loading":
+      return <section className="questionnaire-loading">Cargando...</section>;
 
-  if (screen === "completed") {
-    return (
-      <QuestionnaireCompletion
-        questionnaireId={questionnaireId}
-        onFinish={() => setScreen("introduction")}
-      />
-    );
-  }
+    case "completed":
+      return (
+        <QuestionnaireCompletion
+          questionnaireId={questionnaireId}
+          onFinish={() => setScreen("introduction")}
+        />
+      );
 
-  if (screen === "in_progress") {
-    return (
-      <QuestionBlock
-        questionnaireId={questionnaireId}
-        onComplete={() => setScreen("completed")}
-      />
-    );
-  }
+    case "in_progress":
+      return (
+        <QuestionBlock
+          questionnaireId={questionnaireId}
+          onComplete={() => setScreen("completed")}
+        />
+      );
 
-  return (
-    <QuestionnaireIntroduction
-      questionnaireId={questionnaireId}
-      onStart={() => setScreen("in_progress")}
-    />
-  );
+    default:
+      return (
+        <QuestionnaireIntroduction
+          questionnaireId={questionnaireId}
+          onStart={() => setScreen("in_progress")}
+        />
+      );
+  }
 }

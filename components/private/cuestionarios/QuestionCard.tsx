@@ -25,14 +25,26 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   const options = SCALES[question.scaleType];
 
+  const titleId = `question-${question.id}`;
+  const errorId = `question-error-${question.id}`;
+
   return (
     <Card
       className={`question-card ${showError ? "question-card--error" : ""}`}
     >
-      <h2 className="question-card__title">{question.question}</h2>
+      <p className="question-card__number">Pregunta {questionNumber}</p>
+
+      <h2 id={titleId} className="question-card__title">
+        {question.question}
+      </h2>
 
       {showError && (
-        <p className="question-card__error" role="alert" aria-live="polite">
+        <p
+          id={errorId}
+          className="question-card__error"
+          role="alert"
+          aria-live="polite"
+        >
           Selecciona una respuesta para continuar.
         </p>
       )}
@@ -40,27 +52,31 @@ export default function QuestionCard({
       <div
         className="question-card__options"
         role="radiogroup"
-        aria-labelledby={`question-${question.id}`}
+        aria-labelledby={titleId}
+        aria-describedby={showError ? errorId : undefined}
+        aria-invalid={showError}
       >
         {options.map((option, index) => {
-          const value = index + 1;
+          const optionValue = index + 1;
 
-          const isSelected = selectedValue === value;
+          const isSelected = selectedValue === optionValue;
+
+          const optionClass = `question-card__option ${
+            isSelected ? "question-card__option--selected" : ""
+          }`;
 
           return (
             <label
-              key={`${question.id}-${value}`}
-              className={`question-card__option ${
-                isSelected ? "question-card__option--selected" : ""
-              }`}
+              key={`${question.id}-${optionValue}`}
+              className={optionClass}
             >
               <input
                 type="radio"
                 name={question.id}
-                value={value}
+                value={optionValue}
                 checked={isSelected}
                 disabled={disabled}
-                onChange={() => onChange(question.id, value)}
+                onChange={() => onChange(question.id, optionValue)}
                 className="question-card__input"
               />
 

@@ -1,36 +1,24 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
-import type { Questionnaire } from "@/types/questionnaire";
+import type { QuestionnaireWithStatus } from "@/types/questionnaire";
 
 import EvaluationStatusBadge from "./EvaluationStatusBadge";
 
 interface EvaluationCardProps {
-  evaluation: Questionnaire;
+  evaluation: QuestionnaireWithStatus;
 }
 
 export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
-  const router = useRouter();
-
   const isLocked = evaluation.status === "locked";
-
-  const buttonLabel = evaluation.status === "locked" ? "Bloqueado" : "Comenzar";
-
-  const handleClick = () => {
-    if (isLocked) {
-      return;
-    }
-
-    router.push(`/cuestionarios/${evaluation.id}`);
-  };
 
   return (
     <Card className="evaluation-card card-padding">
-      <div className="evaluation-card__content">
+      <article className="evaluation-card__content">
         <div className="evaluation-card__header">
           <h2 className="evaluation-card__title">{evaluation.title}</h2>
 
@@ -42,7 +30,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
         <div className="evaluation-card__meta">
           <span>{evaluation.blocks} bloques</span>
 
-          <span>·</span>
+          <span aria-hidden="true">·</span>
 
           <span>{evaluation.estimatedMinutes} minutos</span>
         </div>
@@ -50,11 +38,15 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
         <div className="evaluation-card__footer">
           <EvaluationStatusBadge status={evaluation.status} />
 
-          <Button disabled={isLocked} onClick={handleClick}>
-            {buttonLabel}
-          </Button>
+          {isLocked ? (
+            <Button disabled>Bloqueado</Button>
+          ) : (
+            <Link href={`/cuestionarios/${evaluation.id}`}>
+              <Button>Comenzar</Button>
+            </Link>
+          )}
         </div>
-      </div>
+      </article>
     </Card>
   );
 }

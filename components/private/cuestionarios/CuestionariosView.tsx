@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import PageHeader from "@/components/ui/PageHeader";
 import EvaluationCard from "./EvaluationCard";
 
 import { EVALUATIONS } from "@/lib/constants/questionnaires";
-import type { Questionnaire, QuestionnaireStatus } from "@/types/questionnaire";
+import type {
+  QuestionnaireStatus,
+  QuestionnaireWithStatus,
+} from "@/types/questionnaire";
 
 import {
   getCompletedQuestionnaires,
@@ -17,39 +20,52 @@ export default function CuestionariosView() {
   const [completed, setCompleted] = useState<QuestionnaireType[]>([]);
 
   useEffect(() => {
-    const loadQuestionnaires = async () => {
+    let isMounted = true;
+
+    async function loadQuestionnaires() {
       try {
         const questionnaires = await getCompletedQuestionnaires();
 
-        setCompleted(questionnaires);
+        if (isMounted) {
+          setCompleted(questionnaires);
+        }
       } catch {
-        setCompleted([]);
+        if (isMounted) {
+          setCompleted([]);
+        }
       }
-    };
-
-    void loadQuestionnaires();
-  }, []);
-
-  const evaluations: Questionnaire[] = EVALUATIONS.map((evaluation) => {
-    const isPreCompleted = completed.includes("pre");
-
-    let status: QuestionnaireStatus;
-
-    if (evaluation.id === "pre") {
-      status = completed.includes("pre") ? "completed" : "pending";
-    } else {
-      status = completed.includes("post")
-        ? "completed"
-        : isPreCompleted
-          ? "pending"
-          : "locked";
     }
 
-    return {
-      ...evaluation,
-      status,
+    loadQuestionnaires();
+
+    return () => {
+      isMounted = false;
     };
-  });
+  }, []);
+
+  const evaluations = useMemo<QuestionnaireWithStatus[]>(() => {
+    const hasCompletedPre = completed.includes("pre");
+    const hasCompletedPost = completed.includes("post");
+
+    return EVALUATIONS.map((evaluation) => {
+      let status: QuestionnaireStatus;
+
+      if (evaluation.id === "pre") {
+        status = hasCompletedPre ? "completed" : "pending";
+      } else {
+        status = hasCompletedPost
+          ? "completed"
+          : hasCompletedPre
+            ? "pending"
+            : "locked";
+      }
+
+      return {
+        ...evaluation,
+        status,
+      };
+    });
+  }, [completed]);
 
   return (
     <section className="questionnaires-page">
