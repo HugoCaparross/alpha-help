@@ -9,7 +9,7 @@ import QuestionnaireIntroduction from "./QuestionnaireIntroduction";
 
 import type { QuestionnaireType } from "@/types/questionnaire";
 
-import { hasCompletedQuestionnaire } from "@/services/supabase/questionnaire.service";
+import { hasCompletedQuestionnaire } from "@/services/questionnaires/questionnaire.service";
 
 interface QuestionnaireFlowProps {
   questionnaireId: QuestionnaireType;

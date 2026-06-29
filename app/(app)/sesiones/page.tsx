@@ -1,4 +1,4 @@
-import SesionesView from "@/components/private/sesiones/SesionesView";
+import SesionesView from "@/components/sessions/SesionesView";
 
 import "@/components/styles/sesiones.css";
 

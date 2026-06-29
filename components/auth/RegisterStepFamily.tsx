@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import type { RegisterData } from "./register.types";
 
-import { familySchema } from "@/lib/utils/validators";
+import { familySchema } from "@/validators";
 
 interface Props {
   formData: RegisterData;

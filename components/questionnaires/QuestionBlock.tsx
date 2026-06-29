@@ -16,7 +16,7 @@ import {
 
 import type { QuestionnaireType } from "@/types/questionnaire";
 
-import { submitQuestionnaire } from "@/services/supabase/questionnaire.service";
+import { submitQuestionnaire } from "@/services/questionnaires/questionnaire.service";
 
 interface QuestionBlockProps {
   questionnaireId: QuestionnaireType;

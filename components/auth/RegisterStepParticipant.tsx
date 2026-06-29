@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import type { RegisterData } from "./register.types";
 
-import { participantSchema } from "@/lib/utils/validators";
+import { participantSchema } from "@/validators";
 
 interface Props {
   formData: RegisterData;

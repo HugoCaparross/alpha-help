@@ -7,7 +7,7 @@ import MaterialsGrid from "./MaterialsGrid";
 import { supabase } from "@/lib/supabase/client";
 import { getUser } from "@/lib/supabase/getUser";
 
-import { getStudyMaterialsWithStatus } from "@/services/supabase/study-material.service";
+import { getStudyMaterialsWithStatus }  from "@/services/resources/study-material.service"
 
 import type { Region } from "@/lib/utils/regions";
 import type { StudyMaterialWithStatus } from "@/types/study-material";

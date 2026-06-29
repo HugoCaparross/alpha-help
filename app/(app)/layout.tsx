@@ -1,11 +1,11 @@
 ﻿import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-import Sidebar from "@/components/private/layout/Sidebar";
-import RightPanel from "@/components/private/layout/RightPanel";
-import "@/components/private/layout/sidebar.css";
-import "@/components/private/layout/rightpanel.css";
-import "@/components/private/layout/usermenu.css";
-import "@/components/private/layout/layout.css";
+import Sidebar from "@/components/layout/Sidebar";
+import RightPanel from "@/components/layout/RightPanel";
+import "@/components/layout/sidebar.css";
+import "@/components/layout/rightpanel.css";
+import "@/components/layout/usermenu.css";
+import "@/components/layout/layout.css";
 
 export default function AppLayout({
   children,

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import QuestionnaireFlow from "@/components/private/cuestionarios/QuestionnaireFlow";
+import QuestionnaireFlow from "@/components/questionnaires/QuestionnaireFlow";
 
 interface QuestionnairePageProps {
   params: Promise<{

@@ -11,7 +11,7 @@ import Link from "next/link";
 
 import type { RegisterData } from "./register.types";
 
-import { accountSchema } from "@/lib/utils/validators";
+import { accountSchema } from "@/validators";
 
 interface Props {
   formData: RegisterData;

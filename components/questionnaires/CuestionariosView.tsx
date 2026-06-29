@@ -14,7 +14,7 @@ import type {
 import {
   getCompletedQuestionnaires,
   type QuestionnaireType,
-} from "@/services/supabase/questionnaire.service";
+} from "@/services/questionnaires/questionnaire.service";
 
 export default function CuestionariosView() {
   const [completed, setCompleted] = useState<QuestionnaireType[]>([]);

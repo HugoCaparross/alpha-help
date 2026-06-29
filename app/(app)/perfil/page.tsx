@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import PerfilView from "@/components/private/perfil/PerfilView";
+import PerfilView from "@/components/profile/PerfilView";
 
 import { getProfile } from "@/lib/supabase/getProfile";
 import type { UserProfile } from "@/types/user";

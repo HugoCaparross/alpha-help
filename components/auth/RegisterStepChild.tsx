@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import type { RegisterData, ChildData } from "./register.types";
-import { childSchema } from "@/lib/utils/validators";
+import { childSchema } from "@/validators";
 
 interface Props {
   formData: RegisterData;

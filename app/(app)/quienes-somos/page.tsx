@@ -1,7 +1,6 @@
 import { Users } from "lucide-react";
 
-import TeamMemberCard from "@/components/private/about/TeamMemberCard";
-
+import TeamMemberCard from "@/components/shared/TeamMemberCard";
 import "@/components/styles/about.css";
 
 const leadResearcher = {

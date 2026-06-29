@@ -1,5 +1,4 @@
-import EstudioView from "@/components/private/estudio/EstudioView";
-
+import EstudioView from "@/components/study/EstudioView";
 export default function EstudioPage() {
   return <EstudioView />;
 }

@@ -1,4 +1,4 @@
-import MaterialesView from '@/components/private/recursos/MaterialesView';
+import MaterialesView from "@/components/resources/MaterialesView";
 
 export default function MaterialesPage() {
   return <MaterialesView />;

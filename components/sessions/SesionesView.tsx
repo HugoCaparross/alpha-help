@@ -8,7 +8,7 @@ import SessionEmptyState from "./SessionEmptyState";
 import { getUser } from "@/lib/supabase/getUser";
 import { supabase } from "@/lib/supabase/client";
 
-import { getSessionsWithStatus } from "@/services/supabase/study-session.service";
+import { getSessionsWithStatus } from "@/services/sessions/study-session.service"
 
 import type { Region, SessionWithStatus } from "@/types/study-session";
 
