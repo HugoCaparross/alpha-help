@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Navbar from "@/components/public/landing/NavBar";
 import Footer from "@/components/public/landing/Footer";
 
-import { Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Lock, Eye, EyeOff, CheckCircle, LoaderCircle } from "lucide-react";
 
 import { supabase } from "@/lib/supabase/client";
+import { resetPasswordSchema } from "@/validators";
 
 import "@/components/styles/reset-password.css";
 
 export default function ResetPassword() {
   const router = useRouter();
+
+  const redirectTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,37 +29,59 @@ export default function ResetPassword() {
 
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  useEffect(() => {
+    return () => {
+      if (redirectTimeout.current) {
+        clearTimeout(redirectTimeout.current);
+      }
+    };
+  }, []);
+
+  function updatePassword(value: string) {
+    setError("");
+    setPassword(value);
+  }
+
+  function updateConfirmPassword(value: string) {
+    setError("");
+    setConfirmPassword(value);
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const result = resetPasswordSchema.safeParse({
+      password,
+      confirmPassword,
+    });
+
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
 
     setLoading(true);
     setError("");
 
     try {
-      if (password.length < 8) {
-        setError("La contraseña debe tener al menos 8 caracteres.");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        setError("Las contraseñas no coinciden.");
-        return;
-      }
-
       const { error } = await supabase.auth.updateUser({
         password,
       });
 
       if (error) {
-        setError(error.message || "Error al restablecer la contraseña.");
+        setError(error.message || "No se ha podido actualizar la contraseña.");
         return;
       }
 
       setSuccess(true);
 
-      setTimeout(() => {
-        router.push("/login");
-      }, 3000);
+      redirectTimeout.current = setTimeout(() => {
+        router.replace("/login");
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+
+      setError("Se ha producido un error inesperado. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -72,7 +97,7 @@ export default function ResetPassword() {
             {success ? (
               <div className="reset-password-success">
                 <div className="reset-password-success-icon">
-                  <CheckCircle size={32} className="text-green-600" />
+                  <CheckCircle size={32} />
                 </div>
 
                 <h1 className="reset-password-title">
@@ -80,8 +105,9 @@ export default function ResetPassword() {
                 </h1>
 
                 <p className="reset-password-description">
-                  Tu contraseña se ha restablecido correctamente. Serás
-                  redirigido al inicio de sesión en unos segundos.
+                  Tu contraseña se ha actualizado correctamente. Serás
+                  redirigido automáticamente al inicio de sesión en unos
+                  segundos.
                 </p>
               </div>
             ) : (
@@ -90,7 +116,8 @@ export default function ResetPassword() {
                   <h1 className="reset-password-title">Nueva contraseña</h1>
 
                   <p className="reset-password-description">
-                    Introduce tu nueva contraseña para acceder a Alpha-Help.
+                    Introduce una nueva contraseña para volver a acceder a
+                    Alpha-Help.
                   </p>
                 </div>
 
@@ -100,16 +127,23 @@ export default function ResetPassword() {
 
                     <input
                       type={showPassword ? "text" : "password"}
-                      required
-                      placeholder="Nueva contraseña"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
                       className="reset-password-input"
+                      placeholder="Nueva contraseña"
+                      autoComplete="new-password"
+                      disabled={loading}
+                      value={password}
+                      onChange={(e) => updatePassword(e.target.value)}
                     />
 
                     <button
                       type="button"
                       className="reset-password-toggle"
+                      disabled={loading}
+                      aria-label={
+                        showPassword
+                          ? "Ocultar contraseña"
+                          : "Mostrar contraseña"
+                      }
                       onClick={() => setShowPassword((prev) => !prev)}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -121,22 +155,38 @@ export default function ResetPassword() {
 
                     <input
                       type={showPassword ? "text" : "password"}
-                      required
-                      placeholder="Confirmar contraseña"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
                       className="reset-password-input"
+                      placeholder="Confirmar contraseña"
+                      autoComplete="new-password"
+                      disabled={loading}
+                      value={confirmPassword}
+                      onChange={(e) => updateConfirmPassword(e.target.value)}
                     />
                   </div>
 
-                  {error && <p className="reset-password-error">{error}</p>}
+                  {error && (
+                    <p
+                      className="reset-password-error"
+                      role="alert"
+                      aria-live="polite"
+                    >
+                      {error}
+                    </p>
+                  )}
 
                   <button
                     type="submit"
                     disabled={loading}
                     className="btn-primary btn-full"
                   >
-                    {loading ? "Guardando..." : "Guardar contraseña"}
+                    {loading ? (
+                      <>
+                        <LoaderCircle size={18} className="animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      "Guardar contraseña"
+                    )}
                   </button>
                 </form>
               </>
