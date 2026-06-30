@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import QuestionBlock from "./QuestionBlock";
@@ -15,7 +15,12 @@ interface QuestionnaireFlowProps {
   questionnaireId: QuestionnaireType;
 }
 
-type FlowScreen = "loading" | "introduction" | "in_progress" | "completed";
+type FlowScreen =
+  | "loading"
+  | "introduction"
+  | "in_progress"
+  | "completed"
+  | "error";
 
 export default function QuestionnaireFlow({
   questionnaireId,
@@ -24,30 +29,61 @@ export default function QuestionnaireFlow({
 
   const [screen, setScreen] = useState<FlowScreen>("loading");
 
-  useEffect(() => {
-    async function validateAccess() {
-      try {
-        if (questionnaireId === "post") {
-          const hasCompletedPre = await hasCompletedQuestionnaire("pre");
+  const [error, setError] = useState("");
 
-          if (!hasCompletedPre) {
-            router.replace("/cuestionarios");
-            return;
-          }
+  const loadQuestionnaire = useCallback(async () => {
+    try {
+      setError("");
+
+      if (questionnaireId === "post") {
+        const hasCompletedPre = await hasCompletedQuestionnaire("pre");
+
+        if (!hasCompletedPre) {
+          router.replace("/cuestionarios");
+
+          return;
         }
-
-        setScreen("introduction");
-      } catch {
-        router.replace("/cuestionarios");
       }
-    }
 
-    void validateAccess();
+      setScreen("introduction");
+    } catch (error) {
+      console.error("Error loading questionnaire:", error);
+
+      setError("No se ha podido cargar el cuestionario.");
+
+      setScreen("error");
+    }
   }, [questionnaireId, router]);
 
+  useEffect(() => {
+    void loadQuestionnaire();
+  }, [loadQuestionnaire]);
   switch (screen) {
     case "loading":
-      return <section className="questionnaire-loading">Cargando...</section>;
+      return (
+        <section className="questionnaire-loading" aria-live="polite">
+          Cargando cuestionario...
+        </section>
+      );
+
+    case "error":
+      return (
+        <section
+          className="questionnaire-error"
+          role="alert"
+          aria-live="assertive"
+        >
+          <p>{error}</p>
+
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => void loadQuestionnaire()}
+          >
+            Reintentar
+          </button>
+        </section>
+      );
 
     case "completed":
       return (
@@ -65,12 +101,15 @@ export default function QuestionnaireFlow({
         />
       );
 
-    default:
+    case "introduction":
       return (
         <QuestionnaireIntroduction
           questionnaireId={questionnaireId}
           onStart={() => setScreen("in_progress")}
         />
       );
+
+    default:
+      return null;
   }
 }

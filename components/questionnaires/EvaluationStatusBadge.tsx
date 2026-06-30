@@ -4,22 +4,42 @@ interface EvaluationStatusBadgeProps {
   status: QuestionnaireStatus;
 }
 
-const STATUS_LABELS: Record<QuestionnaireStatus, string> = {
-  pending: "Pendiente",
-  completed: "Completada",
-  locked: "Bloqueada",
+const STATUS_CONFIG: Record<
+  QuestionnaireStatus,
+  {
+    label: string;
+    ariaLabel: string;
+  }
+> = {
+  pending: {
+    label: "Pendiente",
+    ariaLabel: "Estado del cuestionario: pendiente",
+  },
+
+  completed: {
+    label: "Completado",
+    ariaLabel: "Estado del cuestionario: completado",
+  },
+
+  locked: {
+    label: "Bloqueado",
+    ariaLabel: "Estado del cuestionario: bloqueado",
+  },
 };
 
 export default function EvaluationStatusBadge({
   status,
 }: EvaluationStatusBadgeProps) {
-  const label = STATUS_LABELS[status];
+  const { label, ariaLabel } = STATUS_CONFIG[status];
 
   return (
     <span
       className="evaluation-status-badge"
       data-status={status}
-      aria-label={`Estado: ${label}`}
+      role="status"
+      aria-live="polite"
+      aria-label={ariaLabel}
+      title={label}
     >
       {label}
     </span>

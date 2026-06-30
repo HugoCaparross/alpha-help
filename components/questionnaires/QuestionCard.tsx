@@ -4,12 +4,19 @@ import { SCALES, type Question } from "@/lib/constants/questionnaires";
 
 interface QuestionCardProps {
   question: Question;
+
   questionNumber: number;
+
   selectedValue?: number;
+
   showError?: boolean;
+
   disabled?: boolean;
+
   showPrevious?: boolean;
+
   onPrevious?: () => void;
+
   onChange: (questionId: string, value: number) => void;
 }
 
@@ -26,17 +33,22 @@ export default function QuestionCard({
   const options = SCALES[question.scaleType];
 
   const titleId = `question-${question.id}`;
+
   const errorId = `question-error-${question.id}`;
+
+  const hasSelection = selectedValue !== undefined;
 
   return (
     <Card
       className={`question-card ${showError ? "question-card--error" : ""}`}
     >
-      <p className="question-card__number">Pregunta {questionNumber}</p>
+      <header className="question-card__header">
+        <p className="question-card__number">Pregunta {questionNumber}</p>
 
-      <h2 id={titleId} className="question-card__title">
-        {question.question}
-      </h2>
+        <h2 id={titleId} className="question-card__title">
+          {question.question}
+        </h2>
+      </header>
 
       {showError && (
         <p
@@ -49,33 +61,33 @@ export default function QuestionCard({
         </p>
       )}
 
-      <div
+      <fieldset
         className="question-card__options"
-        role="radiogroup"
         aria-labelledby={titleId}
         aria-describedby={showError ? errorId : undefined}
         aria-invalid={showError}
+        aria-required="true"
+        disabled={disabled}
       >
+        <legend className="sr-only">{question.question}</legend>
+
         {options.map((option, index) => {
           const optionValue = index + 1;
 
           const isSelected = selectedValue === optionValue;
 
-          const optionClass = `question-card__option ${
-            isSelected ? "question-card__option--selected" : ""
-          }`;
-
           return (
             <label
               key={`${question.id}-${optionValue}`}
-              className={optionClass}
+              className={`question-card__option ${
+                isSelected ? "question-card__option--selected" : ""
+              }`}
             >
               <input
                 type="radio"
                 name={question.id}
                 value={optionValue}
                 checked={isSelected}
-                disabled={disabled}
                 onChange={() => onChange(question.id, optionValue)}
                 className="question-card__input"
               />
@@ -84,18 +96,27 @@ export default function QuestionCard({
             </label>
           );
         })}
-      </div>
+      </fieldset>
 
-      {showPrevious && (
-        <button
-          type="button"
-          className="question-card__previous"
-          onClick={onPrevious}
-          disabled={disabled}
-        >
-          ← Anterior
-        </button>
-      )}
+      <footer className="question-card__footer">
+        {showPrevious && (
+          <button
+            type="button"
+            className="question-card__previous"
+            onClick={onPrevious}
+            disabled={disabled}
+            aria-label="Volver a la pregunta anterior"
+          >
+            ← Anterior
+          </button>
+        )}
+
+        {hasSelection && (
+          <span className="question-card__answered" aria-live="polite">
+            Respuesta seleccionada
+          </span>
+        )}
+      </footer>
     </Card>
   );
 }

@@ -64,9 +64,7 @@ export default function QuestionBlock({
   const currentStep = QUESTIONNAIRE_STEPS[currentStepIndex];
 
   const questions =
-    QUESTIONS_BY_STEP[
-      currentStep.id as keyof typeof QUESTIONS_BY_STEP
-    ];
+    QUESTIONS_BY_STEP[currentStep.id as keyof typeof QUESTIONS_BY_STEP];
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -74,23 +72,19 @@ export default function QuestionBlock({
 
   const isFirstStep = currentStepIndex === 0;
 
-  const isLastStep =
-    currentStepIndex === QUESTIONNAIRE_STEPS.length - 1;
+  const isLastStep = currentStepIndex === QUESTIONNAIRE_STEPS.length - 1;
 
   const isFirstQuestion = currentQuestionIndex === 0;
 
-  const isLastQuestionInStep =
-    currentQuestionIndex === questions.length - 1;
+  const isLastQuestionInStep = currentQuestionIndex === questions.length - 1;
 
-  const isQuestionnaireCompleted =
-    REQUIRED_QUESTION_IDS.every(
-      (questionId) => answers[questionId] !== undefined,
-    );
+  const isQuestionnaireCompleted = REQUIRED_QUESTION_IDS.every(
+    (questionId) => answers[questionId] !== undefined,
+  );
 
   const currentQuestionPosition =
-    ALL_QUESTIONS.findIndex(
-      (question) => question.id === currentQuestion?.id,
-    ) + 1;
+    ALL_QUESTIONS.findIndex((question) => question.id === currentQuestion?.id) +
+    1;
 
   const totalQuestions = ALL_QUESTIONS.length;
 
@@ -138,10 +132,7 @@ export default function QuestionBlock({
     try {
       setIsSubmitting(true);
 
-      await submitQuestionnaire(
-        questionnaireId,
-        answers,
-      );
+      await submitQuestionnaire(questionnaireId, answers);
 
       onComplete();
     } catch {
@@ -155,10 +146,7 @@ export default function QuestionBlock({
     }
   };
 
-  const handleAnswerChange = (
-    questionId: string,
-    value: number,
-  ) => {
+  const handleAnswerChange = (questionId: string, value: number) => {
     if (isSubmitting || isTransitioning) {
       return;
     }
@@ -201,30 +189,23 @@ export default function QuestionBlock({
     if (!isFirstStep) {
       const previousStepIndex = currentStepIndex - 1;
 
-      const previousStep =
-        QUESTIONNAIRE_STEPS[previousStepIndex];
+      const previousStep = QUESTIONNAIRE_STEPS[previousStepIndex];
 
       const previousQuestions =
-        QUESTIONS_BY_STEP[
-          previousStep.id as keyof typeof QUESTIONS_BY_STEP
-        ];
+        QUESTIONS_BY_STEP[previousStep.id as keyof typeof QUESTIONS_BY_STEP];
 
       setCurrentStepIndex(previousStepIndex);
 
-      setCurrentQuestionIndex(
-        previousQuestions.length - 1,
-      );
+      setCurrentQuestionIndex(previousQuestions.length - 1);
     }
   };
 
-    return (
+  return (
     <section className="question-block">
       <div className="question-block__body">
         <div
           className={`question-block__questions ${
-            isTransitioning
-              ? "question-block__questions--transition"
-              : ""
+            isTransitioning ? "question-block__questions--transition" : ""
           }`}
         >
           {currentQuestion && (

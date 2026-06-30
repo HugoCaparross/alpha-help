@@ -1,6 +1,7 @@
 "use client";
 
-import { notFound, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -19,7 +20,7 @@ const INFO_ITEMS = [
     getValue: (minutes: number) => `${minutes} minutos`,
   },
   {
-    title: "Cuestionarios",
+    title: "Estructura",
     getValue: (_: number, blocks: number) => `${blocks} bloques de evaluación`,
   },
   {
@@ -30,7 +31,7 @@ const INFO_ITEMS = [
   {
     title: "Importante",
     value:
-      "Una vez iniciada, la evaluación debe completarse en una única sesión. Si abandonas el cuestionario antes de finalizarlo, las respuestas no se conservarán.",
+      "Una vez iniciada la evaluación, procura completarla sin interrupciones. Si abandonas el cuestionario antes de finalizarlo, el progreso podría no conservarse.",
   },
 ] as const;
 
@@ -40,10 +41,25 @@ export default function QuestionnaireIntroduction({
 }: QuestionnaireIntroductionProps) {
   const router = useRouter();
 
-  const evaluation = EVALUATIONS.find((item) => item.id === questionnaireId);
+  const [starting, setStarting] = useState(false);
+
+  const evaluation = useMemo(
+    () => EVALUATIONS.find((item) => item.id === questionnaireId),
+    [questionnaireId],
+  );
 
   if (!evaluation) {
-    notFound();
+    return null;
+  }
+
+  function handleStart() {
+    if (starting) {
+      return;
+    }
+
+    setStarting(true);
+
+    onStart();
   }
 
   return (
@@ -54,20 +70,31 @@ export default function QuestionnaireIntroduction({
         </h1>
 
         <p className="questionnaire-introduction__description">
-          Reserva aproximadamente {evaluation.estimatedMinutes} minutos y
-          realiza la evaluación en un entorno tranquilo, sin interrupciones.
+          Reserva aproximadamente{" "}
+          <strong>{evaluation.estimatedMinutes} minutos</strong> para completar
+          esta evaluación en un entorno tranquilo y sin interrupciones.
         </p>
       </header>
 
       <Card className="card-padding">
-        <div className="questionnaire-introduction__content">
+        <section
+          className="questionnaire-introduction__content"
+          aria-labelledby="questionnaire-information"
+        >
           <div className="questionnaire-introduction__grid">
             {INFO_ITEMS.map((item) => (
-              <div
+              <article
                 key={item.title}
                 className="questionnaire-introduction__item"
               >
-                <h2 className="questionnaire-introduction__item-title">
+                <h2
+                  className="questionnaire-introduction__item-title"
+                  id={
+                    item.title === "Duración estimada"
+                      ? "questionnaire-information"
+                      : undefined
+                  }
+                >
                   {item.title}
                 </h2>
 
@@ -79,7 +106,7 @@ export default function QuestionnaireIntroduction({
                       )
                     : item.value}
                 </p>
-              </div>
+              </article>
             ))}
           </div>
 
@@ -91,9 +118,11 @@ export default function QuestionnaireIntroduction({
               Atrás
             </Button>
 
-            <Button onClick={onStart}>Comenzar evaluación</Button>
+            <Button onClick={handleStart} disabled={starting}>
+              {starting ? "Iniciando..." : "Comenzar evaluación"}
+            </Button>
           </div>
-        </div>
+        </section>
       </Card>
     </main>
   );

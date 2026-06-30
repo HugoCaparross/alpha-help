@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import PageHeader from "@/components/ui/PageHeader";
 import EvaluationCard from "./EvaluationCard";
 
 import { EVALUATIONS } from "@/lib/constants/questionnaires";
+
 import type {
   QuestionnaireStatus,
   QuestionnaireWithStatus,
@@ -19,69 +20,110 @@ import {
 export default function CuestionariosView() {
   const [completed, setCompleted] = useState<QuestionnaireType[]>([]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const [loading, setLoading] = useState(true);
 
-    async function loadQuestionnaires() {
-      try {
-        const questionnaires = await getCompletedQuestionnaires();
+  const [error, setError] = useState("");
 
-        if (isMounted) {
-          setCompleted(questionnaires);
-        }
-      } catch {
-        if (isMounted) {
-          setCompleted([]);
-        }
-      }
+  const loadQuestionnaires = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const questionnaires =
+        await getCompletedQuestionnaires();
+
+      setCompleted(questionnaires);
+    } catch (error) {
+      console.error(
+        "Error loading questionnaires:",
+        error,
+      );
+
+      setCompleted([]);
+
+      setError(
+        "No se han podido cargar los cuestionarios. Inténtalo de nuevo.",
+      );
+    } finally {
+      setLoading(false);
     }
-
-    loadQuestionnaires();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
-  const evaluations = useMemo<QuestionnaireWithStatus[]>(() => {
-    const hasCompletedPre = completed.includes("pre");
-    const hasCompletedPost = completed.includes("post");
+  useEffect(() => {
+    void loadQuestionnaires();
+  }, [loadQuestionnaires]);
 
-    return EVALUATIONS.map((evaluation) => {
-      let status: QuestionnaireStatus;
+  const evaluations =
+    useMemo<QuestionnaireWithStatus[]>(() => {
+      const hasCompletedPre =
+        completed.includes("pre");
 
-      if (evaluation.id === "pre") {
-        status = hasCompletedPre ? "completed" : "pending";
-      } else {
-        status = hasCompletedPost
-          ? "completed"
-          : hasCompletedPre
-            ? "pending"
-            : "locked";
-      }
+      const hasCompletedPost =
+        completed.includes("post");
 
-      return {
-        ...evaluation,
-        status,
-      };
-    });
-  }, [completed]);
+      return EVALUATIONS.map(
+        (evaluation) => {
+          let status: QuestionnaireStatus;
+
+          if (evaluation.id === "pre") {
+            status = hasCompletedPre
+              ? "completed"
+              : "pending";
+          } else {
+            status = hasCompletedPost
+              ? "completed"
+              : hasCompletedPre
+                ? "pending"
+                : "locked";
+          }
+
+          return {
+            ...evaluation,
+            status,
+          };
+        },
+      );
+    }, [completed]);
 
   return (
     <section className="questionnaires-page">
       <PageHeader
-        title="Formularios"
-        description="
-        Completa las evaluaciones del estudio en el orden indicado.
-        Tus respuestas son confidenciales y se utilizan exclusivamente
-        con fines de investigación."
+        title="Cuestionarios"
+        description="Completa los cuestionarios siguiendo el orden indicado. Tus respuestas son completamente confidenciales y se utilizarán exclusivamente con fines de investigación."
       />
 
-      <div className="questionnaires-list">
-        {evaluations.map((evaluation) => (
-          <EvaluationCard key={evaluation.id} evaluation={evaluation} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="questionnaires-loading">
+          <p>Cargando cuestionarios...</p>
+        </div>
+      ) : error ? (
+        <div
+          className="questionnaires-error"
+          role="alert"
+          aria-live="polite"
+        >
+          <p>{error}</p>
+
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() =>
+              void loadQuestionnaires()
+            }
+          >
+            Reintentar
+          </button>
+        </div>
+      ) : (
+        <div className="questionnaires-list">
+          {evaluations.map((evaluation) => (
+            <EvaluationCard
+              key={evaluation.id}
+              evaluation={evaluation}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

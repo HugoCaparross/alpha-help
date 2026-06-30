@@ -2,6 +2,14 @@ import { notFound } from "next/navigation";
 
 import QuestionnaireFlow from "@/components/questionnaires/QuestionnaireFlow";
 
+const VALID_QUESTIONNAIRES = [
+  "pre",
+  "post",
+] as const;
+
+type QuestionnaireId =
+  (typeof VALID_QUESTIONNAIRES)[number];
+
 interface QuestionnairePageProps {
   params: Promise<{
     id: string;
@@ -13,11 +21,19 @@ export default async function QuestionnairePage({
 }: QuestionnairePageProps) {
   const { id } = await params;
 
-  const isValidQuestionnaire = id === "pre" || id === "post";
-
-  if (!isValidQuestionnaire) {
+  if (
+    !VALID_QUESTIONNAIRES.includes(
+      id as QuestionnaireId,
+    )
+  ) {
     notFound();
   }
 
-  return <QuestionnaireFlow questionnaireId={id} />;
+  return (
+    <QuestionnaireFlow
+      questionnaireId={
+        id as QuestionnaireId
+      }
+    />
+  );
 }
