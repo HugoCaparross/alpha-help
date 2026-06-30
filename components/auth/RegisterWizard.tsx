@@ -16,6 +16,31 @@ import "../styles/auth.css";
 
 import type { RegisterData } from "./register.types";
 
+const TOTAL_STEPS = 6;
+
+const STEP_LABELS = [
+  "Cuenta",
+  "Participante",
+  "Familia",
+  "Centro",
+  "Hijos",
+  "Resumen",
+];
+
+function getAuthErrorMessage(message: string) {
+  const error = message.toLowerCase();
+
+  if (error.includes("rate limit")) {
+    return "Se han realizado demasiadas solicitudes recientemente. Inténtalo de nuevo dentro de unos minutos.";
+  }
+
+  if (error.includes("already registered")) {
+    return "Ya existe una cuenta registrada con este correo electrónico.";
+  }
+
+  return message;
+}
+
 export default function RegisterWizard() {
   const router = useRouter();
 
@@ -56,7 +81,7 @@ export default function RegisterWizard() {
   const [submitError, setSubmitError] = useState("");
 
   function nextStep() {
-    setStep((prev) => Math.min(prev + 1, 6));
+    setStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
   }
 
   function previousStep() {
@@ -105,29 +130,16 @@ export default function RegisterWizard() {
       });
 
       if (error) {
-        const message = error.message.toLowerCase();
-
-        if (message.includes("rate limit")) {
-          setSubmitError(
-            "Se han realizado demasiadas solicitudes recientemente. Inténtalo de nuevo dentro de unos minutos.",
-          );
-        } else if (message.includes("already registered")) {
-          setSubmitError(
-            "Ya existe una cuenta registrada con este correo electrónico.",
-          );
-        } else {
-          setSubmitError(error.message);
-        }
-
+        setSubmitError(getAuthErrorMessage(error.message));
         return;
       }
 
       router.push("/login?registered=true");
     } catch (error) {
-      console.error("CATCH ERROR:", error);
-
       setSubmitError(
-        error instanceof Error ? error.message : JSON.stringify(error),
+        error instanceof Error
+          ? error.message
+          : "Ha ocurrido un error inesperado.",
       );
     } finally {
       setLoading(false);
@@ -137,47 +149,24 @@ export default function RegisterWizard() {
   return (
     <div className="register-card">
       <div className="register-stepper">
-        <div
-          className={`step-item ${
-            step > 1 ? "completed" : step === 1 ? "active" : ""
-          }`}
-        >
-          Cuenta
-        </div>
+        {STEP_LABELS.map((label, index) => {
+          const currentStep = index + 1;
 
-        <div
-          className={`step-item ${
-            step > 2 ? "completed" : step === 2 ? "active" : ""
-          }`}
-        >
-          Participante
-        </div>
-
-        <div
-          className={`step-item ${
-            step > 3 ? "completed" : step === 3 ? "active" : ""
-          }`}
-        >
-          Familia
-        </div>
-
-        <div
-          className={`step-item ${
-            step > 4 ? "completed" : step === 4 ? "active" : ""
-          }`}
-        >
-          Centro
-        </div>
-
-        <div
-          className={`step-item ${
-            step > 5 ? "completed" : step === 5 ? "active" : ""
-          }`}
-        >
-          Hijos
-        </div>
-
-        <div className={`step-item ${step === 6 ? "active" : ""}`}>Resumen</div>
+          return (
+            <div
+              key={label}
+              className={`step-item ${
+                step > currentStep
+                  ? "completed"
+                  : step === currentStep
+                    ? "active"
+                    : ""
+              }`}
+            >
+              {label}
+            </div>
+          );
+        })}
       </div>
 
       <div className="register-step-content">
@@ -225,7 +214,7 @@ export default function RegisterWizard() {
           />
         )}
 
-        {step === 6 && (
+        {step === TOTAL_STEPS && (
           <RegisterStepSummary
             formData={formData}
             previousStep={previousStep}

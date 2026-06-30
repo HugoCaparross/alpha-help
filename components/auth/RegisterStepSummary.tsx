@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  LoaderCircle,
+} from "lucide-react";
 
 import type { RegisterData } from "./register.types";
 
@@ -16,6 +20,14 @@ interface Props {
   submitError: string;
 }
 
+const CHILD_ORDINALS = [
+  "Primer",
+  "Segundo",
+  "Tercer",
+  "Cuarto",
+  "Quinto",
+] as const;
+
 export default function RegisterStepSummary({
   formData,
   previousStep,
@@ -25,7 +37,9 @@ export default function RegisterStepSummary({
 }: Props) {
   return (
     <>
-      <h2 className="step-title">Revisar información</h2>
+      <h2 className="step-title">
+        Revisar información
+      </h2>
 
       <p className="step-description">
         Revisa la información antes de completar el registro.
@@ -34,6 +48,10 @@ export default function RegisterStepSummary({
       <div className="summary-layout">
         <div className="register-summary">
           {/* CUENTA */}
+
+          <h3 className="summary-section-title">
+            Cuenta
+          </h3>
 
           <div className="summary-item">
             <span>Email</span>
@@ -45,11 +63,17 @@ export default function RegisterStepSummary({
             <span>Región</span>
 
             <strong>
-              {formData.region === "spain" ? "España" : "Latinoamérica"}
+              {formData.region === "spain"
+                ? "España"
+                : "Latinoamérica"}
             </strong>
           </div>
 
           {/* PARTICIPANTE */}
+
+          <h3 className="summary-section-title">
+            Participante
+          </h3>
 
           <div className="summary-item">
             <span>Sexo</span>
@@ -60,90 +84,161 @@ export default function RegisterStepSummary({
           <div className="summary-item">
             <span>Edad</span>
 
-            <strong>{formData.age} años</strong>
+            <strong>
+              {formData.age} años
+            </strong>
           </div>
 
           <div className="summary-item">
             <span>Estudios</span>
 
-            <strong>{formData.educationLevel}</strong>
+            <strong>
+              {formData.educationLevel}
+            </strong>
           </div>
 
           <div className="summary-item">
-            <span>Situación laboral</span>
+            <span>
+              Situación laboral
+            </span>
 
-            <strong>{formData.employmentStatus}</strong>
+            <strong>
+              {formData.employmentStatus}
+            </strong>
           </div>
 
           <div className="summary-item">
             <span>Estado civil</span>
 
-            <strong>{formData.maritalStatus}</strong>
+            <strong>
+              {formData.maritalStatus}
+            </strong>
           </div>
 
           {/* FAMILIA */}
 
-          <div className="summary-item">
-            <span>Nivel socioeconómico</span>
+          <h3 className="summary-section-title">
+            Familia
+          </h3>
 
-            <strong>{formData.socioeconomicLevel}</strong>
+          <div className="summary-item">
+            <span>
+              Nivel socioeconómico
+            </span>
+
+            <strong>
+              {
+                formData.socioeconomicLevel
+              }
+            </strong>
           </div>
 
           <div className="summary-item">
-            <span>Tipo de centro</span>
+            <span>
+              Tipo de centro
+            </span>
 
-            <strong>{formData.schoolType}</strong>
+            <strong>
+              {formData.schoolType}
+            </strong>
           </div>
 
           <div className="summary-item">
-            <span>Número de hijos</span>
+            <span>
+              Número de hijos
+            </span>
 
-            <strong>{formData.numberOfChildren}</strong>
+            <strong>
+              {
+                formData.numberOfChildren
+              }
+            </strong>
           </div>
 
           <div className="summary-item">
-            <span>Estructura familiar</span>
+            <span>
+              Estructura familiar
+            </span>
 
-            <strong>{formData.familyStructure}</strong>
+            <strong>
+              {
+                formData.familyStructure
+              }
+            </strong>
           </div>
 
-          {/* CENTRO ESCOLAR */}
+          {/* CENTRO */}
+
+          <h3 className="summary-section-title">
+            Centro escolar
+          </h3>
 
           <div className="summary-item">
-            <span>Centro escolar</span>
+            <span>Centro</span>
 
-            <strong>{formData.schoolCenter}</strong>
+            <strong>
+              {formData.schoolCenter}
+            </strong>
           </div>
 
           {/* HIJOS */}
 
-          {formData.children.map((child, index) => (
-            <div key={index} className="summary-item">
-              <span>
-                {["Primer", "Segundo", "Tercer", "Cuarto", "Quinto"][index]}{" "}
-                hijo/a
-              </span>
+          <h3 className="summary-section-title">
+            Hijos
+          </h3>
 
-              <strong>
-                {child.age} años · {child.gender} ·{" "}
-                {child.psychologicalSupport
-                  ? "Con atención psicológica"
-                  : "Sin atención psicológica"}
-              </strong>
-            </div>
-          ))}
+          {formData.children.map(
+            (child, index) => (
+              <div
+                key={`summary-child-${index}`}
+                className="summary-item"
+              >
+                <span>
+                  {
+                    CHILD_ORDINALS[
+                      index
+                    ]
+                  }{" "}
+                  hijo/a
+                </span>
+
+                <strong>
+                  Edad: {child.age} años ·
+                  Sexo: {child.gender} ·{" "}
+                  {child.psychologicalSupport
+                    ? "Con atención psicológica"
+                    : "Sin atención psicológica"}
+                </strong>
+              </div>
+            ),
+          )}
         </div>
 
         <div className="summary-notice">
           <p className="summary-notice-text">
             <CheckCircle size={18} />
-            Toda la información será tratada de forma confidencial y utilizada
-            exclusivamente para investigación científica.
+
+            Toda la información será tratada
+            de forma confidencial y utilizada
+            exclusivamente para
+            investigación científica. Las
+            respuestas estarán asociadas a
+            un identificador interno para
+            preservar la privacidad de los
+            participantes.
           </p>
         </div>
       </div>
 
-      {submitError && <p className="auth-error">{submitError}</p>}
+      {submitError && (
+        <p
+          className="auth-error"
+          role="alert"
+          aria-live="polite"
+        >
+          {submitError}
+        </p>
+      )}
 
       <div className="step-actions">
         <button
@@ -162,7 +257,17 @@ export default function RegisterStepSummary({
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
+          {loading ? (
+            <>
+              <LoaderCircle
+                size={18}
+                className="animate-spin"
+              />
+              Creando cuenta...
+            </>
+          ) : (
+            "Crear cuenta"
+          )}
         </button>
       </div>
     </>

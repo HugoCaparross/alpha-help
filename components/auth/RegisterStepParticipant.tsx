@@ -1,11 +1,19 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-import type { RegisterData } from "./register.types";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { participantSchema } from "@/validators";
+
+import {
+  GENDERS,
+  EDUCATION_LEVELS,
+  EMPLOYMENT_STATUS,
+  MARITAL_STATUS,
+} from "@/lib/constants";
+
+import type { RegisterData } from "./register.types";
 
 interface Props {
   formData: RegisterData;
@@ -24,6 +32,18 @@ export default function RegisterStepParticipant({
   previousStep,
 }: Props) {
   const [error, setError] = useState("");
+
+  function updateField<K extends keyof RegisterData>(
+    field: K,
+    value: RegisterData[K],
+  ) {
+    setError("");
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
 
   function validateStep() {
     const result = participantSchema.safeParse({
@@ -44,204 +64,128 @@ export default function RegisterStepParticipant({
     nextStep();
   }
 
-  return (
-    <>
-      <h2 className="step-title">Datos del participante</h2>
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
+    validateStep();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2 className="step-title">Datos del participante</h2>
       <p className="step-description">
         Información básica de la persona que participa en el estudio.
       </p>
-
       {/* SEXO */}
-
       <div className="auth-field">
         <label className="auth-label">Soy...</label>
 
         <select
           className="auth-input"
+          autoComplete="sex"
           value={formData.gender}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              gender: e.target.value,
-            }))
-          }
+          onChange={(e) => updateField("gender", e.target.value)}
         >
           <option value="">Selecciona una opción</option>
 
-          <option value="Mujer">Mujer</option>
-
-          <option value="Hombre">Hombre</option>
+          {GENDERS.map((gender) => (
+            <option key={gender} value={gender}>
+              {gender}
+            </option>
+          ))}
         </select>
       </div>
-
       {/* EDAD */}
-
       <div className="auth-field">
         <label className="auth-label">Tengo...</label>
 
         <input
-          type="number"
-          min="18"
-          max="99"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="bday-year"
           className="auth-input"
           placeholder="Edad"
           value={formData.age}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              age: e.target.value,
-            }))
-          }
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, "");
+
+            if (value.length <= 2) {
+              updateField("age", value);
+            }
+          }}
         />
-      </div>
-
+      </div>{" "}
       {/* ESTUDIOS */}
-
       <div className="auth-field">
-        <label className="auth-label">
-          Nivel máximo de estudios
-        </label>
+        <label className="auth-label">Nivel máximo de estudios</label>
 
         <select
           className="auth-input"
           value={formData.educationLevel}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              educationLevel: e.target.value,
-            }))
-          }
+          onChange={(e) => updateField("educationLevel", e.target.value)}
         >
-          <option value="">
-            Selecciona una opción
-          </option>
+          <option value="">Selecciona una opción</option>
 
-          <option value="Primarios">
-            Primarios
-          </option>
-
-          <option value="Secundarios">
-            Secundarios
-          </option>
-
-          <option value="Universitarios">
-            Universitarios
-          </option>
-
-          <option value="Doctorado">
-            Doctorado
-          </option>
+          {EDUCATION_LEVELS.map((level) => (
+            <option key={level} value={level}>
+              {level}
+            </option>
+          ))}
         </select>
       </div>
-
       {/* SITUACIÓN LABORAL */}
-
       <div className="auth-field">
-        <label className="auth-label">
-          Situación laboral actual
-        </label>
+        <label className="auth-label">Situación laboral actual</label>
 
         <select
           className="auth-input"
           value={formData.employmentStatus}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              employmentStatus: e.target.value,
-            }))
-          }
+          onChange={(e) => updateField("employmentStatus", e.target.value)}
         >
-          <option value="">
-            Selecciona una opción
-          </option>
+          <option value="">Selecciona una opción</option>
 
-          <option value="Estudiante">
-            Estudiante
-          </option>
-
-          <option value="Trabajo">
-            Trabajo
-          </option>
-
-          <option value="Parado/a">
-            Parado/a
-          </option>
-
-          <option value="Gestión doméstica">
-            Gestión doméstica
-          </option>
-
-          <option value="Jubilado/a">
-            Jubilado/a
-          </option>
-
-          <option value="Incapacitado/a">
-            Incapacitado/a
-          </option>
+          {EMPLOYMENT_STATUS.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
         </select>
       </div>
-
       {/* ESTADO CIVIL */}
-
       <div className="auth-field">
-        <label className="auth-label">
-          Estado civil actual
-        </label>
+        <label className="auth-label">Estado civil actual</label>
 
         <select
           className="auth-input"
           value={formData.maritalStatus}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              maritalStatus: e.target.value,
-            }))
-          }
+          onChange={(e) => updateField("maritalStatus", e.target.value)}
         >
-          <option value="">
-            Selecciona una opción
-          </option>
+          <option value="">Selecciona una opción</option>
 
-          <option value="Soltero/a">
-            Soltero/a
-          </option>
-
-          <option value="Casado/a">
-            Casado/a
-          </option>
-
-          <option value="Separado/a, Divorciado/a">
-            Separado/a, Divorciado/a
-          </option>
-
-          <option value="Viudo/a">
-            Viudo/a
-          </option>
+          {MARITAL_STATUS.map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
         </select>
-      </div>
-
-      {error && <p className="auth-error">{error}</p>}
-
+      </div>{" "}
+      {error && (
+        <p className="auth-error" role="alert" aria-live="polite">
+          {error}
+        </p>
+      )}
       <div className="step-actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={previousStep}
-        >
+        <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />
           Atrás
         </button>
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={validateStep}
-        >
+        <button type="submit" className="btn-primary">
           Continuar
           <ArrowRight size={18} />
         </button>
       </div>
-    </>
+    </form>
   );
 }

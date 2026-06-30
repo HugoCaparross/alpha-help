@@ -1,17 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import type { RegisterData, ChildData } from "./register.types";
 import { childSchema } from "@/validators";
+
+import { GENDERS } from "@/lib/constants";
+
+import type { RegisterData, ChildData } from "./register.types";
 
 interface Props {
   formData: RegisterData;
+
   setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
+
   nextStep: () => void;
+
   previousStep: () => void;
 }
+
+const CHILD_ORDINALS = [
+  "Primer",
+  "Segundo",
+  "Tercer",
+  "Cuarto",
+  "Quinto",
+] as const;
 
 export default function RegisterStepChild({
   formData,
@@ -37,9 +52,13 @@ export default function RegisterStepChild({
         });
       }
 
+      if (children.length > numberOfChildren) {
+        children.length = numberOfChildren;
+      }
+
       return {
         ...prev,
-        children: children.slice(0, numberOfChildren),
+        children,
       };
     });
   }, [numberOfChildren, setFormData]);
@@ -49,17 +68,19 @@ export default function RegisterStepChild({
     field: keyof ChildData,
     value: string | boolean,
   ) {
-    setFormData((prev) => {
-      const updatedChildren = [...prev.children];
+    setError("");
 
-      updatedChildren[index] = {
-        ...updatedChildren[index],
+    setFormData((prev) => {
+      const children = [...prev.children];
+
+      children[index] = {
+        ...children[index],
         [field]: value,
       };
 
       return {
         ...prev,
-        children: updatedChildren,
+        children,
       };
     });
   }
@@ -71,41 +92,53 @@ export default function RegisterStepChild({
 
     if (!result.success) {
       setError(result.error.issues[0].message);
+
       return;
     }
 
     setError("");
+
     nextStep();
   }
 
-  return (
-    <>
-      <h2 className="step-title">Información de los hijos</h2>
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
+    validateStep();
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2 className="step-title">Información de los hijos</h2>
       <p className="step-description">
         Indica la edad, sexo y si han recibido atención psicológica.
-      </p>
-
+      </p>{" "}
       {formData.children.map((child, index) => (
-        <div key={index} className="child-card">
-          <h3 className="child-title">
-            {["Primer", "Segundo", "Tercer", "Cuarto", "Quinto"][index]} hijo/a
-          </h3>
+        <div key={`child-${index}`} className="child-card">
+          <h3 className="child-title">{CHILD_ORDINALS[index]} hijo/a</h3>
 
           <div className="child-grid">
+            {/* EDAD */}
             <div className="auth-field">
               <label className="auth-label">Edad</label>
 
               <input
-                type="number"
-                min="10"
-                max="17"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="auth-input"
+                placeholder="Edad"
                 value={child.age}
-                onChange={(e) => updateChild(index, "age", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+
+                  if (value.length <= 2) {
+                    updateChild(index, "age", value);
+                  }
+                }}
               />
             </div>
-
+            {/* SEXO */}
             <div className="auth-field">
               <label className="auth-label">Sexo</label>
 
@@ -115,11 +148,15 @@ export default function RegisterStepChild({
                 onChange={(e) => updateChild(index, "gender", e.target.value)}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="Mujer">Mujer</option>
-                <option value="Hombre">Hombre</option>
-              </select>
-            </div>
 
+                {GENDERS.map((gender) => (
+                  <option key={gender} value={gender}>
+                    {gender}
+                  </option>
+                ))}
+              </select>
+            </div>{" "}
+            {/* ATENCIÓN PSICOLÓGICA */}
             <div className="auth-field child-full-width">
               <label className="auth-label">
                 ¿Ha recibido atención psicológica?
@@ -137,26 +174,29 @@ export default function RegisterStepChild({
                 }
               >
                 <option value="No">No</option>
+
                 <option value="Sí">Sí</option>
               </select>
             </div>
           </div>
         </div>
-      ))}
-
-      {error && <p className="auth-error">{error}</p>}
-
+      ))}{" "}
+      {error && (
+        <p className="auth-error" role="alert" aria-live="polite">
+          {error}
+        </p>
+      )}
       <div className="step-actions">
         <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />
           Atrás
         </button>
 
-        <button type="button" className="btn-primary" onClick={validateStep}>
+        <button type="submit" className="btn-primary">
           Continuar
           <ArrowRight size={18} />
         </button>
       </div>
-    </>
+    </form>
   );
 }

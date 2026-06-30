@@ -4,14 +4,16 @@ import { useState } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { SPAIN_SCHOOLS, LATAM_SCHOOLS } from "@/lib/constants";
+
+import { schoolSchema } from "@/validators";
+
 import type { RegisterData } from "./register.types";
 
 interface Props {
   formData: RegisterData;
 
-  setFormData: React.Dispatch<
-    React.SetStateAction<RegisterData>
-  >;
+  setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
 
   nextStep: () => void;
 
@@ -26,11 +28,25 @@ export default function RegisterStepSchool({
 }: Props) {
   const [error, setError] = useState("");
 
+  function updateField<K extends keyof RegisterData>(
+    field: K,
+    value: RegisterData[K],
+  ) {
+    setError("");
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  }
+
   function validateStep() {
-    if (!formData.schoolCenter) {
-      setError(
-        "Selecciona un centro escolar"
-      );
+    const result = schoolSchema.safeParse({
+      schoolCenter: formData.schoolCenter,
+    });
+
+    if (!result.success) {
+      setError(result.error.issues[0].message);
 
       return;
     }
@@ -40,91 +56,53 @@ export default function RegisterStepSchool({
     nextStep();
   }
 
-  const schools =
-    formData.region === "spain"
-      ? [
-          "Nuestra Señora del Pilar (Jerez de la Frontera)",
-          'Jesús María "El Cuco" (Jerez de la Frontera)',
-          "C. E. Marni (Rascanya)",
-          "Otro centro",
-        ]
-      : [
-          "Innovación Educativa Montessori",
-          'Escuela Telesecundaria "5 de mayo"',
-          'Escuela Telesecundaria "Guadalupe Victoria"',
-          'Escuela Telesecundaria "Leona Vicario"',
-          'Escuela Telesecundaria "Manuel C. Tello"',
-          'Escuela Telesecundaria "Rafael Ramírez"',
-          "Otro centro",
-        ];
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    validateStep();
+  }
+
+  const schools = formData.region === "spain" ? SPAIN_SCHOOLS : LATAM_SCHOOLS;
 
   return (
-    <>
-      <h2 className="step-title">
-        Centro escolar
-      </h2>
-
+    <form onSubmit={handleSubmit}>
+      <h2 className="step-title">Centro escolar</h2>
       <p className="step-description">
-        Selecciona el centro escolar al
-        que acuden tus hijos.
+        Selecciona el centro escolar al que acuden tus hijos.
       </p>
-
       <div className="auth-field">
-        <label className="auth-label">
-          Centro escolar
-        </label>
+        <label className="auth-label">Centro escolar</label>
 
         <select
           className="auth-input"
           value={formData.schoolCenter}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              schoolCenter:
-                e.target.value,
-            }))
-          }
+          onChange={(e) => updateField("schoolCenter", e.target.value)}
         >
-          <option value="">
-            Selecciona una opción
-          </option>
+          <option value="">Selecciona una opción</option>
 
           {schools.map((school) => (
-            <option
-              key={school}
-              value={school}
-            >
+            <option key={school} value={school}>
               {school}
             </option>
           ))}
         </select>
-      </div>
-
+      </div>{" "}
       {error && (
-        <p className="auth-error">
+        <p className="auth-error" role="alert" aria-live="polite">
           {error}
         </p>
       )}
-
       <div className="step-actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={previousStep}
-        >
+        <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />
           Atrás
         </button>
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={validateStep}
-        >
+        <button type="submit" className="btn-primary">
           Continuar
           <ArrowRight size={18} />
         </button>
       </div>
-    </>
+    </form>
   );
 }
