@@ -1,34 +1,25 @@
 import { createClient } from "@supabase/supabase-js";
 
 /**
- * Obtiene una variable de entorno obligatoria.
- */
-function getEnvVariable(
-  name: string,
-): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(
-      `Falta la variable de entorno ${name}.`,
-    );
-  }
-
-  return value;
-}
-
-/**
  * Variables públicas de Supabase.
  */
 const supabaseUrl =
-  getEnvVariable(
-    "NEXT_PUBLIC_SUPABASE_URL",
-  );
+  process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 const supabaseAnonKey =
-  getEnvVariable(
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl) {
+  throw new Error(
+    "Falta la variable de entorno NEXT_PUBLIC_SUPABASE_URL.",
   );
+}
+
+if (!supabaseAnonKey) {
+  throw new Error(
+    "Falta la variable de entorno NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+  );
+}
 
 /**
  * Cliente único de Supabase para el lado del cliente.
