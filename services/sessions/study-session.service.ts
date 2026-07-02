@@ -1,17 +1,31 @@
 import { supabase } from "@/lib/supabase/client";
 
-import { isSpain } from "@/lib/utils/regions";
-
-import type { Region } from "@/lib/utils/regions";
+import {
+  isSpain,
+  type Region,
+} from "@/lib/utils/regions";
 
 import type {
   Session,
   SessionWithStatus,
 } from "@/types/study-session";
 
+const STUDY_SESSIONS_TABLE =
+  "study_sessions";
+
+const SESSION_FIELDS = `
+  id,
+  title,
+  description,
+  youtube_url,
+  thumbnail_url,
+  session_order,
+  release_date_spain,
+  release_date_latam
+`;
+
 /**
- * Forma cruda de la fila tal y como la devuelve Supabase.
- * Se utiliza únicamente para mapear snake_case → camelCase.
+ * Forma cruda devuelta por Supabase.
  */
 interface SessionRow {
   id: string;
@@ -32,9 +46,12 @@ interface SessionRow {
 }
 
 /**
- * Convierte una fila de Supabase al modelo de dominio.
+ * Convierte una fila de Supabase
+ * al modelo utilizado por la aplicación.
  */
-function mapRow(row: SessionRow): Session {
+function mapRow(
+  row: SessionRow,
+): Session {
   return {
     id: row.id,
 
@@ -44,19 +61,23 @@ function mapRow(row: SessionRow): Session {
 
     youtubeUrl: row.youtube_url,
 
-    thumbnailUrl: row.thumbnail_url,
+    thumbnailUrl:
+      row.thumbnail_url,
 
-    sessionOrder: row.session_order,
+    sessionOrder:
+      row.session_order,
 
-    releaseDateSpain: row.release_date_spain,
+    releaseDateSpain:
+      row.release_date_spain,
 
-    releaseDateLatam: row.release_date_latam,
+    releaseDateLatam:
+      row.release_date_latam,
   };
 }
 
 /**
- * Devuelve la fecha de publicación correspondiente
- * a la región del usuario.
+ * Devuelve la fecha de publicación
+ * correspondiente a la región indicada.
  */
 function resolveReleaseDate(
   session: Session,
@@ -68,107 +89,147 @@ function resolveReleaseDate(
 }
 
 /**
- * Calcula el estado de la sesión según su fecha de publicación.
+ * Calcula el estado actual
+ * de una sesión.
  */
 function resolveStatus(
   releaseDate: string,
 ): SessionWithStatus["status"] {
-  const releaseTimestamp = new Date(releaseDate).getTime();
-
-  return releaseTimestamp <= Date.now()
+  return Date.parse(
+    releaseDate,
+  ) <= Date.now()
     ? "available"
     : "locked";
 }
 
 /**
- * Resuelve una sesión completa para la región indicada.
+ * Convierte una sesión en una sesión
+ * lista para mostrarse al participante.
  */
 function resolveSession(
   session: Session,
   region: Region,
 ): SessionWithStatus {
-  const releaseDate = resolveReleaseDate(
-    session,
-    region,
-  );
+  const releaseDate =
+    resolveReleaseDate(
+      session,
+      region,
+    );
 
   return {
     ...session,
 
     releaseDate,
 
-    status: resolveStatus(releaseDate),
+    status:
+      resolveStatus(
+        releaseDate,
+      ),
   };
 }
 
 /**
- * Obtiene todas las sesiones del programa.
+ * Obtiene todas las sesiones
+ * del programa.
  */
-export async function getSessions(): Promise<Session[]> {
-  const { data, error } = await supabase
-    .from("study_sessions")
-    .select("*")
-    .order("session_order", {
-      ascending: true,
-    });
+export async function getSessions(): Promise<
+  Session[]
+> {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(STUDY_SESSIONS_TABLE)
+    .select(SESSION_FIELDS)
+    .order(
+      "session_order",
+      {
+        ascending: true,
+      },
+    );
 
   if (error) {
     throw new Error(
-      `Error al obtener las sesiones: ${error.message}`,
+      "No se han podido recuperar las sesiones.",
     );
   }
 
-  return (data ?? []).map(mapRow);
-}
-
-/**
- * Obtiene todas las sesiones resolviendo automáticamente
- * su fecha de publicación y estado para la región indicada.
- */
-export async function getSessionsWithStatus(
-  region: Region,
-): Promise<SessionWithStatus[]> {
-  const studySessions = await getSessions();
-
-  return studySessions.map((session) =>
-    resolveSession(session, region),
+  return (data ?? []).map(
+    mapRow,
   );
 }
 
 /**
- * Devuelve únicamente las sesiones
- * ya disponibles para el usuario.
+ * Obtiene todas las sesiones
+ * resolviendo automáticamente
+ * su estado para la región indicada.
+ */
+export async function getSessionsWithStatus(
+  region: Region,
+): Promise<
+  SessionWithStatus[]
+> {
+  const sessions =
+    await getSessions();
+
+  return sessions.map(
+    (session) =>
+      resolveSession(
+        session,
+        region,
+      ),
+  );
+}
+
+/**
+ * Devuelve únicamente
+ * las sesiones disponibles.
  */
 export async function getAvailableSessions(
   region: Region,
-): Promise<SessionWithStatus[]> {
-  const resolvedSessions =
-    await getSessionsWithStatus(region);
+): Promise<
+  SessionWithStatus[]
+> {
+  const sessions =
+    await getSessionsWithStatus(
+      region,
+    );
 
-  return resolvedSessions.filter(
-    (session) => session.status === "available",
+  return sessions.filter(
+    (session) =>
+      session.status ===
+      "available",
   );
 }
 
 /**
  * Devuelve la siguiente sesión
- * pendiente de desbloquearse.
+ * pendiente de publicarse.
  */
 export async function getNextSession(
   region: Region,
 ): Promise<SessionWithStatus | null> {
-  const resolvedSessions =
-    await getSessionsWithStatus(region);
-
-  const lockedSessions = resolvedSessions
-    .filter(
-      (session) => session.status === "locked",
-    )
-    .sort(
-      (a, b) =>
-        new Date(a.releaseDate).getTime() -
-        new Date(b.releaseDate).getTime(),
+  const sessions =
+    await getSessionsWithStatus(
+      region,
     );
 
-  return lockedSessions.at(0) ?? null;
+  const nextSession =
+    sessions
+      .filter(
+        (session) =>
+          session.status ===
+          "locked",
+      )
+      .sort(
+        (a, b) =>
+          Date.parse(
+            a.releaseDate,
+          ) -
+          Date.parse(
+            b.releaseDate,
+          ),
+      )[0];
+
+  return nextSession ?? null;
 }

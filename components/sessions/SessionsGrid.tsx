@@ -1,5 +1,4 @@
 import SessionCard from "./SessionCard";
-import SessionEmptyState from "./SessionEmptyState";
 
 import type { SessionWithStatus } from "@/types/study-session";
 
@@ -10,18 +9,17 @@ interface SessionsGridProps {
 export default function SessionsGrid({
   sessions,
 }: SessionsGridProps) {
-  if (sessions.length === 0) {
-    return <SessionEmptyState />;
-  }
-
   return (
-    <div className="sessions-grid">
+    <section
+      className="sessions-grid"
+      aria-label="Listado de sesiones"
+    >
       {sessions.map((session) => (
         <SessionCard
           key={session.id}
           session={session}
         />
       ))}
-    </div>
+    </section>
   );
 }

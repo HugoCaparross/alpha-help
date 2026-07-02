@@ -9,53 +9,58 @@ import type { UserProfile } from "@/types/user";
 
 import "@/components/styles/perfil.css";
 
+const PAGE_TITLE = "Mi perfil";
+
+const MESSAGES = {
+  loading: "Cargando perfil...",
+  empty: "No se ha podido recuperar la información de tu perfil.",
+  unknownError: "Ha ocurrido un error al cargar el perfil.",
+};
+
 export default function PerfilPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    let cancelled = false;
 
     async function loadProfile() {
-      try {
-        if (isMounted) {
-          setIsLoading(true);
-          setError(null);
-        }
+      setIsLoading(true);
+      setError(null);
 
+      try {
         const data = await getProfile();
 
-        if (isMounted) {
+        if (!cancelled) {
           setProfile(data);
         }
       } catch (err) {
-        if (isMounted) {
-          const message =
-            err instanceof Error ? err.message : "Error al cargar el perfil";
-
-          setError(message);
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : MESSAGES.unknownError);
         }
       } finally {
-        if (isMounted) {
+        if (!cancelled) {
           setIsLoading(false);
         }
       }
     }
 
-    loadProfile();
+    void loadProfile();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, []);
 
   if (isLoading) {
     return (
       <section>
-        <h1>Perfil</h1>
+        <h1>{PAGE_TITLE}</h1>
 
-        <p role="status">Cargando perfil...</p>
+        <p role="status">{MESSAGES.loading}</p>
       </section>
     );
   }
@@ -63,9 +68,11 @@ export default function PerfilPage() {
   if (error) {
     return (
       <section>
-        <h1>Perfil</h1>
+        <h1>{PAGE_TITLE}</h1>
 
-        <p>{error}</p>
+        <p role="alert" aria-live="polite">
+          {error}
+        </p>
       </section>
     );
   }
@@ -73,9 +80,9 @@ export default function PerfilPage() {
   if (!profile) {
     return (
       <section>
-        <h1>Perfil</h1>
+        <h1>{PAGE_TITLE}</h1>
 
-        <p>No se encontró información del usuario.</p>
+        <p>{MESSAGES.empty}</p>
       </section>
     );
   }

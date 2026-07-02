@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+import PageHeader from "@/components/ui/PageHeader";
 
 import SessionsGrid from "./SessionsGrid";
 import SessionEmptyState from "./SessionEmptyState";
 
-import { getUser } from "@/lib/supabase/getUser";
-import { supabase } from "@/lib/supabase/client";
+import { getProfile } from "@/lib/supabase/getProfile";
 
-import { getSessionsWithStatus } from "@/services/sessions/study-session.service"
+import { getSessionsWithStatus } from "@/services/sessions/study-session.service";
 
-import type { Region, SessionWithStatus } from "@/types/study-session";
+import type { Region } from "@/lib/utils/regions";
+
+import type { SessionWithStatus } from "@/types/study-session";
 
 export default function SesionesView() {
   const [sessions, setSessions] = useState<SessionWithStatus[]>([]);
@@ -19,56 +22,58 @@ export default function SesionesView() {
 
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadSessions() {
-      try {
-        const user = await getUser();
+  const loadSessions = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-        if (!user) {
-          setError("No se ha podido identificar al usuario.");
-          return;
-        }
+    try {
+      const profile = await getProfile();
 
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("region")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) {
-          throw profileError;
-        }
-
-        const region = (profile?.region ?? "spain") as Region;
-
-        const sessionsData = await getSessionsWithStatus(region);
-
-        setSessions(sessionsData);
-      } catch (error) {
-        console.error(error);
-
-        setError("Ha ocurrido un error al cargar las sesiones.");
-      } finally {
-        setLoading(false);
+      if (!profile) {
+        throw new Error("No se ha encontrado el perfil del usuario.");
       }
-    }
 
-    void loadSessions();
+      const region = (profile.region ?? "spain") as Region;
+
+      const sessionsData = await getSessionsWithStatus(region);
+
+      setSessions(sessionsData);
+    } catch (error) {
+      console.error("Error loading sessions:", error);
+
+      setSessions([]);
+
+      setError("No se han podido cargar las sesiones. Inténtalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadSessions();
+  }, [loadSessions]);
 
   if (loading) {
     return (
-      <div className="sesiones-loading">
-        <p>Cargando sesiones...</p>
-      </div>
+      <section className="sesiones-loading">
+        <p>Preparando las sesiones...</p>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="sesiones-error">
+      <section className="sesiones-error" role="alert" aria-live="polite">
         <p>{error}</p>
-      </div>
+
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => void loadSessions()}
+        >
+          Reintentar
+        </button>
+      </section>
     );
   }
 
@@ -77,20 +82,13 @@ export default function SesionesView() {
   }
 
   return (
-    <div className="sesiones-page">
-      <div className="sesiones-page__header">
-        <span className="sesiones-page__eyebrow">Formación online</span>
-
-        <h1 className="sesiones-page__title">Sesiones del programa</h1>
-
-        <p className="sesiones-page__description">
-          A lo largo del programa tendrás acceso a nueve sesiones formativas.
-          Cada sesión estará disponible automáticamente en su fecha de
-          publicación correspondiente según tu región.
-        </p>
-      </div>
+    <section className="sesiones-page">
+      <PageHeader
+        title="Sesiones del programa"
+        description="A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión estará disponible automáticamente en su fecha de publicación correspondiente según tu región."
+      />
 
       <SessionsGrid sessions={sessions} />
-    </div>
+    </section>
   );
 }

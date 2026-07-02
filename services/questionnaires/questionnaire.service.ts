@@ -11,6 +11,10 @@ import {
   type Question,
 } from "@/lib/constants/questionnaires";
 
+/* =========================
+   TIPOS
+========================= */
+
 export type QuestionnaireType =
   | "pre"
   | "post";
@@ -18,6 +22,10 @@ export type QuestionnaireType =
 export interface QuestionnaireAnswers {
   [questionId: string]: number;
 }
+
+/* =========================
+   CONSTANTES
+========================= */
 
 const VALID_QUESTIONNAIRE_TYPES = [
   "pre",
@@ -45,9 +53,13 @@ const QUESTION_MAP = new Map(
   ]),
 );
 
+/* =========================
+   VALIDACIONES
+========================= */
+
 function validateQuestionnaireType(
   questionnaireType: QuestionnaireType,
-) {
+): void {
   if (
     !VALID_QUESTIONNAIRE_TYPES.includes(
       questionnaireType,
@@ -61,7 +73,7 @@ function validateQuestionnaireType(
 
 function validateAnswers(
   answers: QuestionnaireAnswers,
-) {
+): void {
   const entries =
     Object.entries(answers);
 
@@ -95,12 +107,9 @@ function validateAnswers(
     const scale =
       SCALES[question.scaleType];
 
-    const maxValue =
-      scale.length;
-
     if (
       value < 1 ||
-      value > maxValue
+      value > scale.length
     ) {
       throw new Error(
         `La respuesta de "${questionId}" está fuera de rango.`,
@@ -108,6 +117,10 @@ function validateAnswers(
     }
   }
 }
+
+/* =========================
+   HELPERS
+========================= */
 
 function buildResponses(
   submissionId: string,
@@ -130,26 +143,61 @@ function buildResponses(
     }),
   );
 }
+
+async function hasCompletedQuestionnaireByUser(
+  userId: string,
+  questionnaireType: QuestionnaireType,
+): Promise<boolean> {
+  const { data, error } =
+    await supabase
+      .from(SUBMISSIONS_TABLE)
+      .select("id")
+      .eq("user_id", userId)
+      .eq(
+        "questionnaire_type",
+        questionnaireType,
+      )
+      .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      "No se ha podido comprobar el estado del cuestionario.",
+    );
+  }
+
+  return data !== null;
+}
+/* =========================
+   FUNCIONES PÚBLICAS
+========================= */
+
+/**
+ * Guarda un cuestionario completado junto con todas sus respuestas.
+ *
+ * Realiza las siguientes comprobaciones:
+ * - Usuario autenticado.
+ * - Tipo de cuestionario válido.
+ * - Respuestas válidas.
+ * - Cuestionario no completado previamente.
+ * - El POST únicamente puede realizarse tras completar el PRE.
+ */
 export async function submitQuestionnaire(
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
 ) {
-  validateQuestionnaireType(
-    questionnaireType,
-  );
+  validateQuestionnaireType(questionnaireType);
 
   validateAnswers(answers);
 
   const user = await getUser();
 
   if (!user) {
-    throw new Error(
-      "Usuario no autenticado.",
-    );
+    throw new Error("Usuario no autenticado.");
   }
 
   const alreadyCompleted =
-    await hasCompletedQuestionnaire(
+    await hasCompletedQuestionnaireByUser(
+      user.id,
       questionnaireType,
     );
 
@@ -161,7 +209,8 @@ export async function submitQuestionnaire(
 
   if (questionnaireType === "post") {
     const hasCompletedPre =
-      await hasCompletedQuestionnaire(
+      await hasCompletedQuestionnaireByUser(
+        user.id,
         "pre",
       );
 
@@ -179,8 +228,7 @@ export async function submitQuestionnaire(
     .from(SUBMISSIONS_TABLE)
     .insert({
       user_id: user.id,
-      questionnaire_type:
-        questionnaireType,
+      questionnaire_type: questionnaireType,
     })
     .select()
     .single();
@@ -191,13 +239,12 @@ export async function submitQuestionnaire(
     );
   }
 
-  const responses =
-    buildResponses(
-      submission.id,
-      user.id,
-      questionnaireType,
-      answers,
-    );
+  const responses = buildResponses(
+    submission.id,
+    user.id,
+    questionnaireType,
+    answers,
+  );
 
   const {
     error: responsesError,
@@ -209,10 +256,7 @@ export async function submitQuestionnaire(
     await supabase
       .from(SUBMISSIONS_TABLE)
       .delete()
-      .eq(
-        "id",
-        submission.id,
-      );
+      .eq("id", submission.id);
 
     throw new Error(
       "No se han podido guardar las respuestas del cuestionario.",
@@ -221,6 +265,7 @@ export async function submitQuestionnaire(
 
   return submission;
 }
+
 export async function hasCompletedQuestionnaire(
   questionnaireType: QuestionnaireType,
 ): Promise<boolean> {
@@ -234,27 +279,10 @@ export async function hasCompletedQuestionnaire(
     return false;
   }
 
-  const { data, error } =
-    await supabase
-      .from(SUBMISSIONS_TABLE)
-      .select("id")
-      .eq(
-        "user_id",
-        user.id,
-      )
-      .eq(
-        "questionnaire_type",
-        questionnaireType,
-      )
-      .maybeSingle();
-
-  if (error) {
-    throw new Error(
-      "No se ha podido comprobar el estado del cuestionario.",
-    );
-  }
-
-  return data !== null;
+  return hasCompletedQuestionnaireByUser(
+    user.id,
+    questionnaireType,
+  );
 }
 
 export async function getCompletedQuestionnaires(): Promise<
@@ -284,7 +312,9 @@ export async function getCompletedQuestionnaires(): Promise<
   }
 
   return data.map(
-    ({ questionnaire_type }) =>
+    ({
+      questionnaire_type,
+    }) =>
       questionnaire_type as QuestionnaireType,
   );
 }

@@ -43,6 +43,13 @@ const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
   (question) => question.required,
 ).map((question) => question.id);
 
+const ERROR_MESSAGES = {
+  incomplete:
+    "Debes responder todas las preguntas antes de finalizar el cuestionario.",
+
+  submit: "Ha ocurrido un error al guardar tus respuestas. Inténtalo de nuevo.",
+} as const;
+
 export default function QuestionBlock({
   questionnaireId,
   onComplete,
@@ -63,10 +70,10 @@ export default function QuestionBlock({
 
   const currentStep = QUESTIONNAIRE_STEPS[currentStepIndex];
 
-  const questions =
+  const currentStepQuestions =
     QUESTIONS_BY_STEP[currentStep.id as keyof typeof QUESTIONS_BY_STEP];
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = currentStepQuestions[currentQuestionIndex];
 
   const sectionTitle = currentStep.title;
 
@@ -76,9 +83,10 @@ export default function QuestionBlock({
 
   const isFirstQuestion = currentQuestionIndex === 0;
 
-  const isLastQuestionInStep = currentQuestionIndex === questions.length - 1;
+  const isLastQuestionInStep =
+    currentQuestionIndex === currentStepQuestions.length - 1;
 
-  const isQuestionnaireCompleted = REQUIRED_QUESTION_IDS.every(
+  const questionnaireCompleted = REQUIRED_QUESTION_IDS.every(
     (questionId) => answers[questionId] !== undefined,
   );
 
@@ -88,41 +96,23 @@ export default function QuestionBlock({
 
   const totalQuestions = ALL_QUESTIONS.length;
 
+  function clearAutoAdvanceTimeout() {
+    if (autoAdvanceTimeout.current) {
+      window.clearTimeout(autoAdvanceTimeout.current);
+
+      autoAdvanceTimeout.current = null;
+    }
+  }
+
   useEffect(() => {
     return () => {
-      if (autoAdvanceTimeout.current) {
-        window.clearTimeout(autoAdvanceTimeout.current);
-      }
+      clearAutoAdvanceTimeout();
     };
   }, []);
 
-  const goToNextQuestion = async () => {
-    if (!currentQuestion || isSubmitting) {
-      return;
-    }
-
-    if (!isLastQuestionInStep) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-
-      setIsTransitioning(false);
-
-      return;
-    }
-
-    if (!isLastStep) {
-      setCurrentStepIndex((prev) => prev + 1);
-
-      setCurrentQuestionIndex(0);
-
-      setIsTransitioning(false);
-
-      return;
-    }
-
-    if (!isQuestionnaireCompleted) {
-      setError(
-        "Debes completar todas las preguntas del cuestionario antes de finalizar la evaluación.",
-      );
+  async function finishQuestionnaire() {
+    if (!questionnaireCompleted) {
+      setError(ERROR_MESSAGES.incomplete);
 
       setIsTransitioning(false);
 
@@ -136,23 +126,47 @@ export default function QuestionBlock({
 
       onComplete();
     } catch {
-      setError(
-        "Ha ocurrido un error al guardar las respuestas. Inténtalo de nuevo.",
-      );
+      setError(ERROR_MESSAGES.submit);
 
       setIsSubmitting(false);
 
       setIsTransitioning(false);
     }
-  };
+  }
 
-  const handleAnswerChange = (questionId: string, value: number) => {
+  async function goToNextQuestion() {
+    if (!currentQuestion || isSubmitting) {
+      return;
+    }
+
+    if (!isLastQuestionInStep) {
+      setCurrentQuestionIndex((previous) => previous + 1);
+
+      setIsTransitioning(false);
+
+      return;
+    }
+
+    if (!isLastStep) {
+      setCurrentStepIndex((previous) => previous + 1);
+
+      setCurrentQuestionIndex(0);
+
+      setIsTransitioning(false);
+
+      return;
+    }
+
+    await finishQuestionnaire();
+  }
+
+  function handleAnswerChange(questionId: string, value: number) {
     if (isSubmitting || isTransitioning) {
       return;
     }
 
-    setAnswers((prev) => ({
-      ...prev,
+    setAnswers((previous) => ({
+      ...previous,
       [questionId]: value,
     }));
 
@@ -160,28 +174,24 @@ export default function QuestionBlock({
 
     setIsTransitioning(true);
 
-    if (autoAdvanceTimeout.current) {
-      window.clearTimeout(autoAdvanceTimeout.current);
-    }
+    clearAutoAdvanceTimeout();
 
     autoAdvanceTimeout.current = window.setTimeout(() => {
       void goToNextQuestion();
     }, 350);
-  };
+  }
 
-  const handlePrevious = () => {
+  function handlePrevious() {
     if (isSubmitting || isTransitioning) {
       return;
     }
 
-    if (autoAdvanceTimeout.current) {
-      window.clearTimeout(autoAdvanceTimeout.current);
-    }
+    clearAutoAdvanceTimeout();
 
     setError(null);
 
     if (!isFirstQuestion) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      setCurrentQuestionIndex((previous) => previous - 1);
 
       return;
     }
@@ -198,8 +208,7 @@ export default function QuestionBlock({
 
       setCurrentQuestionIndex(previousQuestions.length - 1);
     }
-  };
-
+  }
   return (
     <section className="question-block">
       <div className="question-block__body">
@@ -215,7 +224,7 @@ export default function QuestionBlock({
               questionNumber={currentQuestionPosition}
               selectedValue={answers[currentQuestion.id]}
               showError={Boolean(error)}
-              disabled={isTransitioning}
+              disabled={isSubmitting || isTransitioning}
               showPrevious={!(isFirstStep && isFirstQuestion)}
               onPrevious={handlePrevious}
               onChange={handleAnswerChange}

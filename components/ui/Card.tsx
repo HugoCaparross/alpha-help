@@ -1,20 +1,18 @@
-import { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-interface CardProps {
+interface CardProps extends ComponentPropsWithoutRef<"section"> {
   children: ReactNode;
-  className?: string;
 }
 
 export default function Card({
   children,
   className = "",
+  ...props
 }: CardProps) {
-  const classes = ["card", className]
-    .filter(Boolean)
-    .join(" ");
+  const cardClassName = ["card", className].filter(Boolean).join(" ");
 
   return (
-    <section className={classes}>
+    <section className={cardClassName} {...props}>
       {children}
     </section>
   );

@@ -1,55 +1,60 @@
-import type { Region } from "@/lib/utils/regions";
-
 /**
  * Estado de una sesión dentro del programa.
- * Una sesión únicamente puede estar disponible
- * o bloqueada según su fecha de publicación.
+ *
+ * Una sesión únicamente puede estar
+ * disponible o bloqueada según
+ * su fecha de publicación.
  */
-export type SessionStatus = "available" | "locked";
+export type SessionStatus =
+  | "available"
+  | "locked";
 
 /**
- * Modelo de una sesión tal y como se consume
- * dentro de la aplicación.
+ * Modelo de una sesión tal y como
+ * se utiliza dentro de la aplicación.
  *
- * Todos los nombres utilizan camelCase,
- * independientemente del formato utilizado
- * en la base de datos.
+ * Todas las propiedades utilizan
+ * camelCase independientemente
+ * del formato utilizado por la base
+ * de datos.
  */
 export interface Session {
-  id: string;
+  readonly id: string;
 
-  title: string;
+  readonly title: string;
 
-  description: string;
+  readonly description: string;
 
-  youtubeUrl: string;
+  readonly youtubeUrl: string;
 
-  thumbnailUrl: string;
+  readonly thumbnailUrl: string;
 
-  sessionOrder: number;
+  readonly sessionOrder: number;
 
-  releaseDateSpain: string;
+  readonly releaseDateSpain: string;
 
-  releaseDateLatam: string;
+  readonly releaseDateLatam: string;
 }
 
 /**
- * Sesión con la fecha de publicación ya resuelta
- * según la región del usuario.
+ * Sesión con la fecha de publicación
+ * ya resuelta para la región del usuario.
  *
  * Los componentes nunca deben decidir
  * qué fecha utilizar.
- * Esa lógica pertenece exclusivamente al servicio.
+ * Esa responsabilidad pertenece
+ * exclusivamente al servicio.
  */
-export interface SessionWithStatus extends Session {
+export interface SessionWithStatus
+  extends Session {
   /**
-   * Fecha de publicación correspondiente
+   * Fecha correspondiente
    * a la región del usuario.
    */
-  releaseDate: string;
+  readonly releaseDate: string;
 
   /**
    * Estado calculado automáticamente.
    */
-  status: SessionStatus;
+  readonly status: SessionStatus;
 }

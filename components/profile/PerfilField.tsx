@@ -1,21 +1,20 @@
 interface PerfilFieldProps {
   label: string;
+
   value: string | number | null | undefined;
 }
 
-export default function PerfilField({
-  label,
-  value,
-}: PerfilFieldProps) {
+export default function PerfilField({ label, value }: PerfilFieldProps) {
+  const displayValue =
+    value === null || value === undefined || value === ""
+      ? "No disponible"
+      : value;
+
   return (
     <div className="perfil-field">
-      <span className="perfil-label">
-        {label}
-      </span>
+      <p className="perfil-label">{label}</p>
 
-      <span className="perfil-value">
-        {value ?? "No disponible"}
-      </span>
+      <p className="perfil-value">{displayValue}</p>
     </div>
   );
 }
