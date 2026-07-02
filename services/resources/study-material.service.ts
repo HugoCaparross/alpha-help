@@ -1,17 +1,31 @@
 import { supabase } from "@/lib/supabase/client";
 
-import { isSpain } from "@/lib/utils/regions";
-
-import type { Region } from "@/lib/utils/regions";
+import {
+  isSpain,
+  type Region,
+} from "@/lib/utils/regions";
 
 import type {
   StudyMaterial,
   StudyMaterialWithStatus,
 } from "@/types/study-material";
 
+const STUDY_MATERIALS_TABLE =
+  "study_materials";
+
+const MATERIAL_FIELDS = `
+  id,
+  title,
+  description,
+  pdf_url,
+  thumbnail_url,
+  material_order,
+  release_date_spain,
+  release_date_latam
+`;
+
 /**
- * Forma cruda de la fila tal y como la devuelve Supabase.
- * Se utiliza únicamente para mapear snake_case → camelCase.
+ * Forma cruda devuelta por Supabase.
  */
 interface StudyMaterialRow {
   id: string;
@@ -32,9 +46,12 @@ interface StudyMaterialRow {
 }
 
 /**
- * Convierte una fila de Supabase al modelo de dominio.
+ * Convierte una fila de Supabase
+ * al modelo utilizado por la aplicación.
  */
-function mapRow(row: StudyMaterialRow): StudyMaterial {
+function mapRow(
+  row: StudyMaterialRow,
+): StudyMaterial {
   return {
     id: row.id,
 
@@ -44,19 +61,23 @@ function mapRow(row: StudyMaterialRow): StudyMaterial {
 
     pdfUrl: row.pdf_url,
 
-    thumbnailUrl: row.thumbnail_url,
+    thumbnailUrl:
+      row.thumbnail_url,
 
-    materialOrder: row.material_order,
+    materialOrder:
+      row.material_order,
 
-    releaseDateSpain: row.release_date_spain,
+    releaseDateSpain:
+      row.release_date_spain,
 
-    releaseDateLatam: row.release_date_latam,
+    releaseDateLatam:
+      row.release_date_latam,
   };
 }
 
 /**
- * Devuelve la fecha de publicación correspondiente
- * a la región del usuario.
+ * Devuelve la fecha de publicación
+ * correspondiente a la región indicada.
  */
 function resolveReleaseDate(
   material: StudyMaterial,
@@ -68,102 +89,147 @@ function resolveReleaseDate(
 }
 
 /**
- * Calcula el estado del material según su fecha de publicación.
+ * Calcula el estado actual
+ * del material.
  */
 function resolveStatus(
   releaseDate: string,
 ): StudyMaterialWithStatus["status"] {
-  const releaseTimestamp = new Date(releaseDate).getTime();
-
-  return releaseTimestamp <= Date.now()
+  return Date.parse(
+    releaseDate,
+  ) <= Date.now()
     ? "available"
     : "locked";
 }
 
 /**
- * Resuelve un material completo para la región indicada.
+ * Convierte un material en un material
+ * listo para mostrarse al participante.
  */
 function resolveMaterial(
   material: StudyMaterial,
   region: Region,
 ): StudyMaterialWithStatus {
-  const releaseDate = resolveReleaseDate(material, region);
+  const releaseDate =
+    resolveReleaseDate(
+      material,
+      region,
+    );
 
   return {
     ...material,
 
     releaseDate,
 
-    status: resolveStatus(releaseDate),
+    status:
+      resolveStatus(
+        releaseDate,
+      ),
   };
 }
 
 /**
- * Obtiene todos los materiales del programa.
+ * Obtiene todos los materiales
+ * del programa.
  */
-export async function getStudyMaterials(): Promise<StudyMaterial[]> {
-  const { data, error } = await supabase
-    .from("study_materials")
-    .select("*")
-    .order("material_order", {
-      ascending: true,
-    });
+export async function getStudyMaterials(): Promise<
+  StudyMaterial[]
+> {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(STUDY_MATERIALS_TABLE)
+    .select(MATERIAL_FIELDS)
+    .order(
+      "material_order",
+      {
+        ascending: true,
+      },
+    );
 
   if (error) {
     throw new Error(
-      `Error al obtener los materiales: ${error.message}`,
+      "No se han podido recuperar los materiales.",
     );
   }
 
-  return (data ?? []).map(mapRow);
-}
-
-/**
- * Obtiene todos los materiales resolviendo automáticamente
- * su fecha de publicación y estado para la región indicada.
- */
-export async function getStudyMaterialsWithStatus(
-  region: Region,
-): Promise<StudyMaterialWithStatus[]> {
-  const studyMaterials = await getStudyMaterials();
-
-  return studyMaterials.map((material) =>
-    resolveMaterial(material, region),
+  return (data ?? []).map(
+    mapRow,
   );
 }
 
 /**
- * Devuelve únicamente los materiales
- * ya disponibles para el usuario.
+ * Obtiene todos los materiales
+ * resolviendo automáticamente
+ * su estado para la región indicada.
+ */
+export async function getStudyMaterialsWithStatus(
+  region: Region,
+): Promise<
+  StudyMaterialWithStatus[]
+> {
+  const materials =
+    await getStudyMaterials();
+
+  return materials.map(
+    (material) =>
+      resolveMaterial(
+        material,
+        region,
+      ),
+  );
+}
+
+/**
+ * Devuelve únicamente
+ * los materiales disponibles.
  */
 export async function getAvailableStudyMaterials(
   region: Region,
-): Promise<StudyMaterialWithStatus[]> {
-  const resolvedMaterials =
-    await getStudyMaterialsWithStatus(region);
+): Promise<
+  StudyMaterialWithStatus[]
+> {
+  const materials =
+    await getStudyMaterialsWithStatus(
+      region,
+    );
 
-  return resolvedMaterials.filter(
-    (material) => material.status === "available",
+  return materials.filter(
+    (material) =>
+      material.status ===
+      "available",
   );
 }
 
 /**
  * Devuelve el siguiente material
- * pendiente de desbloquearse.
+ * pendiente de publicarse.
  */
 export async function getNextStudyMaterial(
   region: Region,
 ): Promise<StudyMaterialWithStatus | null> {
-  const resolvedMaterials =
-    await getStudyMaterialsWithStatus(region);
-
-  const lockedMaterials = resolvedMaterials
-    .filter((material) => material.status === "locked")
-    .sort(
-      (a, b) =>
-        new Date(a.releaseDate).getTime() -
-        new Date(b.releaseDate).getTime(),
+  const materials =
+    await getStudyMaterialsWithStatus(
+      region,
     );
 
-  return lockedMaterials.at(0) ?? null;
+  const nextMaterial =
+    materials
+      .filter(
+        (material) =>
+          material.status ===
+          "locked",
+      )
+      .sort(
+        (a, b) =>
+          Date.parse(
+            a.releaseDate,
+          ) -
+          Date.parse(
+            b.releaseDate,
+          ),
+      )[0];
+
+  return nextMaterial ?? null;
 }

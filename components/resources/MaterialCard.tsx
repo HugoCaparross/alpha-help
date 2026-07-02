@@ -1,19 +1,19 @@
+import Image from "next/image";
+
 import { Calendar, FileText, Lock } from "lucide-react";
 
 import type { StudyMaterialWithStatus } from "@/types/study-material";
-
-import "@/components/styles/materiales.css";
 
 interface MaterialCardProps {
   material: StudyMaterialWithStatus;
 }
 
-function formatDate(dateString: string): string {
+function formatDate(date: string): string {
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(new Date(dateString));
+  }).format(Date.parse(date));
 }
 
 export default function MaterialCard({ material }: MaterialCardProps) {
@@ -27,11 +27,12 @@ export default function MaterialCard({ material }: MaterialCardProps) {
       aria-label={material.title}
     >
       <div className="material-card__thumb">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={material.thumbnailUrl}
-          alt={`Miniatura de ${material.title}`}
+          alt={material.title}
+          fill
           className="material-card__thumb-img"
+          sizes="(max-width: 768px) 100vw, 400px"
         />
 
         <span className="material-card__order">
@@ -41,6 +42,8 @@ export default function MaterialCard({ material }: MaterialCardProps) {
         {!isAvailable && (
           <div className="material-card__lock-overlay" aria-hidden="true">
             <Lock size={22} />
+
+            <span>Bloqueado</span>
           </div>
         )}
       </div>
@@ -55,7 +58,7 @@ export default function MaterialCard({ material }: MaterialCardProps) {
             <div className="material-card__date">
               <Calendar size={14} />
 
-              <span>Publicado el {formattedDate}</span>
+              <span>Disponible desde {formattedDate}</span>
             </div>
 
             <a
@@ -63,15 +66,19 @@ export default function MaterialCard({ material }: MaterialCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="material-card__cta"
+              aria-label={`Consultar ${material.title}`}
             >
               <FileText size={17} />
-              Abrir material
+              Consultar material
             </a>
           </>
         ) : (
           <div className="material-card__locked-cta">
             <Lock size={15} />
-            Disponible el {formattedDate}
+
+            <span>
+              Este material estará disponible a partir del {formattedDate}.
+            </span>
           </div>
         )}
       </div>

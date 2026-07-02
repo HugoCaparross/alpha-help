@@ -1,54 +1,60 @@
-import type { Region } from "@/lib/utils/regions";
-
 /**
  * Estado de un material dentro del programa.
- * Un material únicamente puede estar disponible
- * o bloqueado según su fecha de publicación.
+ *
+ * Un material únicamente puede estar
+ * disponible o bloqueado según
+ * su fecha de publicación.
  */
-export type MaterialStatus = "available" | "locked";
+export type MaterialStatus =
+  | "available"
+  | "locked";
 
 /**
- * Modelo de un material tal y como se consume
- * dentro de la aplicación.
+ * Modelo de un material tal y como
+ * se utiliza dentro de la aplicación.
  *
- * Todos los nombres utilizan camelCase, independientemente
- * del formato utilizado en la base de datos.
+ * Todas las propiedades utilizan
+ * camelCase independientemente
+ * del formato utilizado por la base
+ * de datos.
  */
 export interface StudyMaterial {
-  id: string;
+  readonly id: string;
 
-  title: string;
+  readonly title: string;
 
-  description: string;
+  readonly description: string;
 
-  pdfUrl: string;
+  readonly pdfUrl: string;
 
-  thumbnailUrl: string;
+  readonly thumbnailUrl: string;
 
-  materialOrder: number;
+  readonly materialOrder: number;
 
-  releaseDateSpain: string;
+  readonly releaseDateSpain: string;
 
-  releaseDateLatam: string;
+  readonly releaseDateLatam: string;
 }
 
 /**
- * Material con la fecha de publicación ya resuelta
- * según la región del usuario.
+ * Material con la fecha de publicación
+ * ya resuelta para la región del usuario.
  *
- * Los componentes nunca deben decidir qué fecha utilizar.
- * Esa lógica pertenece exclusivamente al servicio.
+ * Los componentes nunca deben decidir
+ * qué fecha utilizar.
+ * Esa responsabilidad pertenece
+ * exclusivamente al servicio.
  */
 export interface StudyMaterialWithStatus
   extends StudyMaterial {
   /**
-   * Fecha de publicación correspondiente
+   * Fecha correspondiente
    * a la región del usuario.
    */
-  releaseDate: string;
+  readonly releaseDate: string;
 
   /**
    * Estado calculado automáticamente.
    */
-  status: MaterialStatus;
+  readonly status: MaterialStatus;
 }

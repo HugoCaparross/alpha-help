@@ -1,17 +1,19 @@
 import { FileX } from "lucide-react";
 
-import "@/components/styles/materiales.css";
-
 export default function MaterialEmptyState() {
   return (
-    <div className="materials-empty">
+    <section className="materials-empty" role="status" aria-live="polite">
       <div className="materials-empty__icon" aria-hidden="true">
         <FileX size={28} />
       </div>
 
+      <h2 className="materials-empty__title">No hay materiales disponibles</h2>
+
       <p className="materials-empty__text">
-        No hay materiales disponibles actualmente.
+        Todavía no hay materiales disponibles para ti. Los documentos de apoyo
+        se publicarán automáticamente conforme avance el calendario del
+        programa.
       </p>
-    </div>
+    </section>
   );
 }
