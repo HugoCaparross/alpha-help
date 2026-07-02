@@ -1,13 +1,19 @@
 "use client";
 
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface SupabaseProviderProps {
   children: ReactNode;
 }
 
-export default function SupabaseProvider({
-  children,
-}: SupabaseProviderProps) {
-  return <>{children}</>;
+/**
+ * Provider raíz de Supabase.
+ *
+ * Actualmente actúa como un componente
+ * contenedor y permite incorporar
+ * proveedores adicionales en el futuro
+ * sin modificar el layout principal.
+ */
+export default function SupabaseProvider({ children }: SupabaseProviderProps) {
+  return children;
 }

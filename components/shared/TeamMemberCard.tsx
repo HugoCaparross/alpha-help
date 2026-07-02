@@ -1,7 +1,3 @@
-"use client";
-
-import { ChevronRight } from "lucide-react";
-
 interface TeamMemberCardProps {
   name: string;
   role: string;
@@ -9,6 +5,10 @@ interface TeamMemberCardProps {
   initials: string;
 }
 
+/**
+ * Tarjeta informativa de un miembro
+ * del equipo investigador.
+ */
 export default function TeamMemberCard({
   name,
   role,
@@ -16,19 +16,20 @@ export default function TeamMemberCard({
   initials,
 }: TeamMemberCardProps) {
   return (
-    <article className="about-member">
-      <div className="about-member-avatar">{initials}</div>
-
-      <div className="about-member-content">
-        <h3 className="about-member-name">{name}</h3>
-        <p className="about-member-role">{role}</p>
-        <p className="about-member-description">{description}</p>
+    <article className="about-member" aria-labelledby={`member-${initials}`}>
+      <div className="about-member-avatar" aria-hidden="true">
+        {initials}
       </div>
 
-      <button className="about-member-action" aria-label={`Ver perfil de ${name}`}>
-        Ver más
-        <ChevronRight size={14} />
-      </button>
+      <div className="about-member-content">
+        <h3 id={`member-${initials}`} className="about-member-name">
+          {name}
+        </h3>
+
+        <p className="about-member-role">{role}</p>
+
+        <p className="about-member-description">{description}</p>
+      </div>
     </article>
   );
 }

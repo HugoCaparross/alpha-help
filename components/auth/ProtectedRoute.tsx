@@ -5,38 +5,56 @@ import { useRouter } from "next/navigation";
 
 import { getUser } from "@/lib/supabase/getUser";
 
-export default function ProtectedRoute({
-  children,
-}: {
+interface ProtectedRouteProps {
   children: React.ReactNode;
-}) {
+}
+
+/**
+ * Protege las rutas privadas de la aplicación.
+ *
+ * Si el usuario no tiene una sesión activa,
+ * será redirigido automáticamente al inicio
+ * de sesión.
+ */
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
 
-  const [loading, setLoading] =
-    useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function checkAuth() {
-      const user = await getUser();
+    let isMounted = true;
 
-      if (!user) {
+    async function validateSession() {
+      try {
+        const user = await getUser();
+
+        if (!user) {
+          router.replace("/login");
+          return;
+        }
+
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      } catch {
         router.replace("/login");
-        return;
       }
-
-      setLoading(false);
     }
 
-    checkAuth();
+    void validateSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
+      <div className="protected-route-loading" role="status" aria-live="polite">
         Cargando...
       </div>
     );
   }
 
-  return <>{children}</>;
+  return children;
 }

@@ -4,15 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
+  Book,
   ClipboardList,
   FileText,
-  Video,
   User,
-  Book,
   Users,
+  Video,
 } from "lucide-react";
 
-const studyNavigation = [
+interface NavigationItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{
+    size?: number;
+  }>;
+}
+
+const STUDY_NAVIGATION: readonly NavigationItem[] = [
   {
     href: "/estudio",
     label: "El estudio",
@@ -25,7 +33,7 @@ const studyNavigation = [
   },
 ];
 
-const resourcesNavigation = [
+const RESOURCES_NAVIGATION: readonly NavigationItem[] = [
   {
     href: "/sesiones",
     label: "Sesiones",
@@ -38,7 +46,7 @@ const resourcesNavigation = [
   },
 ];
 
-const infoNavigation = [
+const INFO_NAVIGATION: readonly NavigationItem[] = [
   {
     href: "/quienes-somos",
     label: "¿Quiénes somos?",
@@ -46,18 +54,13 @@ const infoNavigation = [
   },
 ];
 
-type NavigationItem = {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ size?: number }>;
-};
-
 export default function Sidebar() {
   const pathname = usePathname();
 
-  const renderNavigationItems = (items: NavigationItem[]) =>
-    items.map((item) => {
+  function renderNavigationItems(items: readonly NavigationItem[]) {
+    return items.map((item) => {
       const Icon = item.icon;
+
       const active = pathname === item.href;
 
       return (
@@ -65,6 +68,7 @@ export default function Sidebar() {
           key={item.href}
           href={item.href}
           className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
+          aria-current={active ? "page" : undefined}
         >
           <div className="sidebar-item-icon">
             <Icon size={20} />
@@ -74,10 +78,10 @@ export default function Sidebar() {
         </Link>
       );
     });
+  }
 
   return (
     <aside className="sidebar">
-      {/* HEADER */}
       <header className="sidebar-header">
         <div className="sidebar-brand">
           <div className="sidebar-brand-mark" aria-hidden="true" />
@@ -92,40 +96,39 @@ export default function Sidebar() {
         </div>
       </header>
 
-      {/* NAVIGATION */}
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" aria-label="Navegación principal">
         <section className="sidebar-section">
-          <span className="sidebar-section-title">Área de estudio</span>
+          <h2 className="sidebar-section-title">Área de estudio</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(studyNavigation)}
+            {renderNavigationItems(STUDY_NAVIGATION)}
           </div>
         </section>
 
         <section className="sidebar-section">
-          <span className="sidebar-section-title">Recursos</span>
+          <h2 className="sidebar-section-title">Recursos</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(resourcesNavigation)}
+            {renderNavigationItems(RESOURCES_NAVIGATION)}
           </div>
         </section>
 
         <section className="sidebar-section">
-          <span className="sidebar-section-title">Información</span>
+          <h2 className="sidebar-section-title">Información</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(infoNavigation)}
+            {renderNavigationItems(INFO_NAVIGATION)}
           </div>
         </section>
       </nav>
 
-      {/* FOOTER */}
       <footer className="sidebar-footer">
         <Link
           href="/perfil"
           className={`sidebar-profile ${
             pathname === "/perfil" ? "sidebar-profile--active" : ""
           }`}
+          aria-current={pathname === "/perfil" ? "page" : undefined}
         >
           <div className="sidebar-profile-avatar">
             <User size={20} />

@@ -1,24 +1,33 @@
-﻿import ProtectedRoute from "@/components/auth/ProtectedRoute";
+﻿import type { ReactNode } from "react";
 
-import Sidebar from "@/components/layout/Sidebar";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+
 import RightPanel from "@/components/layout/RightPanel";
-import "@/components/layout/sidebar.css";
-import "@/components/layout/rightpanel.css";
-import "@/components/layout/usermenu.css";
-import "@/components/layout/layout.css";
+import Sidebar from "@/components/layout/Sidebar";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import "@/components/layout/layout.css";
+import "@/components/layout/rightpanel.css";
+import "@/components/layout/sidebar.css";
+import "@/components/layout/usermenu.css";
+
+interface AppLayoutProps {
+  children: ReactNode;
+}
+
+/**
+ * Layout principal del área privada.
+ *
+ * Protege el acceso mediante autenticación y
+ * muestra la estructura común de navegación.
+ */
+export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <ProtectedRoute>
       <div className="private-layout">
         <div className="private-layout-shell">
           <Sidebar />
 
-          <main className="private-layout-main">
+          <main id="main-content" className="private-layout-main">
             {children}
           </main>
 

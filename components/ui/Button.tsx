@@ -1,8 +1,8 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "outline";
+export type ButtonVariant = "primary" | "secondary" | "outline";
 
-interface ButtonProps extends ComponentPropsWithoutRef<"button"> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 
   variant?: ButtonVariant;
@@ -16,6 +16,9 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   outline: "btn-outline",
 };
 
+/**
+ * Botón reutilizable del sistema de diseño.
+ */
 export default function Button({
   children,
   variant = "primary",
@@ -24,18 +27,12 @@ export default function Button({
   disabled = false,
   ...props
 }: ButtonProps) {
-  const buttonClassName = [VARIANT_CLASSES[variant], className]
+  const classes = [VARIANT_CLASSES[variant], className]
     .filter(Boolean)
     .join(" ");
 
   return (
-    <button
-      type={type}
-      disabled={disabled}
-      aria-disabled={disabled}
-      className={buttonClassName}
-      {...props}
-    >
+    <button type={type} disabled={disabled} className={classes} {...props}>
       {children}
     </button>
   );

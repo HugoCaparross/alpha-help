@@ -1,22 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { ChevronDown, LogOut, User } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  User,
+} from "lucide-react";
 
-import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
+import {
+  getRegionLabel,
+} from "@/lib/utils/regions";
+
+import { logout } from "@/services/auth/auth.service";
+
 import type { UserProfile } from "@/types/user";
 
 export default function UserMenu() {
   const router = useRouter();
 
-  const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const [isOpen, setIsOpen] =
+    useState(false);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [profile, setProfile] =
+    useState<UserProfile | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -25,23 +40,16 @@ export default function UserMenu() {
       try {
         if (isMounted) {
           setIsLoading(true);
-          setError(null);
         }
 
-        const data = await getProfile();
+        const data =
+          await getProfile();
 
-        if (isMounted) {
-          setProfile(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          const message =
-            err instanceof Error ? err.message : "Error loading profile";
-
-          setError(message);
+        if (!isMounted) {
+          return;
         }
 
-        console.error("Failed to load profile:", err);
+        setProfile(data);
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -49,87 +57,168 @@ export default function UserMenu() {
       }
     }
 
-    loadProfile();
+    void loadProfile();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(
+      event: MouseEvent,
+    ) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          event.target as Node,
+        )
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    function handleEscape(
+      event: KeyboardEvent,
+    ) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      );
+    };
+  }, []);
+
   async function handleLogout() {
     try {
-      await supabase.auth.signOut();
+      await logout();
 
       router.replace("/login");
-    } catch (err) {
-      console.error("Failed to logout:", err);
-
-      setError("Error closing session");
+    } catch {
+      // En una futura iteración puede mostrarse
+      // una notificación global.
     }
   }
 
-  if (error) {
-    return (
-      <div className="user-menu-error">
-        <div className="user-menu-avatar user-menu-avatar--error">!</div>
-      </div>
-    );
-  }
+  const userEmail =
+    profile?.email ?? "Usuario";
+
+  const userInitial =
+    userEmail
+      .trim()
+      .charAt(0)
+      .toUpperCase() || "U";
+
+  const region =
+    profile?.region
+      ? getRegionLabel(
+          profile.region,
+        )
+      : "";
 
   return (
-    <div className="user-menu">
+    <div
+      ref={menuRef}
+      className="user-menu"
+    >
       <button
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-label="Menú de usuario"
-        aria-expanded={open}
-        aria-haspopup="menu"
         className="user-menu-trigger"
+        aria-label="Menú de usuario"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         disabled={isLoading}
+        onClick={() =>
+          setIsOpen(
+            (previous) =>
+              !previous,
+          )
+        }
       >
         <div className="user-menu-avatar">
-          {isLoading ? "..." : profile?.email?.charAt(0)?.toUpperCase() || "U"}
+          {isLoading
+            ? "..."
+            : userInitial}
         </div>
 
         <div className="user-menu-text">
           <p className="user-menu-email">
-            {isLoading ? "Cargando..." : profile?.email || "Usuario"}
+            {isLoading
+              ? "Cargando..."
+              : userEmail}
           </p>
 
           <p className="user-menu-role">
-            {profile?.role === "admin" ? "Administrador" : "Usuario"}
+            {profile?.role === "admin"
+              ? "Administrador"
+              : "Participante"}
           </p>
         </div>
 
-        <ChevronDown size={18} className="user-menu-chevron" />
+        <ChevronDown
+          size={18}
+          className="user-menu-chevron"
+        />
       </button>
 
-      {open && (
-        <div className="user-menu-dropdown" role="menu">
+      {isOpen && (
+        <div
+          className="user-menu-dropdown"
+          role="menu"
+        >
           <div className="user-menu-dropdown-header">
             <p className="user-menu-dropdown-email">
-              {profile?.email || "Usuario"}
+              {userEmail}
             </p>
 
-            <p className="user-menu-dropdown-region">{profile?.region || ""}</p>
+            {region && (
+              <p className="user-menu-dropdown-region">
+                {region}
+              </p>
+            )}
           </div>
 
           <Link
             href="/perfil"
-            className="user-menu-dropdown-item"
             role="menuitem"
+            className="user-menu-dropdown-item"
+            onClick={() =>
+              setIsOpen(false)
+            }
           >
             <User size={18} />
+
             Perfil
           </Link>
 
           <button
             type="button"
+            role="menuitem"
             onClick={handleLogout}
             className="user-menu-dropdown-item user-menu-dropdown-button"
-            role="menuitem"
           >
             <LogOut size={18} />
+
             Cerrar sesión
           </button>
         </div>

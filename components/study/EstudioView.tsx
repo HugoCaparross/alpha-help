@@ -1,12 +1,19 @@
 import "@/components/styles/estudio.css";
 
 import EstudioIntro from "./EstudioIntro";
-import EstudioObjectives from "./EstudioObjectives";
-import EstudioTopics from "./EstudioTopics";
 import EstudioMethod from "./EstudioMethod";
+import EstudioObjectives from "./EstudioObjectives";
 import EstudioParticipation from "./EstudioParticipation";
 import EstudioPrivacy from "./EstudioPrivacy";
+import EstudioTopics from "./EstudioTopics";
 
+/**
+ * Página informativa del estudio Alpha-Help.
+ *
+ * Presenta los objetivos, metodología,
+ * áreas de investigación, participación
+ * y tratamiento de la información.
+ */
 export default function EstudioView() {
   return (
     <div className="estudio-page">
@@ -15,20 +22,23 @@ export default function EstudioView() {
 
         <p className="estudio-description">
           Conoce en qué consiste el proyecto de investigación Alpha-Help y cómo
-          contribuimos al bienestar emocional de adolescentes y familias.
+          contribuimos al bienestar emocional de adolescentes y sus familias.
         </p>
       </header>
 
-      <EstudioIntro />
-      <EstudioObjectives />
+      <main className="estudio-content">
+        <EstudioIntro />
 
-      <EstudioTopics />
+        <EstudioObjectives />
 
-      <EstudioMethod />
+        <EstudioTopics />
 
-      <EstudioParticipation />
+        <EstudioMethod />
 
-      <EstudioPrivacy />
+        <EstudioParticipation />
+
+        <EstudioPrivacy />
+      </main>
     </div>
   );
 }
