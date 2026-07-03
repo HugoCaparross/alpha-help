@@ -1,3 +1,5 @@
+import type { Region } from "@/lib/utils/regions";
+
 /**
  * Perfil del participante almacenado
  * en la tabla `profiles`.
@@ -25,7 +27,7 @@ export interface UserProfile {
      INFORMACIÓN PERSONAL
   ========================= */
 
-  region: string;
+  region: Region;
 
   gender: string | null;
 
