@@ -1,18 +1,18 @@
-import ContactForm from "@/components/public/contact/ContactForm";
-import Navbar from "@/components/public/landing/NavBar";
-import Footer from "@/components/public/landing/Footer";
+import type { Metadata } from "next";
 
-import {
-  Mail,
-  ShieldCheck,
-  HelpCircle,
-  Clock,
-  Wrench,
-} from "lucide-react";
+import { Clock, HelpCircle, Mail, ShieldCheck, Wrench } from "lucide-react";
+
+import ContactForm from "@/components/public/contact/ContactForm";
+import Footer from "@/components/public/landing/Footer";
+import NavBar from "@/components/public/landing/NavBar";
 
 import "@/components/styles/contact.css";
 
-const contactCards = [
+export const metadata: Metadata = {
+  title: "Contacto",
+};
+
+const CONTACT_CARDS = [
   {
     title: "Consultas generales",
     description:
@@ -37,21 +37,24 @@ const contactCards = [
   {
     title: "Tiempo de respuesta",
     description:
-      "Intentamos responder todas las consultas en un plazo de 24 a 48 horas laborables a través del correo.",
+      "Intentamos responder todas las consultas en un plazo de 24 a 48 horas laborables.",
     icon: Clock,
     iconClass: "contact-info-icon-neutral",
   },
-];
+] as const;
 
+/**
+ * Página pública de contacto.
+ */
 export default function ContactPage() {
   return (
     <>
-      <Navbar />
+      <NavBar />
 
       <main className="contact-page">
-        <section className="contact-hero">
+        <section className="contact-hero" aria-labelledby="contact-title">
           <div className="contact-hero-container">
-            <h1 className="contact-title">
+            <h1 id="contact-title" className="contact-title">
               Contacto
             </h1>
 
@@ -61,33 +64,32 @@ export default function ContactPage() {
             </p>
 
             <div className="contact-email">
-              <Mail size={20} />
+              <Mail size={20} aria-hidden="true" />
 
-              <a href="mailto:alpha-help@unir.net">
-                alpha-help@unir.net
-              </a>
+              <a href="mailto:alpha-help@unir.net">alpha-help@unir.net</a>
             </div>
           </div>
         </section>
 
         <section className="contact-content">
           <div className="contact-layout">
-            <aside className="contact-info">
-              {contactCards.map((card) => {
+            <aside
+              className="contact-info"
+              aria-label="Información de contacto"
+            >
+              {CONTACT_CARDS.map((card) => {
                 const Icon = card.icon;
 
                 return (
-                  <article
-                    key={card.title}
-                    className="contact-info-card"
-                  >
+                  <article key={card.title} className="contact-info-card">
                     <div
                       className={`contact-info-icon ${card.iconClass}`}
+                      aria-hidden="true"
                     >
                       <Icon size={24} />
                     </div>
 
-                    <h3>{card.title}</h3>
+                    <h2>{card.title}</h2>
 
                     <p>{card.description}</p>
                   </article>
@@ -95,7 +97,14 @@ export default function ContactPage() {
               })}
             </aside>
 
-            <section className="contact-form-wrapper">
+            <section
+              className="contact-form-wrapper"
+              aria-labelledby="contact-form-title"
+            >
+              <h2 id="contact-form-title" className="sr-only">
+                Formulario de contacto
+              </h2>
+
               <ContactForm />
             </section>
           </div>
