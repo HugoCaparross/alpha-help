@@ -15,9 +15,8 @@ import {
 
 import "@/components/styles/dashboard.css";
 
-/**
- * Página principal del área privada.
- */
+const DASHBOARD_LOAD_ERROR = "No se ha podido cargar el panel principal.";
+
 export default function DashboardView() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
 
@@ -26,29 +25,36 @@ export default function DashboardView() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
+    /**
+     * Evita actualizar el estado
+     * cuando el componente ya ha
+     * sido desmontado.
+     */
     async function loadDashboard() {
       try {
         setError("");
 
         const data = await getDashboardData();
 
-        if (!isMounted) {
+        if (!mounted) {
           return;
         }
 
         setDashboard(data);
       } catch (error) {
-        console.error(error);
+        if (process.env.NODE_ENV === "development") {
+          console.error(error);
+        }
 
-        if (!isMounted) {
+        if (!mounted) {
           return;
         }
 
-        setError("No se ha podido cargar el panel principal.");
+        setError(DASHBOARD_LOAD_ERROR);
       } finally {
-        if (isMounted) {
+        if (mounted) {
           setLoading(false);
         }
       }
@@ -57,35 +63,37 @@ export default function DashboardView() {
     void loadDashboard();
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
   if (loading) {
     return (
-      <div className="dashboard-loading" role="status" aria-live="polite">
+      <section className="dashboard-loading" role="status" aria-live="polite">
         <p>Cargando panel...</p>
-      </div>
+      </section>
     );
   }
 
   if (!dashboard) {
     return (
-      <div className="dashboard-error" role="alert">
-        <p>{error || "No se ha podido cargar el panel principal."}</p>
-      </div>
+      <section className="dashboard-error" role="alert">
+        <p>{error || DASHBOARD_LOAD_ERROR}</p>
+      </section>
     );
   }
 
   return (
     <section className="dashboard">
-      <DashboardHeader participantName={dashboard.participantName} />
+      <DashboardHeader participantCode={dashboard.participantCode} />
 
       <DashboardProgress
-        questionnaireCompleted={dashboard.questionnaireCompleted}
-        sessionsCompleted={dashboard.sessionsCompleted}
-        materialsCompleted={dashboard.materialsCompleted}
+        preCompleted={dashboard.preCompleted}
         postCompleted={dashboard.postCompleted}
+        completedSessions={dashboard.completedSessions}
+        totalSessions={dashboard.totalSessions}
+        completedMaterials={dashboard.completedMaterials}
+        totalMaterials={dashboard.totalMaterials}
       />
 
       <DashboardQuickActions />

@@ -24,8 +24,11 @@ const MATERIAL_FIELDS = `
   release_date_latam
 `;
 
+const ERROR_GET_MATERIALS =
+  "No se han podido recuperar los materiales.";
+
 /**
- * Forma cruda devuelta por Supabase.
+ * Modelo recibido desde Supabase.
  */
 interface StudyMaterialRow {
   id: string;
@@ -47,9 +50,9 @@ interface StudyMaterialRow {
 
 /**
  * Convierte una fila de Supabase
- * al modelo utilizado por la aplicación.
+ * al modelo de dominio.
  */
-function mapRow(
+function mapMaterial(
   row: StudyMaterialRow,
 ): StudyMaterial {
   return {
@@ -77,9 +80,9 @@ function mapRow(
 
 /**
  * Devuelve la fecha de publicación
- * correspondiente a la región indicada.
+ * correspondiente a la región.
  */
-function resolveReleaseDate(
+function getReleaseDate(
   material: StudyMaterial,
   region: Region,
 ): string {
@@ -89,29 +92,41 @@ function resolveReleaseDate(
 }
 
 /**
- * Calcula el estado actual
+ * Indica si el material
+ * ya está publicado.
+ */
+function isReleased(
+  releaseDate: string,
+): boolean {
+  return (
+    Date.parse(releaseDate) <=
+    Date.now()
+  );
+}
+
+/**
+ * Calcula el estado
  * del material.
  */
-function resolveStatus(
+function getStatus(
   releaseDate: string,
 ): StudyMaterialWithStatus["status"] {
-  return Date.parse(
-    releaseDate,
-  ) <= Date.now()
+  return isReleased(releaseDate)
     ? "available"
     : "locked";
 }
 
 /**
- * Convierte un material en un material
- * listo para mostrarse al participante.
+ * Convierte un material
+ * al modelo utilizado por
+ * la interfaz.
  */
-function resolveMaterial(
+function mapMaterialWithStatus(
   material: StudyMaterial,
   region: Region,
 ): StudyMaterialWithStatus {
   const releaseDate =
-    resolveReleaseDate(
+    getReleaseDate(
       material,
       region,
     );
@@ -122,15 +137,12 @@ function resolveMaterial(
     releaseDate,
 
     status:
-      resolveStatus(
-        releaseDate,
-      ),
+      getStatus(releaseDate),
   };
 }
 
 /**
- * Obtiene todos los materiales
- * del programa.
+ * Obtiene todos los materiales.
  */
 export async function getStudyMaterials(): Promise<
   StudyMaterial[]
@@ -150,19 +162,47 @@ export async function getStudyMaterials(): Promise<
 
   if (error) {
     throw new Error(
-      "No se han podido recuperar los materiales.",
+      ERROR_GET_MATERIALS,
     );
   }
 
   return (data ?? []).map(
-    mapRow,
+    mapMaterial,
   );
+}
+
+/**
+ * Obtiene un material concreto.
+ */
+export async function getStudyMaterialById(
+  materialId: string,
+): Promise<StudyMaterial | null> {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(STUDY_MATERIALS_TABLE)
+    .select(MATERIAL_FIELDS)
+    .eq("id", materialId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      ERROR_GET_MATERIALS,
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapMaterial(data);
 }
 
 /**
  * Obtiene todos los materiales
  * resolviendo automáticamente
- * su estado para la región indicada.
+ * su estado.
  */
 export async function getStudyMaterialsWithStatus(
   region: Region,
@@ -174,7 +214,7 @@ export async function getStudyMaterialsWithStatus(
 
   return materials.map(
     (material) =>
-      resolveMaterial(
+      mapMaterialWithStatus(
         material,
         region,
       ),
@@ -196,15 +236,14 @@ export async function getAvailableStudyMaterials(
     );
 
   return materials.filter(
-    (material) =>
-      material.status ===
-      "available",
+    ({ status }) =>
+      status === "available",
   );
 }
 
 /**
  * Devuelve el siguiente material
- * pendiente de publicarse.
+ * pendiente de publicación.
  */
 export async function getNextStudyMaterial(
   region: Region,
@@ -214,22 +253,10 @@ export async function getNextStudyMaterial(
       region,
     );
 
-  const nextMaterial =
-    materials
-      .filter(
-        (material) =>
-          material.status ===
-          "locked",
-      )
-      .sort(
-        (a, b) =>
-          Date.parse(
-            a.releaseDate,
-          ) -
-          Date.parse(
-            b.releaseDate,
-          ),
-      )[0];
-
-  return nextMaterial ?? null;
+  return (
+    materials.find(
+      ({ status }) =>
+        status === "locked",
+    ) ?? null
+  );
 }

@@ -37,13 +37,12 @@ export interface StudyMaterial {
 }
 
 /**
- * Material con la fecha de publicación
- * ya resuelta para la región del usuario.
+ * Material listo para ser utilizado
+ * por la interfaz de usuario.
  *
- * Los componentes nunca deben decidir
- * qué fecha utilizar.
- * Esa responsabilidad pertenece
- * exclusivamente al servicio.
+ * El servicio resuelve automáticamente
+ * la fecha correspondiente a la región
+ * del participante y calcula su estado.
  */
 export interface StudyMaterialWithStatus
   extends StudyMaterial {

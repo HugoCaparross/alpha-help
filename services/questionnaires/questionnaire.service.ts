@@ -23,6 +23,24 @@ export interface QuestionnaireAnswers {
   [questionId: string]: number;
 }
 
+export interface QuestionnaireStatus {
+  preCompleted: boolean;
+
+  postCompleted: boolean;
+}
+
+interface QuestionnaireResponseInsert {
+  submission_id: string;
+
+  user_id: string;
+
+  questionnaire_type: QuestionnaireType;
+
+  question_key: string;
+
+  answer: number;
+}
+
 /* =========================
    CONSTANTES
 ========================= */
@@ -54,6 +72,34 @@ const QUESTION_MAP = new Map(
 );
 
 /* =========================
+   MENSAJES
+========================= */
+
+const ERROR_INVALID_TYPE =
+  "Tipo de cuestionario no válido.";
+
+const ERROR_EMPTY_ANSWERS =
+  "No se han proporcionado respuestas.";
+
+const ERROR_CHECK =
+  "No se ha podido comprobar el estado del cuestionario.";
+
+const ERROR_SUBMISSION =
+  "No se ha podido crear el registro del cuestionario.";
+
+const ERROR_RESPONSES =
+  "No se han podido guardar las respuestas del cuestionario.";
+
+const ERROR_COMPLETED =
+  "Este cuestionario ya ha sido completado.";
+
+const ERROR_PRE_REQUIRED =
+  "Debes completar primero la evaluación inicial.";
+
+const ERROR_GET_COMPLETED =
+  "No se han podido recuperar los cuestionarios completados.";
+
+/* =========================
    VALIDACIONES
 ========================= */
 
@@ -66,7 +112,7 @@ function validateQuestionnaireType(
     )
   ) {
     throw new Error(
-      "Tipo de cuestionario no válido.",
+      ERROR_INVALID_TYPE,
     );
   }
 }
@@ -79,7 +125,7 @@ function validateAnswers(
 
   if (entries.length === 0) {
     throw new Error(
-      "No se han proporcionado respuestas.",
+      ERROR_EMPTY_ANSWERS,
     );
   }
 
@@ -127,18 +173,22 @@ function buildResponses(
   userId: string,
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
-) {
+): QuestionnaireResponseInsert[] {
   return Object.entries(
     answers,
   ).map(
     ([questionKey, answer]) => ({
       submission_id:
         submissionId,
+
       user_id: userId,
+
       questionnaire_type:
         questionnaireType,
+
       question_key:
         questionKey,
+
       answer,
     }),
   );
@@ -161,7 +211,7 @@ async function hasCompletedQuestionnaireByUser(
 
   if (error) {
     throw new Error(
-      "No se ha podido comprobar el estado del cuestionario.",
+      ERROR_CHECK,
     );
   }
 
@@ -172,27 +222,36 @@ async function hasCompletedQuestionnaireByUser(
 ========================= */
 
 /**
- * Guarda un cuestionario completado junto con todas sus respuestas.
+ * Guarda un cuestionario completado
+ * junto con todas sus respuestas.
  *
- * Realiza las siguientes comprobaciones:
- * - Usuario autenticado.
- * - Tipo de cuestionario válido.
- * - Respuestas válidas.
- * - Cuestionario no completado previamente.
- * - El POST únicamente puede realizarse tras completar el PRE.
+ * Flujo:
+ *
+ * 1. Valida el tipo.
+ * 2. Valida las respuestas.
+ * 3. Comprueba autenticación.
+ * 4. Evita duplicados.
+ * 5. Obliga a completar el PRE
+ *    antes del POST.
+ * 6. Inserta el envío.
+ * 7. Inserta todas las respuestas.
  */
 export async function submitQuestionnaire(
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
 ) {
-  validateQuestionnaireType(questionnaireType);
+  validateQuestionnaireType(
+    questionnaireType,
+  );
 
   validateAnswers(answers);
 
   const user = await getUser();
 
   if (!user) {
-    throw new Error("Usuario no autenticado.");
+    throw new Error(
+      "Usuario no autenticado.",
+    );
   }
 
   const alreadyCompleted =
@@ -203,11 +262,13 @@ export async function submitQuestionnaire(
 
   if (alreadyCompleted) {
     throw new Error(
-      "Este cuestionario ya ha sido completado.",
+      ERROR_COMPLETED,
     );
   }
 
-  if (questionnaireType === "post") {
+  if (
+    questionnaireType === "post"
+  ) {
     const hasCompletedPre =
       await hasCompletedQuestionnaireByUser(
         user.id,
@@ -216,7 +277,7 @@ export async function submitQuestionnaire(
 
     if (!hasCompletedPre) {
       throw new Error(
-        "Debes completar primero la evaluación inicial.",
+        ERROR_PRE_REQUIRED,
       );
     }
   }
@@ -228,23 +289,28 @@ export async function submitQuestionnaire(
     .from(SUBMISSIONS_TABLE)
     .insert({
       user_id: user.id,
-      questionnaire_type: questionnaireType,
+      questionnaire_type:
+        questionnaireType,
     })
     .select()
     .single();
 
-  if (submissionError || !submission) {
+  if (
+    submissionError ||
+    !submission
+  ) {
     throw new Error(
-      "No se ha podido crear el registro del cuestionario.",
+      ERROR_SUBMISSION,
     );
   }
 
-  const responses = buildResponses(
-    submission.id,
-    user.id,
-    questionnaireType,
-    answers,
-  );
+  const responses =
+    buildResponses(
+      submission.id,
+      user.id,
+      questionnaireType,
+      answers,
+    );
 
   const {
     error: responsesError,
@@ -256,16 +322,22 @@ export async function submitQuestionnaire(
     await supabase
       .from(SUBMISSIONS_TABLE)
       .delete()
-      .eq("id", submission.id);
+      .eq(
+        "id",
+        submission.id,
+      );
 
     throw new Error(
-      "No se han podido guardar las respuestas del cuestionario.",
+      ERROR_RESPONSES,
     );
   }
 
   return submission;
 }
-
+/**
+ * Indica si el participante
+ * ya ha completado un cuestionario.
+ */
 export async function hasCompletedQuestionnaire(
   questionnaireType: QuestionnaireType,
 ): Promise<boolean> {
@@ -285,6 +357,10 @@ export async function hasCompletedQuestionnaire(
   );
 }
 
+/**
+ * Devuelve los cuestionarios
+ * completados por el participante.
+ */
 export async function getCompletedQuestionnaires(): Promise<
   QuestionnaireType[]
 > {
@@ -307,7 +383,7 @@ export async function getCompletedQuestionnaires(): Promise<
 
   if (error) {
     throw new Error(
-      "No se han podido recuperar los cuestionarios completados.",
+      ERROR_GET_COMPLETED,
     );
   }
 
@@ -316,5 +392,53 @@ export async function getCompletedQuestionnaires(): Promise<
       questionnaire_type,
     }) =>
       questionnaire_type as QuestionnaireType,
+  );
+}
+
+/**
+ * Devuelve el estado global
+ * de los cuestionarios del participante.
+ *
+ * Esta función debe utilizarse
+ * desde Dashboard y desde la
+ * pantalla de Cuestionarios.
+ */
+export async function getQuestionnaireStatus(): Promise<QuestionnaireStatus> {
+  const [
+    preCompleted,
+    postCompleted,
+  ] = await Promise.all([
+    hasCompletedQuestionnaire(
+      "pre",
+    ),
+
+    hasCompletedQuestionnaire(
+      "post",
+    ),
+  ]);
+
+  return {
+    preCompleted,
+
+    postCompleted,
+  };
+}
+
+/**
+ * Indica si el participante
+ * puede acceder al cuestionario POST.
+ *
+ * Actualmente únicamente requiere
+ * haber completado el PRE.
+ *
+ * Si en el futuro el estudio exige
+ * completar sesiones, materiales
+ * o esperar una fecha concreta,
+ * toda esa lógica se añadirá aquí
+ * sin afectar a los componentes.
+ */
+export async function canStartPostQuestionnaire(): Promise<boolean> {
+  return hasCompletedQuestionnaire(
+    "pre",
   );
 }

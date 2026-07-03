@@ -1,10 +1,9 @@
 import { ShieldCheck } from "lucide-react";
 
 /**
- * Información general para el participante.
- *
- * Recuerda el carácter confidencial de la
- * participación y el uso de los datos del estudio.
+ * Información general
+ * sobre la participación
+ * en el estudio.
  */
 export default function DashboardInfo() {
   return (
@@ -25,8 +24,8 @@ export default function DashboardInfo() {
           <p className="dashboard-info-description">
             Toda la información que compartas durante el estudio será tratada de
             forma confidencial y utilizada exclusivamente con fines de
-            investigación. Puedes completar las distintas fases del programa a
-            tu ritmo conforme se vayan publicando.
+            investigación. Podrás acceder progresivamente a las distintas fases
+            del estudio conforme se habiliten para tu participación.
           </p>
         </div>
       </div>

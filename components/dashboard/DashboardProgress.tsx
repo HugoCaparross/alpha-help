@@ -1,73 +1,105 @@
 import { CheckCircle2, Circle } from "lucide-react";
 
 interface DashboardProgressProps {
-  questionnaireCompleted: boolean;
-
-  sessionsCompleted: boolean;
-
-  materialsCompleted: boolean;
+  preCompleted: boolean;
 
   postCompleted: boolean;
+
+  completedSessions: number;
+
+  totalSessions: number;
+
+  completedMaterials: number;
+
+  totalMaterials: number;
 }
 
-/**
- * Resumen del progreso del participante.
- */
 export default function DashboardProgress({
-  questionnaireCompleted,
-  sessionsCompleted,
-  materialsCompleted,
+  preCompleted,
   postCompleted,
+  completedSessions,
+  totalSessions,
+  completedMaterials,
+  totalMaterials,
 }: DashboardProgressProps) {
-  const progressItems = [
-    {
-      id: "pre",
-      title: "Cuestionario inicial",
-      completed: questionnaireCompleted,
-    },
-    {
-      id: "sessions",
-      title: "Sesiones del programa",
-      completed: sessionsCompleted,
-    },
-    {
-      id: "materials",
-      title: "Materiales de apoyo",
-      completed: materialsCompleted,
-    },
-    {
-      id: "post",
-      title: "Evaluación final",
-      completed: postCompleted,
-    },
-  ];
-
   return (
     <section
       className="dashboard-section"
       aria-labelledby="dashboard-progress-title"
     >
       <div className="dashboard-card">
-        <h2 id="dashboard-progress-title" className="dashboard-card-title">
+        <h2
+          id="dashboard-progress-title"
+          className="dashboard-card-title"
+        >
           Tu progreso
         </h2>
 
         <div className="dashboard-progress">
-          {progressItems.map((item) => (
-            <div key={item.id} className="dashboard-progress-item">
-              <div className="dashboard-progress-icon" aria-hidden="true">
-                {item.completed ? (
-                  <CheckCircle2 size={20} />
-                ) : (
-                  <Circle size={20} />
-                )}
-              </div>
+          <ProgressItem
+            title="Cuestionario inicial"
+            completed={preCompleted}
+          />
 
-              <span className="dashboard-progress-label">{item.title}</span>
-            </div>
-          ))}
+          <ProgressItem
+            title="Sesiones del programa"
+            completed={completedSessions === totalSessions}
+            description={`${completedSessions} de ${totalSessions} sesiones completadas`}
+          />
+
+          <ProgressItem
+            title="Materiales de apoyo"
+            completed={completedMaterials === totalMaterials}
+            description={`${completedMaterials} de ${totalMaterials} materiales completados`}
+          />
+
+          <ProgressItem
+            title="Evaluación final"
+            completed={postCompleted}
+          />
         </div>
       </div>
     </section>
+  );
+}
+
+interface ProgressItemProps {
+  title: string;
+
+  completed: boolean;
+
+  description?: string;
+}
+
+function ProgressItem({
+  title,
+  completed,
+  description,
+}: ProgressItemProps) {
+  return (
+    <div className="dashboard-progress-item">
+      <div
+        className="dashboard-progress-icon"
+        aria-hidden="true"
+      >
+        {completed ? (
+          <CheckCircle2 size={20} />
+        ) : (
+          <Circle size={20} />
+        )}
+      </div>
+
+      <div className="dashboard-progress-content">
+        <span className="dashboard-progress-label">
+          {title}
+        </span>
+
+        {description && (
+          <span className="dashboard-progress-description">
+            {description}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
