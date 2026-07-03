@@ -1,26 +1,45 @@
-﻿import NavBar from "@/components/public/landing/NavBar";
-import Hero from "@/components/public/landing/Hero";
-import Concerns from "@/components/public/landing/Concerns";
+﻿import type { Metadata } from "next";
+
 import Benefits from "@/components/public/landing/Benefits";
+import Concerns from "@/components/public/landing/Concerns";
 import Features from "@/components/public/landing/Features";
-import Research from "@/components/public/landing/Research";
-import Participation from "@/components/public/landing/Participation";
 import FinalCTA from "@/components/public/landing/FinalCTA";
 import Footer from "@/components/public/landing/Footer";
+import Hero from "@/components/public/landing/Hero";
+import NavBar from "@/components/public/landing/NavBar";
+import Participation from "@/components/public/landing/Participation";
+import Research from "@/components/public/landing/Research";
 
 import "@/components/styles/landing.css";
 
-export default function Landing() {
+export const metadata: Metadata = {
+  title: "Inicio",
+};
+
+/**
+ * Landing pública de Alpha-Help.
+ */
+export default function HomePage() {
   return (
     <>
       <NavBar />
-      <Hero />
-      <Features />
-      <Concerns />
-      <Benefits />
-      <Research />
-      <Participation />
-      <FinalCTA />
+
+      <main>
+        <Hero />
+
+        <Features />
+
+        <Concerns />
+
+        <Benefits />
+
+        <Research />
+
+        <Participation />
+
+        <FinalCTA />
+      </main>
+
       <Footer />
     </>
   );

@@ -1,6 +1,6 @@
-import { ShieldCheck, Users, FlaskConical } from "lucide-react";
+import { FlaskConical, ShieldCheck, Users } from "lucide-react";
 
-const features = [
+const FEATURES = [
   {
     icon: ShieldCheck,
     title: "Seguro y confidencial",
@@ -17,19 +17,26 @@ const features = [
     description:
       "Desarrollado a partir de investigación universitaria rigurosa.",
   },
-];
+] as const;
 
+/**
+ * Beneficios principales del proyecto.
+ */
 export default function Features() {
   return (
-    <section className="features-section">
+    <section className="features-section" aria-labelledby="features-title">
       <div className="container-custom">
+        <header className="sr-only">
+          <h2 id="features-title">Principales características del proyecto</h2>
+        </header>
+
         <div className="features-grid">
-          {features.map((feature) => {
+          {FEATURES.map((feature) => {
             const Icon = feature.icon;
 
             return (
               <article key={feature.title} className="feature-card">
-                <div className="feature-card-icon">
+                <div className="feature-card-icon" aria-hidden="true">
                   <Icon size={28} />
                 </div>
 

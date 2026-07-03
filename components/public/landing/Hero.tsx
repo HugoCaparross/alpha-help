@@ -1,14 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
+/**
+ * Sección principal de la landing.
+ */
 export default function Hero() {
   return (
-    <section className="hero">
+    <section className="hero" aria-labelledby="hero-title">
       <div className="hero-grid">
         <div className="hero-content-container">
           <div className="container-custom">
             <div className="hero-content">
-              <h1 className="hero-title">
+              <h1 id="hero-title" className="hero-title">
                 Acompañamos a
                 <br />
                 las familias
@@ -19,7 +22,7 @@ export default function Hero() {
               </h1>
 
               <p className="hero-description">
-                ALPHA-HELP ayuda a madres y padres a comprender, detectar y
+                Alpha-Help ayuda a madres y padres a comprender, detectar y
                 actuar ante situaciones que pueden afectar al bienestar
                 emocional de sus hijos e hijas.
               </p>
@@ -37,12 +40,13 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="hero-image-wrapper">
+        <div className="hero-image-wrapper" aria-hidden="true">
           <Image
             src="/images/familia_v2.png"
-            alt="Familia participando en ALPHA-HELP"
+            alt="Madre y adolescente compartiendo un momento de conversación y apoyo"
             fill
             priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
             className="hero-image"
           />
         </div>

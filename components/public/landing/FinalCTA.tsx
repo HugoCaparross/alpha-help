@@ -1,20 +1,23 @@
 import Link from "next/link";
 
+/**
+ * Llamada final a la acción de la Landing.
+ */
 export default function FinalCTA() {
   return (
-    <section className="final-cta-section">
+    <section className="final-cta-section" aria-labelledby="final-cta-title">
       <div className="container-custom">
         <div className="final-cta-card">
           <span className="final-cta-badge">Participación gratuita</span>
 
-          <h2 className="final-cta-title">
-            Empiece hoy a formar parte de ALPHA-HELP
+          <h2 id="final-cta-title" className="final-cta-title">
+            Empiece hoy a formar parte de Alpha-Help
           </h2>
 
           <p className="final-cta-description">
-            Únase a un proyecto basado en evidencia científica y
-            acceda a recursos diseñados para ayudar a las familias a afrontar
-            los desafíos emocionales de la adolescencia.
+            Únase a un proyecto basado en evidencia científica y acceda a
+            recursos diseñados para ayudar a las familias a afrontar los
+            desafíos emocionales de la adolescencia.
           </p>
 
           <div className="final-cta-actions">

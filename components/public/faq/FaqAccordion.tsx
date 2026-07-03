@@ -1,25 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
-import { faqSections } from "./faq.data";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
+import { ChevronDown, ChevronUp, Search } from "lucide-react";
+
+import { FAQ_SECTIONS } from "./faq.data";
+
+/**
+ * Acordeón de preguntas frecuentes.
+ */
 export default function FaqAccordion() {
   const [openItem, setOpenItem] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
 
-  const hasResults = faqSections.some((section) =>
-    section.questions.some(
-      (item) =>
-        item.question.toLowerCase().includes(search.toLowerCase()) ||
-        item.answer.toLowerCase().includes(search.toLowerCase()),
-    ),
-  );
+  const normalizedSearch = search.trim().toLowerCase();
+
+  const filteredSections = useMemo(() => {
+    return FAQ_SECTIONS.map((section) => ({
+      ...section,
+      questions: section.questions.filter(
+        (item) =>
+          normalizedSearch === "" ||
+          item.question.toLowerCase().includes(normalizedSearch) ||
+          item.answer.toLowerCase().includes(normalizedSearch),
+      ),
+    })).filter((section) => section.questions.length > 0);
+  }, [normalizedSearch]);
+
+  const hasResults = filteredSections.length > 0;
 
   return (
     <>
-      <section className="faq-hero">
-        <h1 className="faq-title">Preguntas frecuentes sobre Alpha-Help</h1>
+      <section className="faq-hero" aria-labelledby="faq-title">
+        <h1 id="faq-title" className="faq-title">
+          Preguntas frecuentes sobre Alpha-Help
+        </h1>
 
         <p className="faq-subtitle">
           Resolvemos las dudas más habituales sobre la participación en el
@@ -27,71 +44,69 @@ export default function FaqAccordion() {
         </p>
 
         <div className="faq-search">
-          <Search size={18} />
+          <Search size={18} aria-hidden="true" />
 
           <input
-            type="text"
+            type="search"
             placeholder="Buscar una pregunta..."
+            aria-label="Buscar preguntas frecuentes"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
           />
         </div>
       </section>
 
       <section className="faq-content">
-        {faqSections.map((section) => {
-          const filteredQuestions = section.questions.filter((item) => {
-            const query = search.toLowerCase();
-
-            return (
-              item.question.toLowerCase().includes(query) ||
-              item.answer.toLowerCase().includes(query)
-            );
-          });
-
-          if (filteredQuestions.length === 0 && search.trim() !== "") {
-            return null;
-          }
-
-          return (
-            <div key={section.title} className="faq-section">
-              <div className="faq-category">
-                <h2 className="faq-section-title">{section.title}</h2>
-              </div>
-
-              {filteredQuestions.map((item) => {
-                const key = `${section.title}-${item.question}`;
-                const isOpen = openItem === key;
-
-                return (
-                  <div key={key} className="faq-card">
-                    <button
-                      type="button"
-                      className="faq-question"
-                      onClick={() => setOpenItem(isOpen ? null : key)}
-                    >
-                      <span>{item.question}</span>
-
-                      {isOpen ? (
-                        <ChevronUp size={18} />
-                      ) : (
-                        <ChevronDown size={18} />
-                      )}
-                    </button>
-
-                    <div
-                      className={`faq-answer-wrapper ${isOpen ? "open" : ""}`}
-                    >
-                      <div className="faq-answer">{item.answer}</div>
-                    </div>
-                  </div>
-                );
-              })}
+        {filteredSections.map((section) => (
+          <section
+            key={section.title}
+            className="faq-section"
+            aria-labelledby={`section-${section.title}`}
+          >
+            <div className="faq-category">
+              <h2 id={`section-${section.title}`} className="faq-section-title">
+                {section.title}
+              </h2>
             </div>
-          );
-        })}
 
-        {!hasResults && search.trim() !== "" && (
+            {section.questions.map((item) => {
+              const key = `${section.title}-${item.question}`;
+
+              const answerId = `answer-${key}`;
+
+              const isOpen = openItem === key;
+
+              return (
+                <article key={key} className="faq-card">
+                  <button
+                    type="button"
+                    className="faq-question"
+                    aria-expanded={isOpen}
+                    aria-controls={answerId}
+                    onClick={() => setOpenItem(isOpen ? null : key)}
+                  >
+                    <span>{item.question}</span>
+
+                    {isOpen ? (
+                      <ChevronUp size={18} aria-hidden="true" />
+                    ) : (
+                      <ChevronDown size={18} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  <div
+                    id={answerId}
+                    className={`faq-answer-wrapper ${isOpen ? "open" : ""}`}
+                  >
+                    <div className="faq-answer">{item.answer}</div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        ))}
+
+        {!hasResults && normalizedSearch !== "" && (
           <div className="faq-empty">
             <h3>No hemos encontrado resultados</h3>
 
@@ -100,16 +115,16 @@ export default function FaqAccordion() {
               resolver tu duda.
             </p>
 
-            <a href="/contacto" className="btn-primary">
+            <Link href="/contacto" className="btn-primary">
               Contactar
-            </a>
+            </Link>
           </div>
         )}
       </section>
 
       <section className="faq-contact">
         <div className="faq-contact-card">
-          <h3>¿Quieres participar en el estudio?</h3>
+          <h2>¿Quieres participar en el estudio?</h2>
 
           <p>
             Forma parte de una investigación centrada en el bienestar emocional
@@ -117,13 +132,13 @@ export default function FaqAccordion() {
           </p>
 
           <div className="faq-contact-actions">
-            <a href="/register" className="btn-primary">
+            <Link href="/register" className="btn-primary">
               Crear cuenta
-            </a>
+            </Link>
 
-            <a href="/contacto" className="btn-secondary">
+            <Link href="/contacto" className="btn-secondary">
               Contactar
-            </a>
+            </Link>
           </div>
         </div>
       </section>

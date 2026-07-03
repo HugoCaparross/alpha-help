@@ -1,11 +1,11 @@
 import {
-  UserPlus,
-  ClipboardCheck,
   BookOpen,
+  ClipboardCheck,
   HeartHandshake,
+  UserPlus,
 } from "lucide-react";
 
-const steps = [
+const PARTICIPATION_STEPS = [
   {
     icon: UserPlus,
     number: "01",
@@ -34,32 +34,45 @@ const steps = [
     description:
       "Reciba apoyo y formación durante todo el proceso para afrontar los desafíos emocionales de la adolescencia.",
   },
-];
+] as const;
 
+/**
+ * Proceso de participación en Alpha-Help.
+ */
 export default function Participation() {
   return (
-    <section className="participation-section">
+    <section
+      className="participation-section"
+      aria-labelledby="participation-title"
+    >
       <div className="container-custom">
-        <div className="section-header">
+        <header className="section-header">
           <span className="section-badge">Participación</span>
 
-          <h2 className="section-title">¿Cómo funciona ALPHA-HELP?</h2>
+          <h2 id="participation-title" className="section-title">
+            ¿Cómo funciona Alpha-Help?
+          </h2>
 
           <p className="section-description">
             Hemos diseñado un proceso sencillo, accesible y orientado a las
             familias para facilitar la participación en el proyecto.
           </p>
-        </div>
+        </header>
 
         <div className="participation-timeline">
-          {steps.map((step) => {
+          {PARTICIPATION_STEPS.map((step) => {
             const Icon = step.icon;
 
             return (
               <article key={step.number} className="participation-card">
-                <div className="participation-number">{step.number}</div>
+                <div
+                  className="participation-number"
+                  aria-label={`Paso ${step.number}`}
+                >
+                  {step.number}
+                </div>
 
-                <div className="participation-icon">
+                <div className="participation-icon" aria-hidden="true">
                   <Icon size={28} />
                 </div>
 

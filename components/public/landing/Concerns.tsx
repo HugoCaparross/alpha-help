@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const concerns = [
+const CONCERNS = [
   {
     title: "Cambios bruscos de comportamiento",
     icon: "/images/landing/icons/comportamiento.png",
@@ -29,16 +29,20 @@ const concerns = [
     title: "Dificultades para comunicarse",
     icon: "/images/landing/icons/communication.png",
   },
-];
+] as const;
 
+/**
+ * Situaciones frecuentes que pueden preocupar
+ * a las familias durante la adolescencia.
+ */
 export default function Concerns() {
   return (
-    <section className="concerns-section">
+    <section className="concerns-section" aria-labelledby="concerns-title">
       <div className="container-custom">
-        <div className="section-header">
+        <header className="section-header">
           <span className="section-badge">Situaciones frecuentes</span>
 
-          <h2 className="section-title">
+          <h2 id="concerns-title" className="section-title">
             ¿Le preocupa alguna de estas situaciones?
           </h2>
 
@@ -46,21 +50,23 @@ export default function Concerns() {
             No todas estas situaciones indican un problema grave, pero
             conocerlas y detectarlas a tiempo puede marcar una gran diferencia.
           </p>
-        </div>
+        </header>
 
         <div className="concerns-grid">
-          {concerns.map((item) => (
-            <article key={item.title} className="concern-card">
-              <div className="concern-icon">
+          {CONCERNS.map((concern) => (
+            <article key={concern.title} className="concern-card">
+              <div className="concern-icon" aria-hidden="true">
                 <Image
-                  src={item.icon}
-                  alt={item.title}
+                  src={concern.icon}
+                  alt=""
                   width={120}
                   height={120}
+                  loading="lazy"
+                  sizes="120px"
                 />
               </div>
 
-              <h3 className="concern-title">{item.title}</h3>
+              <h3 className="concern-title">{concern.title}</h3>
             </article>
           ))}
         </div>

@@ -1,11 +1,11 @@
-import { GraduationCap, FlaskConical, ShieldCheck, Users } from "lucide-react";
+import { FlaskConical, GraduationCap, ShieldCheck, Users } from "lucide-react";
 
-const pillars = [
+const RESEARCH_PILLARS = [
   {
     icon: GraduationCap,
     title: "Proyecto universitario",
     description:
-      "ALPHA-HELP forma parte de una iniciativa académica orientada a mejorar el conocimiento sobre el bienestar emocional durante la adolescencia.",
+      "Alpha-Help forma parte de una iniciativa académica orientada a mejorar el conocimiento sobre el bienestar emocional durante la adolescencia.",
   },
   {
     icon: FlaskConical,
@@ -25,41 +25,45 @@ const pillars = [
     description:
       "El proyecto cuenta con profesionales e investigadores especializados en adolescencia, salud mental y educación.",
   },
-];
+] as const;
 
+/**
+ * Sección que presenta los pilares científicos
+ * y la credibilidad del proyecto.
+ */
 export default function Research() {
   return (
-    <section className="research-section">
+    <section className="research-section" aria-labelledby="research-title">
       <div className="container-custom">
         <div className="research-wrapper">
-          <div className="research-content">
+          <header className="research-content">
             <span className="section-badge">Investigación y confianza</span>
 
-            <h2 className="section-title">
+            <h2 id="research-title" className="section-title">
               Un proyecto respaldado por la investigación
             </h2>
 
             <p className="section-description">
-              ALPHA-HELP nace con el objetivo de acercar el conocimiento
+              Alpha-Help nace con el objetivo de acercar el conocimiento
               científico a las familias y proporcionar herramientas útiles para
               afrontar los desafíos emocionales de la adolescencia.
             </p>
-          </div>
+          </header>
 
           <div className="research-grid">
-            {pillars.map((item) => {
-              const Icon = item.icon;
+            {RESEARCH_PILLARS.map((pillar) => {
+              const Icon = pillar.icon;
 
               return (
-                <article key={item.title} className="research-card">
-                  <div className="research-icon">
+                <article key={pillar.title} className="research-card">
+                  <div className="research-icon" aria-hidden="true">
                     <Icon size={32} />
                   </div>
 
-                  <h3 className="research-card-title">{item.title}</h3>
+                  <h3 className="research-card-title">{pillar.title}</h3>
 
                   <p className="research-card-description">
-                    {item.description}
+                    {pillar.description}
                   </p>
                 </article>
               );
