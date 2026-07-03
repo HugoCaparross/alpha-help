@@ -1,74 +1,89 @@
 import type { Region } from "@/lib/utils/regions";
 
 /**
- * Perfil del participante almacenado
- * en la tabla `profiles`.
+ * Roles disponibles dentro de la plataforma.
+ */
+export type UserRole = "admin" | "user";
+
+/**
+ * Información de cada hijo participante.
+ */
+export interface ChildProfile {
+  readonly age: number;
+
+  readonly gender: string;
+
+  readonly psychologicalSupport: boolean;
+}
+
+/**
+ * Modelo de dominio del participante.
+ *
+ * Este modelo nunca depende directamente
+ * del formato de la base de datos.
  */
 export interface UserProfile {
   /* =========================
      IDENTIFICACIÓN
   ========================= */
 
-  id: string;
+  readonly id: string;
 
-  email: string;
+  readonly email: string;
 
-  role: UserRole;
+  readonly participantCode: string;
+
+  readonly role: UserRole;
 
   /* =========================
      CONSENTIMIENTO
   ========================= */
 
-  accepted_policy: boolean;
+  readonly acceptedPolicy: boolean;
 
-  accepted_at: string | null;
+  readonly acceptedAt: string | null;
 
   /* =========================
      INFORMACIÓN PERSONAL
   ========================= */
 
-  region: Region;
+  readonly region: Region;
 
-  gender: string | null;
+  readonly gender: string | null;
 
-  age: number | null;
+  readonly age: number | null;
 
-  marital_status: string | null;
+  readonly maritalStatus: string | null;
 
   /* =========================
      INFORMACIÓN ACADÉMICA
   ========================= */
 
-  education_level: string | null;
+  readonly educationLevel: string | null;
 
-  employment_status: string | null;
+  readonly employmentStatus: string | null;
 
-  socioeconomic_level: string | null;
+  readonly socioeconomicLevel: string | null;
 
-  school_type: string | null;
+  readonly schoolType: string | null;
 
-  school_center: string | null;
+  readonly schoolCenter: string | null;
 
   /* =========================
      INFORMACIÓN FAMILIAR
   ========================= */
 
-  number_of_children: number | null;
+  readonly numberOfChildren: number | null;
 
-  family_structure: string | null;
+  readonly familyStructure: string | null;
+
+  readonly children: readonly ChildProfile[];
 
   /* =========================
      SISTEMA
   ========================= */
 
-  created_at: string;
+  readonly createdAt: string;
 
-  updated_at: string;
+  readonly updatedAt: string;
 }
-
-/**
- * Roles disponibles dentro de la plataforma.
- */
-export type UserRole =
-  | "admin"
-  | "user";

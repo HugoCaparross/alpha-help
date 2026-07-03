@@ -24,8 +24,11 @@ const SESSION_FIELDS = `
   release_date_latam
 `;
 
+const ERROR_GET_SESSIONS =
+  "No se han podido recuperar las sesiones.";
+
 /**
- * Forma cruda devuelta por Supabase.
+ * Modelo recibido desde Supabase.
  */
 interface SessionRow {
   id: string;
@@ -47,9 +50,9 @@ interface SessionRow {
 
 /**
  * Convierte una fila de Supabase
- * al modelo utilizado por la aplicación.
+ * al modelo de dominio.
  */
-function mapRow(
+function mapSession(
   row: SessionRow,
 ): Session {
   return {
@@ -77,9 +80,9 @@ function mapRow(
 
 /**
  * Devuelve la fecha de publicación
- * correspondiente a la región indicada.
+ * correspondiente a la región.
  */
-function resolveReleaseDate(
+function getReleaseDate(
   session: Session,
   region: Region,
 ): string {
@@ -89,29 +92,40 @@ function resolveReleaseDate(
 }
 
 /**
- * Calcula el estado actual
+ * Indica si la fecha de publicación
+ * ya ha sido alcanzada.
+ */
+function isReleased(
+  releaseDate: string,
+): boolean {
+  return (
+    Date.parse(releaseDate) <=
+    Date.now()
+  );
+}
+
+/**
+ * Calcula el estado de disponibilidad
  * de una sesión.
  */
-function resolveStatus(
+function getStatus(
   releaseDate: string,
 ): SessionWithStatus["status"] {
-  return Date.parse(
-    releaseDate,
-  ) <= Date.now()
+  return isReleased(releaseDate)
     ? "available"
     : "locked";
 }
 
 /**
- * Convierte una sesión en una sesión
- * lista para mostrarse al participante.
+ * Convierte una sesión en el modelo
+ * utilizado por la aplicación.
  */
-function resolveSession(
+function mapSessionWithStatus(
   session: Session,
   region: Region,
 ): SessionWithStatus {
   const releaseDate =
-    resolveReleaseDate(
+    getReleaseDate(
       session,
       region,
     );
@@ -122,15 +136,13 @@ function resolveSession(
     releaseDate,
 
     status:
-      resolveStatus(
-        releaseDate,
-      ),
+      getStatus(releaseDate),
   };
 }
 
 /**
  * Obtiene todas las sesiones
- * del programa.
+ * del estudio.
  */
 export async function getSessions(): Promise<
   Session[]
@@ -150,13 +162,41 @@ export async function getSessions(): Promise<
 
   if (error) {
     throw new Error(
-      "No se han podido recuperar las sesiones.",
+      ERROR_GET_SESSIONS,
     );
   }
 
   return (data ?? []).map(
-    mapRow,
+    mapSession,
   );
+}
+
+/**
+ * Obtiene una sesión concreta.
+ */
+export async function getSessionById(
+  sessionId: string,
+): Promise<Session | null> {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(STUDY_SESSIONS_TABLE)
+    .select(SESSION_FIELDS)
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      ERROR_GET_SESSIONS,
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return mapSession(data);
 }
 
 /**
@@ -174,7 +214,7 @@ export async function getSessionsWithStatus(
 
   return sessions.map(
     (session) =>
-      resolveSession(
+      mapSessionWithStatus(
         session,
         region,
       ),
@@ -196,15 +236,14 @@ export async function getAvailableSessions(
     );
 
   return sessions.filter(
-    (session) =>
-      session.status ===
-      "available",
+    ({ status }) =>
+      status === "available",
   );
 }
 
 /**
  * Devuelve la siguiente sesión
- * pendiente de publicarse.
+ * pendiente de publicación.
  */
 export async function getNextSession(
   region: Region,
@@ -214,22 +253,10 @@ export async function getNextSession(
       region,
     );
 
-  const nextSession =
-    sessions
-      .filter(
-        (session) =>
-          session.status ===
-          "locked",
-      )
-      .sort(
-        (a, b) =>
-          Date.parse(
-            a.releaseDate,
-          ) -
-          Date.parse(
-            b.releaseDate,
-          ),
-      )[0];
-
-  return nextSession ?? null;
+  return (
+    sessions.find(
+      ({ status }) =>
+        status === "locked",
+    ) ?? null
+  );
 }

@@ -1,22 +1,24 @@
 /**
- * Estado de una sesión dentro del programa.
+ * Estado de disponibilidad de una sesión.
  *
- * Una sesión únicamente puede estar
- * disponible o bloqueada según
- * su fecha de publicación.
+ * Este estado se calcula exclusivamente
+ * a partir de la fecha de publicación
+ * correspondiente a la región del usuario.
+ *
+ * No representa el progreso del participante.
  */
 export type SessionStatus =
   | "available"
   | "locked";
 
 /**
- * Modelo de una sesión tal y como
- * se utiliza dentro de la aplicación.
+ * Modelo de dominio de una sesión.
  *
- * Todas las propiedades utilizan
- * camelCase independientemente
- * del formato utilizado por la base
- * de datos.
+ * Representa la información almacenada en la
+ * base de datos independientemente de la región
+ * o del estado del participante.
+ *
+ * Todas las propiedades utilizan camelCase.
  */
 export interface Session {
   readonly id: string;
@@ -37,24 +39,28 @@ export interface Session {
 }
 
 /**
- * Sesión con la fecha de publicación
- * ya resuelta para la región del usuario.
+ * Modelo utilizado por la interfaz.
  *
- * Los componentes nunca deben decidir
- * qué fecha utilizar.
- * Esa responsabilidad pertenece
- * exclusivamente al servicio.
+ * Extiende una sesión resolviendo la fecha
+ * de publicación correspondiente a la región
+ * del participante y calculando su estado
+ * de disponibilidad.
+ *
+ * El progreso del participante (completada o no)
+ * pertenece al servicio de progreso y no forma
+ * parte de este modelo.
  */
 export interface SessionWithStatus
   extends Session {
   /**
-   * Fecha correspondiente
-   * a la región del usuario.
+   * Fecha de publicación resuelta
+   * según la región del participante.
    */
   readonly releaseDate: string;
 
   /**
-   * Estado calculado automáticamente.
+   * Estado de disponibilidad calculado
+   * automáticamente por el servicio.
    */
   readonly status: SessionStatus;
 }

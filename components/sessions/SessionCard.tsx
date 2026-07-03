@@ -8,12 +8,14 @@ interface SessionCardProps {
   session: SessionWithStatus;
 }
 
+const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
 function formatDate(date: string): string {
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(Date.parse(date));
+  return dateFormatter.format(Date.parse(date));
 }
 
 export default function SessionCard({ session }: SessionCardProps) {
@@ -24,13 +26,15 @@ export default function SessionCard({ session }: SessionCardProps) {
   return (
     <article
       className={`session-card${isAvailable ? "" : " session-card--locked"}`}
-      aria-label={session.title}
+      aria-labelledby={`session-title-${session.id}`}
     >
       <div className="session-card__thumb">
         <Image
           src={session.thumbnailUrl}
           alt={session.title}
           fill
+          loading="lazy"
+          priority={false}
           className="session-card__thumb-img"
           sizes="(max-width: 768px) 100vw, 400px"
         />
@@ -49,14 +53,16 @@ export default function SessionCard({ session }: SessionCardProps) {
       </div>
 
       <div className="session-card__body">
-        <h3 className="session-card__title">{session.title}</h3>
+        <h3 id={`session-title-${session.id}`} className="session-card__title">
+          {session.title}
+        </h3>
 
         <p className="session-card__desc">{session.description}</p>
 
         {isAvailable ? (
           <>
             <div className="session-card__date">
-              <Calendar size={14} />
+              <Calendar size={14} aria-hidden="true" />
 
               <span>Disponible desde {formattedDate}</span>
             </div>
@@ -66,15 +72,16 @@ export default function SessionCard({ session }: SessionCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="session-card__cta"
-              aria-label={`Acceder a la ${session.title}`}
+              aria-label={`Acceder a la sesión "${session.title}"`}
             >
-              <PlayCircle size={17} />
-              Acceder a la sesión
+              <PlayCircle size={17} aria-hidden="true" />
+
+              <span>Acceder a la sesión</span>
             </a>
           </>
         ) : (
           <div className="session-card__locked-cta">
-            <Lock size={15} />
+            <Lock size={15} aria-hidden="true" />
 
             <span>
               Esta sesión estará disponible a partir del {formattedDate}.

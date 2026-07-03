@@ -16,15 +16,19 @@ import type { SessionWithStatus } from "@/types/study-session";
 import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 export interface DashboardData {
-  participantName: string;
+  participantCode: string;
 
-  questionnaireCompleted: boolean;
-
-  sessionsCompleted: boolean;
-
-  materialsCompleted: boolean;
+  preCompleted: boolean;
 
   postCompleted: boolean;
+
+  completedSessions: number;
+
+  totalSessions: number;
+
+  completedMaterials: number;
+
+  totalMaterials: number;
 
   nextSession: SessionWithStatus | null;
 
@@ -68,10 +72,10 @@ export async function getDashboardData(): Promise<DashboardData> {
   ]);
 
   return {
-    participantName:
+    participantCode:
       profile.email.split("@")[0],
 
-    questionnaireCompleted:
+    preCompleted:
       questionnaireResult.data !== null,
 
     /**
@@ -81,14 +85,17 @@ export async function getDashboardData(): Promise<DashboardData> {
      * el progreso del participante deberá
      * sustituirse esta lógica.
      */
-    sessionsCompleted:
+    completedSessions:
       availableSessions.length > 0,
 
-    /**
-     * Temporal.
-     */
-    materialsCompleted:
+    totalSessions:
+      availableSessions.length,
+
+    completedMaterials:
       availableMaterials.length > 0,
+
+    totalMaterials:
+      availableMaterials.length,
 
     /**
      * Pendiente de implementar cuando

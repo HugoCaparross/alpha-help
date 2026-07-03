@@ -4,16 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 
 import PageHeader from "@/components/ui/PageHeader";
 
-import SessionsGrid from "./SessionsGrid";
 import SessionEmptyState from "./SessionEmptyState";
+import SessionsGrid from "./SessionsGrid";
 
 import { getProfile } from "@/lib/supabase/getProfile";
 
 import { getSessionsWithStatus } from "@/services/sessions/study-session.service";
 
-import type { Region } from "@/lib/utils/regions";
-
 import type { SessionWithStatus } from "@/types/study-session";
+
+const ERROR_MESSAGE =
+  "No se han podido cargar las sesiones. Inténtalo de nuevo.";
 
 export default function SesionesView() {
   const [sessions, setSessions] = useState<SessionWithStatus[]>([]);
@@ -24,26 +25,27 @@ export default function SesionesView() {
 
   const loadSessions = useCallback(async () => {
     setLoading(true);
+
     setError("");
 
     try {
       const profile = await getProfile();
 
       if (!profile) {
-        throw new Error("No se ha encontrado el perfil del usuario.");
+        throw new Error("Perfil no encontrado.");
       }
 
-      const region = (profile.region ?? "spain") as Region;
+      const data = await getSessionsWithStatus(profile.region);
 
-      const sessionsData = await getSessionsWithStatus(region);
-
-      setSessions(sessionsData);
-    } catch (error) {
-      console.error("Error loading sessions:", error);
+      setSessions(data);
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(err);
+      }
 
       setSessions([]);
 
-      setError("No se han podido cargar las sesiones. Inténtalo de nuevo.");
+      setError(ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
@@ -55,7 +57,7 @@ export default function SesionesView() {
 
   if (loading) {
     return (
-      <section className="sesiones-loading">
+      <section className="sesiones-loading" aria-busy="true">
         <p>Preparando las sesiones...</p>
       </section>
     );
@@ -85,7 +87,7 @@ export default function SesionesView() {
     <section className="sesiones-page">
       <PageHeader
         title="Sesiones del programa"
-        description="A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión estará disponible automáticamente en su fecha de publicación correspondiente según tu región."
+        description="A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión se desbloqueará automáticamente en su fecha de publicación según tu región."
       />
 
       <SessionsGrid sessions={sessions} />
