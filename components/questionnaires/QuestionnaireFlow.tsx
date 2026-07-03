@@ -7,9 +7,9 @@ import QuestionBlock from "./QuestionBlock";
 import QuestionnaireCompletion from "./QuestionnaireCompletion";
 import QuestionnaireIntroduction from "./QuestionnaireIntroduction";
 
-import type { QuestionnaireType } from "@/types/questionnaire";
-
 import { hasCompletedQuestionnaire } from "@/services/questionnaires/questionnaire.service";
+
+import type { QuestionnaireType } from "@/types/questionnaire";
 
 interface QuestionnaireFlowProps {
   questionnaireId: QuestionnaireType;
@@ -22,6 +22,8 @@ type FlowScreen =
   | "completed"
   | "error";
 
+const LOAD_ERROR = "No se ha podido cargar el cuestionario.";
+
 export default function QuestionnaireFlow({
   questionnaireId,
 }: QuestionnaireFlowProps) {
@@ -31,6 +33,10 @@ export default function QuestionnaireFlow({
 
   const [error, setError] = useState("");
 
+  /**
+   * Comprueba si el cuestionario
+   * puede iniciarse.
+   */
   const loadQuestionnaire = useCallback(async () => {
     try {
       setError("");
@@ -47,9 +53,11 @@ export default function QuestionnaireFlow({
 
       setScreen("introduction");
     } catch (error) {
-      console.error("Error loading questionnaire:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error(error);
+      }
 
-      setError("No se ha podido cargar el cuestionario.");
+      setError(LOAD_ERROR);
 
       setScreen("error");
     }
@@ -58,6 +66,7 @@ export default function QuestionnaireFlow({
   useEffect(() => {
     void loadQuestionnaire();
   }, [loadQuestionnaire]);
+
   switch (screen) {
     case "loading":
       return (
@@ -71,7 +80,7 @@ export default function QuestionnaireFlow({
         <section
           className="questionnaire-error"
           role="alert"
-          aria-live="assertive"
+          aria-live="polite"
         >
           <p>{error}</p>
 
@@ -85,11 +94,11 @@ export default function QuestionnaireFlow({
         </section>
       );
 
-    case "completed":
+    case "introduction":
       return (
-        <QuestionnaireCompletion
+        <QuestionnaireIntroduction
           questionnaireId={questionnaireId}
-          onFinish={() => setScreen("introduction")}
+          onStart={() => setScreen("in_progress")}
         />
       );
 
@@ -101,11 +110,11 @@ export default function QuestionnaireFlow({
         />
       );
 
-    case "introduction":
+    case "completed":
       return (
-        <QuestionnaireIntroduction
+        <QuestionnaireCompletion
           questionnaireId={questionnaireId}
-          onStart={() => setScreen("in_progress")}
+          onFinish={() => setScreen("introduction")}
         />
       );
 

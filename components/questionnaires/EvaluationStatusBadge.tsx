@@ -27,6 +27,10 @@ const STATUS_CONFIG: Record<
   },
 };
 
+/**
+ * Representación visual del estado
+ * de una evaluación.
+ */
 export default function EvaluationStatusBadge({
   status,
 }: EvaluationStatusBadgeProps) {
@@ -36,8 +40,6 @@ export default function EvaluationStatusBadge({
     <span
       className="evaluation-status-badge"
       data-status={status}
-      role="status"
-      aria-live="polite"
       aria-label={ariaLabel}
       title={label}
     >

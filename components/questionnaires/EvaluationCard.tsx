@@ -5,7 +5,10 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
-import type { QuestionnaireWithStatus } from "@/types/questionnaire";
+import type {
+  QuestionnaireStatus,
+  QuestionnaireWithStatus,
+} from "@/types/questionnaire";
 
 import EvaluationStatusBadge from "./EvaluationStatusBadge";
 
@@ -13,23 +16,40 @@ interface EvaluationCardProps {
   evaluation: QuestionnaireWithStatus;
 }
 
+const STATUS_UI: Record<
+  QuestionnaireStatus,
+  {
+    buttonLabel: string;
+    buttonTitle: (title: string) => string;
+    helperText: string;
+  }
+> = {
+  pending: {
+    buttonLabel: "Comenzar",
+    buttonTitle: (title) => `Comenzar ${title}`,
+    helperText: "Disponible para completar.",
+  },
+
+  completed: {
+    buttonLabel: "Revisar",
+    buttonTitle: (title) => `Revisar ${title}`,
+    helperText: "Cuestionario completado.",
+  },
+
+  locked: {
+    buttonLabel: "Bloqueado",
+    buttonTitle: () => "Este cuestionario todavía no está disponible.",
+    helperText: "Se desbloqueará cuando completes las fases anteriores.",
+  },
+};
+
+/**
+ * Tarjeta resumen de una evaluación.
+ */
 export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
-  const status = evaluation.status;
+  const isLocked = evaluation.status === "locked";
 
-  const isLocked = status === "locked";
-  const isCompleted = status === "completed";
-
-  const buttonLabel = isCompleted ? "Revisar" : "Comenzar";
-
-  const buttonTitle = isLocked
-    ? "Este cuestionario todavía no está disponible."
-    : `${buttonLabel} ${evaluation.title}`;
-
-  const helperText = isCompleted
-    ? "Cuestionario completado."
-    : isLocked
-      ? "Se desbloqueará cuando completes las fases anteriores."
-      : "Disponible para completar.";
+  const ui = STATUS_UI[evaluation.status];
 
   return (
     <Card className="evaluation-card card-padding">
@@ -58,22 +78,26 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
           <span>{evaluation.estimatedMinutes} minutos</span>
         </div>
 
-        <p className="evaluation-card__helper">{helperText}</p>
+        <p className="evaluation-card__helper">{ui.helperText}</p>
 
         <footer className="evaluation-card__footer">
-          <EvaluationStatusBadge status={status} />
+          <EvaluationStatusBadge status={evaluation.status} />
 
           {isLocked ? (
-            <Button disabled aria-disabled="true" title={buttonTitle}>
+            <Button
+              disabled
+              aria-disabled="true"
+              title={ui.buttonTitle(evaluation.title)}
+            >
               Bloqueado
             </Button>
           ) : (
             <Link
               href={`/cuestionarios/${evaluation.id}`}
-              aria-label={`${buttonLabel}: ${evaluation.title}`}
-              title={buttonTitle}
+              aria-label={`${ui.buttonLabel}: ${evaluation.title}`}
+              title={ui.buttonTitle(evaluation.title)}
             >
-              <Button>{buttonLabel}</Button>
+              <Button>{ui.buttonLabel}</Button>
             </Link>
           )}
         </footer>

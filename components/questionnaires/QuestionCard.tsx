@@ -20,6 +20,12 @@ interface QuestionCardProps {
   onChange: (questionId: string, value: number) => void;
 }
 
+const REQUIRED_MESSAGE = "Selecciona una respuesta para continuar.";
+
+/**
+ * Tarjeta que representa
+ * una única pregunta del cuestionario.
+ */
 export default function QuestionCard({
   question,
   questionNumber,
@@ -51,13 +57,8 @@ export default function QuestionCard({
       </header>
 
       {showError && (
-        <p
-          id={errorId}
-          className="question-card__error"
-          role="alert"
-          aria-live="polite"
-        >
-          Selecciona una respuesta para continuar.
+        <p id={errorId} className="question-card__error" role="alert">
+          {REQUIRED_MESSAGE}
         </p>
       )}
 
@@ -112,7 +113,7 @@ export default function QuestionCard({
         )}
 
         {hasSelection && (
-          <span className="question-card__answered" aria-live="polite">
+          <span className="question-card__answered">
             Respuesta seleccionada
           </span>
         )}

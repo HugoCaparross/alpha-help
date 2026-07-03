@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
 import { EVALUATIONS } from "@/lib/constants/questionnaires";
+
 import type { QuestionnaireType } from "@/types/questionnaire";
 
 interface QuestionnaireIntroductionProps {
@@ -35,6 +36,10 @@ const INFO_ITEMS = [
   },
 ] as const;
 
+/**
+ * Pantalla de introducción previa
+ * al inicio del cuestionario.
+ */
 export default function QuestionnaireIntroduction({
   questionnaireId,
   onStart,
@@ -43,14 +48,15 @@ export default function QuestionnaireIntroduction({
 
   const [starting, setStarting] = useState(false);
 
-  const evaluation = useMemo(
-    () => EVALUATIONS.find((item) => item.id === questionnaireId),
-    [questionnaireId],
+  const evaluation = EVALUATIONS.find(
+    (evaluation) => evaluation.id === questionnaireId,
   );
 
   if (!evaluation) {
     return null;
   }
+
+  const startButtonLabel = starting ? "Iniciando..." : "Comenzar evaluación";
 
   function handleStart() {
     if (starting) {
@@ -119,7 +125,7 @@ export default function QuestionnaireIntroduction({
             </Button>
 
             <Button onClick={handleStart} disabled={starting}>
-              {starting ? "Iniciando..." : "Comenzar evaluación"}
+              {startButtonLabel}
             </Button>
           </div>
         </section>

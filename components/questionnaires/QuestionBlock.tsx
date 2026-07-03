@@ -14,14 +14,20 @@ import {
   KIDSCREEN_QUESTIONS,
 } from "@/lib/constants/questionnaires";
 
-import type { QuestionnaireType } from "@/types/questionnaire";
+import {
+  submitQuestionnaire,
+  type QuestionnaireAnswers,
+} from "@/services/questionnaires/questionnaire.service";
 
-import { submitQuestionnaire } from "@/services/questionnaires/questionnaire.service";
+import type { QuestionnaireType } from "@/types/questionnaire";
 
 interface QuestionBlockProps {
   questionnaireId: QuestionnaireType;
+
   onComplete: () => void;
 }
+
+const AUTO_ADVANCE_DELAY = 350;
 
 const QUESTIONS_BY_STEP = {
   capsm: CAPSM_QUESTIONS,
@@ -39,6 +45,12 @@ const ALL_QUESTIONS = [
   ...KIDSCREEN_QUESTIONS,
 ];
 
+const TOTAL_QUESTIONS = ALL_QUESTIONS.length;
+
+const QUESTION_INDEX = new Map(
+  ALL_QUESTIONS.map((question, index) => [question.id, index + 1]),
+);
+
 const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
   (question) => question.required,
 ).map((question) => question.id);
@@ -50,6 +62,10 @@ const ERROR_MESSAGES = {
   submit: "Ha ocurrido un error al guardar tus respuestas. Inténtalo de nuevo.",
 } as const;
 
+/**
+ * Gestiona el flujo completo
+ * del cuestionario.
+ */
 export default function QuestionBlock({
   questionnaireId,
   onComplete,
@@ -58,7 +74,7 @@ export default function QuestionBlock({
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
 
   const [error, setError] = useState<string | null>(null);
 
@@ -90,14 +106,14 @@ export default function QuestionBlock({
     (questionId) => answers[questionId] !== undefined,
   );
 
-  const currentQuestionPosition =
-    ALL_QUESTIONS.findIndex((question) => question.id === currentQuestion?.id) +
-    1;
-
-  const totalQuestions = ALL_QUESTIONS.length;
-
+  const currentQuestionPosition = currentQuestion
+    ? (QUESTION_INDEX.get(currentQuestion.id) ?? 1)
+    : 1; /**
+   * Cancela cualquier avance automático
+   * pendiente.
+   */
   function clearAutoAdvanceTimeout() {
-    if (autoAdvanceTimeout.current) {
+    if (autoAdvanceTimeout.current !== null) {
       window.clearTimeout(autoAdvanceTimeout.current);
 
       autoAdvanceTimeout.current = null;
@@ -110,6 +126,10 @@ export default function QuestionBlock({
     };
   }, []);
 
+  /**
+   * Envía el cuestionario
+   * al servidor.
+   */
   async function finishQuestionnaire() {
     if (!questionnaireCompleted) {
       setError(ERROR_MESSAGES.incomplete);
@@ -125,7 +145,11 @@ export default function QuestionBlock({
       await submitQuestionnaire(questionnaireId, answers);
 
       onComplete();
-    } catch {
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(error);
+      }
+
       setError(ERROR_MESSAGES.submit);
 
       setIsSubmitting(false);
@@ -134,6 +158,11 @@ export default function QuestionBlock({
     }
   }
 
+  /**
+   * Avanza automáticamente
+   * a la siguiente pregunta
+   * o bloque.
+   */
   async function goToNextQuestion() {
     if (!currentQuestion || isSubmitting) {
       return;
@@ -160,6 +189,10 @@ export default function QuestionBlock({
     await finishQuestionnaire();
   }
 
+  /**
+   * Guarda una respuesta y
+   * programa el avance automático.
+   */
   function handleAnswerChange(questionId: string, value: number) {
     if (isSubmitting || isTransitioning) {
       return;
@@ -178,9 +211,13 @@ export default function QuestionBlock({
 
     autoAdvanceTimeout.current = window.setTimeout(() => {
       void goToNextQuestion();
-    }, 350);
+    }, AUTO_ADVANCE_DELAY);
   }
 
+  /**
+   * Regresa a la pregunta
+   * anterior.
+   */
   function handlePrevious() {
     if (isSubmitting || isTransitioning) {
       return;
@@ -246,7 +283,7 @@ export default function QuestionBlock({
       <QuestionnaireProgress
         questionnaireTitle={sectionTitle}
         currentStep={currentQuestionPosition}
-        totalSteps={totalQuestions}
+        totalSteps={TOTAL_QUESTIONS}
       />
     </section>
   );

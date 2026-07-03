@@ -9,7 +9,6 @@ import type { QuestionnaireType } from "@/types/questionnaire";
 
 interface QuestionnaireCompletionProps {
   questionnaireId: QuestionnaireType;
-
   onFinish: () => void;
 }
 
@@ -40,6 +39,10 @@ const CONTENT: Record<
   },
 };
 
+/**
+ * Pantalla mostrada al finalizar
+ * correctamente un cuestionario.
+ */
 export default function QuestionnaireCompletion({
   questionnaireId,
   onFinish,
@@ -57,11 +60,7 @@ export default function QuestionnaireCompletion({
   return (
     <main className="questionnaire-completion">
       <Card className="card-padding">
-        <article
-          className="questionnaire-completion__content"
-          role="status"
-          aria-live="polite"
-        >
+        <article className="questionnaire-completion__content">
           <header>
             <h1 className="questionnaire-completion__title">{content.title}</h1>
           </header>
