@@ -1,14 +1,19 @@
 import { supabase } from "@/lib/supabase/client";
 
 /**
- * Cierra la sesión del usuario autenticado.
+ * Servicio de autenticación.
  */
-export async function logout(): Promise<void> {
-  const { error } = await supabase.auth.signOut();
+export const authService = {
+  /**
+   * Cierra la sesión del usuario autenticado.
+   */
+  async logout(): Promise<void> {
+    const { error } = await supabase.auth.signOut();
 
-  if (error) {
-    throw new Error(
-      "No se ha podido cerrar la sesión.",
-    );
-  }
-}
+    if (error) {
+      throw new Error(
+        "No se ha podido cerrar la sesión."
+      );
+    }
+  },
+};

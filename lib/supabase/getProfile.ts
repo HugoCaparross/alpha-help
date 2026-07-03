@@ -8,6 +8,8 @@ const PROFILES_TABLE = "profiles";
 const PROFILE_FIELDS = `
   id,
   email,
+  participant_code,
+
   role,
 
   region,
@@ -28,15 +30,18 @@ const PROFILE_FIELDS = `
   number_of_children,
   family_structure,
 
+  children,
+
   created_at,
   updated_at
 `;
 
 /**
- * Obtiene el perfil completo del usuario autenticado.
+ * Obtiene el perfil del usuario autenticado.
  *
- * Devuelve `null` cuando no existe una sesión activa
- * o cuando todavía no existe un perfil asociado.
+ * Uso:
+ * - Componentes cliente
+ * - Servicios cliente
  */
 export async function getProfile(): Promise<UserProfile | null> {
   const user = await getUser();
@@ -53,7 +58,7 @@ export async function getProfile(): Promise<UserProfile | null> {
 
   if (error) {
     throw new Error(
-      "No se ha podido recuperar el perfil del usuario.",
+      "No se ha podido recuperar el perfil del usuario."
     );
   }
 

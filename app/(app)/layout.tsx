@@ -1,7 +1,5 @@
 ﻿import type { ReactNode } from "react";
 
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-
 import RightPanel from "@/components/layout/RightPanel";
 import Sidebar from "@/components/layout/Sidebar";
 
@@ -17,23 +15,21 @@ interface AppLayoutProps {
 /**
  * Layout principal del área privada.
  *
- * Protege el acceso mediante autenticación y
- * muestra la estructura común de navegación.
+ * La autenticación y protección de rutas
+ * se realiza mediante Middleware + Supabase SSR.
  */
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <ProtectedRoute>
-      <div className="private-layout">
-        <div className="private-layout-shell">
-          <Sidebar />
+    <div className="private-layout">
+      <div className="private-layout-shell">
+        <Sidebar />
 
-          <main id="main-content" className="private-layout-main">
-            {children}
-          </main>
+        <main id="main-content" className="private-layout-main">
+          {children}
+        </main>
 
-          <RightPanel />
-        </div>
+        <RightPanel />
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }

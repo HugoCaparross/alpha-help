@@ -9,7 +9,7 @@ import { ChevronDown, LogOut, User } from "lucide-react";
 import { getProfile } from "@/lib/supabase/getProfile";
 import { getRegionLabel } from "@/lib/utils/regions";
 
-import { logout } from "@/services/auth/auth.service";
+import { authService } from "@/services/auth/auth.service";
 
 import type { UserProfile } from "@/types/user";
 
@@ -87,7 +87,7 @@ export default function UserMenu() {
 
   async function handleLogout() {
     try {
-      await logout();
+      await authService.logout();
 
       router.replace("/login");
 

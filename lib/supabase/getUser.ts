@@ -5,8 +5,8 @@ import { supabase } from "./client";
 /**
  * Devuelve el usuario autenticado.
  *
- * Retorna `null` cuando no existe una sesión
- * activa o no ha sido posible recuperar el usuario.
+ * Debe utilizarse únicamente desde componentes
+ * y servicios ejecutados en el cliente.
  */
 export async function getUser(): Promise<User | null> {
   const {

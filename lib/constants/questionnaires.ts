@@ -1,4 +1,7 @@
-import type { Questionnaire } from "@/types/questionnaire";
+import type {
+  Questionnaire,
+  QuestionnaireWithStatus,
+} from "@/types/questionnaire";
 
 export interface Question {
   id: string;
@@ -851,7 +854,7 @@ export const KIDSCREEN_QUESTIONS: Question[] = [
   },
 ];
 
-export const EVALUATIONS: Questionnaire[] = [
+export const EVALUATIONS: QuestionnaireWithStatus[] = [
   {
     id: "pre",
     title: "Evaluación inicial",
