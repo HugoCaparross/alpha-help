@@ -1,19 +1,28 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type ReactNode,
+} from "react";
 
 interface CardProps extends ComponentPropsWithoutRef<"section"> {
   children: ReactNode;
 }
 
-export default function Card({
-  children,
-  className = "",
-  ...props
-}: CardProps) {
-  const cardClassName = ["card", className].filter(Boolean).join(" ");
+/**
+ * Contenedor reutilizable del sistema de diseño.
+ */
+const Card = forwardRef<HTMLElement, CardProps>(
+  ({ children, className = "", ...props }, ref) => {
+    const classes = ["card", className].filter(Boolean).join(" ");
 
-  return (
-    <section className={cardClassName} {...props}>
-      {children}
-    </section>
-  );
-}
+    return (
+      <section ref={ref} className={classes} {...props}>
+        {children}
+      </section>
+    );
+  },
+);
+
+Card.displayName = "Card";
+
+export default Card;

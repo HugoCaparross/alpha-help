@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 import {
   Book,
   ClipboardList,
@@ -20,7 +19,7 @@ interface NavigationItem {
   }>;
 }
 
-const STUDY_NAVIGATION: readonly NavigationItem[] = [
+const STUDY_NAVIGATION = [
   {
     href: "/estudio",
     label: "El estudio",
@@ -31,9 +30,9 @@ const STUDY_NAVIGATION: readonly NavigationItem[] = [
     label: "Formularios",
     icon: ClipboardList,
   },
-];
+] as const satisfies readonly NavigationItem[];
 
-const RESOURCES_NAVIGATION: readonly NavigationItem[] = [
+const RESOURCES_NAVIGATION = [
   {
     href: "/sesiones",
     label: "Sesiones",
@@ -44,41 +43,44 @@ const RESOURCES_NAVIGATION: readonly NavigationItem[] = [
     label: "Manuales",
     icon: Book,
   },
-];
+] as const satisfies readonly NavigationItem[];
 
-const INFO_NAVIGATION: readonly NavigationItem[] = [
+const INFO_NAVIGATION = [
   {
     href: "/quienes-somos",
     label: "¿Quiénes somos?",
     icon: Users,
   },
-];
+] as const satisfies readonly NavigationItem[];
+
+function renderNavigationItems(
+  pathname: string,
+  items: readonly NavigationItem[],
+) {
+  return items.map((item) => {
+    const Icon = item.icon;
+
+    const active = pathname === item.href;
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
+        aria-current={active ? "page" : undefined}
+      >
+        <div className="sidebar-item-icon">
+          <Icon size={20} />
+        </div>
+
+        <span className="sidebar-item-label">{item.label}</span>
+      </Link>
+    );
+  });
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
-
-  function renderNavigationItems(items: readonly NavigationItem[]) {
-    return items.map((item) => {
-      const Icon = item.icon;
-
-      const active = pathname === item.href;
-
-      return (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={`sidebar-item ${active ? "sidebar-item--active" : ""}`}
-          aria-current={active ? "page" : undefined}
-        >
-          <div className="sidebar-item-icon">
-            <Icon size={20} />
-          </div>
-
-          <span className="sidebar-item-label">{item.label}</span>
-        </Link>
-      );
-    });
-  }
 
   return (
     <aside className="sidebar">
@@ -101,7 +103,7 @@ export default function Sidebar() {
           <h2 className="sidebar-section-title">Área de estudio</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(STUDY_NAVIGATION)}
+            {renderNavigationItems(pathname, STUDY_NAVIGATION)}
           </div>
         </section>
 
@@ -109,7 +111,7 @@ export default function Sidebar() {
           <h2 className="sidebar-section-title">Recursos</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(RESOURCES_NAVIGATION)}
+            {renderNavigationItems(pathname, RESOURCES_NAVIGATION)}
           </div>
         </section>
 
@@ -117,7 +119,7 @@ export default function Sidebar() {
           <h2 className="sidebar-section-title">Información</h2>
 
           <div className="sidebar-items">
-            {renderNavigationItems(INFO_NAVIGATION)}
+            {renderNavigationItems(pathname, INFO_NAVIGATION)}
           </div>
         </section>
       </nav>

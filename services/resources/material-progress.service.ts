@@ -1,7 +1,35 @@
 import { supabase } from "@/lib/supabase/client";
 import { getUser } from "@/lib/supabase/getUser";
 
-const MATERIAL_VIEWS_TABLE = "material_views";
+const MATERIAL_VIEWS_TABLE = "material_views" as const;
+
+const ERROR_UNAUTHENTICATED =
+  "Usuario no autenticado.";
+
+const ERROR_REGISTER =
+  "No se ha podido registrar el material.";
+
+const ERROR_CHECK =
+  "No se ha podido comprobar el material.";
+
+const ERROR_PROGRESS =
+  "No se ha podido recuperar el progreso.";
+
+const ERROR_DELETE =
+  "No se ha podido eliminar el progreso.";
+
+/**
+ * Devuelve el usuario autenticado.
+ */
+async function getAuthenticatedUser() {
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error(ERROR_UNAUTHENTICATED);
+  }
+
+  return user;
+}
 
 /**
  * Marca un material como leído
@@ -13,14 +41,14 @@ const MATERIAL_VIEWS_TABLE = "material_views";
 export async function markMaterialAsCompleted(
   materialId: string,
 ): Promise<void> {
-  const user = await getUser();
-
-  if (!user) {
-    throw new Error("Usuario no autenticado.");
-  }
+  const user =
+    await getAuthenticatedUser();
 
   const alreadyCompleted =
-    await hasCompletedMaterial(materialId);
+    await hasCompletedMaterial(
+      materialId,
+      user.id,
+    );
 
   if (alreadyCompleted) {
     return;
@@ -34,9 +62,7 @@ export async function markMaterialAsCompleted(
     });
 
   if (error) {
-    throw new Error(
-      "No se ha podido registrar el material.",
-    );
+    throw new Error(ERROR_REGISTER);
   }
 }
 
@@ -46,24 +72,29 @@ export async function markMaterialAsCompleted(
  */
 export async function hasCompletedMaterial(
   materialId: string,
+  userId?: string,
 ): Promise<boolean> {
-  const user = await getUser();
+  const authenticatedUser =
+    userId
+      ? { id: userId }
+      : await getAuthenticatedUser();
 
-  if (!user) {
-    return false;
-  }
-
-  const { data, error } = await supabase
-    .from(MATERIAL_VIEWS_TABLE)
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("material_id", materialId)
-    .maybeSingle();
+  const { data, error } =
+    await supabase
+      .from(MATERIAL_VIEWS_TABLE)
+      .select("id")
+      .eq(
+        "user_id",
+        authenticatedUser.id,
+      )
+      .eq(
+        "material_id",
+        materialId,
+      )
+      .maybeSingle();
 
   if (error) {
-    throw new Error(
-      "No se ha podido comprobar el material.",
-    );
+    throw new Error(ERROR_CHECK);
   }
 
   return data !== null;
@@ -77,24 +108,20 @@ export async function hasCompletedMaterial(
 export async function getCompletedMaterialIds(): Promise<
   string[]
 > {
-  const user = await getUser();
+  const user =
+    await getAuthenticatedUser();
 
-  if (!user) {
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from(MATERIAL_VIEWS_TABLE)
-    .select("material_id")
-    .eq("user_id", user.id);
+  const { data, error } =
+    await supabase
+      .from(MATERIAL_VIEWS_TABLE)
+      .select("material_id")
+      .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(
-      "No se ha podido recuperar el progreso.",
-    );
+    throw new Error(ERROR_PROGRESS);
   }
 
-  return data.map(
+  return (data ?? []).map(
     ({ material_id }) => material_id,
   );
 }
@@ -104,24 +131,20 @@ export async function getCompletedMaterialIds(): Promise<
  * de materiales completados.
  */
 export async function getCompletedMaterialsCount(): Promise<number> {
-  const user = await getUser();
+  const user =
+    await getAuthenticatedUser();
 
-  if (!user) {
-    return 0;
-  }
-
-  const { count, error } = await supabase
-    .from(MATERIAL_VIEWS_TABLE)
-    .select("*", {
-      count: "exact",
-      head: true,
-    })
-    .eq("user_id", user.id);
+  const { count, error } =
+    await supabase
+      .from(MATERIAL_VIEWS_TABLE)
+      .select("*", {
+        count: "exact",
+        head: true,
+      })
+      .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(
-      "No se ha podido recuperar el progreso.",
-    );
+    throw new Error(ERROR_PROGRESS);
   }
 
   return count ?? 0;
@@ -150,27 +173,23 @@ export async function getMaterialProgress(
  * Elimina el registro
  * de un material completado.
  *
- * Uso exclusivo para administración
- * o pruebas.
+ * Uso exclusivo para
+ * administración o pruebas.
  */
 export async function unmarkMaterialAsCompleted(
   materialId: string,
 ): Promise<void> {
-  const user = await getUser();
+  const user =
+    await getAuthenticatedUser();
 
-  if (!user) {
-    throw new Error("Usuario no autenticado.");
-  }
-
-  const { error } = await supabase
-    .from(MATERIAL_VIEWS_TABLE)
-    .delete()
-    .eq("user_id", user.id)
-    .eq("material_id", materialId);
+  const { error } =
+    await supabase
+      .from(MATERIAL_VIEWS_TABLE)
+      .delete()
+      .eq("user_id", user.id)
+      .eq("material_id", materialId);
 
   if (error) {
-    throw new Error(
-      "No se ha podido eliminar el progreso.",
-    );
+    throw new Error(ERROR_DELETE);
   }
 }
