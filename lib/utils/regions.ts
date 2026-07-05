@@ -7,11 +7,11 @@ export const REGIONS = [
   "latam",
 ] as const;
 
-export type Region =
-  (typeof REGIONS)[number];
+export type Region = (typeof REGIONS)[number];
 
 /**
- * Región por defecto.
+ * Región utilizada cuando
+ * no se especifica ninguna.
  */
 export const DEFAULT_REGION: Region =
   "spain";
@@ -19,9 +19,8 @@ export const DEFAULT_REGION: Region =
 /**
  * Etiquetas visibles para el usuario.
  */
-export const REGION_LABELS: Record<
-  Region,
-  string
+export const REGION_LABELS: Readonly<
+  Record<Region, string>
 > = {
   spain: "España",
   latam: "Latinoamérica",

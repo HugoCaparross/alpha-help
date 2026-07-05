@@ -11,22 +11,17 @@ import {
   type Question,
 } from "@/lib/constants/questionnaires";
 
+import type {
+  QuestionnaireProgress,
+  QuestionnaireType,
+} from "@/types/questionnaire";
+
 /* =========================
    TIPOS
 ========================= */
 
-export type QuestionnaireType =
-  | "pre"
-  | "post";
-
 export interface QuestionnaireAnswers {
   [questionId: string]: number;
-}
-
-export interface QuestionnaireStatus {
-  preCompleted: boolean;
-
-  postCompleted: boolean;
 }
 
 interface QuestionnaireResponseInsert {
@@ -39,6 +34,10 @@ interface QuestionnaireResponseInsert {
   question_key: string;
 
   answer: number;
+}
+
+interface CompletedQuestionnaireRow {
+  questionnaire_type: QuestionnaireType;
 }
 
 /* =========================
@@ -56,7 +55,7 @@ const SUBMISSIONS_TABLE =
 const RESPONSES_TABLE =
   "questionnaire_responses";
 
-const ALL_QUESTIONS: Question[] = [
+const ALL_QUESTIONS: readonly Question[] = [
   ...CAPSM_QUESTIONS,
   ...PSOC_QUESTIONS,
   ...ECPP_QUESTIONS,
@@ -64,7 +63,10 @@ const ALL_QUESTIONS: Question[] = [
   ...KIDSCREEN_QUESTIONS,
 ];
 
-const QUESTION_MAP = new Map(
+const QUESTION_MAP = new Map<
+  string,
+  Question
+>(
   ALL_QUESTIONS.map((question) => [
     question.id,
     question,
@@ -77,6 +79,9 @@ const QUESTION_MAP = new Map(
 
 const ERROR_INVALID_TYPE =
   "Tipo de cuestionario no válido.";
+
+const ERROR_UNAUTHENTICATED =
+  "Usuario no autenticado.";
 
 const ERROR_EMPTY_ANSWERS =
   "No se han proporcionado respuestas.";
@@ -142,9 +147,7 @@ function validateAnswers(
       );
     }
 
-    if (
-      !Number.isInteger(value)
-    ) {
+    if (!Number.isInteger(value)) {
       throw new Error(
         `La respuesta de "${questionId}" no es válida.`,
       );
@@ -168,46 +171,51 @@ function validateAnswers(
    HELPERS
 ========================= */
 
+/**
+ * Construye el listado de respuestas
+ * listo para insertar en la base de datos.
+ */
 function buildResponses(
   submissionId: string,
   userId: string,
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
 ): QuestionnaireResponseInsert[] {
-  return Object.entries(
-    answers,
-  ).map(
+  return Object.entries(answers).map(
     ([questionKey, answer]) => ({
-      submission_id:
-        submissionId,
+      submission_id: submissionId,
 
       user_id: userId,
 
-      questionnaire_type:
-        questionnaireType,
+      questionnaire_type: questionnaireType,
 
-      question_key:
-        questionKey,
+      question_key: questionKey,
 
       answer,
     }),
   );
 }
 
+/**
+ * Comprueba si un usuario ya ha
+ * completado un cuestionario.
+ */
 async function hasCompletedQuestionnaireByUser(
   userId: string,
   questionnaireType: QuestionnaireType,
 ): Promise<boolean> {
-  const { data, error } =
-    await supabase
-      .from(SUBMISSIONS_TABLE)
-      .select("id")
-      .eq("user_id", userId)
-      .eq(
-        "questionnaire_type",
-        questionnaireType,
-      )
-      .maybeSingle();
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(SUBMISSIONS_TABLE)
+    .select("id")
+    .eq("user_id", userId)
+    .eq(
+      "questionnaire_type",
+      questionnaireType,
+    )
+    .maybeSingle();
 
   if (error) {
     throw new Error(
@@ -217,9 +225,21 @@ async function hasCompletedQuestionnaireByUser(
 
   return data !== null;
 }
-/* =========================
-   FUNCIONES PÚBLICAS
-========================= */
+
+/**
+ * Obtiene el usuario autenticado.
+ */
+async function getAuthenticatedUser() {
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error(
+      ERROR_UNAUTHENTICATED,
+    );
+  }
+
+  return user;
+}
 
 /**
  * Guarda un cuestionario completado
@@ -227,12 +247,11 @@ async function hasCompletedQuestionnaireByUser(
  *
  * Flujo:
  *
- * 1. Valida el tipo.
+ * 1. Valida el tipo de cuestionario.
  * 2. Valida las respuestas.
- * 3. Comprueba autenticación.
- * 4. Evita duplicados.
- * 5. Obliga a completar el PRE
- *    antes del POST.
+ * 3. Comprueba la autenticación.
+ * 4. Evita envíos duplicados.
+ * 5. Obliga a completar el PRE antes del POST.
  * 6. Inserta el envío.
  * 7. Inserta todas las respuestas.
  */
@@ -246,13 +265,8 @@ export async function submitQuestionnaire(
 
   validateAnswers(answers);
 
-  const user = await getUser();
-
-  if (!user) {
-    throw new Error(
-      "Usuario no autenticado.",
-    );
-  }
+  const user =
+    await getAuthenticatedUser();
 
   const alreadyCompleted =
     await hasCompletedQuestionnaireByUser(
@@ -334,6 +348,7 @@ export async function submitQuestionnaire(
 
   return submission;
 }
+
 /**
  * Indica si el participante
  * ya ha completado un cuestionario.
@@ -370,16 +385,18 @@ export async function getCompletedQuestionnaires(): Promise<
     return [];
   }
 
-  const { data, error } =
-    await supabase
-      .from(SUBMISSIONS_TABLE)
-      .select(
-        "questionnaire_type",
-      )
-      .eq(
-        "user_id",
-        user.id,
-      );
+  const {
+    data,
+    error,
+  } = await supabase
+    .from(SUBMISSIONS_TABLE)
+    .select(
+      "questionnaire_type",
+    )
+    .eq(
+      "user_id",
+      user.id,
+    );
 
   if (error) {
     throw new Error(
@@ -387,11 +404,12 @@ export async function getCompletedQuestionnaires(): Promise<
     );
   }
 
-  return data.map(
-    ({
+  return (
+    (data as CompletedQuestionnaireRow[] | null) ??
+    []
+  ).map(
+    ({ questionnaire_type }) =>
       questionnaire_type,
-    }) =>
-      questionnaire_type as QuestionnaireType,
   );
 }
 
@@ -403,7 +421,7 @@ export async function getCompletedQuestionnaires(): Promise<
  * desde Dashboard y desde la
  * pantalla de Cuestionarios.
  */
-export async function getQuestionnaireStatus(): Promise<QuestionnaireStatus> {
+export async function getQuestionnaireStatus(): Promise<QuestionnaireProgress> {
   const [
     preCompleted,
     postCompleted,
@@ -419,7 +437,6 @@ export async function getQuestionnaireStatus(): Promise<QuestionnaireStatus> {
 
   return {
     preCompleted,
-
     postCompleted,
   };
 }

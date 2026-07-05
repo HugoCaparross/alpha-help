@@ -7,28 +7,38 @@ export type QuestionnaireType =
   | "post";
 
 /**
- * Estado del cuestionario
- * para un usuario.
+ * Estado de un cuestionario
+ * dentro de la interfaz.
  */
-export type QuestionnaireStatus =
+export type QuestionnaireState =
   | "pending"
   | "completed"
   | "locked";
+
+/**
+ * Estado global de los cuestionarios
+ * del participante.
+ */
+export interface QuestionnaireProgress {
+  readonly preCompleted: boolean;
+
+  readonly postCompleted: boolean;
+}
 
 /**
  * Definición de un cuestionario
  * dentro del programa.
  */
 export interface Questionnaire {
-  id: QuestionnaireType;
+  readonly id: QuestionnaireType;
 
-  title: string;
+  readonly title: string;
 
-  description: string;
+  readonly description: string;
 
-  blocks: number;
+  readonly blocks: number;
 
-  estimatedMinutes: number;
+  readonly estimatedMinutes: number;
 }
 
 /**
@@ -37,5 +47,5 @@ export interface Questionnaire {
  */
 export interface QuestionnaireWithStatus
   extends Questionnaire {
-  status: QuestionnaireStatus;
+  readonly status: QuestionnaireState;
 }

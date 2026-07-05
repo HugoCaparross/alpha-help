@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { LATAM_SCHOOLS, SPAIN_SCHOOLS } from "@/lib/constants";
+import { getSchools } from "@/lib/constants";
 
 import { schoolSchema } from "@/validators";
 
@@ -64,7 +64,7 @@ export default function RegisterStepSchool({
     nextStep();
   }
 
-  const schools = formData.region === "spain" ? SPAIN_SCHOOLS : LATAM_SCHOOLS;
+  const schools = formData.region ? getSchools(formData.region) : [];
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -82,8 +82,9 @@ export default function RegisterStepSchool({
         <select
           id="school-center"
           className="auth-input"
-          aria-invalid={!!error}
           value={formData.schoolCenter}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "school-center-error" : undefined}
           onChange={(event) => updateField("schoolCenter", event.target.value)}
         >
           <option value="">Selecciona una opción</option>
@@ -97,7 +98,12 @@ export default function RegisterStepSchool({
       </div>
 
       {error && (
-        <p className="auth-error" role="alert" aria-live="polite">
+        <p
+          id="school-center-error"
+          className="auth-error"
+          role="alert"
+          aria-live="polite"
+        >
           {error}
         </p>
       )}

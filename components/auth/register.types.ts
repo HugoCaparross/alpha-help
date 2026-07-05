@@ -1,3 +1,5 @@
+import type { Region } from "@/lib/utils/regions";
+
 export interface ChildData {
   age: string;
 
@@ -13,7 +15,11 @@ export interface RegisterData {
 
   email: string;
 
-  region: string;
+  /**
+   * Durante el primer paso todavía
+   * no se ha seleccionado ninguna región.
+   */
+  region: Region | "";
 
   password: string;
 
