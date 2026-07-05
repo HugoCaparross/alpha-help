@@ -1,6 +1,47 @@
 import { z } from "zod";
 
 /* =========================
+   CONSTANTES
+========================= */
+
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 128;
+
+const PASSWORD_REGEX =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
+
+const MIN_PARENT_AGE = 18;
+const MAX_PARENT_AGE = 99;
+
+const MIN_CHILD_AGE = 10;
+const MAX_CHILD_AGE = 17;
+
+const MIN_CHILDREN = 1;
+const MAX_CHILDREN = 5;
+
+/* =========================
+   ESQUEMAS BASE
+========================= */
+
+const requiredString = (message: string) =>
+  z.string().trim().min(1, message);
+
+const passwordSchema = z
+  .string()
+  .min(
+    PASSWORD_MIN_LENGTH,
+    `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`,
+  )
+  .max(
+    PASSWORD_MAX_LENGTH,
+    `La contraseña no puede superar los ${PASSWORD_MAX_LENGTH} caracteres`,
+  )
+  .regex(
+    PASSWORD_REGEX,
+    "Debe incluir al menos una letra mayúscula, una minúscula y un número",
+  );
+
+/* =========================
    PASO 1 · Cuenta
 ========================= */
 
@@ -11,44 +52,28 @@ export const accountSchema = z
       .trim()
       .email("Introduce un correo válido"),
 
-    region: z
-      .string()
-      .min(
-        1,
-        "Selecciona tu región",
-      ),
+    region: z.enum(["spain", "latam"], {
+      message: "Selecciona tu región",
+    }),
 
-    password: z
-      .string()
-      .min(
-        8,
-        "La contraseña debe tener al menos 8 caracteres",
-      )
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
-        "Debe incluir mayúsculas, minúsculas y números",
-      ),
+    password: passwordSchema,
 
     confirmPassword: z.string(),
 
     acceptedPolicy: z
       .boolean()
-      .refine(
-        (value) => value === true,
-        {
-          message:
-            "Debes aceptar la política de privacidad",
-        },
-      ),
+      .refine((value) => value === true, {
+        message:
+          "Debes aceptar la política de privacidad",
+      }),
   })
   .refine(
-    (data) =>
-      data.password ===
-      data.confirmPassword,
+    ({ password, confirmPassword }) =>
+      password === confirmPassword,
     {
+      path: ["confirmPassword"],
       message:
         "Las contraseñas no coinciden",
-      path: ["confirmPassword"],
     },
   );
 
@@ -58,42 +83,33 @@ export const accountSchema = z
 
 export const participantSchema =
   z.object({
-    gender: z
-      .string()
-      .min(
-        1,
-        "Selecciona tu sexo",
-      ),
+    gender: requiredString(
+      "Selecciona tu sexo",
+    ),
 
     age: z.coerce
       .number()
       .min(
-        18,
-        "Debes tener al menos 18 años",
+        MIN_PARENT_AGE,
+        `Debes tener al menos ${MIN_PARENT_AGE} años`,
       )
       .max(
-        99,
+        MAX_PARENT_AGE,
         "Edad no válida",
       ),
 
-    educationLevel: z
-      .string()
-      .min(
-        1,
+    educationLevel:
+      requiredString(
         "Selecciona tu nivel de estudios",
       ),
 
-    employmentStatus: z
-      .string()
-      .min(
-        1,
+    employmentStatus:
+      requiredString(
         "Selecciona tu situación laboral",
       ),
 
-    maritalStatus: z
-      .string()
-      .min(
-        1,
+    maritalStatus:
+      requiredString(
         "Selecciona tu estado civil",
       ),
   });
@@ -105,15 +121,12 @@ export const participantSchema =
 export const familySchema =
   z.object({
     socioeconomicLevel:
-      z.string().min(
-        1,
+      requiredString(
         "Selecciona el nivel socioeconómico familiar",
       ),
 
-    schoolType: z
-      .string()
-      .min(
-        1,
+    schoolType:
+      requiredString(
         "Selecciona el tipo de centro escolar",
       ),
 
@@ -121,30 +134,28 @@ export const familySchema =
       z.coerce
         .number()
         .min(
-          1,
+          MIN_CHILDREN,
           "Debes indicar al menos un hijo",
         )
         .max(
-          5,
-          "El máximo permitido es 5 hijos",
+          MAX_CHILDREN,
+          `El máximo permitido es ${MAX_CHILDREN} hijos`,
         ),
 
     familyStructure:
-      z.string().min(
-        1,
+      requiredString(
         "Selecciona la estructura familiar",
       ),
   });
-  /* =========================
+
+/* =========================
    PASO 4 · Centro escolar
 ========================= */
 
 export const schoolSchema =
   z.object({
-    schoolCenter: z
-      .string()
-      .min(
-        1,
+    schoolCenter:
+      requiredString(
         "Selecciona un centro escolar",
       ),
   });
@@ -161,18 +172,16 @@ export const childSchema =
           age: z.coerce
             .number()
             .min(
-              10,
-              "La edad mínima es 10 años",
+              MIN_CHILD_AGE,
+              `La edad mínima es ${MIN_CHILD_AGE} años`,
             )
             .max(
-              17,
-              "La edad máxima es 17 años",
+              MAX_CHILD_AGE,
+              `La edad máxima es ${MAX_CHILD_AGE} años`,
             ),
 
-          gender: z
-            .string()
-            .min(
-              1,
+          gender:
+            requiredString(
               "Selecciona el sexo del menor",
             ),
 
@@ -181,7 +190,8 @@ export const childSchema =
         }),
       )
       .min(
-        1,
+        MIN_CHILDREN,
         "Debes introducir al menos un hijo",
-      ),
+      )
+      .max(MAX_CHILDREN),
   });

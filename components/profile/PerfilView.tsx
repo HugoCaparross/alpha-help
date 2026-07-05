@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import type { UserProfile } from "@/types/user";
 
 import PerfilField from "./PerfilField";
@@ -6,68 +8,85 @@ interface PerfilViewProps {
   profile: UserProfile;
 }
 
-const ACCESS_FIELDS = (profile: UserProfile) => [
-  {
-    label: "Correo electrónico",
-    value: profile.email,
-  },
-  {
-    label: "Región",
-    value: profile.region,
-  },
-];
-
-const PERSONAL_FIELDS = (profile: UserProfile) => [
-  {
-    label: "Sexo",
-    value: profile.gender,
-  },
-  {
-    label: "Edad",
-    value: profile.age,
-  },
-  {
-    label: "Estado civil",
-    value: profile.marital_status,
-  },
-];
-
-const FAMILY_FIELDS = (profile: UserProfile) => [
-  {
-    label: "Número de hijos",
-    value: profile.number_of_children,
-  },
-  {
-    label: "Estructura familiar",
-    value: profile.family_structure,
-  },
-];
-
-const ACADEMIC_FIELDS = (profile: UserProfile) => [
-  {
-    label: "Nivel educativo",
-    value: profile.education_level,
-  },
-  {
-    label: "Situación laboral",
-    value: profile.employment_status,
-  },
-  {
-    label: "Nivel socioeconómico",
-    value: profile.socioeconomic_level,
-  },
-  {
-    label: "Tipo de centro educativo",
-    value: profile.school_type,
-  },
-  {
-    label: "Centro educativo",
-    value: profile.school_center,
-  },
-];
-
+/**
+ * Vista principal del perfil del participante.
+ */
 export default function PerfilView({ profile }: PerfilViewProps) {
-  const userInitial = profile.email?.charAt(0).toUpperCase() ?? "U";
+  const userInitial = profile.email?.trim().charAt(0).toUpperCase() || "U";
+
+  const sections = useMemo(
+    () => [
+      {
+        title: "Información de acceso",
+        fields: [
+          {
+            label: "Correo electrónico",
+            value: profile.email,
+          },
+          {
+            label: "Región",
+            value: profile.region,
+          },
+        ],
+      },
+      {
+        title: "Información personal",
+        fields: [
+          {
+            label: "Sexo",
+            value: profile.gender,
+          },
+          {
+            label: "Edad",
+            value: profile.age,
+          },
+          {
+            label: "Estado civil",
+            value: profile.maritalStatus,
+          },
+        ],
+      },
+      {
+        title: "Información familiar",
+        fields: [
+          {
+            label: "Número de hijos",
+            value: profile.numberOfChildren,
+          },
+          {
+            label: "Estructura familiar",
+            value: profile.familyStructure,
+          },
+        ],
+      },
+      {
+        title: "Información académica",
+        fields: [
+          {
+            label: "Nivel educativo",
+            value: profile.educationLevel,
+          },
+          {
+            label: "Situación laboral",
+            value: profile.employmentStatus,
+          },
+          {
+            label: "Nivel socioeconómico",
+            value: profile.socioeconomicLevel,
+          },
+          {
+            label: "Tipo de centro educativo",
+            value: profile.schoolType,
+          },
+          {
+            label: "Centro educativo",
+            value: profile.schoolCenter,
+          },
+        ],
+      },
+    ],
+    [profile],
+  );
 
   return (
     <main className="perfil-page">
@@ -92,53 +111,19 @@ export default function PerfilView({ profile }: PerfilViewProps) {
       </section>
 
       <div className="perfil-grid">
-        <section className="perfil-card">
-          <h2 className="perfil-card-title">Información de acceso</h2>
+        {sections.map((section) => (
+          <section key={section.title} className="perfil-card">
+            <h2 className="perfil-card-title">{section.title}</h2>
 
-          {ACCESS_FIELDS(profile).map((field) => (
-            <PerfilField
-              key={field.label}
-              label={field.label}
-              value={field.value}
-            />
-          ))}
-        </section>
-
-        <section className="perfil-card">
-          <h2 className="perfil-card-title">Información personal</h2>
-
-          {PERSONAL_FIELDS(profile).map((field) => (
-            <PerfilField
-              key={field.label}
-              label={field.label}
-              value={field.value}
-            />
-          ))}
-        </section>
-
-        <section className="perfil-card">
-          <h2 className="perfil-card-title">Información familiar</h2>
-
-          {FAMILY_FIELDS(profile).map((field) => (
-            <PerfilField
-              key={field.label}
-              label={field.label}
-              value={field.value}
-            />
-          ))}
-        </section>
-
-        <section className="perfil-card">
-          <h2 className="perfil-card-title">Información académica</h2>
-
-          {ACADEMIC_FIELDS(profile).map((field) => (
-            <PerfilField
-              key={field.label}
-              label={field.label}
-              value={field.value}
-            />
-          ))}
-        </section>
+            {section.fields.map((field) => (
+              <PerfilField
+                key={field.label}
+                label={field.label}
+                value={field.value}
+              />
+            ))}
+          </section>
+        ))}
       </div>
     </main>
   );

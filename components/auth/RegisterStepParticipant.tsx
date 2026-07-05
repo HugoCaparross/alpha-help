@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { participantSchema } from "@/validators";
 
 import {
-  GENDERS,
   EDUCATION_LEVELS,
   EMPLOYMENT_STATUS,
+  GENDERS,
   MARITAL_STATUS,
 } from "@/lib/constants";
 
@@ -39,13 +39,13 @@ export default function RegisterStepParticipant({
   ) {
     setError("");
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       [field]: value,
     }));
   }
 
-  function validateStep() {
+  function validateStep(): boolean {
     const result = participantSchema.safeParse({
       gender: formData.gender,
       age: formData.age,
@@ -56,35 +56,45 @@ export default function RegisterStepParticipant({
 
     if (!result.success) {
       setError(result.error.issues[0].message);
-      return;
+
+      return false;
     }
 
-    setError("");
+    return true;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!validateStep()) {
+      return;
+    }
 
     nextStep();
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    validateStep();
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h2 className="step-title">Datos del participante</h2>
+
       <p className="step-description">
         Información básica de la persona que participa en el estudio.
       </p>
+
       {/* SEXO */}
+
       <div className="auth-field">
-        <label className="auth-label">Soy...</label>
+        <label htmlFor="gender" className="auth-label">
+          Soy...
+        </label>
 
         <select
+          id="gender"
           className="auth-input"
           autoComplete="sex"
+          aria-invalid={!!error}
           value={formData.gender}
-          onChange={(e) => updateField("gender", e.target.value)}
+          onChange={(event) => updateField("gender", event.target.value)}
         >
           <option value="">Selecciona una opción</option>
 
@@ -95,35 +105,49 @@ export default function RegisterStepParticipant({
           ))}
         </select>
       </div>
+
       {/* EDAD */}
+
       <div className="auth-field">
-        <label className="auth-label">Tengo...</label>
+        <label htmlFor="age" className="auth-label">
+          Tengo...
+        </label>
 
         <input
+          id="age"
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
           autoComplete="bday-year"
           className="auth-input"
           placeholder="Edad"
+          aria-invalid={!!error}
           value={formData.age}
-          onChange={(e) => {
-            const value = e.target.value.replace(/\D/g, "");
+          onChange={(event) => {
+            const value = event.target.value.replace(/\D/g, "");
 
             if (value.length <= 2) {
               updateField("age", value);
             }
           }}
         />
-      </div>{" "}
+      </div>
+
       {/* ESTUDIOS */}
+
       <div className="auth-field">
-        <label className="auth-label">Nivel máximo de estudios</label>
+        <label htmlFor="education-level" className="auth-label">
+          Nivel máximo de estudios
+        </label>
 
         <select
+          id="education-level"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.educationLevel}
-          onChange={(e) => updateField("educationLevel", e.target.value)}
+          onChange={(event) =>
+            updateField("educationLevel", event.target.value)
+          }
         >
           <option value="">Selecciona una opción</option>
 
@@ -134,14 +158,22 @@ export default function RegisterStepParticipant({
           ))}
         </select>
       </div>
+
       {/* SITUACIÓN LABORAL */}
+
       <div className="auth-field">
-        <label className="auth-label">Situación laboral actual</label>
+        <label htmlFor="employment-status" className="auth-label">
+          Situación laboral actual
+        </label>
 
         <select
+          id="employment-status"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.employmentStatus}
-          onChange={(e) => updateField("employmentStatus", e.target.value)}
+          onChange={(event) =>
+            updateField("employmentStatus", event.target.value)
+          }
         >
           <option value="">Selecciona una opción</option>
 
@@ -152,14 +184,20 @@ export default function RegisterStepParticipant({
           ))}
         </select>
       </div>
+
       {/* ESTADO CIVIL */}
+
       <div className="auth-field">
-        <label className="auth-label">Estado civil actual</label>
+        <label htmlFor="marital-status" className="auth-label">
+          Estado civil actual
+        </label>
 
         <select
+          id="marital-status"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.maritalStatus}
-          onChange={(e) => updateField("maritalStatus", e.target.value)}
+          onChange={(event) => updateField("maritalStatus", event.target.value)}
         >
           <option value="">Selecciona una opción</option>
 
@@ -169,12 +207,14 @@ export default function RegisterStepParticipant({
             </option>
           ))}
         </select>
-      </div>{" "}
+      </div>
+
       {error && (
         <p className="auth-error" role="alert" aria-live="polite">
           {error}
         </p>
       )}
+
       <div className="step-actions">
         <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Eye, EyeOff, LoaderCircle, Lock, Mail } from "lucide-react";
 
@@ -11,6 +12,21 @@ import { supabase } from "@/lib/supabase/client";
 
 import { loginSchema } from "@/validators";
 
+const ERROR_MESSAGES = {
+  emailVerification:
+    "Debes verificar tu correo electrónico antes de iniciar sesión.",
+
+  rateLimit:
+    "Se han realizado demasiados intentos. Inténtalo de nuevo dentro de unos minutos.",
+
+  invalidCredentials: "Correo o contraseña incorrectos.",
+
+  unexpected: "Se ha producido un error inesperado. Inténtalo de nuevo.",
+} as const;
+
+/**
+ * Formulario de inicio de sesión.
+ */
 export default function LoginForm() {
   const router = useRouter();
 
@@ -34,7 +50,7 @@ export default function LoginForm() {
     setPassword(value);
   }
 
-  async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const result = loginSchema.safeParse({
@@ -48,10 +64,10 @@ export default function LoginForm() {
       return;
     }
 
-    setLoading(true);
-    setError("");
-
     try {
+      setLoading(true);
+      setError("");
+
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
@@ -61,32 +77,31 @@ export default function LoginForm() {
         const message = error.message.toLowerCase();
 
         if (message.includes("email") || message.includes("confirm")) {
-          setError(
-            "Debes verificar tu correo electrónico antes de iniciar sesión.",
-          );
+          setError(ERROR_MESSAGES.emailVerification);
 
           return;
         }
 
         if (message.includes("rate")) {
-          setError(
-            "Se han realizado demasiados intentos. Inténtalo de nuevo dentro de unos minutos.",
-          );
+          setError(ERROR_MESSAGES.rateLimit);
 
           return;
         }
 
-        setError("Correo o contraseña incorrectos.");
+        setError(ERROR_MESSAGES.invalidCredentials);
 
         return;
       }
 
       router.replace("/dashboard");
+
       router.refresh();
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV === "development") {
+        console.error(error);
+      }
 
-      setError("Se ha producido un error inesperado. Inténtalo de nuevo.");
+      setError(ERROR_MESSAGES.unexpected);
     } finally {
       setLoading(false);
     }
@@ -101,8 +116,6 @@ export default function LoginForm() {
           Accede a tu cuenta para continuar.
         </p>
       </div>
-
-      {/* EMAIL */}
 
       <div className="auth-field">
         <label htmlFor="email" className="auth-label">
@@ -126,12 +139,10 @@ export default function LoginForm() {
             spellCheck={false}
             aria-invalid={!!error}
             aria-describedby={error ? "login-error" : undefined}
-            onChange={(e) => updateEmail(e.target.value)}
+            onChange={(event) => updateEmail(event.target.value)}
           />
         </div>
       </div>
-
-      {/* PASSWORD */}
 
       <div className="auth-field">
         <label htmlFor="password" className="auth-label">
@@ -153,7 +164,7 @@ export default function LoginForm() {
             autoComplete="current-password"
             aria-invalid={!!error}
             aria-describedby={error ? "login-error" : undefined}
-            onChange={(e) => updatePassword(e.target.value)}
+            onChange={(event) => updatePassword(event.target.value)}
           />
 
           <button
@@ -163,7 +174,7 @@ export default function LoginForm() {
             aria-label={
               showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
             }
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowPassword((previous) => !previous)}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>

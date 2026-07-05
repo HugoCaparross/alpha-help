@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { SPAIN_SCHOOLS, LATAM_SCHOOLS } from "@/lib/constants";
+import { LATAM_SCHOOLS, SPAIN_SCHOOLS } from "@/lib/constants";
 
 import { schoolSchema } from "@/validators";
 
@@ -34,13 +34,13 @@ export default function RegisterStepSchool({
   ) {
     setError("");
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       [field]: value,
     }));
   }
 
-  function validateStep() {
+  function validateStep(): boolean {
     const result = schoolSchema.safeParse({
       schoolCenter: formData.schoolCenter,
     });
@@ -48,35 +48,43 @@ export default function RegisterStepSchool({
     if (!result.success) {
       setError(result.error.issues[0].message);
 
+      return false;
+    }
+
+    return true;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!validateStep()) {
       return;
     }
 
-    setError("");
-
     nextStep();
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    validateStep();
   }
 
   const schools = formData.region === "spain" ? SPAIN_SCHOOLS : LATAM_SCHOOLS;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h2 className="step-title">Centro escolar</h2>
+
       <p className="step-description">
         Selecciona el centro escolar al que acuden tus hijos.
       </p>
+
       <div className="auth-field">
-        <label className="auth-label">Centro escolar</label>
+        <label htmlFor="school-center" className="auth-label">
+          Centro escolar
+        </label>
 
         <select
+          id="school-center"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.schoolCenter}
-          onChange={(e) => updateField("schoolCenter", e.target.value)}
+          onChange={(event) => updateField("schoolCenter", event.target.value)}
         >
           <option value="">Selecciona una opción</option>
 
@@ -86,12 +94,14 @@ export default function RegisterStepSchool({
             </option>
           ))}
         </select>
-      </div>{" "}
+      </div>
+
       {error && (
         <p className="auth-error" role="alert" aria-live="polite">
           {error}
         </p>
       )}
+
       <div className="step-actions">
         <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />

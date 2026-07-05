@@ -1,20 +1,33 @@
-interface PerfilFieldProps {
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
+
+interface PerfilFieldProps extends ComponentPropsWithoutRef<"div"> {
   label: string;
 
   value: string | number | null | undefined;
 }
 
-export default function PerfilField({ label, value }: PerfilFieldProps) {
-  const displayValue =
-    value === null || value === undefined || value === ""
-      ? "No disponible"
-      : value;
+/**
+ * Campo informativo reutilizable del perfil.
+ */
+const PerfilField = forwardRef<HTMLDivElement, PerfilFieldProps>(
+  ({ label, value, className = "", ...props }, ref) => {
+    const displayValue =
+      value === null || value === undefined || value === ""
+        ? "No disponible"
+        : value;
 
-  return (
-    <div className="perfil-field">
-      <p className="perfil-label">{label}</p>
+    const classes = ["perfil-field", className].filter(Boolean).join(" ");
 
-      <p className="perfil-value">{displayValue}</p>
-    </div>
-  );
-}
+    return (
+      <div ref={ref} className={classes} {...props}>
+        <span className="perfil-label">{label}</span>
+
+        <span className="perfil-value">{displayValue}</span>
+      </div>
+    );
+  },
+);
+
+PerfilField.displayName = "PerfilField";
+
+export default PerfilField;

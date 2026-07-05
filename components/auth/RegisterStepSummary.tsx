@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CheckCircle,
-  LoaderCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle, LoaderCircle } from "lucide-react";
 
 import type { RegisterData } from "./register.types";
 
@@ -28,6 +24,33 @@ const CHILD_ORDINALS = [
   "Quinto",
 ] as const;
 
+interface SummaryItem {
+  label: string;
+  value: string;
+}
+
+function SummarySection({
+  title,
+  items,
+}: {
+  title: string;
+  items: SummaryItem[];
+}) {
+  return (
+    <>
+      <h3 className="summary-section-title">{title}</h3>
+
+      {items.map((item) => (
+        <div key={`${title}-${item.label}`} className="summary-item">
+          <span>{item.label}</span>
+
+          <strong>{item.value}</strong>
+        </div>
+      ))}
+    </>
+  );
+}
+
 export default function RegisterStepSummary({
   formData,
   previousStep,
@@ -37,9 +60,7 @@ export default function RegisterStepSummary({
 }: Props) {
   return (
     <>
-      <h2 className="step-title">
-        Revisar información
-      </h2>
+      <h2 className="step-title">Revisar información</h2>
 
       <p className="step-description">
         Revisa la información antes de completar el registro.
@@ -47,195 +68,107 @@ export default function RegisterStepSummary({
 
       <div className="summary-layout">
         <div className="register-summary">
-          {/* CUENTA */}
-
-          <h3 className="summary-section-title">
-            Cuenta
-          </h3>
-
-          <div className="summary-item">
-            <span>Email</span>
-
-            <strong>{formData.email}</strong>
-          </div>
-
-          <div className="summary-item">
-            <span>Región</span>
-
-            <strong>
-              {formData.region === "spain"
-                ? "España"
-                : "Latinoamérica"}
-            </strong>
-          </div>
-
-          {/* PARTICIPANTE */}
-
-          <h3 className="summary-section-title">
-            Participante
-          </h3>
-
-          <div className="summary-item">
-            <span>Sexo</span>
-
-            <strong>{formData.gender}</strong>
-          </div>
-
-          <div className="summary-item">
-            <span>Edad</span>
-
-            <strong>
-              {formData.age} años
-            </strong>
-          </div>
-
-          <div className="summary-item">
-            <span>Estudios</span>
-
-            <strong>
-              {formData.educationLevel}
-            </strong>
-          </div>
-
-          <div className="summary-item">
-            <span>
-              Situación laboral
-            </span>
-
-            <strong>
-              {formData.employmentStatus}
-            </strong>
-          </div>
-
-          <div className="summary-item">
-            <span>Estado civil</span>
-
-            <strong>
-              {formData.maritalStatus}
-            </strong>
-          </div>
-
-          {/* FAMILIA */}
-
-          <h3 className="summary-section-title">
-            Familia
-          </h3>
-
-          <div className="summary-item">
-            <span>
-              Nivel socioeconómico
-            </span>
-
-            <strong>
+          <SummarySection
+            title="Cuenta"
+            items={[
               {
-                formData.socioeconomicLevel
-              }
-            </strong>
-          </div>
-
-          <div className="summary-item">
-            <span>
-              Tipo de centro
-            </span>
-
-            <strong>
-              {formData.schoolType}
-            </strong>
-          </div>
-
-          <div className="summary-item">
-            <span>
-              Número de hijos
-            </span>
-
-            <strong>
+                label: "Email",
+                value: formData.email,
+              },
               {
-                formData.numberOfChildren
-              }
-            </strong>
-          </div>
+                label: "Región",
+                value: formData.region === "spain" ? "España" : "Latinoamérica",
+              },
+            ]}
+          />
 
-          <div className="summary-item">
-            <span>
-              Estructura familiar
-            </span>
-
-            <strong>
+          <SummarySection
+            title="Participante"
+            items={[
               {
-                formData.familyStructure
-              }
-            </strong>
-          </div>
+                label: "Sexo",
+                value: formData.gender,
+              },
+              {
+                label: "Edad",
+                value: `${formData.age} años`,
+              },
+              {
+                label: "Estudios",
+                value: formData.educationLevel,
+              },
+              {
+                label: "Situación laboral",
+                value: formData.employmentStatus,
+              },
+              {
+                label: "Estado civil",
+                value: formData.maritalStatus,
+              },
+            ]}
+          />
 
-          {/* CENTRO */}
+          <SummarySection
+            title="Familia"
+            items={[
+              {
+                label: "Nivel socioeconómico",
+                value: formData.socioeconomicLevel,
+              },
+              {
+                label: "Tipo de centro",
+                value: formData.schoolType,
+              },
+              {
+                label: "Número de hijos",
+                value: formData.numberOfChildren,
+              },
+              {
+                label: "Estructura familiar",
+                value: formData.familyStructure,
+              },
+            ]}
+          />
 
-          <h3 className="summary-section-title">
-            Centro escolar
-          </h3>
+          <SummarySection
+            title="Centro escolar"
+            items={[
+              {
+                label: "Centro",
+                value: formData.schoolCenter,
+              },
+            ]}
+          />
 
-          <div className="summary-item">
-            <span>Centro</span>
+          <h3 className="summary-section-title">Hijos</h3>
 
-            <strong>
-              {formData.schoolCenter}
-            </strong>
-          </div>
+          {formData.children.map((child, index) => (
+            <div key={`summary-child-${index}`} className="summary-item">
+              <span>{CHILD_ORDINALS[index]} hijo/a</span>
 
-          {/* HIJOS */}
-
-          <h3 className="summary-section-title">
-            Hijos
-          </h3>
-
-          {formData.children.map(
-            (child, index) => (
-              <div
-                key={`summary-child-${index}`}
-                className="summary-item"
-              >
-                <span>
-                  {
-                    CHILD_ORDINALS[
-                      index
-                    ]
-                  }{" "}
-                  hijo/a
-                </span>
-
-                <strong>
-                  Edad: {child.age} años ·
-                  Sexo: {child.gender} ·{" "}
-                  {child.psychologicalSupport
-                    ? "Con atención psicológica"
-                    : "Sin atención psicológica"}
-                </strong>
-              </div>
-            ),
-          )}
+              <strong>
+                Edad: {child.age} años · Sexo: {child.gender} ·{" "}
+                {child.psychologicalSupport
+                  ? "Con atención psicológica"
+                  : "Sin atención psicológica"}
+              </strong>
+            </div>
+          ))}
         </div>
 
-        <div className="summary-notice">
+        <aside className="summary-notice">
           <p className="summary-notice-text">
-            <CheckCircle size={18} />
-
-            Toda la información será tratada
-            de forma confidencial y utilizada
-            exclusivamente para
-            investigación científica. Las
-            respuestas estarán asociadas a
-            un identificador interno para
-            preservar la privacidad de los
-            participantes.
+            <CheckCircle size={18} aria-hidden="true" />
+            Toda la información será tratada de forma confidencial y utilizada
+            exclusivamente para investigación científica. Las respuestas estarán
+            asociadas a un identificador interno para preservar la privacidad de
+            los participantes.
           </p>
-        </div>
+        </aside>
       </div>
 
       {submitError && (
-        <p
-          className="auth-error"
-          role="alert"
-          aria-live="polite"
-        >
+        <p className="auth-error" role="alert" aria-live="polite">
           {submitError}
         </p>
       )}
@@ -244,8 +177,8 @@ export default function RegisterStepSummary({
         <button
           type="button"
           className="btn-secondary"
-          onClick={previousStep}
           disabled={loading}
+          onClick={previousStep}
         >
           <ArrowLeft size={18} />
           Atrás
@@ -254,15 +187,14 @@ export default function RegisterStepSummary({
         <button
           type="button"
           className="btn-primary"
-          onClick={handleSubmit}
           disabled={loading}
+          onClick={() => {
+            void handleSubmit();
+          }}
         >
           {loading ? (
             <>
-              <LoaderCircle
-                size={18}
-                className="animate-spin"
-              />
+              <LoaderCircle size={18} className="animate-spin" />
               Creando cuenta...
             </>
           ) : (

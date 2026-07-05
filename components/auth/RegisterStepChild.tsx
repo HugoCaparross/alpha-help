@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -8,7 +8,7 @@ import { childSchema } from "@/validators";
 
 import { GENDERS } from "@/lib/constants";
 
-import type { RegisterData, ChildData } from "./register.types";
+import type { ChildData, RegisterData } from "./register.types";
 
 interface Props {
   formData: RegisterData;
@@ -28,6 +28,12 @@ const CHILD_ORDINALS = [
   "Quinto",
 ] as const;
 
+const EMPTY_CHILD: ChildData = {
+  age: "",
+  gender: "",
+  psychologicalSupport: false,
+};
+
 export default function RegisterStepChild({
   formData,
   setFormData,
@@ -39,16 +45,16 @@ export default function RegisterStepChild({
   const numberOfChildren = Number(formData.numberOfChildren) || 0;
 
   useEffect(() => {
-    if (numberOfChildren < 1) return;
+    if (numberOfChildren < 1) {
+      return;
+    }
 
-    setFormData((prev) => {
-      const children = [...prev.children];
+    setFormData((previous) => {
+      const children = [...previous.children];
 
       while (children.length < numberOfChildren) {
         children.push({
-          age: "",
-          gender: "",
-          psychologicalSupport: false,
+          ...EMPTY_CHILD,
         });
       }
 
@@ -57,7 +63,7 @@ export default function RegisterStepChild({
       }
 
       return {
-        ...prev,
+        ...previous,
         children,
       };
     });
@@ -66,12 +72,12 @@ export default function RegisterStepChild({
   function updateChild(
     index: number,
     field: keyof ChildData,
-    value: string | boolean,
+    value: ChildData[keyof ChildData],
   ) {
     setError("");
 
-    setFormData((prev) => {
-      const children = [...prev.children];
+    setFormData((previous) => {
+      const children = [...previous.children];
 
       children[index] = {
         ...children[index],
@@ -79,13 +85,13 @@ export default function RegisterStepChild({
       };
 
       return {
-        ...prev,
+        ...previous,
         children,
       };
     });
   }
 
-  function validateStep() {
+  function validateStep(): boolean {
     const result = childSchema.safeParse({
       children: formData.children,
     });
@@ -93,44 +99,53 @@ export default function RegisterStepChild({
     if (!result.success) {
       setError(result.error.issues[0].message);
 
-      return;
+      return false;
     }
 
-    setError("");
+    return true;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!validateStep()) {
+      return;
+    }
 
     nextStep();
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    validateStep();
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h2 className="step-title">Información de los hijos</h2>
+
       <p className="step-description">
         Indica la edad, sexo y si han recibido atención psicológica.
-      </p>{" "}
+      </p>
+
       {formData.children.map((child, index) => (
         <div key={`child-${index}`} className="child-card">
           <h3 className="child-title">{CHILD_ORDINALS[index]} hijo/a</h3>
 
           <div className="child-grid">
             {/* EDAD */}
+
             <div className="auth-field">
-              <label className="auth-label">Edad</label>
+              <label htmlFor={`child-age-${index}`} className="auth-label">
+                Edad
+              </label>
 
               <input
+                id={`child-age-${index}`}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="auth-input"
                 placeholder="Edad"
+                aria-invalid={!!error}
                 value={child.age}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "");
+                onChange={(event) => {
+                  const value = event.target.value.replace(/\D/g, "");
 
                   if (value.length <= 2) {
                     updateChild(index, "age", value);
@@ -138,14 +153,22 @@ export default function RegisterStepChild({
                 }}
               />
             </div>
+
             {/* SEXO */}
+
             <div className="auth-field">
-              <label className="auth-label">Sexo</label>
+              <label htmlFor={`child-gender-${index}`} className="auth-label">
+                Sexo
+              </label>
 
               <select
+                id={`child-gender-${index}`}
                 className="auth-input"
+                aria-invalid={!!error}
                 value={child.gender}
-                onChange={(e) => updateChild(index, "gender", e.target.value)}
+                onChange={(event) =>
+                  updateChild(index, "gender", event.target.value)
+                }
               >
                 <option value="">Selecciona una opción</option>
 
@@ -155,21 +178,25 @@ export default function RegisterStepChild({
                   </option>
                 ))}
               </select>
-            </div>{" "}
-            {/* ATENCIÓN PSICOLÓGICA */}
+            </div>
+
+            {/* APOYO PSICOLÓGICO */}
+
             <div className="auth-field child-full-width">
-              <label className="auth-label">
+              <label htmlFor={`child-support-${index}`} className="auth-label">
                 ¿Ha recibido atención psicológica?
               </label>
 
               <select
+                id={`child-support-${index}`}
                 className="auth-input"
+                aria-invalid={!!error}
                 value={child.psychologicalSupport ? "Sí" : "No"}
-                onChange={(e) =>
+                onChange={(event) =>
                   updateChild(
                     index,
                     "psychologicalSupport",
-                    e.target.value === "Sí",
+                    event.target.value === "Sí",
                   )
                 }
               >
@@ -180,12 +207,14 @@ export default function RegisterStepChild({
             </div>
           </div>
         </div>
-      ))}{" "}
+      ))}
+
       {error && (
         <p className="auth-error" role="alert" aria-live="polite">
           {error}
         </p>
       )}
+
       <div className="step-actions">
         <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />

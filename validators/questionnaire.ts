@@ -1,9 +1,18 @@
 /**
- * Validaciones relacionadas con los
- * cuestionarios PRE y POST.
+ * Validaciones relacionadas con los cuestionarios
+ * del estudio (PRE y POST).
  *
- * Se implementarán cuando sea necesario
- * validar envíos completos o parciales.
+ * Actualmente las respuestas se validan mediante
+ * componentes controlados y escalas definidas en
+ * `lib/constants/questionnaires.ts`.
+ *
+ * Este archivo queda reservado para futuras
+ * validaciones cuando se implementen:
+ *
+ * - Envíos completos del cuestionario.
+ * - Guardado parcial.
+ * - Validaciones desde API Routes.
+ * - Validaciones compartidas cliente/servidor.
  */
 
 export {};

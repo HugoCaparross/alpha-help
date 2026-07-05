@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { familySchema } from "@/validators";
 
 import {
-  SOCIOECONOMIC_LEVELS,
-  SCHOOL_TYPES,
   FAMILY_STRUCTURES,
+  SCHOOL_TYPES,
+  SOCIOECONOMIC_LEVELS,
 } from "@/lib/constants";
 
 import type { RegisterData } from "./register.types";
@@ -38,13 +38,13 @@ export default function RegisterStepFamily({
   ) {
     setError("");
 
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       [field]: value,
     }));
   }
 
-  function validateStep() {
+  function validateStep(): boolean {
     const result = familySchema.safeParse({
       socioeconomicLevel: formData.socioeconomicLevel,
 
@@ -58,35 +58,46 @@ export default function RegisterStepFamily({
     if (!result.success) {
       setError(result.error.issues[0].message);
 
-      return;
+      return false;
     }
 
-    setError("");
+    return true;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!validateStep()) {
+      return;
+    }
 
     nextStep();
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    validateStep();
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} noValidate>
       <h2 className="step-title">Información familiar</h2>
+
       <p className="step-description">
         Queremos conocer mejor el entorno familiar para contextualizar la
         participación en el estudio.
       </p>
+
       {/* NIVEL SOCIOECONÓMICO */}
+
       <div className="auth-field">
-        <label className="auth-label">Nivel socioeconómico familiar</label>
+        <label htmlFor="socioeconomic-level" className="auth-label">
+          Nivel socioeconómico familiar
+        </label>
 
         <select
+          id="socioeconomic-level"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.socioeconomicLevel}
-          onChange={(e) => updateField("socioeconomicLevel", e.target.value)}
+          onChange={(event) =>
+            updateField("socioeconomicLevel", event.target.value)
+          }
         >
           <option value="">Selecciona una opción</option>
 
@@ -97,16 +108,20 @@ export default function RegisterStepFamily({
           ))}
         </select>
       </div>
+
       {/* TIPO DE CENTRO */}
+
       <div className="auth-field">
-        <label className="auth-label">
+        <label htmlFor="school-type" className="auth-label">
           Centro escolar al que acuden mis hijos
         </label>
 
         <select
+          id="school-type"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.schoolType}
-          onChange={(e) => updateField("schoolType", e.target.value)}
+          onChange={(event) => updateField("schoolType", event.target.value)}
         >
           <option value="">Selecciona una opción</option>
 
@@ -116,20 +131,26 @@ export default function RegisterStepFamily({
             </option>
           ))}
         </select>
-      </div>{" "}
+      </div>
+
       {/* NÚMERO DE HIJOS */}
+
       <div className="auth-field">
-        <label className="auth-label">Número de hijos/as</label>
+        <label htmlFor="number-of-children" className="auth-label">
+          Número de hijos/as
+        </label>
 
         <input
+          id="number-of-children"
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
           className="auth-input"
           placeholder="Número de hijos"
+          aria-invalid={!!error}
           value={formData.numberOfChildren}
-          onChange={(e) => {
-            const value = e.target.value.replace(/\D/g, "");
+          onChange={(event) => {
+            const value = event.target.value.replace(/\D/g, "");
 
             if (value.length <= 1) {
               updateField("numberOfChildren", value);
@@ -137,14 +158,22 @@ export default function RegisterStepFamily({
           }}
         />
       </div>
+
       {/* ESTRUCTURA FAMILIAR */}
+
       <div className="auth-field">
-        <label className="auth-label">Tipo de estructura familiar</label>
+        <label htmlFor="family-structure" className="auth-label">
+          Tipo de estructura familiar
+        </label>
 
         <select
+          id="family-structure"
           className="auth-input"
+          aria-invalid={!!error}
           value={formData.familyStructure}
-          onChange={(e) => updateField("familyStructure", e.target.value)}
+          onChange={(event) =>
+            updateField("familyStructure", event.target.value)
+          }
         >
           <option value="">Selecciona una opción</option>
 
@@ -154,12 +183,14 @@ export default function RegisterStepFamily({
             </option>
           ))}
         </select>
-      </div>{" "}
+      </div>
+
       {error && (
         <p className="auth-error" role="alert" aria-live="polite">
           {error}
         </p>
       )}
+
       <div className="step-actions">
         <button type="button" className="btn-secondary" onClick={previousStep}>
           <ArrowLeft size={18} />
