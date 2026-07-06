@@ -8,13 +8,12 @@ import EvaluationCard from "./EvaluationCard";
 
 import { EVALUATIONS } from "@/lib/constants/questionnaires";
 
-import {
-  getCompletedQuestionnaires,
-  type QuestionnaireType,
-} from "@/services/questionnaires/questionnaire.service";
+import { getCompletedQuestionnaires } from "@/services/questionnaires/questionnaire.service";
+
+import type { QuestionnaireType } from "@/types/questionnaire";
 
 import type {
-  QuestionnaireStatus,
+  QuestionnaireState,
   QuestionnaireWithStatus,
 } from "@/types/questionnaire";
 
@@ -67,7 +66,7 @@ export default function CuestionariosView() {
     const hasCompletedPost = completed.includes("post");
 
     return EVALUATIONS.map((evaluation) => {
-      let status: QuestionnaireStatus;
+      let status: QuestionnaireState;
 
       if (evaluation.id === "pre") {
         status = hasCompletedPre ? "completed" : "pending";

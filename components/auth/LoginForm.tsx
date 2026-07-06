@@ -68,10 +68,19 @@ export default function LoginForm() {
       setLoading(true);
       setError("");
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
       });
+
+      console.log("LOGIN ERROR:", error);
+      console.log("LOGIN DATA:", data);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      console.log("SESSION:", session);
 
       if (error) {
         const message = error.message.toLowerCase();

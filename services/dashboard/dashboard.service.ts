@@ -1,29 +1,24 @@
 import { getProfile } from "@/lib/supabase/getProfile";
 
-import {
-  getQuestionnaireStatus,
-} from "@/services/questionnaires/questionnaire.service";
+import { getQuestionnaireState } from "@/services/questionnaires/questionnaire.service";
 
 import {
   getSessions,
   getNextSession,
 } from "@/services/sessions/study-session.service";
 
-import {
-  getCompletedSessionsCount,
-} from "@/services/sessions/session-progress.service";
+import { getCompletedSessionsCount } from "@/services/sessions/session-progress.service";
 
 import {
   getStudyMaterials,
   getNextStudyMaterial,
 } from "@/services/resources/study-material.service";
 
-import {
-  getCompletedMaterialsCount,
-} from "@/services/resources/material-progress.service";
+import { getCompletedMaterialsCount } from "@/services/resources/material-progress.service";
 
 import type { SessionWithStatus } from "@/types/study-session";
 import type { StudyMaterialWithStatus } from "@/types/study-material";
+import type { QuestionnaireProgress } from "@/types/questionnaire";
 
 export interface DashboardData {
   participantCode: string;
@@ -59,7 +54,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const [
-    questionnaireStatus,
+    questionnaireProgress,
     sessions,
     materials,
     completedSessions,
@@ -67,7 +62,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     nextSession,
     nextMaterial,
   ] = await Promise.all([
-    getQuestionnaireStatus(),
+    getQuestionnaireState(),
 
     getSessions(),
 
@@ -77,20 +72,24 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     getCompletedMaterialsCount(),
 
-    getNextSession(profile.region),
+    getNextSession(),
 
-    getNextStudyMaterial(profile.region),
+    getNextStudyMaterial(),
   ]);
+
+  const {
+    preCompleted,
+    postCompleted,
+  } =
+    questionnaireProgress as QuestionnaireProgress;
 
   return {
     participantCode:
       profile.participantCode,
 
-    preCompleted:
-      questionnaireStatus.preCompleted,
+    preCompleted,
 
-    postCompleted:
-      questionnaireStatus.postCompleted,
+    postCompleted,
 
     completedSessions,
 

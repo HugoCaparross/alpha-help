@@ -1,7 +1,8 @@
 import { supabase } from "./client";
 import { getUser } from "./getUser";
 
-import type { UserProfile, ChildProfile } from "@/types/user";
+import type { ChildProfile, UserProfile } from "@/types/user";
+import type { Region } from "@/lib/utils/regions";
 
 const PROFILES_TABLE = "profiles";
 
@@ -36,6 +37,15 @@ const PROFILE_FIELDS = `
   updated_at
 `;
 
+const ERROR_GET_PROFILE =
+  "No se ha podido recuperar el perfil del usuario.";
+
+const ERROR_INVALID_REGION =
+  "La región almacenada en la base de datos no es válida.";
+
+/**
+ * Modelo recibido desde Supabase.
+ */
 interface ProfileRow {
   id: string;
 
@@ -45,7 +55,9 @@ interface ProfileRow {
 
   role: "admin" | "user";
 
-  region: string;
+  region:
+    | "España"
+    | "Latinoamérica";
 
   accepted_policy: boolean;
 
@@ -84,11 +96,20 @@ interface ProfileRow {
  * utilizado por la aplicación.
  */
 function mapRegion(
-  region: string,
-): UserProfile["region"] {
-  return region === "Latinoamérica"
-    ? "latam"
-    : "spain";
+  region: ProfileRow["region"],
+): Region {
+  switch (region) {
+    case "España":
+      return "spain";
+
+    case "Latinoamérica":
+      return "latam";
+
+    default:
+      throw new Error(
+        ERROR_INVALID_REGION,
+      );
+  }
 }
 
 /**
@@ -147,7 +168,9 @@ function mapProfile(
       row.family_structure,
 
     children:
-      row.children ?? [],
+      Object.freeze(
+        row.children ?? [],
+      ),
 
     createdAt:
       row.created_at,
@@ -156,12 +179,11 @@ function mapProfile(
       row.updated_at,
   };
 }
-
 /**
  * Devuelve el perfil
  * del usuario autenticado.
  *
- * Uso exclusivo en cliente.
+ * Uso exclusivo desde cliente.
  */
 export async function getProfile(): Promise<UserProfile | null> {
   const user = await getUser();
@@ -177,16 +199,16 @@ export async function getProfile(): Promise<UserProfile | null> {
     .from(PROFILES_TABLE)
     .select(PROFILE_FIELDS)
     .eq("id", user.id)
-    .maybeSingle();
+    .single();
 
   if (error) {
-    throw new Error(
-      "No se ha podido recuperar el perfil del usuario.",
-    );
-  }
+    if (error.code === "PGRST116") {
+      return null;
+    }
 
-  if (!data) {
-    return null;
+    throw new Error(
+      ERROR_GET_PROFILE,
+    );
   }
 
   return mapProfile(

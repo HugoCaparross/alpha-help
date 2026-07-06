@@ -1,11 +1,11 @@
-import type { QuestionnaireStatus } from "@/types/questionnaire";
+import type { QuestionnaireState } from "@/types/questionnaire";
 
 interface EvaluationStatusBadgeProps {
-  status: QuestionnaireStatus;
+  status: QuestionnaireState;
 }
 
 const STATUS_CONFIG: Record<
-  QuestionnaireStatus,
+  QuestionnaireState,
   {
     label: string;
     ariaLabel: string;

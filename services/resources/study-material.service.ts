@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { getProfile } from "@/lib/supabase/getProfile";
 
 import {
   isSpain,
@@ -26,6 +27,9 @@ const MATERIAL_FIELDS = `
 
 const ERROR_GET_MATERIALS =
   "No se han podido recuperar los materiales.";
+
+const ERROR_PROFILE_NOT_FOUND =
+  "No se ha podido recuperar el perfil del participante.";
 
 /**
  * Modelo recibido desde Supabase.
@@ -79,6 +83,24 @@ function mapMaterial(
 }
 
 /**
+ * Obtiene automáticamente
+ * la región del participante
+ * autenticado.
+ */
+async function getCurrentRegion(): Promise<Region> {
+  const profile =
+    await getProfile();
+
+  if (!profile) {
+    throw new Error(
+      ERROR_PROFILE_NOT_FOUND,
+    );
+  }
+
+  return profile.region;
+}
+
+/**
  * Devuelve la fecha de publicación
  * correspondiente a la región.
  */
@@ -111,15 +133,17 @@ function isReleased(
 function getStatus(
   releaseDate: string,
 ): StudyMaterialWithStatus["status"] {
-  return isReleased(releaseDate)
+  return isReleased(
+    releaseDate,
+  )
     ? "available"
     : "locked";
 }
 
 /**
  * Convierte un material
- * al modelo utilizado por
- * la interfaz.
+ * al modelo utilizado
+ * por la interfaz.
  */
 function mapMaterialWithStatus(
   material: StudyMaterial,
@@ -137,12 +161,14 @@ function mapMaterialWithStatus(
     releaseDate,
 
     status:
-      getStatus(releaseDate),
+      getStatus(
+        releaseDate,
+      ),
   };
 }
-
 /**
- * Obtiene todos los materiales.
+ * Obtiene todos los materiales
+ * del estudio.
  */
 export async function getStudyMaterials(): Promise<
   StudyMaterial[]
@@ -196,21 +222,27 @@ export async function getStudyMaterialById(
     return null;
   }
 
-  return mapMaterial(data);
+  return mapMaterial(
+    data as StudyMaterialRow,
+  );
 }
 
 /**
  * Obtiene todos los materiales
  * resolviendo automáticamente
- * su estado.
+ * la región y el estado
+ * del participante.
  */
-export async function getStudyMaterialsWithStatus(
-  region: Region,
-): Promise<
+export async function getStudyMaterialsWithStatus(): Promise<
   StudyMaterialWithStatus[]
 > {
-  const materials =
-    await getStudyMaterials();
+  const [
+    region,
+    materials,
+  ] = await Promise.all([
+    getCurrentRegion(),
+    getStudyMaterials(),
+  ]);
 
   return materials.map(
     (material) =>
@@ -220,20 +252,15 @@ export async function getStudyMaterialsWithStatus(
       ),
   );
 }
-
 /**
  * Devuelve únicamente
  * los materiales disponibles.
  */
-export async function getAvailableStudyMaterials(
-  region: Region,
-): Promise<
+export async function getAvailableStudyMaterials(): Promise<
   StudyMaterialWithStatus[]
 > {
   const materials =
-    await getStudyMaterialsWithStatus(
-      region,
-    );
+    await getStudyMaterialsWithStatus();
 
   return materials.filter(
     ({ status }) =>
@@ -245,13 +272,11 @@ export async function getAvailableStudyMaterials(
  * Devuelve el siguiente material
  * pendiente de publicación.
  */
-export async function getNextStudyMaterial(
-  region: Region,
-): Promise<StudyMaterialWithStatus | null> {
+export async function getNextStudyMaterial(): Promise<
+  StudyMaterialWithStatus | null
+> {
   const materials =
-    await getStudyMaterialsWithStatus(
-      region,
-    );
+    await getStudyMaterialsWithStatus();
 
   return (
     materials.find(

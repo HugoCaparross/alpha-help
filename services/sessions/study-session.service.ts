@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { getProfile } from "@/lib/supabase/getProfile";
 
 import {
   isSpain,
@@ -26,6 +27,9 @@ const SESSION_FIELDS = `
 
 const ERROR_GET_SESSIONS =
   "No se han podido recuperar las sesiones.";
+
+const ERROR_PROFILE_NOT_FOUND =
+  "No se ha podido recuperar el perfil del participante.";
 
 /**
  * Modelo recibido desde Supabase.
@@ -62,7 +66,8 @@ function mapSession(
 
     description: row.description,
 
-    youtubeUrl: row.youtube_url,
+    youtubeUrl:
+      row.youtube_url,
 
     thumbnailUrl:
       row.thumbnail_url,
@@ -79,6 +84,24 @@ function mapSession(
 }
 
 /**
+ * Obtiene automáticamente
+ * la región del participante
+ * autenticado.
+ */
+async function getCurrentRegion(): Promise<Region> {
+  const profile =
+    await getProfile();
+
+  if (!profile) {
+    throw new Error(
+      ERROR_PROFILE_NOT_FOUND,
+    );
+  }
+
+  return profile.region;
+}
+
+/**
  * Devuelve la fecha de publicación
  * correspondiente a la región.
  */
@@ -92,8 +115,8 @@ function getReleaseDate(
 }
 
 /**
- * Indica si la fecha de publicación
- * ya ha sido alcanzada.
+ * Indica si una sesión
+ * ya está publicada.
  */
 function isReleased(
   releaseDate: string,
@@ -105,20 +128,23 @@ function isReleased(
 }
 
 /**
- * Calcula el estado de disponibilidad
- * de una sesión.
+ * Calcula el estado
+ * de disponibilidad.
  */
 function getStatus(
   releaseDate: string,
 ): SessionWithStatus["status"] {
-  return isReleased(releaseDate)
+  return isReleased(
+    releaseDate,
+  )
     ? "available"
     : "locked";
 }
 
 /**
- * Convierte una sesión en el modelo
- * utilizado por la aplicación.
+ * Convierte una sesión
+ * al modelo utilizado
+ * por la interfaz.
  */
 function mapSessionWithStatus(
   session: Session,
@@ -136,10 +162,11 @@ function mapSessionWithStatus(
     releaseDate,
 
     status:
-      getStatus(releaseDate),
+      getStatus(
+        releaseDate,
+      ),
   };
 }
-
 /**
  * Obtiene todas las sesiones
  * del estudio.
@@ -196,21 +223,27 @@ export async function getSessionById(
     return null;
   }
 
-  return mapSession(data);
+  return mapSession(
+    data as SessionRow,
+  );
 }
 
 /**
  * Obtiene todas las sesiones
  * resolviendo automáticamente
- * su estado para la región indicada.
+ * la región y el estado
+ * del participante.
  */
-export async function getSessionsWithStatus(
-  region: Region,
-): Promise<
+export async function getSessionsWithStatus(): Promise<
   SessionWithStatus[]
 > {
-  const sessions =
-    await getSessions();
+  const [
+    region,
+    sessions,
+  ] = await Promise.all([
+    getCurrentRegion(),
+    getSessions(),
+  ]);
 
   return sessions.map(
     (session) =>
@@ -220,20 +253,15 @@ export async function getSessionsWithStatus(
       ),
   );
 }
-
 /**
  * Devuelve únicamente
  * las sesiones disponibles.
  */
-export async function getAvailableSessions(
-  region: Region,
-): Promise<
+export async function getAvailableSessions(): Promise<
   SessionWithStatus[]
 > {
   const sessions =
-    await getSessionsWithStatus(
-      region,
-    );
+    await getSessionsWithStatus();
 
   return sessions.filter(
     ({ status }) =>
@@ -245,13 +273,11 @@ export async function getAvailableSessions(
  * Devuelve la siguiente sesión
  * pendiente de publicación.
  */
-export async function getNextSession(
-  region: Region,
-): Promise<SessionWithStatus | null> {
+export async function getNextSession(): Promise<
+  SessionWithStatus | null
+> {
   const sessions =
-    await getSessionsWithStatus(
-      region,
-    );
+    await getSessionsWithStatus();
 
   return (
     sessions.find(

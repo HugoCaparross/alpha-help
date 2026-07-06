@@ -7,11 +7,16 @@ import PageHeader from "@/components/ui/PageHeader";
 import SessionEmptyState from "./SessionEmptyState";
 import SessionsGrid from "./SessionsGrid";
 
-import { getProfile } from "@/lib/supabase/getProfile";
-
 import { getSessionsWithStatus } from "@/services/sessions/study-session.service";
 
 import type { SessionWithStatus } from "@/types/study-session";
+
+const PAGE_TITLE = "Sesiones del programa";
+
+const PAGE_DESCRIPTION =
+  "A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión se desbloqueará automáticamente en su fecha de publicación según tu región.";
+
+const LOADING_MESSAGE = "Preparando las sesiones...";
 
 const ERROR_MESSAGE =
   "No se han podido cargar las sesiones. Inténtalo de nuevo.";
@@ -25,26 +30,18 @@ export default function SesionesView() {
 
   const loadSessions = useCallback(async () => {
     setLoading(true);
-
     setError("");
 
     try {
-      const profile = await getProfile();
-
-      if (!profile) {
-        throw new Error("Perfil no encontrado.");
-      }
-
-      const data = await getSessionsWithStatus(profile.region);
+      const data = await getSessionsWithStatus();
 
       setSessions(data);
-    } catch (err) {
+    } catch (error) {
       if (process.env.NODE_ENV === "development") {
-        console.error(err);
+        console.error(error);
       }
 
       setSessions([]);
-
       setError(ERROR_MESSAGE);
     } finally {
       setLoading(false);
@@ -58,7 +55,7 @@ export default function SesionesView() {
   if (loading) {
     return (
       <section className="sesiones-loading" aria-busy="true">
-        <p>Preparando las sesiones...</p>
+        <p>{LOADING_MESSAGE}</p>
       </section>
     );
   }
@@ -86,8 +83,8 @@ export default function SesionesView() {
   return (
     <section className="sesiones-page">
       <PageHeader
-        title="Sesiones del programa"
-        description="A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión se desbloqueará automáticamente en su fecha de publicación según tu región."
+        title={PAGE_TITLE}
+        description={PAGE_DESCRIPTION}
       />
 
       <SessionsGrid sessions={sessions} />

@@ -5,7 +5,7 @@ import { Calendar, Lock, PlayCircle } from "lucide-react";
 import type { SessionWithStatus } from "@/types/study-session";
 
 interface SessionCardProps {
-  session: SessionWithStatus;
+  readonly session: SessionWithStatus;
 }
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", {
@@ -13,6 +13,12 @@ const dateFormatter = new Intl.DateTimeFormat("es-ES", {
   month: "2-digit",
   year: "numeric",
 });
+
+const AVAILABLE_TEXT = "Disponible desde";
+
+const LOCKED_TEXT = "Bloqueada";
+
+const CTA_TEXT = "Acceder a la sesión";
 
 function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
@@ -23,9 +29,13 @@ export default function SessionCard({ session }: SessionCardProps) {
 
   const formattedDate = formatDate(session.releaseDate);
 
+  const cardClassName = ["session-card", !isAvailable && "session-card--locked"]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <article
-      className={`session-card${isAvailable ? "" : " session-card--locked"}`}
+      className={cardClassName}
       aria-labelledby={`session-title-${session.id}`}
     >
       <div className="session-card__thumb">
@@ -35,8 +45,8 @@ export default function SessionCard({ session }: SessionCardProps) {
           fill
           loading="lazy"
           priority={false}
-          className="session-card__thumb-img"
           sizes="(max-width: 768px) 100vw, 400px"
+          className="session-card__thumb-img"
         />
 
         <span className="session-card__order">
@@ -47,7 +57,7 @@ export default function SessionCard({ session }: SessionCardProps) {
           <div className="session-card__lock-overlay" aria-hidden="true">
             <Lock size={22} />
 
-            <span>Bloqueada</span>
+            <span>{LOCKED_TEXT}</span>
           </div>
         )}
       </div>
@@ -64,7 +74,9 @@ export default function SessionCard({ session }: SessionCardProps) {
             <div className="session-card__date">
               <Calendar size={14} aria-hidden="true" />
 
-              <span>Disponible desde {formattedDate}</span>
+              <span>
+                {AVAILABLE_TEXT} {formattedDate}
+              </span>
             </div>
 
             <a
@@ -76,7 +88,7 @@ export default function SessionCard({ session }: SessionCardProps) {
             >
               <PlayCircle size={17} aria-hidden="true" />
 
-              <span>Acceder a la sesión</span>
+              <span>{CTA_TEXT}</span>
             </a>
           </>
         ) : (

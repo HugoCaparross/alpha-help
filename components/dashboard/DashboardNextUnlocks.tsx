@@ -9,13 +9,16 @@ interface DashboardNextUnlocksProps {
   nextMaterial: StudyMaterialWithStatus | null;
 }
 
+interface UnlockContent {
+  title: string;
+
+  releaseDate: string;
+}
+
 interface NextUnlockCardProps {
   title: string;
 
-  content: {
-    title: string;
-    releaseDate: string;
-  } | null;
+  content: UnlockContent | null;
 
   emptyMessage: string;
 }
@@ -35,7 +38,7 @@ function NextUnlockCard({ title, content, emptyMessage }: NextUnlockCardProps) {
         <CalendarDays size={22} />
       </div>
 
-      <div>
+      <div className="dashboard-next-content">
         <h3 className="dashboard-next-card-title">{title}</h3>
 
         {content ? (
@@ -63,6 +66,20 @@ export default function DashboardNextUnlocks({
   nextSession,
   nextMaterial,
 }: DashboardNextUnlocksProps) {
+  const nextSessionContent: UnlockContent | null = nextSession
+    ? {
+        title: nextSession.title,
+        releaseDate: nextSession.releaseDate,
+      }
+    : null;
+
+  const nextMaterialContent: UnlockContent | null = nextMaterial
+    ? {
+        title: nextMaterial.title,
+        releaseDate: nextMaterial.releaseDate,
+      }
+    : null;
+
   return (
     <section
       className="dashboard-section"
@@ -75,23 +92,13 @@ export default function DashboardNextUnlocks({
       <div className="dashboard-next-grid">
         <NextUnlockCard
           title="Próxima sesión"
-          content={
-            nextSession && {
-              title: nextSession.title,
-              releaseDate: nextSession.releaseDate,
-            }
-          }
+          content={nextSessionContent}
           emptyMessage="No quedan sesiones pendientes."
         />
 
         <NextUnlockCard
           title="Próximo material"
-          content={
-            nextMaterial && {
-              title: nextMaterial.title,
-              releaseDate: nextMaterial.releaseDate,
-            }
-          }
+          content={nextMaterialContent}
           emptyMessage="No quedan materiales pendientes."
         />
       </div>

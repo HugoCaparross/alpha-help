@@ -15,46 +15,53 @@ import {
 
 import "@/components/styles/dashboard.css";
 
-const DASHBOARD_LOAD_ERROR = "No se ha podido cargar el panel principal.";
+const DASHBOARD_LOAD_ERROR =
+  "No se ha podido cargar el panel principal.";
+
+const DASHBOARD_LOADING =
+  "Cargando panel...";
 
 export default function DashboardView() {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [dashboard, setDashboard] =
+    useState<DashboardData | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
-    let mounted = true;
+    let cancelled = false;
 
-    /**
-     * Evita actualizar el estado
-     * cuando el componente ya ha
-     * sido desmontado.
-     */
     async function loadDashboard() {
+      setLoading(true);
+      setError("");
+
       try {
-        setError("");
+        const data =
+          await getDashboardData();
 
-        const data = await getDashboardData();
-
-        if (!mounted) {
+        if (cancelled) {
           return;
         }
 
         setDashboard(data);
       } catch (error) {
-        if (process.env.NODE_ENV === "development") {
+        if (
+          process.env.NODE_ENV ===
+          "development"
+        ) {
           console.error(error);
         }
 
-        if (!mounted) {
-          return;
+        if (!cancelled) {
+          setError(
+            DASHBOARD_LOAD_ERROR,
+          );
         }
-
-        setError(DASHBOARD_LOAD_ERROR);
       } finally {
-        if (mounted) {
+        if (!cancelled) {
           setLoading(false);
         }
       }
@@ -63,44 +70,74 @@ export default function DashboardView() {
     void loadDashboard();
 
     return () => {
-      mounted = false;
+      cancelled = true;
     };
   }, []);
 
   if (loading) {
     return (
-      <section className="dashboard-loading" role="status" aria-live="polite">
-        <p>Cargando panel...</p>
+      <section
+        className="dashboard-loading"
+        role="status"
+        aria-live="polite"
+      >
+        <p>{DASHBOARD_LOADING}</p>
       </section>
     );
   }
 
-  if (!dashboard) {
+  if (error || !dashboard) {
     return (
-      <section className="dashboard-error" role="alert">
-        <p>{error || DASHBOARD_LOAD_ERROR}</p>
+      <section
+        className="dashboard-error"
+        role="alert"
+      >
+        <p>
+          {error ||
+            DASHBOARD_LOAD_ERROR}
+        </p>
       </section>
     );
   }
 
   return (
     <section className="dashboard">
-      <DashboardHeader participantCode={dashboard.participantCode} />
+      <DashboardHeader
+        participantCode={
+          dashboard.participantCode
+        }
+      />
 
       <DashboardProgress
-        preCompleted={dashboard.preCompleted}
-        postCompleted={dashboard.postCompleted}
-        completedSessions={dashboard.completedSessions}
-        totalSessions={dashboard.totalSessions}
-        completedMaterials={dashboard.completedMaterials}
-        totalMaterials={dashboard.totalMaterials}
+        preCompleted={
+          dashboard.preCompleted
+        }
+        postCompleted={
+          dashboard.postCompleted
+        }
+        completedSessions={
+          dashboard.completedSessions
+        }
+        totalSessions={
+          dashboard.totalSessions
+        }
+        completedMaterials={
+          dashboard.completedMaterials
+        }
+        totalMaterials={
+          dashboard.totalMaterials
+        }
       />
 
       <DashboardQuickActions />
 
       <DashboardNextUnlocks
-        nextSession={dashboard.nextSession}
-        nextMaterial={dashboard.nextMaterial}
+        nextSession={
+          dashboard.nextSession
+        }
+        nextMaterial={
+          dashboard.nextMaterial
+        }
       />
 
       <DashboardInfo />

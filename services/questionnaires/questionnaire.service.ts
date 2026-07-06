@@ -421,7 +421,7 @@ export async function getCompletedQuestionnaires(): Promise<
  * desde Dashboard y desde la
  * pantalla de Cuestionarios.
  */
-export async function getQuestionnaireStatus(): Promise<QuestionnaireProgress> {
+export async function getQuestionnaireState(): Promise<QuestionnaireProgress> {
   const [
     preCompleted,
     postCompleted,

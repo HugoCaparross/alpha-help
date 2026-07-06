@@ -3,9 +3,13 @@ import MaterialCard from "./MaterialCard";
 import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 interface MaterialsGridProps {
-  materials: StudyMaterialWithStatus[];
+  readonly materials: readonly StudyMaterialWithStatus[];
 }
 
+/**
+ * Rejilla de materiales
+ * disponibles para el participante.
+ */
 export default function MaterialsGrid({ materials }: MaterialsGridProps) {
   return (
     <section className="materials-grid" aria-label="Listado de materiales">

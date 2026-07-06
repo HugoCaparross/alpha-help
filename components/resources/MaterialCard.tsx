@@ -5,15 +5,23 @@ import { Calendar, FileText, Lock } from "lucide-react";
 import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 interface MaterialCardProps {
-  material: StudyMaterialWithStatus;
+  readonly material: StudyMaterialWithStatus;
 }
 
+const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const AVAILABLE_TEXT = "Disponible desde";
+
+const LOCKED_TEXT = "Bloqueado";
+
+const CTA_TEXT = "Consultar material";
+
 function formatDate(date: string): string {
-  return new Intl.DateTimeFormat("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(Date.parse(date));
+  return dateFormatter.format(Date.parse(date));
 }
 
 export default function MaterialCard({ material }: MaterialCardProps) {
@@ -21,18 +29,27 @@ export default function MaterialCard({ material }: MaterialCardProps) {
 
   const formattedDate = formatDate(material.releaseDate);
 
+  const cardClassName = [
+    "material-card",
+    !isAvailable && "material-card--locked",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <article
-      className={`material-card${isAvailable ? "" : " material-card--locked"}`}
-      aria-label={material.title}
+      className={cardClassName}
+      aria-labelledby={`material-title-${material.id}`}
     >
       <div className="material-card__thumb">
         <Image
           src={material.thumbnailUrl}
           alt={material.title}
           fill
-          className="material-card__thumb-img"
+          loading="lazy"
+          priority={false}
           sizes="(max-width: 768px) 100vw, 400px"
+          className="material-card__thumb-img"
         />
 
         <span className="material-card__order">
@@ -43,22 +60,29 @@ export default function MaterialCard({ material }: MaterialCardProps) {
           <div className="material-card__lock-overlay" aria-hidden="true">
             <Lock size={22} />
 
-            <span>Bloqueado</span>
+            <span>{LOCKED_TEXT}</span>
           </div>
         )}
       </div>
 
       <div className="material-card__body">
-        <h3 className="material-card__title">{material.title}</h3>
+        <h3
+          id={`material-title-${material.id}`}
+          className="material-card__title"
+        >
+          {material.title}
+        </h3>
 
         <p className="material-card__desc">{material.description}</p>
 
         {isAvailable ? (
           <>
             <div className="material-card__date">
-              <Calendar size={14} />
+              <Calendar size={14} aria-hidden="true" />
 
-              <span>Disponible desde {formattedDate}</span>
+              <span>
+                {AVAILABLE_TEXT} {formattedDate}
+              </span>
             </div>
 
             <a
@@ -66,15 +90,16 @@ export default function MaterialCard({ material }: MaterialCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="material-card__cta"
-              aria-label={`Consultar ${material.title}`}
+              aria-label={`Consultar el material "${material.title}"`}
             >
-              <FileText size={17} />
-              Consultar material
+              <FileText size={17} aria-hidden="true" />
+
+              <span>{CTA_TEXT}</span>
             </a>
           </>
         ) : (
           <div className="material-card__locked-cta">
-            <Lock size={15} />
+            <Lock size={15} aria-hidden="true" />
 
             <span>
               Este material estará disponible a partir del {formattedDate}.

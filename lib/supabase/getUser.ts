@@ -2,11 +2,14 @@ import type { User } from "@supabase/supabase-js";
 
 import { supabase } from "./client";
 
+const ERROR_GET_USER =
+  "No se ha podido recuperar el usuario autenticado.";
+
 /**
  * Devuelve el usuario autenticado.
  *
- * Debe utilizarse únicamente desde componentes
- * y servicios ejecutados en el cliente.
+ * Uso exclusivo desde componentes
+ * y servicios ejecutados en cliente.
  */
 export async function getUser(): Promise<User | null> {
   const {
@@ -16,7 +19,10 @@ export async function getUser(): Promise<User | null> {
 
   if (error) {
     if (process.env.NODE_ENV === "development") {
-      console.error(error);
+      console.error(
+        ERROR_GET_USER,
+        error,
+      );
     }
 
     return null;

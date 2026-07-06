@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
 import type {
-  QuestionnaireStatus,
+  QuestionnaireState,
   QuestionnaireWithStatus,
 } from "@/types/questionnaire";
 
@@ -17,7 +17,7 @@ interface EvaluationCardProps {
 }
 
 const STATUS_UI: Record<
-  QuestionnaireStatus,
+  QuestionnaireState,
   {
     buttonLabel: string;
     buttonTitle: (title: string) => string;

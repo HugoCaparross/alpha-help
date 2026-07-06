@@ -1,28 +1,45 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-if (!supabaseUrl) {
+const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const ERROR_SUPABASE_URL =
+  "Falta la variable de entorno NEXT_PUBLIC_SUPABASE_URL.";
+
+const ERROR_SUPABASE_ANON_KEY =
+  "Falta la variable de entorno NEXT_PUBLIC_SUPABASE_ANON_KEY.";
+
+if (!SUPABASE_URL) {
   throw new Error(
-    "Falta la variable NEXT_PUBLIC_SUPABASE_URL."
+    ERROR_SUPABASE_URL,
   );
 }
 
-if (!supabaseAnonKey) {
+if (!SUPABASE_ANON_KEY) {
   throw new Error(
-    "Falta la variable NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    ERROR_SUPABASE_ANON_KEY,
   );
 }
 
-export const supabase = createClient(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
+/**
+ * Cliente de Supabase utilizado
+ * por todos los componentes y
+ * servicios ejecutados en cliente.
+ */
+export const supabase =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      auth: {
+        persistSession: true,
+
+        autoRefreshToken: true,
+
+        detectSessionInUrl: true,
+      },
     },
-  }
-);
+  );
