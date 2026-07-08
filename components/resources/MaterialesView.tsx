@@ -7,9 +7,10 @@ import PageHeader from "@/components/ui/PageHeader";
 import MaterialEmptyState from "./MaterialEmptyState";
 import MaterialsGrid from "./MaterialsGrid";
 
-import { getStudyMaterialsWithStatus } from "@/services/resources/study-material.service";
-
-import type { StudyMaterialWithStatus } from "@/types/study-material";
+import {
+  getGroupedStudyMaterials,
+  type GroupedStudyMaterials,
+} from "@/services/resources/study-material.service";
 
 import "@/components/styles/materiales.css";
 
@@ -24,7 +25,10 @@ const LOAD_ERROR =
   "No se han podido cargar los materiales. Inténtalo de nuevo.";
 
 export default function MaterialesView() {
-  const [materials, setMaterials] = useState<StudyMaterialWithStatus[]>([]);
+  const [materials, setMaterials] = useState<GroupedStudyMaterials>({
+    support: [],
+    extended: [],
+  });
 
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +36,11 @@ export default function MaterialesView() {
 
   const loadMaterials = useCallback(async () => {
     setLoading(true);
+
     setError("");
 
     try {
-      const data = await getStudyMaterialsWithStatus();
+      const data = await getGroupedStudyMaterials();
 
       setMaterials(data);
     } catch (error) {
@@ -43,7 +48,11 @@ export default function MaterialesView() {
         console.error(error);
       }
 
-      setMaterials([]);
+      setMaterials({
+        support: [],
+        extended: [],
+      });
+
       setError(LOAD_ERROR);
     } finally {
       setLoading(false);
@@ -78,7 +87,7 @@ export default function MaterialesView() {
     );
   }
 
-  if (materials.length === 0) {
+  if (materials.support.length === 0 && materials.extended.length === 0) {
     return <MaterialEmptyState />;
   }
 
@@ -86,7 +95,31 @@ export default function MaterialesView() {
     <section className="materiales-page">
       <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
 
-      <MaterialsGrid materials={materials} />
+      {materials.support.length > 0 && (
+        <section className="materiales-section">
+          <h2 className="materiales-section__title">Recursos de apoyo</h2>
+
+          <p className="materiales-section__description">
+            Resúmenes prácticos para repasar rápidamente las ideas principales
+            de cada sesión.
+          </p>
+
+          <MaterialsGrid materials={materials.support} />
+        </section>
+      )}
+
+      {materials.extended.length > 0 && (
+        <section className="materiales-section">
+          <h2 className="materiales-section__title">Materiales completos</h2>
+
+          <p className="materiales-section__description">
+            Documentación ampliada para profundizar en los contenidos trabajados
+            en cada sesión.
+          </p>
+
+          <MaterialsGrid materials={materials.extended} />
+        </section>
+      )}
     </section>
   );
 }

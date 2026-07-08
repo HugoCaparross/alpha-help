@@ -7,10 +7,10 @@ const ERROR_UNAUTHENTICATED =
   "Usuario no autenticado.";
 
 const ERROR_REGISTER =
-  "No se ha podido registrar el material.";
+  "No se ha podido registrar la consulta del material.";
 
 const ERROR_CHECK =
-  "No se ha podido comprobar el material.";
+  "No se ha podido comprobar el progreso del material.";
 
 const ERROR_PROGRESS =
   "No se ha podido recuperar el progreso.";
@@ -32,21 +32,24 @@ async function getAuthenticatedUser() {
 }
 
 /**
- * Marca un material como leído
- * por el participante.
+ * Marca como consultado el material
+ * correspondiente a una sesión.
  *
- * Si ya estaba registrado,
- * no realiza ninguna acción.
+ * Cada sesión únicamente puede
+ * registrarse una vez por usuario,
+ * independientemente del documento
+ * consultado (recurso de apoyo o
+ * guía ampliada).
  */
 export async function markMaterialAsCompleted(
-  materialId: string,
+  sessionOrder: number,
 ): Promise<void> {
   const user =
     await getAuthenticatedUser();
 
   const alreadyCompleted =
     await hasCompletedMaterial(
-      materialId,
+      sessionOrder,
       user.id,
     );
 
@@ -54,12 +57,13 @@ export async function markMaterialAsCompleted(
     return;
   }
 
-  const { error } = await supabase
-    .from(MATERIAL_VIEWS_TABLE)
-    .insert({
-      user_id: user.id,
-      material_id: materialId,
-    });
+  const { error } =
+    await supabase
+      .from(MATERIAL_VIEWS_TABLE)
+      .insert({
+        user_id: user.id,
+        session_order: sessionOrder,
+      });
 
   if (error) {
     throw new Error(ERROR_REGISTER);
@@ -67,11 +71,12 @@ export async function markMaterialAsCompleted(
 }
 
 /**
- * Comprueba si un material
- * ya ha sido marcado como leído.
+ * Comprueba si el participante
+ * ya ha consultado el material
+ * correspondiente a una sesión.
  */
 export async function hasCompletedMaterial(
-  materialId: string,
+  sessionOrder: number,
   userId?: string,
 ): Promise<boolean> {
   const authenticatedUser =
@@ -88,8 +93,8 @@ export async function hasCompletedMaterial(
         authenticatedUser.id,
       )
       .eq(
-        "material_id",
-        materialId,
+        "session_order",
+        sessionOrder,
       )
       .maybeSingle();
 
@@ -101,12 +106,11 @@ export async function hasCompletedMaterial(
 }
 
 /**
- * Devuelve los identificadores
- * de todos los materiales
- * completados por el participante.
+ * Devuelve las sesiones cuyos
+ * materiales ya han sido consultados.
  */
-export async function getCompletedMaterialIds(): Promise<
-  string[]
+export async function getCompletedSessionOrders(): Promise<
+  number[]
 > {
   const user =
     await getAuthenticatedUser();
@@ -114,23 +118,31 @@ export async function getCompletedMaterialIds(): Promise<
   const { data, error } =
     await supabase
       .from(MATERIAL_VIEWS_TABLE)
-      .select("material_id")
-      .eq("user_id", user.id);
+      .select("session_order")
+      .eq("user_id", user.id)
+      .order(
+        "session_order",
+        {
+          ascending: true,
+        },
+      );
 
   if (error) {
     throw new Error(ERROR_PROGRESS);
   }
 
   return (data ?? []).map(
-    ({ material_id }) => material_id,
+    ({ session_order }) =>
+      session_order,
   );
 }
 
 /**
- * Devuelve el número
- * de materiales completados.
+ * Devuelve el número de sesiones
+ * cuyos materiales han sido
+ * consultados.
  */
-export async function getCompletedMaterialsCount(): Promise<number> {
+export async function getCompletedSessionsCount(): Promise<number> {
   const user =
     await getAuthenticatedUser();
 
@@ -151,33 +163,33 @@ export async function getCompletedMaterialsCount(): Promise<number> {
 }
 
 /**
- * Devuelve el porcentaje
- * de progreso del participante.
+ * Calcula el porcentaje de progreso
+ * respecto a los materiales del estudio.
  */
 export async function getMaterialProgress(
-  totalMaterials: number,
+  totalSessions: number,
 ): Promise<number> {
-  if (totalMaterials <= 0) {
+  if (totalSessions <= 0) {
     return 0;
   }
 
   const completed =
-    await getCompletedMaterialsCount();
+    await getCompletedSessionsCount();
 
   return Math.round(
-    (completed / totalMaterials) * 100,
+    (completed / totalSessions) * 100,
   );
 }
 
 /**
- * Elimina el registro
- * de un material completado.
+ * Elimina el registro de consulta
+ * de una sesión.
  *
  * Uso exclusivo para
  * administración o pruebas.
  */
 export async function unmarkMaterialAsCompleted(
-  materialId: string,
+  sessionOrder: number,
 ): Promise<void> {
   const user =
     await getAuthenticatedUser();
@@ -187,7 +199,10 @@ export async function unmarkMaterialAsCompleted(
       .from(MATERIAL_VIEWS_TABLE)
       .delete()
       .eq("user_id", user.id)
-      .eq("material_id", materialId);
+      .eq(
+        "session_order",
+        sessionOrder,
+      );
 
   if (error) {
     throw new Error(ERROR_DELETE);

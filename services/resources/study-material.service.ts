@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils/regions";
 
 import type {
+  MaterialType,
   StudyMaterial,
   StudyMaterialWithStatus,
 } from "@/types/study-material";
@@ -21,6 +22,7 @@ const MATERIAL_FIELDS = `
   pdf_url,
   thumbnail_url,
   material_order,
+  material_type,
   release_date_spain,
   release_date_latam
 `;
@@ -30,6 +32,16 @@ const ERROR_GET_MATERIALS =
 
 const ERROR_PROFILE_NOT_FOUND =
   "No se ha podido recuperar el perfil del participante.";
+
+/**
+ * Materiales agrupados
+ * por tipo.
+ */
+export interface GroupedStudyMaterials {
+  readonly support: StudyMaterialWithStatus[];
+
+  readonly extended: StudyMaterialWithStatus[];
+}
 
 /**
  * Modelo recibido desde Supabase.
@@ -46,6 +58,8 @@ interface StudyMaterialRow {
   thumbnail_url: string;
 
   material_order: number;
+
+  material_type: MaterialType;
 
   release_date_spain: string;
 
@@ -73,6 +87,9 @@ function mapMaterial(
 
     materialOrder:
       row.material_order,
+
+    materialType:
+      row.material_type,
 
     releaseDateSpain:
       row.release_date_spain,
@@ -166,6 +183,7 @@ function mapMaterialWithStatus(
       ),
   };
 }
+
 /**
  * Obtiene todos los materiales
  * del estudio.
@@ -252,6 +270,30 @@ export async function getStudyMaterialsWithStatus(): Promise<
       ),
   );
 }
+
+/**
+ * Obtiene los materiales
+ * agrupados por tipo.
+ */
+export async function getGroupedStudyMaterials(): Promise<
+  GroupedStudyMaterials
+> {
+  const materials =
+    await getStudyMaterialsWithStatus();
+
+  return {
+    support: materials.filter(
+      ({ materialType }) =>
+        materialType === "support",
+    ),
+
+    extended: materials.filter(
+      ({ materialType }) =>
+        materialType === "extended",
+    ),
+  };
+}
+
 /**
  * Devuelve únicamente
  * los materiales disponibles.

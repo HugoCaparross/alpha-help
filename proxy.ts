@@ -38,9 +38,15 @@ export async function proxy(
     response,
   } = updateSession(request);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+console.log("========== PROXY ==========");
+console.log("PATH:", request.nextUrl.pathname);
+console.log("USER:", user);
+console.log("COOKIES:", request.cookies.getAll());
+console.log("===========================");
 
   const pathname =
     request.nextUrl.pathname;

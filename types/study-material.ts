@@ -1,4 +1,12 @@
 /**
+ * Tipos de materiales disponibles
+ * dentro del programa.
+ */
+export type MaterialType =
+  | "support"
+  | "extended";
+
+/**
  * Estado de un material dentro del programa.
  *
  * Un material únicamente puede estar
@@ -30,6 +38,11 @@ export interface StudyMaterial {
   readonly thumbnailUrl: string;
 
   readonly materialOrder: number;
+
+  /**
+   * Tipo de material.
+   */
+  readonly materialType: MaterialType;
 
   readonly releaseDateSpain: string;
 

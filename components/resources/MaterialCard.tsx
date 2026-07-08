@@ -18,7 +18,9 @@ const AVAILABLE_TEXT = "Disponible desde";
 
 const LOCKED_TEXT = "Bloqueado";
 
-const CTA_TEXT = "Consultar material";
+const SUPPORT_CTA = "Consultar recurso";
+
+const EXTENDED_CTA = "Abrir guía";
 
 function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
@@ -35,6 +37,9 @@ export default function MaterialCard({ material }: MaterialCardProps) {
   ]
     .filter(Boolean)
     .join(" ");
+
+  const ctaText =
+    material.materialType === "support" ? SUPPORT_CTA : EXTENDED_CTA;
 
   return (
     <article
@@ -90,11 +95,11 @@ export default function MaterialCard({ material }: MaterialCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="material-card__cta"
-              aria-label={`Consultar el material "${material.title}"`}
+              aria-label={`Abrir "${material.title}"`}
             >
               <FileText size={17} aria-hidden="true" />
 
-              <span>{CTA_TEXT}</span>
+              <span>{ctaText}</span>
             </a>
           </>
         ) : (
