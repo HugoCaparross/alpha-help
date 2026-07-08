@@ -6,6 +6,7 @@ import "./globals.css";
 import "@/components/styles/auth.css";
 import "@/components/styles/landing.css";
 
+import SessionTimeout from "@/components/auth/SessionTimeout";
 import CookieBanner from "@/components/cookies/CookieBanner";
 import SupabaseProvider from "@/components/providers/SupabaseProvider";
 
@@ -90,6 +91,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="es">
       <body className="antialiased">
         <SupabaseProvider>
+          <SessionTimeout />
+
           {children}
 
           <CookieBanner />

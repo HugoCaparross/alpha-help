@@ -1,8 +1,8 @@
 /* ==========================================
-   RIGHT PANEL — Panel lateral derecho
+   RIGHT PANEL
 ========================================== */
 
-/* RIGHT PANEL CONTAINER */
+/* CONTAINER */
 
 .right-panel {
   display: none;
@@ -25,25 +25,31 @@
   }
 }
 
-/* RIGHT PANEL CONTENT */
+/* CONTENT */
 
 .right-panel-content {
   display: flex;
   flex-direction: column;
+
   width: 100%;
+  height: 100%;
+
   padding: 1.5rem;
   gap: 1.5rem;
 }
 
-/* RIGHT PANEL CARD */
+/* CARD */
 
 .right-panel-card {
-  border-radius: var(--radius-lg);
+  box-sizing: border-box;
+
   border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+
   padding: 1rem;
 }
 
-/* FLEX ROW (multipurpose) */
+/* PROFILE */
 
 .right-panel-flex-row {
   display: flex;
@@ -51,96 +57,139 @@
   gap: 0.75rem;
 }
 
-/* AVATAR */
-
 .right-panel-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+
+  width: 3rem;
+  height: 3rem;
+
+  min-width: 3rem;
+  min-height: 3rem;
+
   flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: var(--accent);
+  color: #fff;
+
+  font-weight: 600;
 }
 
-/* PROFILE NAME */
-
 .right-panel-name {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--neutral-900);
 }
 
-/* SECONDARY TEXT (email, values, info) */
-
 .right-panel-secondary-text {
+  margin-top: 0.125rem;
+
   font-size: 0.75rem;
+  line-height: 1.5;
+
   color: var(--neutral-500);
 }
 
-/* LINK WRAPPER (margin-top) */
+/* PROFILE LINK */
 
 .right-panel-link-wrapper {
   margin-top: 1rem;
 }
 
-/* LINK STYLING */
-
 .right-panel-link {
   display: inline-block;
+
   font-size: 0.875rem;
+  font-weight: 500;
+
   color: var(--accent-hover);
+
   text-decoration: none;
+
+  transition: color 0.2s ease;
 }
 
 .right-panel-link:hover {
   text-decoration: underline;
 }
 
-/* TITLES (H3) */
-
-.right-panel-title {
-  font-weight: 600;
-  color: var(--neutral-900);
+.right-panel-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* SUBTITLES (H4) */
+/* INFORMATION */
 
 .right-panel-subtitle {
   font-size: 0.875rem;
   font-weight: 600;
+
   color: var(--neutral-900);
 }
-
-/* ITEMS LIST (progress items container) */
-
-.right-panel-items-list {
-  margin-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* LABELS (progress item titles) */
-
-.right-panel-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--neutral-900);
-}
-
-/* ICONS COLOR */
-
-.right-panel-icon {
-  color: var(--accent);
-}
-
-/* INFO TEXT */
 
 .right-panel-info-text {
-  font-size: 0.75rem;
-  color: var(--neutral-500);
   margin-top: 0.5rem;
+
+  font-size: 0.75rem;
+  line-height: 1.6;
+
+  color: var(--neutral-500);
+}
+
+/* ACTIONS */
+
+.right-panel-actions {
+  margin-top: auto;
+}
+
+.right-panel-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+
+  width: 100%;
+
+  padding: 0.85rem 1rem;
+
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+
+  background: transparent;
+
+  color: var(--neutral-700);
+
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.right-panel-logout:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+.right-panel-logout:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.right-panel-logout:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+.right-panel-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

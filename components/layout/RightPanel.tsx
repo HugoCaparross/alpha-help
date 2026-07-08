@@ -1,119 +1,72 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { User as UserIcon, CheckCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 
-import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
 
-type Profile = {
-  id: string;
-  email: string;
-  full_name?: string | null;
-  role?: string | null;
-};
+import { authService } from "@/services/auth/auth.service";
 
-type Progress = {
-  evaluacionInicial: boolean;
-  sesionesCompletadas: number;
-  sesionesTotales: number;
-};
+import type { UserProfile } from "@/types/user";
 
 export default function RightPanel() {
-  const [profile, setProfile] = useState<Profile | null>(
-    null
-  );
+  const router = useRouter();
 
-  const [progress, setProgress] =
-    useState<Progress>({
-      evaluacionInicial: false,
-      sesionesCompletadas: 0,
-      sesionesTotales: 0,
-    });
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    async function load() {
+    let mounted = true;
+
+    async function loadProfile() {
       try {
         const data = await getProfile();
 
-        setProfile(data ?? null);
-
-        if (!data?.id) {
+        if (!mounted) {
           return;
         }
 
-        const [
-          questionnaireResult,
-          totalSessionsResult,
-          completedSessionsResult,
-        ] = await Promise.all([
-          supabase
-            .from("questionnaire_submissions")
-            .select("id")
-            .eq("user_id", data.id)
-            .eq("questionnaire_type", "pre")
-            .maybeSingle(),
-
-          supabase
-            .from("sessions")
-            .select("*", {
-              count: "exact",
-              head: true,
-            })
-            .eq("is_published", true),
-
-          supabase
-            .from("session_views")
-            .select("*", {
-              count: "exact",
-              head: true,
-            })
-            .eq("user_id", data.id),
-        ]);
-
-        setProgress({
-          evaluacionInicial:
-            !!questionnaireResult.data,
-          sesionesCompletadas:
-            completedSessionsResult.count ?? 0,
-          sesionesTotales:
-            totalSessionsResult.count ?? 0,
-        });
+        setProfile(data);
       } catch (error) {
-        console.error(
-          "Error loading right panel data:",
-          error
-        );
+        if (process.env.NODE_ENV === "development") {
+          console.error(error);
+        }
       }
     }
 
-    load();
+    void loadProfile();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const progresoGeneral = useMemo(() => {
-    const total =
-      1 + progress.sesionesTotales;
-
-    const completados =
-      Number(progress.evaluacionInicial) +
-      progress.sesionesCompletadas;
-
-    if (total === 0) {
-      return 0;
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
     }
 
-    return Math.round(
-      (completados / total) * 100
-    );
-  }, [progress]);
+    try {
+      setIsLoggingOut(true);
 
-  const userInitial =
-    profile?.email?.charAt(0)?.toUpperCase() ||
-    "U";
+      await authService.logout();
 
-  const userName =
-    profile?.full_name?.trim() ||
-    "Participante";
+      router.replace("/");
+
+      router.refresh();
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(error);
+      }
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
+
+  const userInitial = profile?.email?.trim().charAt(0).toUpperCase() ?? "U";
 
   return (
     <aside className="right-panel">
@@ -121,100 +74,52 @@ export default function RightPanel() {
         {/* PERFIL */}
         <div className="right-panel-card">
           <div className="right-panel-flex-row">
-            <div className="right-panel-avatar">
-              {userInitial}
-            </div>
+            <div className="right-panel-avatar">{userInitial}</div>
 
             <div>
-              <p className="right-panel-name">
-                {userName}
-              </p>
+              <p className="right-panel-name">Participante</p>
 
               <p className="right-panel-secondary-text">
                 {profile?.email ?? ""}
               </p>
+
+              {profile?.participantCode && (
+                <p className="right-panel-secondary-text">
+                  Código: {profile.participantCode}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="right-panel-link-wrapper">
-            <a
-              href="/perfil"
-              className="right-panel-link"
-            >
+            <Link href="/perfil" className="right-panel-link">
               Ver mi perfil
-            </a>
-          </div>
-        </div>
-
-        {/* PROGRESO */}
-        <div className="right-panel-card">
-          <h3 className="right-panel-title">
-            Tu progreso
-          </h3>
-
-          <div className="right-panel-items-list">
-            <div className="right-panel-flex-row">
-              <CheckCircle className="right-panel-icon" />
-
-              <div>
-                <div className="right-panel-label">
-                  Evaluación inicial
-                </div>
-
-                <div className="right-panel-secondary-text">
-                  {progress.evaluacionInicial
-                    ? "Completada"
-                    : "Pendiente"}
-                </div>
-              </div>
-            </div>
-
-            <div className="right-panel-flex-row">
-              <UserIcon className="right-panel-icon" />
-
-              <div>
-                <div className="right-panel-label">
-                  Sesiones completadas
-                </div>
-
-                <div className="right-panel-secondary-text">
-                  {
-                    progress.sesionesCompletadas
-                  }{" "}
-                  de{" "}
-                  {progress.sesionesTotales}
-                </div>
-              </div>
-            </div>
-
-            <div className="right-panel-flex-row">
-              <CheckCircle className="right-panel-icon" />
-
-              <div>
-                <div className="right-panel-label">
-                  Progreso general
-                </div>
-
-                <div className="right-panel-secondary-text">
-                  {progresoGeneral}%
-                </div>
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
 
         {/* INFORMACIÓN */}
         <div className="right-panel-card">
-          <h4 className="right-panel-subtitle">
-            Información
-          </h4>
+          <h4 className="right-panel-subtitle">Información</h4>
 
           <p className="right-panel-info-text">
-            Recuerda que tus respuestas son
-            confidenciales y se utilizan
-            únicamente con fines de
-            investigación.
+            Recuerda que todas tus respuestas son completamente confidenciales y
+            únicamente serán utilizadas con fines de investigación.
           </p>
+        </div>
+
+        {/* CUENTA */}
+        <div className="right-panel-actions">
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="right-panel-logout"
+          >
+            <LogOut size={18} />
+
+            {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
+          </button>
         </div>
       </div>
     </aside>
