@@ -1,4 +1,11 @@
+"use client";
+
+import { useCallback, useMemo, useState } from "react";
+
+import Modal from "@/components/ui/Modal";
+
 import SessionCard from "./SessionCard";
+import SessionPlayer from "./SessionPlayer";
 
 import type { SessionWithStatus } from "@/types/study-session";
 
@@ -7,15 +14,62 @@ interface SessionsGridProps {
 }
 
 /**
- * Rejilla de sesiones
- * disponibles para el participante.
+ * Rejilla de sesiones.
+ *
+ * Gestiona la apertura del reproductor
+ * y garantiza que únicamente exista
+ * un modal abierto al mismo tiempo.
  */
 export default function SessionsGrid({ sessions }: SessionsGridProps) {
+  const [selectedSession, setSelectedSession] =
+    useState<SessionWithStatus | null>(null);
+
+  /**
+   * Abre una sesión.
+   */
+  const openSession = useCallback((session: SessionWithStatus) => {
+    setSelectedSession(session);
+  }, []);
+
+  /**
+   * Cierra el reproductor.
+   */
+  const closeSession = useCallback(() => {
+    setSelectedSession(null);
+  }, []);
+
+  /**
+   * Título mostrado
+   * en el modal.
+   */
+  const modalTitle = useMemo(() => {
+    if (!selectedSession) {
+      return "";
+    }
+
+    return `Sesión ${selectedSession.sessionOrder} · ${selectedSession.title}`;
+  }, [selectedSession]);
+
   return (
-    <section className="sessions-grid" aria-label="Listado de sesiones">
-      {sessions.map((session) => (
-        <SessionCard key={session.id} session={session} />
-      ))}
-    </section>
+    <>
+      <section className="sessions-grid" aria-label="Listado de sesiones">
+        {sessions.map((session) => (
+          <SessionCard
+            key={session.id}
+            session={session}
+            onOpen={openSession}
+          />
+        ))}
+      </section>
+
+      <Modal
+        open={selectedSession !== null}
+        title={modalTitle}
+        onClose={closeSession}
+        maxWidth={1200}
+      >
+        {selectedSession && <SessionPlayer session={selectedSession} />}
+      </Modal>
+    </>
   );
 }

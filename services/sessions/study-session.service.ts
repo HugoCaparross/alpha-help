@@ -14,6 +14,12 @@ import type {
 const STUDY_SESSIONS_TABLE =
   "study_sessions";
 
+/**
+ * Número total de sesiones
+ * que componen el estudio.
+ */
+export const TOTAL_STUDY_SESSIONS = 9;
+
 const SESSION_FIELDS = `
   id,
   title,
@@ -54,7 +60,7 @@ interface SessionRow {
 
 /**
  * Convierte una fila de Supabase
- * al modelo de dominio.
+ * al modelo utilizado por la aplicación.
  */
 function mapSession(
   row: SessionRow,
@@ -84,9 +90,8 @@ function mapSession(
 }
 
 /**
- * Obtiene automáticamente
- * la región del participante
- * autenticado.
+ * Devuelve la región
+ * del participante autenticado.
  */
 async function getCurrentRegion(): Promise<Region> {
   const profile =
@@ -102,8 +107,9 @@ async function getCurrentRegion(): Promise<Region> {
 }
 
 /**
- * Devuelve la fecha de publicación
- * correspondiente a la región.
+ * Obtiene la fecha de publicación
+ * correspondiente a la región
+ * del participante.
  */
 function getReleaseDate(
   session: Session,
@@ -115,8 +121,8 @@ function getReleaseDate(
 }
 
 /**
- * Indica si una sesión
- * ya está publicada.
+ * Comprueba si una fecha
+ * ya ha sido alcanzada.
  */
 function isReleased(
   releaseDate: string,
@@ -128,14 +134,37 @@ function isReleased(
 }
 
 /**
+ * Indica si una sesión
+ * está disponible para
+ * una determinada región.
+ *
+ * Función reutilizable por
+ * Dashboard, Administrador
+ * y futuros componentes.
+ */
+export function isSessionAvailable(
+  session: Session,
+  region: Region,
+): boolean {
+  return isReleased(
+    getReleaseDate(
+      session,
+      region,
+    ),
+  );
+}
+
+/**
  * Calcula el estado
- * de disponibilidad.
+ * de una sesión.
  */
 function getStatus(
-  releaseDate: string,
+  session: Session,
+  region: Region,
 ): SessionWithStatus["status"] {
-  return isReleased(
-    releaseDate,
+  return isSessionAvailable(
+    session,
+    region,
   )
     ? "available"
     : "locked";
@@ -150,23 +179,23 @@ function mapSessionWithStatus(
   session: Session,
   region: Region,
 ): SessionWithStatus {
-  const releaseDate =
-    getReleaseDate(
-      session,
-      region,
-    );
-
   return {
     ...session,
 
-    releaseDate,
+    releaseDate:
+      getReleaseDate(
+        session,
+        region,
+      ),
 
     status:
       getStatus(
-        releaseDate,
+        session,
+        region,
       ),
   };
 }
+
 /**
  * Obtiene todas las sesiones
  * del estudio.
@@ -194,12 +223,16 @@ export async function getSessions(): Promise<
   }
 
   return (data ?? []).map(
-    mapSession,
+    (row) =>
+      mapSession(
+        row as SessionRow,
+      ),
   );
 }
 
 /**
- * Obtiene una sesión concreta.
+ * Obtiene una sesión
+ * concreta del estudio.
  */
 export async function getSessionById(
   sessionId: string,
@@ -231,8 +264,8 @@ export async function getSessionById(
 /**
  * Obtiene todas las sesiones
  * resolviendo automáticamente
- * la región y el estado
- * del participante.
+ * la región del participante
+ * y su estado.
  */
 export async function getSessionsWithStatus(): Promise<
   SessionWithStatus[]
@@ -253,6 +286,7 @@ export async function getSessionsWithStatus(): Promise<
       ),
   );
 }
+
 /**
  * Devuelve únicamente
  * las sesiones disponibles.
@@ -265,13 +299,15 @@ export async function getAvailableSessions(): Promise<
 
   return sessions.filter(
     ({ status }) =>
-      status === "available",
+      status ===
+      "available",
   );
 }
 
 /**
- * Devuelve la siguiente sesión
- * pendiente de publicación.
+ * Devuelve la siguiente
+ * sesión pendiente
+ * de publicación.
  */
 export async function getNextSession(): Promise<
   SessionWithStatus | null
@@ -282,7 +318,8 @@ export async function getNextSession(): Promise<
   return (
     sessions.find(
       ({ status }) =>
-        status === "locked",
+        status ===
+        "locked",
     ) ?? null
   );
 }

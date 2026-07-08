@@ -6,6 +6,8 @@ import type { SessionWithStatus } from "@/types/study-session";
 
 interface SessionCardProps {
   readonly session: SessionWithStatus;
+
+  readonly onOpen: (session: SessionWithStatus) => void;
 }
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", {
@@ -18,13 +20,17 @@ const AVAILABLE_TEXT = "Disponible desde";
 
 const LOCKED_TEXT = "Bloqueada";
 
-const CTA_TEXT = "Acceder a la sesión";
+const CTA_TEXT = "Ver sesión";
 
 function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
 }
 
-export default function SessionCard({ session }: SessionCardProps) {
+/**
+ * Tarjeta de una sesión
+ * del programa.
+ */
+export default function SessionCard({ session, onOpen }: SessionCardProps) {
   const isAvailable = session.status === "available";
 
   const formattedDate = formatDate(session.releaseDate);
@@ -32,6 +38,14 @@ export default function SessionCard({ session }: SessionCardProps) {
   const cardClassName = ["session-card", !isAvailable && "session-card--locked"]
     .filter(Boolean)
     .join(" ");
+
+  function handleOpen() {
+    if (!isAvailable) {
+      return;
+    }
+
+    onOpen(session);
+  }
 
   return (
     <article
@@ -79,17 +93,16 @@ export default function SessionCard({ session }: SessionCardProps) {
               </span>
             </div>
 
-            <a
-              href={session.youtubeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className="session-card__cta"
-              aria-label={`Acceder a la sesión "${session.title}"`}
+              onClick={handleOpen}
+              aria-label={`Abrir la sesión "${session.title}"`}
             >
               <PlayCircle size={17} aria-hidden="true" />
 
               <span>{CTA_TEXT}</span>
-            </a>
+            </button>
           </>
         ) : (
           <div className="session-card__locked-cta">

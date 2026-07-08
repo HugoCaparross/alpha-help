@@ -1,16 +1,16 @@
 import { supabase } from "@/lib/supabase/client";
 import { getUser } from "@/lib/supabase/getUser";
 
-const SESSION_VIEWS_TABLE = "session_views";
+const SESSION_VIEWS_TABLE = "session_views" as const;
 
 const ERROR_UNAUTHENTICATED =
   "Usuario no autenticado.";
 
 const ERROR_REGISTER =
-  "No se ha podido registrar la sesión.";
+  "No se ha podido registrar la visualización de la sesión.";
 
 const ERROR_CHECK =
-  "No se ha podido comprobar la sesión.";
+  "No se ha podido comprobar el progreso de la sesión.";
 
 const ERROR_PROGRESS =
   "No se ha podido recuperar el progreso.";
@@ -32,10 +32,10 @@ async function getAuthenticatedUser() {
 }
 
 /**
- * Marca una sesión como completada.
+ * Marca una sesión como visualizada.
  *
- * Si la sesión ya estaba registrada,
- * no realiza ninguna acción.
+ * Cada sesión únicamente puede
+ * registrarse una vez por participante.
  */
 export async function markSessionCompleted(
   sessionId: string,
@@ -43,22 +43,23 @@ export async function markSessionCompleted(
   const user =
     await getAuthenticatedUser();
 
-  const completed =
+  const alreadyCompleted =
     await isSessionCompleted(
       sessionId,
       user.id,
     );
 
-  if (completed) {
+  if (alreadyCompleted) {
     return;
   }
 
-  const { error } = await supabase
-    .from(SESSION_VIEWS_TABLE)
-    .insert({
-      user_id: user.id,
-      session_id: sessionId,
-    });
+  const { error } =
+    await supabase
+      .from(SESSION_VIEWS_TABLE)
+      .insert({
+        user_id: user.id,
+        session_id: sessionId,
+      });
 
   if (error) {
     throw new Error(ERROR_REGISTER);
@@ -66,8 +67,8 @@ export async function markSessionCompleted(
 }
 
 /**
- * Comprueba si una sesión
- * ya ha sido completada.
+ * Comprueba si el participante
+ * ya ha visualizado una sesión.
  */
 export async function isSessionCompleted(
   sessionId: string,
@@ -101,8 +102,8 @@ export async function isSessionCompleted(
 
 /**
  * Devuelve los identificadores
- * de todas las sesiones completadas
- * por el participante.
+ * de todas las sesiones
+ * visualizadas por el participante.
  */
 export async function getCompletedSessionIds(): Promise<
   string[]
@@ -121,13 +122,14 @@ export async function getCompletedSessionIds(): Promise<
   }
 
   return (data ?? []).map(
-    ({ session_id }) => session_id,
+    ({ session_id }) =>
+      session_id,
   );
 }
 
 /**
- * Devuelve el número total
- * de sesiones completadas.
+ * Devuelve el número de sesiones
+ * visualizadas por el participante.
  */
 export async function getCompletedSessionsCount(): Promise<number> {
   const user =
@@ -150,8 +152,9 @@ export async function getCompletedSessionsCount(): Promise<number> {
 }
 
 /**
- * Calcula el porcentaje
- * de progreso del participante.
+ * Calcula el porcentaje de progreso
+ * respecto a las sesiones
+ * del estudio.
  */
 export async function getSessionProgress(
   totalSessions: number,
@@ -164,13 +167,14 @@ export async function getSessionProgress(
     await getCompletedSessionsCount();
 
   return Math.round(
-    (completed / totalSessions) * 100,
+    (completed / totalSessions) *
+      100,
   );
 }
 
 /**
- * Elimina el registro
- * de una sesión completada.
+ * Elimina el registro de
+ * visualización de una sesión.
  *
  * Uso exclusivo para
  * administración o pruebas.
@@ -186,7 +190,10 @@ export async function unmarkSessionCompleted(
       .from(SESSION_VIEWS_TABLE)
       .delete()
       .eq("user_id", user.id)
-      .eq("session_id", sessionId);
+      .eq(
+        "session_id",
+        sessionId,
+      );
 
   if (error) {
     throw new Error(ERROR_DELETE);

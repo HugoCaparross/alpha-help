@@ -21,6 +21,10 @@ const LOADING_MESSAGE = "Preparando las sesiones...";
 const ERROR_MESSAGE =
   "No se han podido cargar las sesiones. Inténtalo de nuevo.";
 
+/**
+ * Vista principal del módulo
+ * de sesiones del programa.
+ */
 export default function SesionesView() {
   const [sessions, setSessions] = useState<SessionWithStatus[]>([]);
 
@@ -28,6 +32,11 @@ export default function SesionesView() {
 
   const [error, setError] = useState("");
 
+  /**
+   * Obtiene las sesiones
+   * disponibles para el
+   * participante.
+   */
   const loadSessions = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -42,15 +51,31 @@ export default function SesionesView() {
       }
 
       setSessions([]);
+
       setError(ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
+  /**
+   * Inicializa la vista.
+   */
+  const initializeSessions = useCallback(() => {
     void loadSessions();
   }, [loadSessions]);
+
+  /**
+   * Reintenta la carga
+   * de las sesiones.
+   */
+  function retryLoadSessions() {
+    void loadSessions();
+  }
+
+  useEffect(() => {
+    initializeSessions();
+  }, [initializeSessions]);
 
   if (loading) {
     return (
@@ -68,7 +93,7 @@ export default function SesionesView() {
         <button
           type="button"
           className="btn-primary"
-          onClick={() => void loadSessions()}
+          onClick={retryLoadSessions}
         >
           Reintentar
         </button>
@@ -82,10 +107,7 @@ export default function SesionesView() {
 
   return (
     <section className="sesiones-page">
-      <PageHeader
-        title={PAGE_TITLE}
-        description={PAGE_DESCRIPTION}
-      />
+      <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
 
       <SessionsGrid sessions={sessions} />
     </section>

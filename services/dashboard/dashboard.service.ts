@@ -14,7 +14,7 @@ import {
   getNextStudyMaterial,
 } from "@/services/resources/study-material.service";
 
-import { getCompletedMaterialsCount } from "@/services/resources/material-progress.service";
+import { getCompletedSessionsCount as getCompletedMaterialsCount } from "@/services/resources/material-progress.service";
 
 import type { SessionWithStatus } from "@/types/study-session";
 import type { StudyMaterialWithStatus } from "@/types/study-material";

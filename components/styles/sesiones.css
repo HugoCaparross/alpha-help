@@ -437,3 +437,186 @@
     padding: 2rem 1.25rem;
   }
 }
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.modal__overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem;
+
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+
+  z-index: 9999;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+
+  width: min(100%, 1200px);
+  max-height: 90vh;
+
+  overflow: hidden;
+
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 1.25rem 1.5rem;
+
+  border-bottom: var(--border-light);
+}
+
+.modal__title {
+  margin: 0;
+
+  font-size: 1.2rem;
+  font-weight: 700;
+
+  color: var(--neutral-900);
+}
+
+.modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border: none;
+  border-radius: 999px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition: background .2s ease;
+}
+
+.modal__close:hover {
+  background: var(--neutral-100);
+}
+
+.modal__body {
+  overflow: auto;
+
+  padding: 1.5rem;
+}
+
+/* ==========================================
+   SESSION PLAYER
+========================================== */
+
+.session-player {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1.5rem;
+}
+
+.session-player__video {
+  overflow: hidden;
+
+  border-radius: var(--radius-lg);
+
+  background: #000;
+}
+
+.session-player__info {
+  display: flex;
+  flex-direction: column;
+
+  gap: .75rem;
+}
+
+.session-player__title {
+  margin: 0;
+
+  font-size: 1.35rem;
+  font-weight: 700;
+
+  color: var(--neutral-900);
+}
+
+.session-player__description {
+  margin: 0;
+
+  line-height: 1.8;
+
+  color: var(--neutral-600);
+}
+
+/* ==========================================
+   YOUTUBE PLAYER
+========================================== */
+
+.youtube-player {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  background: #000;
+}
+
+.youtube-player iframe {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  border: 0;
+}
+
+/* ==========================================
+   RESPONSIVE PLAYER
+========================================== */
+
+@media (max-width:768px) {
+
+  .modal__overlay {
+    padding: 1rem;
+  }
+
+  .modal {
+    max-height: 95vh;
+  }
+
+  .modal__header {
+    padding: 1rem 1.25rem;
+  }
+
+  .modal__body {
+    padding: 1rem;
+  }
+
+  .session-player__title {
+    font-size: 1.15rem;
+  }
+
+}
