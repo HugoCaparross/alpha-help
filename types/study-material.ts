@@ -1,30 +1,43 @@
 /**
  * Tipos de materiales disponibles
  * dentro del programa.
+ *
+ * Cada sesión dispone de dos documentos:
+ * - Material de apoyo.
+ * - Guía ampliada.
  */
 export type MaterialType =
   | "support"
   | "extended";
 
 /**
- * Estado de un material dentro del programa.
+ * Estado de disponibilidad
+ * de un material.
  *
- * Un material únicamente puede estar
- * disponible o bloqueado según
- * su fecha de publicación.
+ * Este estado se calcula
+ * exclusivamente a partir
+ * de la fecha de publicación
+ * correspondiente a la región
+ * del participante.
+ *
+ * No representa el progreso
+ * del participante.
  */
 export type MaterialStatus =
   | "available"
   | "locked";
 
 /**
- * Modelo de un material tal y como
- * se utiliza dentro de la aplicación.
+ * Modelo de dominio
+ * de un material.
+ *
+ * Representa la información
+ * almacenada en la base de datos,
+ * independientemente de la región
+ * o del estado del participante.
  *
  * Todas las propiedades utilizan
- * camelCase independientemente
- * del formato utilizado por la base
- * de datos.
+ * camelCase.
  */
 export interface StudyMaterial {
   readonly id: string;
@@ -37,10 +50,18 @@ export interface StudyMaterial {
 
   readonly thumbnailUrl: string;
 
+  /**
+   * Número de sesión al que
+   * pertenece el material.
+   *
+   * Ambos documentos
+   * (support y extended)
+   * comparten el mismo valor.
+   */
   readonly materialOrder: number;
 
   /**
-   * Tipo de material.
+   * Tipo de documento.
    */
   readonly materialType: MaterialType;
 
@@ -50,23 +71,33 @@ export interface StudyMaterial {
 }
 
 /**
- * Material listo para ser utilizado
- * por la interfaz de usuario.
+ * Modelo utilizado
+ * por la interfaz.
  *
- * El servicio resuelve automáticamente
- * la fecha correspondiente a la región
- * del participante y calcula su estado.
+ * Extiende un material
+ * resolviendo la fecha
+ * correspondiente a la región
+ * del participante y calculando
+ * su estado de disponibilidad.
+ *
+ * El progreso del participante
+ * pertenece al servicio
+ * material-progress.service
+ * y no forma parte de este modelo.
  */
 export interface StudyMaterialWithStatus
   extends StudyMaterial {
   /**
-   * Fecha correspondiente
-   * a la región del usuario.
+   * Fecha de publicación
+   * resuelta según la región
+   * del participante.
    */
   readonly releaseDate: string;
 
   /**
-   * Estado calculado automáticamente.
+   * Estado calculado
+   * automáticamente por
+   * el servicio.
    */
   readonly status: MaterialStatus;
 }

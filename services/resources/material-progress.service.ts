@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase/client";
 import { getUser } from "@/lib/supabase/getUser";
 
-const MATERIAL_VIEWS_TABLE = "material_views" as const;
+const MATERIAL_VIEWS_TABLE =
+  "material_views" as const;
 
 const ERROR_UNAUTHENTICATED =
   "Usuario no autenticado.";
@@ -19,13 +20,22 @@ const ERROR_DELETE =
   "No se ha podido eliminar el progreso.";
 
 /**
+ * Código PostgreSQL para
+ * violación de clave única.
+ */
+const UNIQUE_VIOLATION =
+  "23505";
+
+/**
  * Devuelve el usuario autenticado.
  */
 async function getAuthenticatedUser() {
   const user = await getUser();
 
   if (!user) {
-    throw new Error(ERROR_UNAUTHENTICATED);
+    throw new Error(
+      ERROR_UNAUTHENTICATED,
+    );
   }
 
   return user;
@@ -40,6 +50,10 @@ async function getAuthenticatedUser() {
  * independientemente del documento
  * consultado (recurso de apoyo o
  * guía ampliada).
+ *
+ * La base de datos garantiza esta
+ * restricción mediante una clave
+ * UNIQUE (user_id, session_order).
  */
 export async function markMaterialAsCompleted(
   sessionOrder: number,
@@ -47,27 +61,33 @@ export async function markMaterialAsCompleted(
   const user =
     await getAuthenticatedUser();
 
-  const alreadyCompleted =
-    await hasCompletedMaterial(
-      sessionOrder,
-      user.id,
-    );
-
-  if (alreadyCompleted) {
-    return;
-  }
-
   const { error } =
     await supabase
       .from(MATERIAL_VIEWS_TABLE)
       .insert({
         user_id: user.id,
-        session_order: sessionOrder,
+        session_order:
+          sessionOrder,
       });
 
-  if (error) {
-    throw new Error(ERROR_REGISTER);
+  if (!error) {
+    return;
   }
+
+  /**
+   * El material ya estaba
+   * registrado.
+   */
+  if (
+    error.code ===
+    UNIQUE_VIOLATION
+  ) {
+    return;
+  }
+
+  throw new Error(
+    ERROR_REGISTER,
+  );
 }
 
 /**
@@ -99,7 +119,9 @@ export async function hasCompletedMaterial(
       .maybeSingle();
 
   if (error) {
-    throw new Error(ERROR_CHECK);
+    throw new Error(
+      ERROR_CHECK,
+    );
   }
 
   return data !== null;
@@ -107,7 +129,8 @@ export async function hasCompletedMaterial(
 
 /**
  * Devuelve las sesiones cuyos
- * materiales ya han sido consultados.
+ * materiales ya han sido
+ * consultados.
  */
 export async function getCompletedSessionOrders(): Promise<
   number[]
@@ -118,7 +141,9 @@ export async function getCompletedSessionOrders(): Promise<
   const { data, error } =
     await supabase
       .from(MATERIAL_VIEWS_TABLE)
-      .select("session_order")
+      .select(
+        "session_order",
+      )
       .eq("user_id", user.id)
       .order(
         "session_order",
@@ -128,12 +153,15 @@ export async function getCompletedSessionOrders(): Promise<
       );
 
   if (error) {
-    throw new Error(ERROR_PROGRESS);
+    throw new Error(
+      ERROR_PROGRESS,
+    );
   }
 
   return (data ?? []).map(
-    ({ session_order }) =>
+    ({
       session_order,
+    }) => session_order,
   );
 }
 
@@ -156,7 +184,9 @@ export async function getCompletedSessionsCount(): Promise<number> {
       .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(ERROR_PROGRESS);
+    throw new Error(
+      ERROR_PROGRESS,
+    );
   }
 
   return count ?? 0;
@@ -164,7 +194,8 @@ export async function getCompletedSessionsCount(): Promise<number> {
 
 /**
  * Calcula el porcentaje de progreso
- * respecto a los materiales del estudio.
+ * respecto a los materiales
+ * del estudio.
  */
 export async function getMaterialProgress(
   totalSessions: number,
@@ -177,7 +208,9 @@ export async function getMaterialProgress(
     await getCompletedSessionsCount();
 
   return Math.round(
-    (completed / totalSessions) * 100,
+    (completed /
+      totalSessions) *
+      100,
   );
 }
 
@@ -205,6 +238,8 @@ export async function unmarkMaterialAsCompleted(
       );
 
   if (error) {
-    throw new Error(ERROR_DELETE);
+    throw new Error(
+      ERROR_DELETE,
+    );
   }
 }

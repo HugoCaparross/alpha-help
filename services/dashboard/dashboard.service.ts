@@ -2,19 +2,19 @@ import { getProfile } from "@/lib/supabase/getProfile";
 
 import { getQuestionnaireState } from "@/services/questionnaires/questionnaire.service";
 
-import {
-  getSessions,
-  getNextSession,
-} from "@/services/sessions/study-session.service";
-
 import { getCompletedSessionsCount } from "@/services/sessions/session-progress.service";
 
 import {
-  getStudyMaterials,
-  getNextStudyMaterial,
+  getSessionsWithStatus,
+} from "@/services/sessions/study-session.service";
+
+import {
+  getStudyMaterialsWithStatus,
 } from "@/services/resources/study-material.service";
 
-import { getCompletedSessionsCount as getCompletedMaterialsCount } from "@/services/resources/material-progress.service";
+import {
+  getCompletedSessionsCount as getCompletedMaterialsCount,
+} from "@/services/resources/material-progress.service";
 
 import type { SessionWithStatus } from "@/types/study-session";
 import type { StudyMaterialWithStatus } from "@/types/study-material";
@@ -59,22 +59,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     materials,
     completedSessions,
     completedMaterials,
-    nextSession,
-    nextMaterial,
   ] = await Promise.all([
     getQuestionnaireState(),
 
-    getSessions(),
+    getSessionsWithStatus(),
 
-    getStudyMaterials(),
+    getStudyMaterialsWithStatus(),
 
     getCompletedSessionsCount(),
 
     getCompletedMaterialsCount(),
-
-    getNextSession(),
-
-    getNextStudyMaterial(),
   ]);
 
   const {
@@ -82,6 +76,18 @@ export async function getDashboardData(): Promise<DashboardData> {
     postCompleted,
   } =
     questionnaireProgress as QuestionnaireProgress;
+
+  const nextSession =
+    sessions.find(
+      ({ status }) =>
+        status === "locked",
+    ) ?? null;
+
+  const nextMaterial =
+    materials.find(
+      ({ status }) =>
+        status === "locked",
+    ) ?? null;
 
   return {
     participantCode:

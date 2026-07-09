@@ -15,6 +15,12 @@ import type {
 const STUDY_MATERIALS_TABLE =
   "study_materials";
 
+/**
+ * Número total de materiales
+ * (uno por sesión del estudio).
+ */
+export const TOTAL_STUDY_MATERIALS = 9;
+
 const MATERIAL_FIELDS = `
   id,
   title,
@@ -101,8 +107,7 @@ function mapMaterial(
 
 /**
  * Obtiene automáticamente
- * la región del participante
- * autenticado.
+ * la región del participante.
  */
 async function getCurrentRegion(): Promise<Region> {
   const profile =
@@ -131,8 +136,8 @@ function getReleaseDate(
 }
 
 /**
- * Indica si el material
- * ya está publicado.
+ * Comprueba si una fecha
+ * ya ha sido alcanzada.
  */
 function isReleased(
   releaseDate: string,
@@ -144,14 +149,38 @@ function isReleased(
 }
 
 /**
+ * Indica si un material
+ * está disponible para
+ * una determinada región.
+ *
+ * Función reutilizable por
+ * Dashboard, Recursos,
+ * Administración y futuros
+ * componentes.
+ */
+export function isMaterialAvailable(
+  material: StudyMaterial,
+  region: Region,
+): boolean {
+  return isReleased(
+    getReleaseDate(
+      material,
+      region,
+    ),
+  );
+}
+
+/**
  * Calcula el estado
- * del material.
+ * de un material.
  */
 function getStatus(
-  releaseDate: string,
+  material: StudyMaterial,
+  region: Region,
 ): StudyMaterialWithStatus["status"] {
-  return isReleased(
-    releaseDate,
+  return isMaterialAvailable(
+    material,
+    region,
   )
     ? "available"
     : "locked";
@@ -166,20 +195,19 @@ function mapMaterialWithStatus(
   material: StudyMaterial,
   region: Region,
 ): StudyMaterialWithStatus {
-  const releaseDate =
-    getReleaseDate(
-      material,
-      region,
-    );
-
   return {
     ...material,
 
-    releaseDate,
+    releaseDate:
+      getReleaseDate(
+        material,
+        region,
+      ),
 
     status:
       getStatus(
-        releaseDate,
+        material,
+        region,
       ),
   };
 }
@@ -202,6 +230,12 @@ export async function getStudyMaterials(): Promise<
       {
         ascending: true,
       },
+    )
+    .order(
+      "material_type",
+      {
+        ascending: true,
+      },
     );
 
   if (error) {
@@ -211,7 +245,10 @@ export async function getStudyMaterials(): Promise<
   }
 
   return (data ?? []).map(
-    mapMaterial,
+    (row) =>
+      mapMaterial(
+        row as StudyMaterialRow,
+      ),
   );
 }
 
@@ -248,8 +285,8 @@ export async function getStudyMaterialById(
 /**
  * Obtiene todos los materiales
  * resolviendo automáticamente
- * la región y el estado
- * del participante.
+ * la región del participante
+ * y su estado.
  */
 export async function getStudyMaterialsWithStatus(): Promise<
   StudyMaterialWithStatus[]
@@ -272,8 +309,8 @@ export async function getStudyMaterialsWithStatus(): Promise<
 }
 
 /**
- * Obtiene los materiales
- * agrupados por tipo.
+ * Agrupa los materiales
+ * por tipo.
  */
 export async function getGroupedStudyMaterials(): Promise<
   GroupedStudyMaterials
@@ -284,19 +321,22 @@ export async function getGroupedStudyMaterials(): Promise<
   return {
     support: materials.filter(
       ({ materialType }) =>
-        materialType === "support",
+        materialType ===
+        "support",
     ),
 
     extended: materials.filter(
       ({ materialType }) =>
-        materialType === "extended",
+        materialType ===
+        "extended",
     ),
   };
 }
 
 /**
  * Devuelve únicamente
- * los materiales disponibles.
+ * los materiales
+ * disponibles.
  */
 export async function getAvailableStudyMaterials(): Promise<
   StudyMaterialWithStatus[]
@@ -306,24 +346,27 @@ export async function getAvailableStudyMaterials(): Promise<
 
   return materials.filter(
     ({ status }) =>
-      status === "available",
+      status ===
+      "available",
   );
 }
 
 /**
- * Devuelve el siguiente material
- * pendiente de publicación.
+ * Devuelve el siguiente
+ * material pendiente
+ * de publicación.
  */
 export async function getNextStudyMaterial(): Promise<
-  StudyMaterialWithStatus | null
-> {
+  StudyMaterialWithStatus | null>
+{
   const materials =
     await getStudyMaterialsWithStatus();
 
   return (
     materials.find(
       ({ status }) =>
-        status === "locked",
+        status ===
+        "locked",
     ) ?? null
   );
 }

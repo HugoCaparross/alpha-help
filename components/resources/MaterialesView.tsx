@@ -24,16 +24,28 @@ const LOADING_MESSAGE = "Preparando los materiales...";
 const LOAD_ERROR =
   "No se han podido cargar los materiales. Inténtalo de nuevo.";
 
+const EMPTY_MATERIALS: GroupedStudyMaterials = {
+  support: [],
+  extended: [],
+};
+
+/**
+ * Vista principal del módulo
+ * de materiales del estudio.
+ */
 export default function MaterialesView() {
-  const [materials, setMaterials] = useState<GroupedStudyMaterials>({
-    support: [],
-    extended: [],
-  });
+  const [materials, setMaterials] =
+    useState<GroupedStudyMaterials>(EMPTY_MATERIALS);
 
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
 
+  /**
+   * Obtiene los materiales
+   * disponibles para el
+   * participante.
+   */
   const loadMaterials = useCallback(async () => {
     setLoading(true);
 
@@ -48,10 +60,7 @@ export default function MaterialesView() {
         console.error(error);
       }
 
-      setMaterials({
-        support: [],
-        extended: [],
-      });
+      setMaterials(EMPTY_MATERIALS);
 
       setError(LOAD_ERROR);
     } finally {
@@ -59,9 +68,20 @@ export default function MaterialesView() {
     }
   }, []);
 
+  /**
+   * Inicializa la vista.
+   */
   useEffect(() => {
     void loadMaterials();
   }, [loadMaterials]);
+
+  /**
+   * Reintenta la carga
+   * de los materiales.
+   */
+  function retryLoadMaterials() {
+    void loadMaterials();
+  }
 
   if (loading) {
     return (
@@ -79,7 +99,7 @@ export default function MaterialesView() {
         <button
           type="button"
           className="btn-primary"
-          onClick={() => void loadMaterials()}
+          onClick={retryLoadMaterials}
         >
           Reintentar
         </button>
@@ -96,8 +116,16 @@ export default function MaterialesView() {
       <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
 
       {materials.support.length > 0 && (
-        <section className="materiales-section">
-          <h2 className="materiales-section__title">Recursos de apoyo</h2>
+        <section
+          className="materiales-section"
+          aria-labelledby="support-materials-title"
+        >
+          <h2
+            id="support-materials-title"
+            className="materiales-section__title"
+          >
+            Recursos de apoyo
+          </h2>
 
           <p className="materiales-section__description">
             Resúmenes prácticos para repasar rápidamente las ideas principales
@@ -109,8 +137,16 @@ export default function MaterialesView() {
       )}
 
       {materials.extended.length > 0 && (
-        <section className="materiales-section">
-          <h2 className="materiales-section__title">Materiales completos</h2>
+        <section
+          className="materiales-section"
+          aria-labelledby="extended-materials-title"
+        >
+          <h2
+            id="extended-materials-title"
+            className="materiales-section__title"
+          >
+            Materiales completos
+          </h2>
 
           <p className="materiales-section__description">
             Documentación ampliada para profundizar en los contenidos trabajados

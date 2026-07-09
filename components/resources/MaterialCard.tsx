@@ -6,6 +6,8 @@ import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 interface MaterialCardProps {
   readonly material: StudyMaterialWithStatus;
+
+  readonly onOpen: (material: StudyMaterialWithStatus) => void;
 }
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", {
@@ -26,7 +28,11 @@ function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
 }
 
-export default function MaterialCard({ material }: MaterialCardProps) {
+/**
+ * Tarjeta de un material
+ * del programa.
+ */
+export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
   const isAvailable = material.status === "available";
 
   const formattedDate = formatDate(material.releaseDate);
@@ -40,6 +46,14 @@ export default function MaterialCard({ material }: MaterialCardProps) {
 
   const ctaText =
     material.materialType === "support" ? SUPPORT_CTA : EXTENDED_CTA;
+
+  function handleOpen() {
+    if (!isAvailable) {
+      return;
+    }
+
+    onOpen(material);
+  }
 
   return (
     <article
@@ -90,17 +104,16 @@ export default function MaterialCard({ material }: MaterialCardProps) {
               </span>
             </div>
 
-            <a
-              href={material.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className="material-card__cta"
+              onClick={handleOpen}
               aria-label={`Abrir "${material.title}"`}
             >
               <FileText size={17} aria-hidden="true" />
 
               <span>{ctaText}</span>
-            </a>
+            </button>
           </>
         ) : (
           <div className="material-card__locked-cta">
