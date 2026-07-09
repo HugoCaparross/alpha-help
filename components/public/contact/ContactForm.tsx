@@ -32,7 +32,10 @@ const categories = [
     id: "Soporte",
     icon: Wrench,
   },
-];
+] as const;
+
+const GENERIC_ERROR =
+  "No hemos podido procesar tu solicitud en este momento. Por favor, inténtalo de nuevo o escribe directamente a alpha-help@unir.net.";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -50,26 +53,70 @@ export default function ContactForm() {
   const [error, setError] = useState("");
 
   function updateField(field: keyof typeof formData, value: string) {
+    if (error) {
+      setError("");
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   }
 
+  function validateForm() {
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const subject = formData.subject.trim();
+    const message = formData.message.trim();
+
+    if (!name || name.length < 2) {
+      return "Introduce un nombre válido.";
+    }
+
+    if (!email) {
+      return "Introduce un correo electrónico válido.";
+    }
+
+    if (!formData.category) {
+      return "Selecciona el tipo de consulta.";
+    }
+
+    if (subject.length < 5) {
+      return "El asunto debe tener al menos 5 caracteres.";
+    }
+
+    if (message.length < 20) {
+      return "Describe tu consulta con un poco más de detalle.";
+    }
+
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!formData.category) {
-      setError(
-        "Por favor, selecciona un tipo de consulta para poder derivarlo al departamento adecuado.",
-      );
+    if (loading) {
+      return;
+    }
 
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setLoading(true);
 
     setError("");
+
+    const payload = {
+      name: formData.name.trim(),
+      email: formData.email.trim().toLowerCase(),
+      category: formData.category,
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    };
 
     try {
       const response = await fetch("/api/contact", {
@@ -79,13 +126,13 @@ export default function ContactForm() {
           "Content-Type": "application/json",
         },
 
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data?.error ?? GENERIC_ERROR);
       }
 
       setSuccess(true);
@@ -97,10 +144,12 @@ export default function ContactForm() {
         subject: "",
         message: "",
       });
-    } catch {
-      setError(
-        "No hemos podido procesar tu solicitud en este momento. Por favor, inténtalo de nuevo o escribe directamente a alpha-help@unir.net.",
-      );
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(GENERIC_ERROR);
+      }
     } finally {
       setLoading(false);
     }
@@ -133,7 +182,7 @@ export default function ContactForm() {
   }
 
   return (
-    <div className="contact-form-card">
+    <div className="contact-form-card" aria-busy={loading}>
       <h2 className="contact-form-title">Formulario de contacto</h2>
 
       <p className="contact-form-description">
@@ -141,7 +190,7 @@ export default function ContactForm() {
       </p>
 
       {error && (
-        <div className="contact-error">
+        <div className="contact-error" role="alert" aria-live="polite">
           <AlertCircle size={20} />
 
           <p>{error}</p>
@@ -159,6 +208,7 @@ export default function ContactForm() {
               placeholder="Nombre completo"
               className="contact-input"
               value={formData.name}
+              aria-invalid={!!error}
               onChange={(e) => updateField("name", e.target.value)}
             />
           </div>
@@ -174,6 +224,7 @@ export default function ContactForm() {
               placeholder="Correo electrónico"
               className="contact-input"
               value={formData.email}
+              aria-invalid={!!error}
               onChange={(e) => updateField("email", e.target.value)}
             />
           </div>
@@ -214,6 +265,7 @@ export default function ContactForm() {
               placeholder="Asunto"
               className="contact-input"
               value={formData.subject}
+              aria-invalid={!!error}
               onChange={(e) => updateField("subject", e.target.value)}
             />
           </div>
@@ -227,6 +279,7 @@ export default function ContactForm() {
             className="contact-textarea"
             placeholder="Escribe tu mensaje con el máximo detalle posible..."
             value={formData.message}
+            aria-invalid={!!error}
             onChange={(e) => updateField("message", e.target.value)}
           />
 

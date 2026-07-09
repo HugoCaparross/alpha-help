@@ -34,20 +34,21 @@ export default function RecoverPassword() {
     setEmail(value);
   }
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const result =
-      recoverPasswordSchema.safeParse({
-        email,
-      });
+    if (loading) {
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const result = recoverPasswordSchema.safeParse({
+      email: normalizedEmail,
+    });
 
     if (!result.success) {
-      setError(
-        result.error.issues[0].message,
-      );
+      setError(result.error.issues[0].message);
 
       return;
     }
@@ -57,21 +58,17 @@ export default function RecoverPassword() {
     setError("");
 
     try {
-      const { error } =
-        await supabase.auth.resetPasswordForEmail(
-          email.trim().toLowerCase(),
-          {
-            redirectTo: `${window.location.origin}/restablecer-password`,
-          },
-        );
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        normalizedEmail,
+        {
+          redirectTo: `${window.location.origin}/restablecer-password`,
+        },
+      );
 
       if (error) {
-        const message =
-          error.message.toLowerCase();
+        const message = error.message.toLowerCase();
 
-        if (
-          message.includes("rate")
-        ) {
+        if (message.includes("rate")) {
           setError(
             "Se han realizado demasiadas solicitudes. Inténtalo de nuevo dentro de unos minutos.",
           );
@@ -87,12 +84,8 @@ export default function RecoverPassword() {
       }
 
       setSuccess(true);
-    } catch (error) {
-      console.error(error);
-
-      setError(
-        "Se ha producido un error inesperado. Inténtalo de nuevo.",
-      );
+    } catch {
+      setError("Se ha producido un error inesperado. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -111,21 +104,15 @@ export default function RecoverPassword() {
                   <CheckCircle size={30} />
                 </div>
 
-                <h1 className="recover-password-title">
-                  Revisa tu correo
-                </h1>
+                <h1 className="recover-password-title">Revisa tu correo</h1>
 
                 <p className="recover-password-description">
                   Si existe una cuenta asociada a este correo electrónico,
                   recibirás un enlace para restablecer tu contraseña.
                 </p>
 
-                <Link
-                  href="/login"
-                  className="btn-primary btn-full"
-                >
+                <Link href="/login" className="btn-primary btn-full">
                   Volver al inicio de sesión
-
                   <ArrowRight size={18} />
                 </Link>
               </div>
@@ -136,21 +123,18 @@ export default function RecoverPassword() {
                     Recuperar contraseña
                   </h1>
 
-                  <p className="recover-password-description">
+                  <p
+                    id="recover-password-description"
+                    className="recover-password-description"
+                  >
                     Introduce tu correo electrónico y te enviaremos un enlace
                     para restablecer tu contraseña.
                   </p>
                 </div>
 
-                <form
-                  onSubmit={handleSubmit}
-                  className="recover-password-form"
-                >
+                <form onSubmit={handleSubmit} className="recover-password-form">
                   <div className="recover-password-input-wrapper">
-                    <Mail
-                      size={18}
-                      className="recover-password-icon"
-                    />
+                    <Mail size={18} className="recover-password-icon" />
 
                     <input
                       type="email"
@@ -158,14 +142,11 @@ export default function RecoverPassword() {
                       autoComplete="email"
                       required
                       disabled={loading}
+                      aria-describedby="recover-password-description"
                       placeholder="Correo electrónico"
                       className="recover-password-input"
                       value={email}
-                      onChange={(e) =>
-                        updateEmail(
-                          e.target.value,
-                        )
-                      }
+                      onChange={(e) => updateEmail(e.target.value)}
                     />
                   </div>
 
@@ -186,10 +167,7 @@ export default function RecoverPassword() {
                   >
                     {loading ? (
                       <>
-                        <LoaderCircle
-                          size={18}
-                          className="animate-spin"
-                        />
+                        <LoaderCircle size={18} className="animate-spin" />
                         Enviando enlace...
                       </>
                     ) : (

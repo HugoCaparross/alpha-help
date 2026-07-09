@@ -76,11 +76,9 @@ export default function ResetPassword() {
       setSuccess(true);
 
       redirectTimeout.current = setTimeout(() => {
-        router.replace("/login");
+        router.replace("/login?reset=true");
       }, 2000);
-    } catch (error) {
-      console.error(error);
-
+    } catch {
       setError("Se ha producido un error inesperado. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
@@ -130,6 +128,8 @@ export default function ResetPassword() {
                       className="reset-password-input"
                       placeholder="Nueva contraseña"
                       autoComplete="new-password"
+                      autoFocus
+                      required
                       disabled={loading}
                       value={password}
                       onChange={(e) => updatePassword(e.target.value)}
@@ -158,6 +158,7 @@ export default function ResetPassword() {
                       className="reset-password-input"
                       placeholder="Confirmar contraseña"
                       autoComplete="new-password"
+                      required
                       disabled={loading}
                       value={confirmPassword}
                       onChange={(e) => updateConfirmPassword(e.target.value)}

@@ -1,11 +1,13 @@
 export interface FAQItem {
-  question: string;
-  answer: string;
+  readonly question: string;
+
+  readonly answer: string;
 }
 
 export interface FAQSection {
-  title: string;
-  questions: FAQItem[];
+  readonly title: string;
+
+  readonly questions: readonly FAQItem[];
 }
 
 /**

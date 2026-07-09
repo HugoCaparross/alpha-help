@@ -1,11 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
 import { FAQ_SECTIONS } from "./faq.data";
+
+/**
+ * Convierte un texto en un id HTML válido.
+ */
+function createSlug(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 /**
  * Acordeón de preguntas frecuentes.
@@ -16,6 +28,14 @@ export default function FaqAccordion() {
   const [search, setSearch] = useState("");
 
   const normalizedSearch = search.trim().toLowerCase();
+
+  /**
+   * Cierra cualquier pregunta abierta
+   * cuando cambia la búsqueda.
+   */
+  useEffect(() => {
+    setOpenItem(null);
+  }, [normalizedSearch]);
 
   const filteredSections = useMemo(() => {
     return FAQ_SECTIONS.map((section) => ({
@@ -57,54 +77,62 @@ export default function FaqAccordion() {
       </section>
 
       <section className="faq-content">
-        {filteredSections.map((section) => (
-          <section
-            key={section.title}
-            className="faq-section"
-            aria-labelledby={`section-${section.title}`}
-          >
-            <div className="faq-category">
-              <h2 id={`section-${section.title}`} className="faq-section-title">
-                {section.title}
-              </h2>
-            </div>
+        {filteredSections.map((section) => {
+          const sectionId = `section-${createSlug(section.title)}`;
 
-            {section.questions.map((item) => {
-              const key = `${section.title}-${item.question}`;
+          return (
+            <section
+              key={section.title}
+              className="faq-section"
+              aria-labelledby={sectionId}
+            >
+              <div className="faq-category">
+                <h2 id={sectionId} className="faq-section-title">
+                  {section.title}
+                </h2>
+              </div>
 
-              const answerId = `answer-${key}`;
+              {section.questions.map((item) => {
+                const key = `${createSlug(section.title)}-${createSlug(
+                  item.question,
+                )}`;
 
-              const isOpen = openItem === key;
+                const answerId = `answer-${key}`;
 
-              return (
-                <article key={key} className="faq-card">
-                  <button
-                    type="button"
-                    className="faq-question"
-                    aria-expanded={isOpen}
-                    aria-controls={answerId}
-                    onClick={() => setOpenItem(isOpen ? null : key)}
-                  >
-                    <span>{item.question}</span>
+                const isOpen = openItem === key;
 
-                    {isOpen ? (
-                      <ChevronUp size={18} aria-hidden="true" />
-                    ) : (
-                      <ChevronDown size={18} aria-hidden="true" />
-                    )}
-                  </button>
+                return (
+                  <article key={key} className="faq-card">
+                    <button
+                      type="button"
+                      className="faq-question"
+                      aria-expanded={isOpen}
+                      aria-controls={answerId}
+                      onClick={() => setOpenItem(isOpen ? null : key)}
+                    >
+                      <span>{item.question}</span>
 
-                  <div
-                    id={answerId}
-                    className={`faq-answer-wrapper ${isOpen ? "open" : ""}`}
-                  >
-                    <div className="faq-answer">{item.answer}</div>
-                  </div>
-                </article>
-              );
-            })}
-          </section>
-        ))}
+                      {isOpen ? (
+                        <ChevronUp size={18} aria-hidden="true" />
+                      ) : (
+                        <ChevronDown size={18} aria-hidden="true" />
+                      )}
+                    </button>
+
+                    <div
+                      id={answerId}
+                      className={`faq-answer-wrapper ${isOpen ? "open" : ""}`}
+                      hidden={!isOpen}
+                      aria-hidden={!isOpen}
+                    >
+                      <div className="faq-answer">{item.answer}</div>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          );
+        })}
 
         {!hasResults && normalizedSearch !== "" && (
           <div className="faq-empty">

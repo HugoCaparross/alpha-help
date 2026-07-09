@@ -1,7 +1,8 @@
 import { supabase } from "@/lib/supabase/client";
 import { getUser } from "@/lib/supabase/getUser";
 
-const SESSION_VIEWS_TABLE = "session_views" as const;
+const SESSION_VIEWS_TABLE =
+  "session_views" as const;
 
 const ERROR_UNAUTHENTICATED =
   "Usuario no autenticado.";
@@ -19,13 +20,22 @@ const ERROR_DELETE =
   "No se ha podido eliminar el progreso.";
 
 /**
+ * Código PostgreSQL para
+ * violación de clave única.
+ */
+const UNIQUE_VIOLATION =
+  "23505";
+
+/**
  * Devuelve el usuario autenticado.
  */
 async function getAuthenticatedUser() {
   const user = await getUser();
 
   if (!user) {
-    throw new Error(ERROR_UNAUTHENTICATED);
+    throw new Error(
+      ERROR_UNAUTHENTICATED,
+    );
   }
 
   return user;
@@ -36,22 +46,16 @@ async function getAuthenticatedUser() {
  *
  * Cada sesión únicamente puede
  * registrarse una vez por participante.
+ *
+ * La integridad está garantizada
+ * mediante la restricción UNIQUE
+ * (user_id, session_id).
  */
 export async function markSessionCompleted(
   sessionId: string,
 ): Promise<void> {
   const user =
     await getAuthenticatedUser();
-
-  const alreadyCompleted =
-    await isSessionCompleted(
-      sessionId,
-      user.id,
-    );
-
-  if (alreadyCompleted) {
-    return;
-  }
 
   const { error } =
     await supabase
@@ -61,9 +65,24 @@ export async function markSessionCompleted(
         session_id: sessionId,
       });
 
-  if (error) {
-    throw new Error(ERROR_REGISTER);
+  if (!error) {
+    return;
   }
+
+  /**
+   * La sesión ya estaba
+   * registrada.
+   */
+  if (
+    error.code ===
+    UNIQUE_VIOLATION
+  ) {
+    return;
+  }
+
+  throw new Error(
+    ERROR_REGISTER,
+  );
 }
 
 /**
@@ -94,7 +113,9 @@ export async function isSessionCompleted(
       .maybeSingle();
 
   if (error) {
-    throw new Error(ERROR_CHECK);
+    throw new Error(
+      ERROR_CHECK,
+    );
   }
 
   return data !== null;
@@ -118,7 +139,9 @@ export async function getCompletedSessionIds(): Promise<
       .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(ERROR_PROGRESS);
+    throw new Error(
+      ERROR_PROGRESS,
+    );
   }
 
   return (data ?? []).map(
@@ -145,7 +168,9 @@ export async function getCompletedSessionsCount(): Promise<number> {
       .eq("user_id", user.id);
 
   if (error) {
-    throw new Error(ERROR_PROGRESS);
+    throw new Error(
+      ERROR_PROGRESS,
+    );
   }
 
   return count ?? 0;
@@ -196,6 +221,8 @@ export async function unmarkSessionCompleted(
       );
 
   if (error) {
-    throw new Error(ERROR_DELETE);
+    throw new Error(
+      ERROR_DELETE,
+    );
   }
 }

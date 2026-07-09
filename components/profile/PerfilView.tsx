@@ -9,10 +9,39 @@ interface PerfilViewProps {
 }
 
 /**
+ * Formatea una fecha al formato español.
+ */
+function formatDate(date: string): string {
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+/**
  * Vista principal del perfil del participante.
  */
 export default function PerfilView({ profile }: PerfilViewProps) {
-  const userInitial = profile.email?.trim().charAt(0).toUpperCase() || "U";
+  const participantInitials = useMemo(() => {
+    const code = profile.participantCode.trim();
+
+    if (!code) {
+      return "AH";
+    }
+
+    return code
+      .split("-")
+      .map((part) => part.charAt(0))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  }, [profile.participantCode]);
+
+  const registrationDate = useMemo(
+    () => formatDate(profile.createdAt),
+    [profile.createdAt],
+  );
 
   const sections = useMemo(
     () => [
@@ -20,12 +49,20 @@ export default function PerfilView({ profile }: PerfilViewProps) {
         title: "Información de acceso",
         fields: [
           {
+            label: "Código de participante",
+            value: profile.participantCode,
+          },
+          {
             label: "Correo electrónico",
             value: profile.email,
           },
           {
             label: "Región",
             value: profile.region,
+          },
+          {
+            label: "Fecha de inscripción",
+            value: registrationDate,
           },
         ],
       },
@@ -85,28 +122,33 @@ export default function PerfilView({ profile }: PerfilViewProps) {
         ],
       },
     ],
-    [profile],
+    [profile, registrationDate],
   );
 
   return (
     <main className="perfil-page">
       <header className="perfil-summary">
         <div className="perfil-summary-avatar" aria-hidden="true">
-          {userInitial}
+          {participantInitials}
         </div>
 
         <div className="perfil-summary-content">
           <h1 className="perfil-summary-title">Mi perfil</h1>
 
           <p className="perfil-summary-role">Participante</p>
+
+          <p className="perfil-summary-code">
+            Código {profile.participantCode}
+          </p>
         </div>
       </header>
 
       <section className="perfil-introduction">
         <p>
-          En esta sección puedes consultar la información registrada durante tu
-          inscripción en el estudio. Si detectas algún dato incorrecto, ponte en
-          contacto con el equipo investigador.
+          Aquí puedes consultar la información registrada durante tu inscripción
+          en el estudio. Estos datos forman parte del proyecto de investigación
+          y no pueden modificarse desde la plataforma. Si detectas algún dato
+          incorrecto, ponte en contacto con el equipo investigador.
         </p>
       </section>
 
