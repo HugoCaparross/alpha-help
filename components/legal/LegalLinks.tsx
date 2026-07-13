@@ -12,9 +12,7 @@ interface Props {
   className?: string;
 }
 
-export default function LegalLinks({
-  className = "",
-}: Props) {
+export default function LegalLinks({ className = "" }: Props) {
   const [openPrivacy, setOpenPrivacy] = useState(false);
 
   const [openCookies, setOpenCookies] = useState(false);
@@ -23,29 +21,37 @@ export default function LegalLinks({
 
   return (
     <>
-      <button
-        type="button"
-        className={className}
-        onClick={() => setOpenPrivacy(true)}
-      >
-        Política de Privacidad
-      </button>
+      <ul className="legal-links-list">
+        <li>
+          <button
+            type="button"
+            className={className}
+            onClick={() => setOpenPrivacy(true)}
+          >
+            Política de Privacidad
+          </button>
+        </li>
 
-      <button
-        type="button"
-        className={className}
-        onClick={() => setOpenCookies(true)}
-      >
-        Política de Cookies
-      </button>
+        <li>
+          <button
+            type="button"
+            className={className}
+            onClick={() => setOpenCookies(true)}
+          >
+            Política de Cookies
+          </button>
+        </li>
 
-      <button
-        type="button"
-        className={className}
-        onClick={() => setOpenLegal(true)}
-      >
-        Aviso Legal
-      </button>
+        <li>
+          <button
+            type="button"
+            className={className}
+            onClick={() => setOpenLegal(true)}
+          >
+            Aviso Legal
+          </button>
+        </li>
+      </ul>
 
       <LegalModal
         open={openPrivacy}

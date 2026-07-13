@@ -1,15 +1,24 @@
+/* ==========================================
+   COOKIE BANNER
+========================================== */
+
 .cookie-banner {
   position: fixed;
+
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
 
   z-index: 50;
 
-  padding: 16px;
+  padding: 1rem;
 
   pointer-events: none;
 }
+
+/* ==========================================
+   CONTAINER
+========================================== */
 
 .cookie-banner-container {
   max-width: 1200px;
@@ -19,24 +28,40 @@
   pointer-events: auto;
 }
 
+/* ==========================================
+   CARD
+========================================== */
+
 .cookie-banner-card {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 
-  gap: 24px;
+  gap: 1.5rem;
 
-  padding: 24px;
+  padding: 1.5rem;
 
-  background: white;
+  background: var(--surface);
 
-  border: 1px solid var(--neutral-200);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
 
-  border-radius: 24px;
+  box-shadow: var(--shadow-card);
 
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.cookie-banner-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: var(--shadow-hover);
+}
+
+/* ==========================================
+   CONTENT
+========================================== */
 
 .cookie-banner-content {
   flex: 1;
@@ -44,65 +69,94 @@
 
 .cookie-banner-header {
   display: flex;
-
   align-items: center;
 
-  gap: 8px;
+  gap: 0.5rem;
 
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .cookie-banner-title {
-  font-size: 16px;
-
-  font-weight: 700;
-
   color: var(--neutral-900);
+
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .cookie-banner-text {
   max-width: 800px;
 
-  font-size: 14px;
+  color: var(--neutral-600);
 
+  font-size: 0.875rem;
   line-height: 1.7;
 
-  color: var(--neutral-600);
+  overflow-wrap: anywhere;
 }
+
+/* ==========================================
+   ACTIONS
+========================================== */
 
 .cookie-banner-actions {
   display: flex;
-
   align-items: center;
 
-  gap: 12px;
+  gap: 0.75rem;
 
   flex-shrink: 0;
 }
 
 .cookie-banner-link {
-  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  font-size: 14px;
-
-  font-weight: 600;
+  padding: 0.5rem 1rem;
 
   color: var(--neutral-500);
 
+  font-size: 0.875rem;
+  font-weight: 600;
+
   text-decoration: none;
 
-  transition: color 0.2s ease;
+  border-radius: var(--radius-md);
+
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .cookie-banner-link:hover {
   color: var(--neutral-900);
+
+  background: var(--neutral-100);
 }
 
+.cookie-banner-link:focus-visible {
+  outline: none;
+
+  box-shadow: var(--focus-shadow);
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
 @media (max-width: 768px) {
+  .cookie-banner {
+    padding: 0.75rem;
+  }
+
   .cookie-banner-card {
     flex-direction: column;
-
     align-items: stretch;
+
+    gap: 1.25rem;
+
+    padding: 1.25rem;
   }
 
   .cookie-banner-actions {
@@ -111,8 +165,14 @@
     width: 100%;
   }
 
-  .cookie-banner-actions .btn-secondary,
-  .cookie-banner-actions .btn-primary {
+  .cookie-banner-actions .btn-primary,
+  .cookie-banner-actions .btn-secondary {
+    width: 100%;
+  }
+
+  .cookie-banner-link {
+    justify-content: center;
+
     width: 100%;
   }
 }

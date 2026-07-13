@@ -37,7 +37,7 @@
   overflow-x: hidden;
   overflow-y: auto;
 
-  padding: 2rem;
+  padding: 1.5rem;
 
   scroll-behavior: smooth;
 
@@ -72,4 +72,20 @@
   height: 100vh;
 
   overflow: hidden;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 1280px) {
+  .private-layout-main {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .private-layout-main {
+    padding: 1rem;
+  }
 }

@@ -32,23 +32,30 @@ export default function QuestionnaireProgress({
 
   const progressLabel = `Pregunta ${currentStep} de ${totalSteps}`;
 
-  const progressText = `Ya has completado el ${progress}% del cuestionario.`;
-
   return (
     <section
       className="questionnaire-progress"
       aria-labelledby="questionnaire-progress-title"
     >
       <header className="questionnaire-progress__header">
-        <p
-          id="questionnaire-progress-title"
-          className="questionnaire-progress__title"
-        >
-          {questionnaireTitle}
-        </p>
+        <div className="questionnaire-progress__heading">
+          <p
+            id="questionnaire-progress-title"
+            className="questionnaire-progress__title"
+          >
+            {questionnaireTitle}
+          </p>
 
-        <p id={progressDescriptionId} className="questionnaire-progress__step">
-          {progressLabel}
+          <p
+            id={progressDescriptionId}
+            className="questionnaire-progress__step"
+          >
+            {progressLabel}
+          </p>
+        </div>
+
+        <p className="questionnaire-progress__percentage">
+          {progress}%
         </p>
       </header>
 
@@ -69,12 +76,6 @@ export default function QuestionnaireProgress({
           }}
         />
       </div>
-
-      <footer className="questionnaire-progress__footer">
-        <p className="questionnaire-progress__percentage">{progress}%</p>
-
-        <p className="questionnaire-progress__text">{progressText}</p>
-      </footer>
     </section>
   );
 }

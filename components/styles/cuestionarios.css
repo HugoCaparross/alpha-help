@@ -6,64 +6,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: 2.5rem;
+  gap: 2rem;
 
   width: 100%;
-}
-
-/* ==========================================================
-   PAGE HEADER
-========================================================== */
-
-.questionnaires-page__header {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1rem;
-
-  max-width: 760px;
-}
-
-.questionnaires-page__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: fit-content;
-
-  padding: .45rem .9rem;
-
-  border-radius: 999px;
-
-  background: rgba(59,130,246,.08);
-
-  color: var(--accent);
-
-  font-size: .8rem;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.questionnaires-page__title {
-  margin: 0;
-
-  font-size: clamp(2.2rem,4vw,3rem);
-  font-weight: 700;
-  line-height: 1.15;
-
-  color: var(--neutral-900);
-}
-
-.questionnaires-page__description {
-  margin: 0;
-
-  max-width: 760px;
-
-  color: var(--neutral-600);
-
-  font-size: 1rem;
-  line-height: 1.8;
 }
 
 /* ==========================================================
@@ -78,146 +23,808 @@
 }
 
 /* ==========================================================
-   EVALUATION CARD
+   LOADING
 ========================================================== */
 
-.evaluation-card {
-  position: relative;
+.questionnaires-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  overflow: hidden;
+  min-height: 24rem;
 
-  width: 100%;
+  color: var(--neutral-600);
+
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.questionnaires-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 1.5rem;
+
+  min-height: 24rem;
+
+  padding: 2rem;
+
+  text-align: center;
+
+  background: var(--surface);
 
   border: var(--border-light);
   border-radius: var(--radius-lg);
 
-  background: var(--surface);
-
   box-shadow: var(--shadow-card);
-
-  transition:
-    transform .25s ease,
-    box-shadow .25s ease,
-    border-color .25s ease;
 }
 
-@media (hover:hover){
+.questionnaires-error p {
+  margin: 0;
 
-  .evaluation-card:hover{
+  max-width: 34rem;
 
-    transform: translateY(-3px);
+  color: var(--danger);
 
-    border-color: rgba(59,130,246,.15);
+  font-size: 1rem;
+  line-height: 1.7;
+}
 
-    box-shadow: var(--shadow-hover);
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 768px) {
+  .questionnaires-page {
+    gap: 1.5rem;
+  }
+
+  .questionnaires-list {
+    gap: 1.25rem;
+  }
+
+  .questionnaires-error {
+    min-height: 20rem;
+
+    padding: 1.5rem;
+  }
+}
+
+/* ==========================================================
+   EVALUATION CARD
+========================================================== */
+
+.evaluation-card {
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.evaluation-card:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(14,165,233,.18);
+
+  box-shadow: var(--shadow-hover);
+}
+
+.evaluation-card__content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1.75rem;
+
+  height: 100%;
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.evaluation-card__header {
+  display: flex;
+  flex-direction: column;
+
+  gap: .75rem;
+}
+
+.evaluation-card__title {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.evaluation-card__description {
+  margin: 0;
+
+  max-width: 48rem;
+
+  color: var(--neutral-600);
+
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+/* ==========================================================
+   META
+========================================================== */
+
+.evaluation-card__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: .75rem;
+
+  color: var(--neutral-500);
+
+  font-size: .9rem;
+  font-weight: 500;
+}
+
+/* ==========================================================
+   HELPER
+========================================================== */
+
+.evaluation-card__helper {
+  margin: 0;
+
+  color: var(--neutral-700);
+
+  font-size: .95rem;
+  line-height: 1.7;
+}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.evaluation-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  margin-top: auto;
+
+  padding-top: 1.5rem;
+
+  border-top: var(--border-light);
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+  .evaluation-card__footer{
+
+    flex-direction:column;
+    align-items:stretch;
+
+  }
+
+  .evaluation-card__footer > *{
+
+    width:100%;
+
+  }
+
+  .evaluation-card__footer a{
+
+    width:100%;
 
   }
 
 }
 
-.evaluation-card__content{
-  display:flex;
-  flex-direction:column;
+/* ==========================================================
+   EVALUATION STATUS BADGE
+========================================================== */
 
-  gap:2rem;
+.evaluation-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  padding:2rem;
+  min-height: 2.2rem;
+
+  padding: .55rem 1rem;
+
+  border-radius: 999px;
+
+  font-size: .85rem;
+  font-weight: 600;
+  line-height: 1;
+
+  white-space: nowrap;
+
+  transition:
+    background-color .2s ease,
+    color .2s ease,
+    border-color .2s ease;
 }
 
-.evaluation-card__header{
-  display:flex;
-  flex-direction:column;
+/* ==========================================
+   PENDING
+========================================== */
 
-  gap:.85rem;
+.evaluation-status-badge[data-status="pending"] {
+  background: rgba(14,165,233,.08);
+
+  color: var(--accent);
 }
 
-.evaluation-card__title{
-  margin:0;
+/* ==========================================
+   COMPLETED
+========================================== */
 
-  font-size:1.45rem;
-  font-weight:700;
-  line-height:1.35;
+.evaluation-status-badge[data-status="completed"] {
+  background: rgba(16,185,129,.10);
 
-  color:var(--neutral-900);
+  color: var(--success);
 }
 
-.evaluation-card__description{
-  margin:0;
+/* ==========================================
+   LOCKED
+========================================== */
 
-  max-width:48rem;
+.evaluation-status-badge[data-status="locked"] {
+  background: var(--neutral-100);
 
-  color:var(--neutral-600);
-
-  font-size:1rem;
-  line-height:1.8;
-}
-
-.evaluation-card__meta{
-  display:flex;
-  align-items:center;
-
-  gap:.75rem;
-
-  flex-wrap:wrap;
-
-  color:var(--neutral-500);
-
-  font-size:.9rem;
-  font-weight:500;
-}
-
-.evaluation-card__footer{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  gap:1rem;
-
-  padding-top:.5rem;
-
-  border-top:var(--border-light);
+  color: var(--neutral-500);
 }
 
 /* ==========================================================
-   STATUS BADGES
+   QUESTION BLOCK
 ========================================================== */
 
-.evaluation-status-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+.question-block {
+  display: flex;
+  flex-direction: column;
 
-  min-height:2.2rem;
-
-  padding:.55rem 1rem;
-
-  border-radius:999px;
-
-  font-size:.85rem;
-  font-weight:600;
+  gap: 2rem;
 }
 
-.evaluation-status-badge[data-status="pending"]{
+/* ==========================================================
+   BODY
+========================================================== */
 
-  background:rgba(59,130,246,.08);
+.question-block__body {
+  display: flex;
+  flex-direction: column;
 
-  color:var(--accent);
+  gap: 1.5rem;
+}
+
+/* ==========================================================
+   QUESTIONS
+========================================================== */
+
+.question-block__questions {
+  transition:
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+.question-block__questions--transition {
+  opacity: .55;
+
+  transform: translateY(6px);
+
+  pointer-events: none;
+}
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.question-block__error {
+  padding: 1rem 1.25rem;
+
+  background: rgba(239,68,68,.05);
+
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-md);
+}
+
+.question-block__error p {
+  margin: 0;
+
+  color: var(--danger);
+
+  font-size: .95rem;
+  font-weight: 500;
+
+  line-height: 1.7;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+  .question-block{
+
+    gap:1.5rem;
+
+  }
 
 }
 
-.evaluation-status-badge[data-status="completed"]{
+/* ==========================================================
+   QUESTION CARD
+========================================================== */
 
-  background:rgba(16,185,129,.12);
+.question-card {
+  display: flex;
+  flex-direction: column;
 
-  color:var(--success);
+  gap: 1.5rem;
+
+  width: 100%;
+  max-width: 860px;
+
+  margin: 0 auto;
+}
+
+.question-card--error {
+  border-color: var(--danger);
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.question-card__header {
+  display: flex;
+  flex-direction: column;
+
+  gap: .5rem;
+}
+
+.question-card__number {
+  margin: 0;
+
+  color: var(--accent);
+
+  font-size: .82rem;
+  font-weight: 700;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+}
+
+.question-card__title {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.45;
+
+  text-wrap: balance;
+}
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.question-card__error {
+  margin: 0;
+
+  padding: .85rem 1rem;
+
+  background: rgba(239,68,68,.06);
+
+  border-radius: var(--radius-md);
+
+  color: var(--danger);
+
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   OPTIONS
+========================================================== */
+
+.question-card__options {
+  display: flex;
+  flex-direction: column;
+
+  gap: .75rem;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+/* ==========================================================
+   OPTION
+========================================================== */
+
+.question-card__option {
+  display: flex;
+  align-items: center;
+
+  gap: .9rem;
+
+  min-height: 60px;
+
+  padding: .95rem 1.2rem;
+
+  background: var(--surface);
+
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+
+  cursor: pointer;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background-color .2s ease,
+    transform .15s ease;
+}
+
+.question-card__option:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(14,165,233,.22);
+
+  box-shadow: var(--shadow-card);
+}
+
+.question-card__option--selected {
+  background: rgba(14,165,233,.06);
+
+  border-color: var(--accent);
+
+  box-shadow: 0 0 0 3px rgba(14,165,233,.08);
+}
+
+/* ==========================================================
+   RADIO
+========================================================== */
+
+.question-card__input {
+  appearance: none;
+
+  flex-shrink: 0;
+
+  width: 20px;
+  height: 20px;
+
+  margin: 0;
+
+  border: 2px solid var(--neutral-300);
+  border-radius: 50%;
+
+  transition:
+    border-color .2s ease,
+    background-color .2s ease,
+    box-shadow .2s ease;
+
+  cursor: pointer;
+}
+
+.question-card__input:checked {
+  background: var(--accent);
+
+  border-color: var(--accent);
+
+  box-shadow: inset 0 0 0 4px white;
+}
+
+.question-card__input:focus-visible {
+  outline: none;
+
+  box-shadow: var(--focus-shadow);
+}
+
+/* ==========================================================
+   LABEL
+========================================================== */
+
+.question-card__label {
+  flex: 1;
+
+  color: var(--neutral-800);
+
+  font-size: .96rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.question-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  margin-top: .5rem;
+
+  padding-top: 1rem;
+
+  border-top: var(--border-light);
+}
+
+.question-card__previous {
+  padding: 0;
+
+  background: transparent;
+
+  border: none;
+
+  color: var(--neutral-600);
+
+  font-size: .92rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color .2s ease,
+    transform .2s ease;
+}
+
+.question-card__previous:hover:not(:disabled) {
+  color: var(--accent);
+
+  transform: translateX(-3px);
+}
+
+.question-card__previous:disabled {
+  opacity: .5;
+
+  cursor: not-allowed;
+}
+
+/* Ocultaría este texto */
+
+.question-card__answered {
+  display: none;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+  .question-card{
+
+    gap:1.25rem;
+
+  }
+
+  .question-card__title{
+
+    font-size:1.2rem;
+
+  }
+
+  .question-card__option{
+
+    min-height:56px;
+
+    align-items:flex-start;
+
+  }
 
 }
 
-.evaluation-status-badge[data-status="locked"]{
+/* ==========================================================
+   QUESTIONNAIRE COMPLETION
+========================================================== */
 
-  background:var(--neutral-100);
+.questionnaire-completion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  color:var(--neutral-500);
+  min-height: calc(100vh - 12rem);
+
+  padding: 2rem;
+}
+
+.questionnaire-completion .card {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* ==========================================================
+   CONTENT
+========================================================== */
+
+.questionnaire-completion__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 2rem;
+
+  text-align: center;
+}
+
+/* ==========================================================
+   TITLE
+========================================================== */
+
+.questionnaire-completion__title {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+
+  text-wrap: balance;
+}
+
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
+
+.questionnaire-completion__description {
+  margin: 0;
+
+  max-width: 38rem;
+
+  color: var(--neutral-600);
+
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+/* ==========================================================
+   ACTIONS
+========================================================== */
+
+.questionnaire-completion__actions {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.questionnaire-completion__actions .btn-primary,
+.questionnaire-completion__actions button {
+  min-width: 220px;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+  .questionnaire-completion{
+
+    min-height:auto;
+
+    padding:1.5rem;
+
+  }
+
+  .questionnaire-completion__content{
+
+    gap:1.5rem;
+
+  }
+
+  .questionnaire-completion__actions{
+
+    width:100%;
+
+  }
+
+  .questionnaire-completion__actions .btn-primary,
+  .questionnaire-completion__actions button{
+
+    width:100%;
+
+    min-width:0;
+
+  }
+
+}
+
+/* ==========================================================
+   QUESTIONNAIRE FLOW
+========================================================== */
+
+/* ==========================================
+   LOADING
+========================================== */
+
+.questionnaire-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24rem;
+
+  color: var(--neutral-600);
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  text-align: center;
+}
+
+/* ==========================================
+   ERROR
+========================================== */
+
+.questionnaire-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 1.5rem;
+
+  min-height: 24rem;
+
+  padding: 2rem;
+
+  text-align: center;
+
+  background: var(--surface);
+
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
+}
+
+.questionnaire-error p {
+  margin: 0;
+
+  max-width: 36rem;
+
+  color: var(--danger);
+
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:768px){
+
+  .questionnaire-loading,
+  .questionnaire-error{
+
+    min-height:20rem;
+
+    padding:1.5rem;
+
+  }
 
 }
 
@@ -231,21 +838,22 @@
 
   gap: 2rem;
 
-  padding: 2rem;
+  max-width: 960px;
 
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow-card);
+  margin: 0 auto;
 }
 
-.questionnaire-introduction__header {
+/* ==========================================================
+   HERO
+========================================================== */
+
+.questionnaire-introduction__hero {
   display: flex;
   flex-direction: column;
 
-  gap: .75rem;
+  gap: 1rem;
+
+  text-align: center;
 }
 
 .questionnaire-introduction__title {
@@ -253,46 +861,69 @@
 
   color: var(--neutral-900);
 
-  font-size: 1.55rem;
+  font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.15;
+
+  text-wrap: balance;
 }
 
 .questionnaire-introduction__description {
-  margin: 0;
+  margin: 0 auto;
 
-  max-width: 52rem;
+  max-width: 42rem;
 
   color: var(--neutral-600);
 
-  font-size: 1rem;
-  line-height: 1.8;
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+.questionnaire-introduction__description strong {
+  color: var(--neutral-900);
+
+  font-weight: 700;
 }
 
 /* ==========================================================
-   INFORMATION GRID
+   CONTENT
+========================================================== */
+
+.questionnaire-introduction__content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2.5rem;
+}
+
+/* ==========================================================
+   GRID
 ========================================================== */
 
 .questionnaire-introduction__grid {
   display: grid;
 
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  gap: 1rem;
+  gap: 1.25rem;
 }
+
+/* ==========================================================
+   ITEM
+========================================================== */
 
 .questionnaire-introduction__item {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
 
-  gap: 1rem;
+  gap: .75rem;
 
-  padding: 1.25rem;
+  padding: 1.5rem;
+
+  background: var(--background);
 
   border: var(--border-light);
   border-radius: var(--radius-md);
-
-  background: var(--neutral-50);
 
   transition:
     transform .2s ease,
@@ -300,103 +931,24 @@
     box-shadow .2s ease;
 }
 
-@media (hover:hover){
+.questionnaire-introduction__item:hover {
+  transform: translateY(-2px);
 
-  .questionnaire-introduction__item:hover{
+  border-color: rgba(14,165,233,.18);
 
-    transform: translateY(-2px);
-
-    border-color: rgba(59,130,246,.15);
-
-    box-shadow: var(--shadow-card);
-
-  }
-
+  box-shadow: var(--shadow-card);
 }
 
-.questionnaire-introduction__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  width: 3rem;
-  height: 3rem;
-
-  border-radius: .9rem;
-
-  background: rgba(59,130,246,.08);
-
-  color: var(--accent);
-}
-
-.questionnaire-introduction__content {
-  display: flex;
-  flex-direction: column;
-
-  gap: .35rem;
-}
-
-.questionnaire-introduction__label {
+.questionnaire-introduction__item-title {
   margin: 0;
 
   color: var(--neutral-900);
 
-  font-size: .95rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
-.questionnaire-introduction__value {
-  margin: 0;
-
-  color: var(--neutral-600);
-
-  font-size: .92rem;
-  line-height: 1.7;
-}
-
-/* ==========================================================
-   IMPORTANT NOTICE
-========================================================== */
-
-.questionnaire-introduction__notice {
-  display: flex;
-  align-items: flex-start;
-
-  gap: 1rem;
-
-  padding: 1.25rem 1.5rem;
-
-  border-left: 4px solid var(--accent);
-  border-radius: var(--radius-md);
-
-  background: rgba(59,130,246,.05);
-}
-
-.questionnaire-introduction__notice-icon {
-  flex-shrink: 0;
-
-  color: var(--accent);
-}
-
-.questionnaire-introduction__notice-content {
-  display: flex;
-  flex-direction: column;
-
-  gap: .35rem;
-}
-
-.questionnaire-introduction__notice-title {
-  margin: 0;
-
-  color: var(--neutral-900);
-
-  font-size: .95rem;
-  font-weight: 700;
-}
-
-.questionnaire-introduction__notice-text {
+.questionnaire-introduction__item-text {
   margin: 0;
 
   color: var(--neutral-600);
@@ -406,686 +958,167 @@
 }
 
 /* ==========================================================
-   START ACTION
+   ACTIONS
 ========================================================== */
 
 .questionnaire-introduction__actions {
   display: flex;
   justify-content: flex-end;
 
-  padding-top: .5rem;
-
-  border-top: var(--border-light);
-}
-
-/* ==========================================================
-   QUESTION BLOCK
-========================================================== */
-
-.question-block {
-  display: flex;
-  flex-direction: column;
-
-  gap: 2rem;
-
-  padding: 2rem;
-
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow-card);
-}
-
-/* ==========================================================
-   PROGRESS HEADER
-========================================================== */
-
-.question-block__header {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1rem;
-}
-
-.question-block__progress {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 1rem;
-
-  flex-wrap: wrap;
-}
-
-.question-block__step {
-  color: var(--accent);
-
-  font-size: .9rem;
-  font-weight: 700;
-}
-
-.question-block__counter {
-  color: var(--neutral-500);
-
-  font-size: .9rem;
-  font-weight: 600;
-}
-
-/* ==========================================================
-   PROGRESS BAR
-========================================================== */
-
-.question-block__progressbar {
-  position: relative;
-
-  width: 100%;
-  height: .7rem;
-
-  overflow: hidden;
-
-  border-radius: 999px;
-
-  background: var(--neutral-100);
-}
-
-.question-block__progressbar-fill {
-  height: 100%;
-
-  border-radius: inherit;
-
-  background: linear-gradient(
-    90deg,
-    var(--accent),
-    #60a5fa
-  );
-
-  transition: width .35s ease;
-}
-
-/* ==========================================================
-   QUESTION CONTAINER
-========================================================== */
-
-.question-block__content {
-  display: flex;
-  flex-direction: column;
-
-  gap: 2rem;
-}
-
-/* ==========================================================
-   QUESTION HEADER
-========================================================== */
-
-.question-block__question-header {
-  display: flex;
-  flex-direction: column;
-
-  gap: .75rem;
-}
-
-.question-block__category {
-  display: inline-flex;
-  align-items: center;
-
-  width: fit-content;
-
-  padding: .4rem .85rem;
-
-  border-radius: 999px;
-
-  background: rgba(59,130,246,.08);
-
-  color: var(--accent);
-
-  font-size: .8rem;
-  font-weight: 700;
-}
-
-.question-block__title {
-  margin: 0;
-
-  color: var(--neutral-900);
-
-  font-size: 1.45rem;
-  font-weight: 700;
-  line-height: 1.45;
-}
-
-.question-block__description {
-  margin: 0;
-
-  color: var(--neutral-600);
-
-  line-height: 1.8;
-}
-
-/* ==========================================================
-   QUESTION FOOTER
-========================================================== */
-
-.question-block__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 1rem;
-
-  padding-top: 1.5rem;
-
-  border-top: var(--border-light);
-}
-
-.question-block__hint {
-  color: var(--neutral-500);
-
-  font-size: .9rem;
-}
-
-.question-block__navigation {
-  display: flex;
-  align-items: center;
-
-  gap: .75rem;
-}
-
-/* ==========================================================
-   QUESTION CARD
-========================================================== */
-
-.question-card {
-  display: flex;
-  flex-direction: column;
-
-  gap: 2rem;
-
-  padding: 2rem;
-
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow-card);
-
-  transition:
-    border-color .25s ease,
-    box-shadow .25s ease;
-}
-
-.question-card:focus-within {
-
-  border-color: rgba(59,130,246,.18);
-
-  box-shadow:
-    var(--shadow-hover),
-    0 0 0 3px rgba(59,130,246,.08);
-
-}
-
-/* ==========================================================
-   QUESTION
-========================================================== */
-
-.question-card__question {
-  margin: 0;
-
-  color: var(--neutral-900);
-
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.7;
-}
-
-.question-card__help {
-  margin: -.75rem 0 0;
-
-  color: var(--neutral-500);
-
-  font-size: .95rem;
-  line-height: 1.7;
-}
-
-/* ==========================================================
-   LIKERT SCALE
-========================================================== */
-
-.likert {
-  display: flex;
-  flex-direction: column;
-
-  gap: .9rem;
-}
-
-.likert__option {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-
-  gap: 1rem;
-
-  padding: 1rem 1.25rem;
-
-  border: var(--border-light);
-  border-radius: var(--radius-md);
-
-  background: var(--surface);
-
-  cursor: pointer;
-
-  transition:
-    background-color .2s ease,
-    border-color .2s ease,
-    transform .2s ease,
-    box-shadow .2s ease;
-}
-
-@media (hover:hover){
-
-  .likert__option:hover{
-
-    transform: translateY(-2px);
-
-    border-color: rgba(59,130,246,.15);
-
-    background: rgba(59,130,246,.03);
-
-    box-shadow: var(--shadow-card);
-
-  }
-
-}
-
-.likert__option:has(input:checked){
-
-  border-color: var(--accent);
-
-  background: rgba(59,130,246,.06);
-
-  box-shadow:
-    0 0 0 2px rgba(59,130,246,.08);
-
-}
-
-.likert__option:focus-within{
-
-  outline:2px solid var(--accent);
-
-  outline-offset:2px;
-
-}
-
-/* ==========================================================
-   RADIO
-========================================================== */
-
-.likert__option input[type="radio"]{
-
-  width:20px;
-  height:20px;
-
-  margin:0;
-
-  accent-color:var(--accent);
-
-  cursor:pointer;
-
-  flex-shrink:0;
-
-}
-
-/* ==========================================================
-   LABEL
-========================================================== */
-
-.likert__label{
-
-  flex:1;
-
-  color:var(--neutral-800);
-
-  font-size:1rem;
-  font-weight:500;
-  line-height:1.6;
-
-}
-
-/* ==========================================================
-   VALUE BADGE
-========================================================== */
-
-.likert__value{
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  min-width:2rem;
-  height:2rem;
-
-  padding:0 .65rem;
-
-  border-radius:999px;
-
-  background:var(--neutral-100);
-
-  color:var(--neutral-500);
-
-  font-size:.85rem;
-  font-weight:700;
-
-  transition:
-    background-color .2s ease,
-    color .2s ease;
-
-}
-
-.likert__option:has(input:checked) .likert__value{
-
-  background:var(--accent);
-
-  color:white;
-
-}
-
-/* ==========================================================
-   VALIDATION
-========================================================== */
-
-.question-card__error{
-
-  display:flex;
-  align-items:center;
-
-  gap:.6rem;
-
-  padding:1rem 1.2rem;
-
-  border-left:4px solid var(--danger);
-
-  border-radius:var(--radius-md);
-
-  background:rgba(239,68,68,.05);
-
-  color:var(--danger);
-
-  font-size:.95rem;
-  font-weight:500;
-
-}
-
-/* ==========================================================
-   NAVIGATION
-========================================================== */
-
-.questionnaire-navigation {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
   gap: 1rem;
 
   padding-top: 2rem;
 
   border-top: var(--border-light);
-}
-
-.questionnaire-navigation__left,
-.questionnaire-navigation__right {
-  display: flex;
-  align-items: center;
-
-  gap: .75rem;
-}
-
-.questionnaire-navigation .btn-primary,
-.questionnaire-navigation .btn-secondary {
-  min-width: 160px;
-}
-
-/* ==========================================================
-   QUESTION COUNTER
-========================================================== */
-
-.questionnaire-navigation__counter {
-  color: var(--neutral-500);
-
-  font-size: .95rem;
-  font-weight: 600;
-}
-
-/* ==========================================================
-   SUBMIT STATE
-========================================================== */
-
-.questionnaire-submit {
-  display: flex;
-  justify-content: flex-end;
-
-  padding-top: 2rem;
-
-  border-top: var(--border-light);
-}
-
-/* ==========================================================
-   COMPLETED
-========================================================== */
-
-.questionnaire-completed {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  gap: 2rem;
-
-  padding: 4rem 3rem;
-
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow-card);
-
-  text-align: center;
-}
-
-.questionnaire-completed__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 5rem;
-  height: 5rem;
-
-  border-radius: 50%;
-
-  background: rgba(16,185,129,.12);
-
-  color: var(--success);
-}
-
-.questionnaire-completed__title {
-  margin: 0;
-
-  color: var(--neutral-900);
-
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.questionnaire-completed__description {
-  max-width: 42rem;
-
-  margin: 0;
-
-  color: var(--neutral-600);
-
-  font-size: 1rem;
-  line-height: 1.8;
-}
-
-.questionnaire-completed__actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 1rem;
-
-  flex-wrap: wrap;
-}
-
-/* ==========================================================
-   LOADING
-========================================================== */
-
-.questionnaire-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  gap: 1rem;
-
-  min-height: 320px;
-
-  color: var(--neutral-600);
-}
-
-.questionnaire-loading__spinner {
-  width: 2.25rem;
-  height: 2.25rem;
-
-  border: 3px solid var(--neutral-200);
-  border-top-color: var(--accent);
-
-  border-radius: 50%;
-
-  animation: questionnaire-spin .8s linear infinite;
-}
-
-@keyframes questionnaire-spin {
-
-  to {
-    transform: rotate(360deg);
-  }
-
 }
 
 /* ==========================================================
    RESPONSIVE
 ========================================================== */
 
-@media (max-width: 992px) {
+@media (max-width:768px){
 
-  .questionnaires-page {
-    gap: 2rem;
+  .questionnaire-introduction{
+
+    gap:1.5rem;
+
   }
 
-  .evaluation-card__content,
-  .questionnaire-introduction,
-  .question-block,
-  .question-card {
-    padding: 1.75rem;
+  .questionnaire-introduction__grid{
+
+    grid-template-columns:1fr;
+
   }
 
-}
+  .questionnaire-introduction__actions{
 
-@media (max-width: 768px) {
+    flex-direction:column;
 
-  .questionnaires-page__title {
-    font-size: 2rem;
   }
 
-  .questionnaires-page__description {
-    font-size: .95rem;
-  }
+  .questionnaire-introduction__actions > *{
 
-  .questionnaire-introduction__grid {
-    grid-template-columns: 1fr;
-  }
+    width:100%;
 
-  .question-card__question {
-    font-size: 1.2rem;
-  }
-
-  .likert__option {
-    padding: .95rem 1rem;
-  }
-
-  .questionnaire-navigation {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .questionnaire-navigation__left,
-  .questionnaire-navigation__right {
-    width: 100%;
-
-    justify-content: space-between;
-  }
-
-  .questionnaire-navigation .btn-primary,
-  .questionnaire-navigation .btn-secondary {
-    flex: 1;
-
-    min-width: 0;
-  }
-
-  .questionnaire-completed {
-    padding: 3rem 2rem;
   }
 
 }
 
-@media (max-width: 480px) {
+/* ==========================================================
+   QUESTIONNAIRE PROGRESS
+========================================================== */
 
-  .evaluation-card__content,
-  .questionnaire-introduction,
-  .question-block,
-  .question-card {
-    padding: 1.25rem;
+.questionnaire-progress {
+  display: flex;
+  flex-direction: column;
+
+  gap: .85rem;
+
+  padding: 1rem 1.25rem;
+
+  background: var(--surface);
+
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.questionnaire-progress__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 1rem;
+}
+
+.questionnaire-progress__heading {
+  display: flex;
+  flex-direction: column;
+
+  gap: .2rem;
+
+  min-width: 0;
+}
+
+.questionnaire-progress__title {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  line-height: 1.3;
+}
+
+.questionnaire-progress__step {
+  margin: 0;
+
+  color: var(--neutral-500);
+
+  font-size: .85rem;
+  font-weight: 500;
+}
+
+.questionnaire-progress__percentage {
+  margin: 0;
+
+  flex-shrink: 0;
+
+  color: var(--accent);
+
+  font-size: 1.25rem;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+/* ==========================================================
+   BAR
+========================================================== */
+
+.questionnaire-progress__bar {
+  overflow: hidden;
+
+  width: 100%;
+  height: .55rem;
+
+  background: var(--neutral-100);
+
+  border-radius: 999px;
+}
+
+.questionnaire-progress__fill {
+  height: 100%;
+
+  background: var(--accent);
+
+  border-radius: inherit;
+
+  transition: width .3s ease;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:768px){
+
+  .questionnaire-progress{
+
+    padding:1rem;
+
   }
 
-  .questionnaires-page__title {
-    font-size: 1.75rem;
-  }
+  .questionnaire-progress__header{
 
-  .question-card__question {
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
+    align-items:flex-start;
 
-  .likert__option {
-    gap: .85rem;
-
-    padding: .9rem;
-  }
-
-  .likert__label {
-    font-size: .95rem;
-  }
-
-  .questionnaire-completed {
-    padding: 2.5rem 1.5rem;
-  }
-
-  .questionnaire-completed__title {
-    font-size: 1.65rem;
-  }
-
-  .questionnaire-completed__actions {
-    width: 100%;
-
-    flex-direction: column;
-  }
-
-  .questionnaire-completed__actions .btn-primary,
-  .questionnaire-completed__actions .btn-secondary {
-    width: 100%;
   }
 
 }

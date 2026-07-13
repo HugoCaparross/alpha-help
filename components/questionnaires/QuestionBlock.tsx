@@ -248,6 +248,12 @@ export default function QuestionBlock({
   }
   return (
     <section className="question-block">
+      <QuestionnaireProgress
+        questionnaireTitle={sectionTitle}
+        currentStep={currentQuestionPosition}
+        totalSteps={TOTAL_QUESTIONS}
+      />
+
       <div className="question-block__body">
         <div
           className={`question-block__questions ${
@@ -279,12 +285,6 @@ export default function QuestionBlock({
           </div>
         )}
       </div>
-
-      <QuestionnaireProgress
-        questionnaireTitle={sectionTitle}
-        currentStep={currentQuestionPosition}
-        totalSteps={TOTAL_QUESTIONS}
-      />
     </section>
   );
 }

@@ -38,6 +38,7 @@
 
 .about-hero {
   display: grid;
+
   gap: 2rem;
 
   margin-bottom: 5rem;
@@ -46,6 +47,7 @@
 .about-hero-content {
   display: flex;
   flex-direction: column;
+
   gap: 1.5rem;
 }
 
@@ -57,11 +59,11 @@
 }
 
 .about-hero-title {
+  color: var(--neutral-900);
+
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
-
-  color: var(--neutral-900);
 }
 
 .about-hero-text {
@@ -69,6 +71,8 @@
 
   font-size: 1rem;
   line-height: 1.8;
+
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================
@@ -76,23 +80,33 @@
 ========================================== */
 
 .about-lead-card {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-light)
-  );
-
-  color: white;
-
   display: flex;
   flex-direction: column;
+
   gap: 1.5rem;
+
+  padding: 2rem;
+
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent-light)
+    );
+
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
 }
 
 .about-lead-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   width: 80px;
   height: 80px;
@@ -103,8 +117,6 @@
 
   font-size: 2rem;
   font-weight: 700;
-
-  flex-shrink: 0;
 }
 
 .about-lead-name {
@@ -115,22 +127,25 @@
 
 .about-lead-role {
   font-size: 0.95rem;
+  line-height: 1.5;
+
   opacity: 0.9;
 }
 
 .about-lead-link {
   display: inline-flex;
   align-items: center;
+
   gap: 0.5rem;
 
   width: fit-content;
 
   padding: 0.75rem 1rem;
 
-  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
 
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 
   color: inherit;
 
@@ -138,13 +153,20 @@
   font-weight: 600;
 
   transition:
-    background 0.2s ease,
+    background-color 0.2s ease,
     transform 0.2s ease;
 }
 
 .about-lead-link:hover {
   background: rgba(255, 255, 255, 0.22);
+
   transform: translateY(-2px);
+}
+
+.about-lead-link:focus-visible {
+  outline: none;
+
+  box-shadow: var(--focus-shadow);
 }
 
 /* ==========================================
@@ -158,16 +180,17 @@
 .about-team-title {
   margin-bottom: 3rem;
 
+  color: var(--neutral-900);
+
   text-align: center;
 
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-weight: 700;
-
-  color: var(--neutral-900);
 }
 
 .about-team-list {
   display: grid;
+
   gap: 1.5rem;
 }
 
@@ -178,7 +201,27 @@
 .about-member {
   display: flex;
   flex-direction: column;
+
   gap: 1.25rem;
+
+  padding: 1.5rem;
+
+  background: var(--surface);
+
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-card);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.about-member:hover {
+  transform: translateY(-3px);
+
+  box-shadow: var(--shadow-hover);
 }
 
 .about-member-avatar {
@@ -191,13 +234,14 @@
 
   border-radius: 50%;
 
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-light)
-  );
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent),
+      var(--accent-light)
+    );
 
-  color: white;
+  color: #fff;
 
   font-size: 1.75rem;
   font-weight: 700;
@@ -205,17 +249,20 @@
 
 .about-member-content {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-
   flex: 1;
+  flex-direction: column;
+
+  gap: 0.75rem;
 }
 
 .about-member-name {
+  color: var(--neutral-900);
+
   font-size: 1.125rem;
   font-weight: 700;
+  line-height: 1.35;
 
-  color: var(--neutral-900);
+  overflow-wrap: anywhere;
 }
 
 .about-member-role {
@@ -230,34 +277,37 @@
 
   font-size: 0.95rem;
   line-height: 1.7;
+
+  overflow-wrap: anywhere;
 }
 
 .about-member-action {
   display: inline-flex;
   align-items: center;
+
   gap: 0.5rem;
 
   margin-top: auto;
+
+  width: fit-content;
 
   color: var(--accent);
 
   font-size: 0.95rem;
   font-weight: 600;
 
-  transition: gap 0.2s ease;
+  transition:
+    gap 0.2s ease,
+    color 0.2s ease;
 }
 
 .about-member-action:hover {
   gap: 0.8rem;
 }
 
-/* ==========================================
-   ACCESSIBILITY
-========================================== */
-
-.about-member-action:focus,
-.about-lead-link:focus {
+.about-member-action:focus-visible {
   outline: none;
+
   box-shadow: var(--focus-shadow);
 }
 
@@ -277,6 +327,8 @@
 
 @media (min-width: 1024px) {
   .about-hero {
+    display: grid;
+
     grid-template-columns: 1.15fr 0.85fr;
     align-items: center;
 

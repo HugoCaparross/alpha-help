@@ -1,7 +1,16 @@
+/* ==========================================
+   PAGE
+========================================== */
+
 .estudio-page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+
+  gap: 2rem;
+}
+
+.estudio-page > .estudio-card {
+  margin: 0;
 }
 
 @media (max-width: 1024px) {
@@ -10,19 +19,24 @@
   }
 }
 
+/* ==========================================
+   HEADER
+========================================== */
+
 .estudio-header {
   display: flex;
   flex-direction: column;
+
   gap: 0.5rem;
 }
 
 .estudio-title {
   margin: 0;
 
+  color: var(--neutral-900);
+
   font-size: 2.25rem;
   font-weight: 700;
-
-  color: var(--neutral-900);
 }
 
 .estudio-description {
@@ -30,18 +44,35 @@
 
   color: var(--neutral-600);
 
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
+/* ==========================================
+   CARD
+========================================== */
+
 .estudio-card {
+  padding: 1.5rem;
+
   background: var(--surface);
 
-  border: 1px solid var(--neutral-200);
+  border: var(--border-light);
   border-radius: var(--radius-lg);
 
-  padding: 1.25rem;
-
   box-shadow: var(--shadow-card);
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.estudio-card:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(14,165,233,.18);
+
+  box-shadow: var(--shadow-hover);
 }
 
 /* ==========================================
@@ -50,18 +81,20 @@
 
 .estudio-card-header {
   display: flex;
-  gap: 1rem;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+
+  gap: 1rem;
+
+  margin-bottom: 2rem;
 }
 
 .estudio-card-title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 .5rem;
+
+  color: var(--neutral-900);
 
   font-size: 1.125rem;
   font-weight: 700;
-
-  color: var(--neutral-900);
 }
 
 .estudio-card-description {
@@ -69,7 +102,7 @@
 
   color: var(--neutral-600);
 
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 /* ==========================================
@@ -79,42 +112,66 @@
 .estudio-highlights {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 1rem;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .estudio-highlight {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+
+  gap: .75rem;
 
   padding: 1rem;
 
-  border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
-
   background: var(--background);
+
+  border: var(--border-light);
+  border-radius: var(--radius-md);
 
   color: var(--neutral-700);
 
   font-weight: 500;
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.estudio-highlight:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(14,165,233,.18);
+
+  box-shadow: var(--shadow-card);
 }
 
 .estudio-highlight svg {
+  flex-shrink: 0;
+
   color: var(--accent);
 }
 
-@media (max-width: 768px) {
-  .estudio-highlights {
-    grid-template-columns: 1fr;
+@media (max-width:768px){
+
+  .estudio-highlights{
+
+    grid-template-columns:1fr;
+
   }
 
-  .estudio-card-header {
-    flex-direction: column;
+  .estudio-card-header{
+
+    flex-direction:column;
+
+    margin-bottom:1.5rem;
+
   }
+
 }
 
 /* ==========================================
@@ -127,7 +184,7 @@
 
   gap: 1rem;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .estudio-objective {
@@ -138,10 +195,23 @@
 
   padding: 1rem;
 
-  border: 1px solid var(--neutral-200);
+  background: var(--background);
+
+  border: var(--border-light);
   border-radius: var(--radius-md);
 
-  background: var(--background);
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.estudio-objective:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(14,165,233,.18);
+
+  box-shadow: var(--shadow-card);
 }
 
 .estudio-objective-icon {
@@ -156,14 +226,15 @@
 
   border-radius: 999px;
 
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(16,185,129,.12);
+
   color: var(--success);
 }
 
 .estudio-objective span {
   color: var(--neutral-700);
 
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* ==========================================
@@ -174,36 +245,39 @@
   display: flex;
   flex-wrap: wrap;
 
-  gap: 0.75rem;
+  gap: .75rem;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .estudio-topic {
-  padding: 0.8rem 1rem;
-
-  border: 1px solid var(--neutral-200);
-  border-radius: 999px;
+  padding: .8rem 1rem;
 
   background: var(--background);
 
+  border: var(--border-light);
+  border-radius: 999px;
+
   color: var(--neutral-700);
 
-  font-size: 0.9rem;
+  font-size: .9rem;
   font-weight: 500;
 
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
+    transform .2s ease,
+    border-color .2s ease,
+    background-color .2s ease,
+    box-shadow .2s ease;
 }
 
 .estudio-topic:hover {
-  background: white;
-
-  border-color: var(--accent);
-
   transform: translateY(-1px);
+
+  background: var(--surface);
+
+  border-color: rgba(14,165,233,.25);
+
+  box-shadow: var(--shadow-card);
 }
 
 /* ==========================================
@@ -217,34 +291,34 @@
 
   gap: 1rem;
 
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .estudio-method-card {
   display: flex;
   flex-direction: column;
 
-  gap: 0.9rem;
+  gap: 1rem;
 
-  padding: 1.25rem;
+  padding: 1.5rem;
 
   background: var(--background);
 
-  border: 1px solid var(--neutral-200);
+  border: var(--border-light);
   border-radius: var(--radius-md);
 
   transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
 }
 
 .estudio-method-card:hover {
-  border-color: var(--accent);
-
   transform: translateY(-2px);
 
-  box-shadow: var(--shadow-card);
+  border-color: rgba(14,165,233,.18);
+
+  box-shadow: var(--shadow-hover);
 }
 
 .estudio-method-icon {
@@ -257,9 +331,11 @@
 
   border-radius: var(--radius-md);
 
-  background: #e0f2fe;
+  background: rgba(14,165,233,.08);
 
   color: var(--accent);
+
+  flex-shrink: 0;
 }
 
 .estudio-method-title {
@@ -269,6 +345,8 @@
 
   font-size: 1rem;
   font-weight: 700;
+
+  line-height: 1.4;
 }
 
 .estudio-method-description {
@@ -276,15 +354,19 @@
 
   color: var(--neutral-600);
 
-  line-height: 1.6;
+  font-size: .95rem;
 
-  font-size: 0.95rem;
+  line-height: 1.7;
 }
 
-@media (max-width: 1024px) {
-  .estudio-method-grid {
-    grid-template-columns: 1fr;
+@media (max-width:1024px){
+
+  .estudio-method-grid{
+
+    grid-template-columns:1fr;
+
   }
+
 }
 
 /* ==========================================
@@ -292,15 +374,15 @@
 ========================================== */
 
 .estudio-timeline {
+  position: relative;
+
   display: grid;
 
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0,1fr));
 
   gap: 2rem;
 
-  margin-top: 1.75rem;
-
-  position: relative;
+  margin: 2rem 0;
 }
 
 .estudio-timeline::before {
@@ -308,7 +390,7 @@
 
   position: absolute;
 
-  top: 0.7rem;
+  top: .7rem;
   left: 0;
   right: 0;
 
@@ -323,9 +405,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: 0.75rem;
+  gap: .75rem;
 
-  background: transparent;
+  padding-right: .75rem;
 }
 
 .estudio-step-number {
@@ -339,10 +421,10 @@
 
   color: var(--accent);
 
-  font-size: 0.85rem;
+  font-size: .85rem;
   font-weight: 700;
 
-  letter-spacing: 0.08em;
+  letter-spacing: .08em;
 }
 
 .estudio-step-title {
@@ -352,6 +434,8 @@
 
   font-size: 1rem;
   font-weight: 700;
+
+  line-height: 1.4;
 }
 
 .estudio-step-description {
@@ -359,27 +443,39 @@
 
   color: var(--neutral-600);
 
-  font-size: 0.9rem;
+  font-size: .9rem;
 
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
-@media (max-width: 1024px) {
-  .estudio-timeline {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width:1024px){
 
-    gap: 1.5rem;
+  .estudio-timeline{
+
+    grid-template-columns:repeat(2,minmax(0,1fr));
+
+    gap:1.5rem;
+
   }
 
-  .estudio-timeline::before {
-    display: none;
+  .estudio-timeline::before{
+
+    display:none;
+
   }
+
 }
 
-@media (max-width: 768px) {
-  .estudio-timeline {
-    grid-template-columns: 1fr;
+@media (max-width:768px){
+
+  .estudio-timeline{
+
+    grid-template-columns:1fr;
+
+    margin:1.5rem 0;
+
   }
+
 }
 
 /* ==========================================
@@ -392,11 +488,13 @@
 
   gap: 1rem;
 
-  padding: 1.25rem;
+  margin-top: 2rem;
 
-  background: #f0fdf4;
+  padding: 1.5rem;
 
-  border: 1px solid #bbf7d0;
+  background: rgba(16,185,129,.05);
+
+  border: 1px solid rgba(16,185,129,.18);
   border-radius: var(--radius-lg);
 }
 
@@ -412,7 +510,7 @@
 
   border-radius: 50%;
 
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(16,185,129,.12);
 
   color: var(--success);
 }
@@ -421,7 +519,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 0.35rem;
+  gap: .5rem;
 }
 
 .estudio-privacy-title {
@@ -438,12 +536,19 @@
 
   color: var(--neutral-700);
 
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: .95rem;
+
+  line-height: 1.7;
 }
 
-@media (max-width: 768px) {
-  .estudio-privacy {
-    flex-direction: column;
+@media (max-width:768px){
+
+  .estudio-privacy{
+
+    flex-direction:column;
+
+    padding:1.25rem;
+
   }
+
 }

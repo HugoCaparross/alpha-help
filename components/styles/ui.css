@@ -6,12 +6,14 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 2rem;
 }
 
 .page-header__content {
   display: flex;
   flex-direction: column;
+
   gap: 0.75rem;
 
   max-width: 52rem;
@@ -20,20 +22,20 @@
 .page-header__title {
   margin: 0;
 
+  color: var(--neutral-900);
+
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 700;
   line-height: 1.15;
-
-  color: var(--neutral-900);
 }
 
 .page-header__description {
   margin: 0;
 
+  color: var(--neutral-600);
+
   font-size: 1rem;
   line-height: 1.8;
-
-  color: var(--neutral-600);
 }
 
 .page-header__actions {
@@ -53,9 +55,9 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform .25s ease,
+    border-color .25s ease,
+    box-shadow .25s ease;
 }
 
 .card-padding {
@@ -72,17 +74,25 @@
 
   border-radius: 1.25rem;
 
-  background: #e0f2fe;
+  background: rgba(14,165,233,.08);
 
   color: var(--accent);
+
+  flex-shrink: 0;
 }
 
-@media (hover: hover) {
-  .card:hover {
-    transform: translateY(-4px);
+@media (hover:hover){
 
-    box-shadow: var(--shadow-hover);
+  .card:hover{
+
+    transform:translateY(-4px);
+
+    border-color:rgba(14,165,233,.18);
+
+    box-shadow:var(--shadow-hover);
+
   }
+
 }
 
 /* ==========================================
@@ -95,32 +105,39 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+
+  gap: .5rem;
 
   min-height: 3.25rem;
 
-  padding: 0.875rem 1.5rem;
+  padding: .875rem 1.5rem;
 
   border-radius: var(--radius-sm);
 
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: .95rem;
   font-weight: 600;
   line-height: 1;
 
   white-space: nowrap;
 
+  text-decoration: none;
+
+  flex-shrink: 0;
+
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
 }
 
-/* Primary */
+/* ==========================================
+   PRIMARY
+========================================== */
 
 .btn-primary {
   background: var(--accent);
@@ -136,9 +153,13 @@
   background: var(--accent-hover);
 
   transform: translateY(-1px);
+
+  box-shadow: var(--shadow-hover);
 }
 
-/* Secondary */
+/* ==========================================
+   SECONDARY
+========================================== */
 
 .btn-secondary {
   background: var(--surface);
@@ -152,9 +173,13 @@
   background: var(--neutral-100);
 
   border-color: var(--neutral-500);
+
+  box-shadow: var(--shadow-hover);
 }
 
-/* Outline */
+/* ==========================================
+   OUTLINE
+========================================== */
 
 .btn-outline {
   background: transparent;
@@ -168,19 +193,25 @@
   border-color: var(--accent);
 
   color: var(--accent);
+
+  box-shadow: var(--shadow-hover);
 }
 
-/* Disabled */
+/* ==========================================
+   DISABLED
+========================================== */
 
 .btn-primary:disabled,
 .btn-secondary:disabled,
 .btn-outline:disabled {
-  opacity: 0.6;
+  opacity: .6;
 
   cursor: not-allowed;
+
   pointer-events: none;
 
   transform: none;
+
   box-shadow: none;
 }
 
@@ -193,7 +224,7 @@
 .textarea {
   width: 100%;
 
-  padding: 0.875rem 1rem;
+  padding: .875rem 1rem;
 
   border: var(--border-input);
   border-radius: var(--radius-sm);
@@ -204,15 +235,21 @@
 
   font: inherit;
 
+  font-size: 16px;
+
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background-color .2s ease;
 }
 
 .input,
 .select {
   min-height: 3.25rem;
+}
+
+.select {
+  appearance: none;
 }
 
 .textarea {
@@ -223,7 +260,7 @@
 
 .input::placeholder,
 .textarea::placeholder {
-  color: var(--neutral-500);
+  color: var(--neutral-400);
 }
 
 /* ==========================================
@@ -259,11 +296,15 @@
 
   min-height: 2rem;
 
-  padding: 0.45rem 0.85rem;
+  padding: .45rem .85rem;
 
   border-radius: 999px;
 
-  font-size: 0.875rem;
+  background: rgba(14,165,233,.08);
+
+  color: var(--accent);
+
+  font-size: .875rem;
   font-weight: 600;
   line-height: 1;
 }
@@ -294,28 +335,33 @@
    RESPONSIVE
 ========================================== */
 
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1.5rem;
+@media (max-width:768px){
+
+  .page-header{
+
+    flex-direction:column;
+    align-items:stretch;
+
+    gap:1.5rem;
+
   }
 
-  .page-header__title {
-    font-size: 2rem;
+  .page-header__title{
+
+    font-size:2rem;
+
   }
 
-  .page-header__description {
-    font-size: 0.95rem;
+  .page-header__description{
+
+    font-size:.95rem;
+
   }
 
-  .card-padding {
-    padding: 1.5rem;
+  .card-padding{
+
+    padding:1.5rem;
+
   }
 
-  .btn-primary,
-  .btn-secondary,
-  .btn-outline {
-    width: 100%;
-  }
 }
