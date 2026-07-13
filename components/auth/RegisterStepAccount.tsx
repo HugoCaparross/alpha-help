@@ -9,6 +9,7 @@ import LegalModal from "@/components/legal/LegalModal";
 import PrivacyContent from "@/components/legal/PrivacyContent";
 import LegalContent from "@/components/legal/LegalContent";
 import CookiesContent from "@/components/legal/CookiesContent";
+import InformedConsentContent from "@/components/legal/InformedConsentContent";
 
 import { accountSchema } from "@/validators";
 
@@ -39,6 +40,8 @@ export default function RegisterStepAccount({
 
   const [openCookies, setOpenCookies] = useState(false);
 
+  const [openInformedConsent, setOpenInformedConsent] = useState(false);
+
   function updateField<K extends keyof RegisterData>(
     field: K,
     value: RegisterData[K],
@@ -58,6 +61,7 @@ export default function RegisterStepAccount({
       password: formData.password,
       confirmPassword: formData.confirmPassword,
       acceptedPolicy: formData.acceptedPolicy,
+      acceptedInformedConsent: formData.acceptedInformedConsent,
     });
 
     if (!result.success) {
@@ -257,6 +261,28 @@ export default function RegisterStepAccount({
           </span>
         </label>
 
+        <label className="auth-checkbox">
+          <input
+            type="checkbox"
+            checked={formData.acceptedInformedConsent}
+            onChange={(event) =>
+              updateField("acceptedInformedConsent", event.target.checked)
+            }
+          />
+
+          <span>
+            He leído y acepto el{" "}
+            <button
+              type="button"
+              className="auth-legal-link"
+              onClick={() => setOpenInformedConsent(true)}
+            >
+              Registro Informado
+            </button>{" "}
+            para participar en el estudio.
+          </span>
+        </label>
+
         {error && (
           <p className="auth-error" role="alert" aria-live="polite">
             {error}
@@ -299,6 +325,14 @@ export default function RegisterStepAccount({
         onClose={() => setOpenCookies(false)}
       >
         <CookiesContent />
+      </LegalModal>
+
+      <LegalModal
+        open={openInformedConsent}
+        title="Registro Informado"
+        onClose={() => setOpenInformedConsent(false)}
+      >
+        <InformedConsentContent />
       </LegalModal>
     </>
   );

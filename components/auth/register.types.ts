@@ -27,6 +27,8 @@ export interface RegisterData {
 
   acceptedPolicy: boolean;
 
+  acceptedInformedConsent: boolean;
+
   /* =========================
      PARTICIPANTE
   ========================= */

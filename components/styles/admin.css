@@ -1,0 +1,450 @@
+/* ==========================================
+   ADMIN — Layout
+========================================== */
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background);
+}
+
+.admin-layout__main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .admin-layout__main {
+    padding: 3rem 3.5rem;
+  }
+}
+
+/* ==========================================
+   ADMIN — Sidebar
+========================================== */
+
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 17rem;
+  flex-shrink: 0;
+  padding: 1.75rem 1.25rem;
+  background: var(--surface);
+  border-right: var(--border-light);
+}
+
+.admin-sidebar__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0 0.5rem 1.5rem;
+  border-bottom: var(--border-light);
+  margin-bottom: 1.25rem;
+}
+
+.admin-sidebar__mark {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-top: 0.35rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.admin-sidebar__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.admin-sidebar__subtitle {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--neutral-600);
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.admin-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  color: var(--neutral-700);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-sidebar__item:hover {
+  background: var(--neutral-100);
+}
+
+.admin-sidebar__item--active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.admin-sidebar__logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-sidebar__logout:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ==========================================
+   ADMIN — Encabezado de página
+========================================== */
+
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-header__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.admin-header__description {
+  margin: 0;
+  color: var(--neutral-600);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   ADMIN — Tarjetas de resumen
+========================================== */
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-stat-card__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.admin-stat-card__label {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+}
+
+.admin-quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.admin-quick-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-quick-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.admin-quick-link__title {
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.admin-quick-link__description {
+  font-size: 0.88rem;
+  color: var(--neutral-600);
+}
+
+/* ==========================================
+   ADMIN — Tabs
+========================================== */
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: var(--border-light);
+}
+
+.admin-tab {
+  padding: 0.75rem 1.1rem;
+  border: none;
+  background: transparent;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ==========================================
+   ADMIN — Rejilla de slots (sesiones/materiales)
+========================================== */
+
+.admin-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.admin-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 1rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-slot:hover {
+  border-color: var(--accent);
+}
+
+.admin-slot--filled {
+  border-color: var(--success);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.admin-slot--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.admin-slot__number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--neutral-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-slot__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.admin-slot__status {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+}
+
+/* ==========================================
+   ADMIN — Formulario
+========================================== */
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 640px;
+  padding: 1.75rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.admin-form__row--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.admin-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="url"],
+.admin-form input[type="number"],
+.admin-form input[type="datetime-local"],
+.admin-form input[type="password"],
+.admin-form input[type="file"],
+.admin-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: var(--border-input);
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  color: var(--neutral-900);
+  background: var(--surface);
+}
+
+.admin-form textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.admin-form__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.admin-form__hint {
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+}
+
+.admin-form__error {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger);
+  font-size: 0.88rem;
+}
+
+.admin-form__success {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--success);
+  font-size: 0.88rem;
+}
+
+/* ==========================================
+   ADMIN — Exportar
+========================================== */
+
+.admin-export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-export-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.75rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-export-card__title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--neutral-900);
+}
+
+.admin-export-card__description {
+  font-size: 0.88rem;
+  color: var(--neutral-600);
+  line-height: 1.6;
+}
+
+.admin-export-card__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.7rem 1.1rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-export-card__button:hover {
+  background: var(--accent-hover);
+}
+
+.admin-delete-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-delete-button:hover {
+  background: rgba(239, 68, 68, 0.08);
+}

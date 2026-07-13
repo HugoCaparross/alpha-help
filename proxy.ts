@@ -38,15 +38,9 @@ export async function proxy(
     response,
   } = updateSession(request);
 
-const {
-  data: { user },
-} = await supabase.auth.getUser();
-
-console.log("========== PROXY ==========");
-console.log("PATH:", request.nextUrl.pathname);
-console.log("USER:", user);
-console.log("COOKIES:", request.cookies.getAll());
-console.log("===========================");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const pathname =
     request.nextUrl.pathname;
@@ -83,14 +77,35 @@ console.log("===========================");
   }
 
   /**
+   * Determina el rol del usuario
+   * autenticado cuando es necesario
+   * para decidir una redirección.
+   */
+  async function getRole(): Promise<string | null> {
+    if (!user) {
+      return null;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    return profile?.role ?? null;
+  }
+
+  /**
    * Usuario autenticado intentando
    * acceder al área pública
    * de autenticación.
    */
   if (user && isAuthRoute) {
+    const role = await getRole();
+
     return NextResponse.redirect(
       new URL(
-        "/dashboard",
+        role === "admin" ? "/admin" : "/dashboard",
         request.url,
       ),
     );
@@ -101,23 +116,30 @@ console.log("===========================");
    * de administración.
    */
   if (user && isAdminRoute) {
-    const {
-      data: profile,
-      error,
-    } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
+    const role = await getRole();
 
-    if (
-      error ||
-      !profile ||
-      profile.role !== "admin"
-    ) {
+    if (role !== "admin") {
       return NextResponse.redirect(
         new URL(
           "/dashboard",
+          request.url,
+        ),
+      );
+    }
+  }
+
+  /**
+   * Un administrador no debe operar
+   * dentro del área privada de
+   * participantes.
+   */
+  if (user && isPrivateRoute) {
+    const role = await getRole();
+
+    if (role === "admin") {
+      return NextResponse.redirect(
+        new URL(
+          "/admin",
           request.url,
         ),
       );

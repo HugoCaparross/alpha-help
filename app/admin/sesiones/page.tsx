@@ -1,0 +1,323 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
+
+import { LoaderCircle, Trash2 } from "lucide-react";
+
+import {
+  deleteAdminSession,
+  listAdminSessions,
+  saveAdminSession,
+  type AdminSessionRow,
+} from "@/services/admin/admin-session.service";
+
+const TOTAL_SLOTS = 9;
+
+const SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, index) => index + 1);
+
+interface FormState {
+  title: string;
+  description: string;
+  youtubeUrl: string;
+  releaseDateSpain: string;
+  releaseDateLatam: string;
+}
+
+const EMPTY_FORM: FormState = {
+  title: "",
+  description: "",
+  youtubeUrl: "",
+  releaseDateSpain: "",
+  releaseDateLatam: "",
+};
+
+function toDatetimeLocal(iso: string | undefined): string {
+  if (!iso) return "";
+
+  const date = new Date(iso);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export default function AdminSessionsPage() {
+  const [sessions, setSessions] = useState<AdminSessionRow[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<number>(1);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const loadSessions = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const data = await listAdminSessions();
+
+      setSessions(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSessions();
+  }, [loadSessions]);
+
+  const sessionByOrder = useMemo(() => {
+    const map = new Map<number, AdminSessionRow>();
+
+    sessions.forEach((session) => map.set(session.session_order, session));
+
+    return map;
+  }, [sessions]);
+
+  const selectSlot = useCallback(
+    (order: number) => {
+      setSelectedOrder(order);
+      setError("");
+      setSuccess("");
+
+      const existing = sessionByOrder.get(order);
+
+      if (existing) {
+        setForm({
+          title: existing.title,
+          description: existing.description,
+          youtubeUrl: existing.youtube_url,
+          releaseDateSpain: toDatetimeLocal(existing.release_date_spain),
+          releaseDateLatam: toDatetimeLocal(existing.release_date_latam),
+        });
+      } else {
+        setForm(EMPTY_FORM);
+      }
+    },
+    [sessionByOrder],
+  );
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setSaving(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      await saveAdminSession({
+        title: form.title,
+        description: form.description,
+        youtubeUrl: form.youtubeUrl,
+        sessionOrder: selectedOrder,
+        releaseDateSpain: form.releaseDateSpain
+          ? new Date(form.releaseDateSpain).toISOString()
+          : undefined,
+        releaseDateLatam: form.releaseDateLatam
+          ? new Date(form.releaseDateLatam).toISOString()
+          : undefined,
+      });
+
+      setSuccess("Sesión guardada. Ya está disponible para los participantes.");
+
+      await loadSessions();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    const existing = sessionByOrder.get(selectedOrder);
+
+    if (!existing) return;
+
+    if (!window.confirm("¿Eliminar esta sesión?")) return;
+
+    setSaving(true);
+
+    try {
+      await deleteAdminSession(existing.id);
+
+      setForm(EMPTY_FORM);
+      setSuccess("Sesión eliminada.");
+
+      await loadSessions();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const existing = sessionByOrder.get(selectedOrder);
+
+  return (
+    <section>
+      <header className="admin-header">
+        <h1 className="admin-header__title">Sesiones (vídeos)</h1>
+
+        <p className="admin-header__description">
+          Sube la URL de YouTube de cada sesión (en directo o ya grabada). En
+          cuanto se guarda, la sesión queda disponible de inmediato para los
+          participantes, salvo que indiques una fecha de publicación futura.
+        </p>
+      </header>
+
+      <div className="admin-slots-grid">
+        {SLOTS.map((order) => {
+          const item = sessionByOrder.get(order);
+
+          return (
+            <button
+              key={order}
+              type="button"
+              onClick={() => selectSlot(order)}
+              className={`admin-slot ${item ? "admin-slot--filled" : ""} ${
+                selectedOrder === order ? "admin-slot--active" : ""
+              }`}
+            >
+              <span className="admin-slot__number">Sesión {order}</span>
+              <span className="admin-slot__title">
+                {item ? item.title : "Sin configurar"}
+              </span>
+              <span className="admin-slot__status">
+                {item ? "Publicada" : "Vacía"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {loading ? (
+        <p>Cargando sesiones...</p>
+      ) : (
+        <form className="admin-form" onSubmit={handleSubmit}>
+          <div className="admin-form__row">
+            <label htmlFor="title">Título de la sesión {selectedOrder}</label>
+            <input
+              id="title"
+              type="text"
+              required
+              value={form.title}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, title: event.target.value }))
+              }
+            />
+          </div>
+
+          <div className="admin-form__row">
+            <label htmlFor="description">Descripción</label>
+            <textarea
+              id="description"
+              required
+              value={form.description}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  description: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="admin-form__row">
+            <label htmlFor="youtubeUrl">URL de YouTube (directo o vídeo)</label>
+            <input
+              id="youtubeUrl"
+              type="url"
+              required
+              placeholder="https://www.youtube.com/watch?v=..."
+              value={form.youtubeUrl}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  youtubeUrl: event.target.value,
+                }))
+              }
+            />
+            <span className="admin-form__hint">
+              Admite enlaces normales, de retransmisión en directo, youtu.be y
+              shorts.
+            </span>
+          </div>
+
+          <div className="admin-form__row admin-form__row--split">
+            <div>
+              <label htmlFor="releaseDateSpain">
+                Publicación España (opcional)
+              </label>
+              <input
+                id="releaseDateSpain"
+                type="datetime-local"
+                value={form.releaseDateSpain}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateSpain: event.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="releaseDateLatam">
+                Publicación Latinoamérica (opcional)
+              </label>
+              <input
+                id="releaseDateLatam"
+                type="datetime-local"
+                value={form.releaseDateLatam}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateLatam: event.target.value,
+                  }))
+                }
+              />
+            </div>
+          </div>
+
+          <span className="admin-form__hint">
+            Si dejas las fechas vacías, la sesión se publica inmediatamente.
+          </span>
+
+          {error && <p className="admin-form__error">{error}</p>}
+          {success && <p className="admin-form__success">{success}</p>}
+
+          <div className="admin-form__actions">
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? (
+                <>
+                  <LoaderCircle size={16} className="animate-spin" />{" "}
+                  Guardando...
+                </>
+              ) : (
+                "Guardar sesión"
+              )}
+            </button>
+
+            {existing && (
+              <button
+                type="button"
+                className="admin-delete-button"
+                onClick={handleDelete}
+                disabled={saving}
+              >
+                <Trash2 size={15} /> Eliminar
+              </button>
+            )}
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}

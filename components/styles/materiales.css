@@ -862,3 +862,97 @@
   }
 
 }
+
+/* ==========================================
+   CATEGORÍAS DE MATERIALES
+========================================== */
+
+.material-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.material-category-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.material-category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent-light);
+}
+
+.material-category-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-md);
+  background: rgba(14, 165, 233, .1);
+  color: var(--accent);
+}
+
+.material-category-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  flex: 1;
+}
+
+.material-category-card__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.material-category-card__desc {
+  margin: 0;
+  font-size: .92rem;
+  line-height: 1.6;
+  color: var(--neutral-600);
+}
+
+.material-category-card__count {
+  margin-top: .35rem;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.material-category-card__arrow {
+  flex-shrink: 0;
+  color: var(--neutral-500);
+}
+
+.materiales-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--neutral-600);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.materiales-back:hover {
+  color: var(--accent);
+}

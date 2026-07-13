@@ -66,6 +66,13 @@ export const accountSchema = z
         message:
           "Debes aceptar la política de privacidad",
       }),
+
+    acceptedInformedConsent: z
+      .boolean()
+      .refine((value) => value === true, {
+        message:
+          "Debes aceptar el Registro Informado",
+      }),
   })
   .refine(
     ({ password, confirmPassword }) =>

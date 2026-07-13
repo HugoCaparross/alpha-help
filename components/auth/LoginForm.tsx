@@ -12,6 +12,8 @@ import { supabase } from "@/lib/supabase/client";
 
 import { loginSchema } from "@/validators";
 
+import { isAdminLoginInput, resolveLoginEmail } from "@/lib/constants/admin";
+
 const ERROR_MESSAGES = {
   emailVerification:
     "Debes verificar tu correo electrónico antes de iniciar sesión.",
@@ -53,13 +55,21 @@ export default function LoginForm() {
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const result = loginSchema.safeParse({
-      email,
-      password,
-    });
+    const isAdminInput = isAdminLoginInput(email);
 
-    if (!result.success) {
-      setError(result.error.issues[0].message);
+    if (!isAdminInput) {
+      const result = loginSchema.safeParse({
+        email,
+        password,
+      });
+
+      if (!result.success) {
+        setError(result.error.issues[0].message);
+
+        return;
+      }
+    } else if (password.length === 0) {
+      setError("Introduce la contraseña.");
 
       return;
     }
@@ -68,19 +78,10 @@ export default function LoginForm() {
       setLoading(true);
       setError("");
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
+      const { error } = await supabase.auth.signInWithPassword({
+        email: resolveLoginEmail(email),
         password,
       });
-
-      console.log("LOGIN ERROR:", error);
-      console.log("LOGIN DATA:", data);
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      console.log("SESSION:", session);
 
       if (error) {
         const message = error.message.toLowerCase();
@@ -102,7 +103,7 @@ export default function LoginForm() {
         return;
       }
 
-      router.replace("/dashboard");
+      router.replace(isAdminInput ? "/admin" : "/dashboard");
 
       router.refresh();
     } catch (error) {
@@ -137,7 +138,7 @@ export default function LoginForm() {
           <input
             id="email"
             name="email"
-            type="email"
+            type="text"
             required
             value={email}
             disabled={loading}

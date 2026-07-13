@@ -2,15 +2,20 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { ArrowLeft } from "lucide-react";
+
 import PageHeader from "@/components/ui/PageHeader";
 
 import MaterialEmptyState from "./MaterialEmptyState";
 import MaterialsGrid from "./MaterialsGrid";
+import MaterialCategoryCard from "./MaterialCategoryCard";
 
 import {
   getGroupedStudyMaterials,
   type GroupedStudyMaterials,
 } from "@/services/resources/study-material.service";
+
+import type { MaterialType } from "@/types/study-material";
 
 import "@/components/styles/materiales.css";
 
@@ -29,9 +34,37 @@ const EMPTY_MATERIALS: GroupedStudyMaterials = {
   extended: [],
 };
 
+interface CategoryCopy {
+  title: string;
+  description: string;
+  sectionDescription: string;
+}
+
+const CATEGORY_COPY: Record<MaterialType, CategoryCopy> = {
+  support: {
+    title: "Materiales de apoyo",
+    description:
+      "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
+    sectionDescription:
+      "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
+  },
+  extended: {
+    title: "Guías completas",
+    description:
+      "Documentación ampliada para profundizar en los contenidos trabajados en cada sesión.",
+    sectionDescription:
+      "Documentación ampliada para profundizar en los contenidos trabajados en cada sesión.",
+  },
+};
+
 /**
  * Vista principal del módulo
  * de materiales del estudio.
+ *
+ * Muestra primero dos categorías
+ * (Materiales de apoyo y Guías
+ * completas) y, al seleccionar una,
+ * las 9 sesiones correspondientes.
  */
 export default function MaterialesView() {
   const [materials, setMaterials] =
@@ -41,11 +74,10 @@ export default function MaterialesView() {
 
   const [error, setError] = useState("");
 
-  /**
-   * Obtiene los materiales
-   * disponibles para el
-   * participante.
-   */
+  const [activeCategory, setActiveCategory] = useState<MaterialType | null>(
+    null,
+  );
+
   const loadMaterials = useCallback(async () => {
     setLoading(true);
 
@@ -55,9 +87,9 @@ export default function MaterialesView() {
       const data = await getGroupedStudyMaterials();
 
       setMaterials(data);
-    } catch (error) {
+    } catch (loadError) {
       if (process.env.NODE_ENV === "development") {
-        console.error(error);
+        console.error(loadError);
       }
 
       setMaterials(EMPTY_MATERIALS);
@@ -68,17 +100,10 @@ export default function MaterialesView() {
     }
   }, []);
 
-  /**
-   * Inicializa la vista.
-   */
   useEffect(() => {
     void loadMaterials();
   }, [loadMaterials]);
 
-  /**
-   * Reintenta la carga
-   * de los materiales.
-   */
   function retryLoadMaterials() {
     void loadMaterials();
   }
@@ -111,50 +136,63 @@ export default function MaterialesView() {
     return <MaterialEmptyState />;
   }
 
+  if (!activeCategory) {
+    const availableSupport = materials.support.filter(
+      (material) => material.status === "available",
+    ).length;
+
+    const availableExtended = materials.extended.filter(
+      (material) => material.status === "available",
+    ).length;
+
+    return (
+      <section className="materiales-page">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+
+        <div className="material-categories-grid">
+          <MaterialCategoryCard
+            type="support"
+            title={CATEGORY_COPY.support.title}
+            description={CATEGORY_COPY.support.description}
+            total={materials.support.length}
+            available={availableSupport}
+            onOpen={setActiveCategory}
+          />
+
+          <MaterialCategoryCard
+            type="extended"
+            title={CATEGORY_COPY.extended.title}
+            description={CATEGORY_COPY.extended.description}
+            total={materials.extended.length}
+            available={availableExtended}
+            onOpen={setActiveCategory}
+          />
+        </div>
+      </section>
+    );
+  }
+
+  const activeMaterials = materials[activeCategory];
+
+  const copy = CATEGORY_COPY[activeCategory];
+
   return (
     <section className="materiales-page">
-      <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+      <button
+        type="button"
+        className="materiales-back"
+        onClick={() => setActiveCategory(null)}
+      >
+        <ArrowLeft size={16} />
+        <span>Volver a materiales</span>
+      </button>
 
-      {materials.support.length > 0 && (
-        <section
-          className="materiales-section"
-          aria-labelledby="support-materials-title"
-        >
-          <h2
-            id="support-materials-title"
-            className="materiales-section__title"
-          >
-            Recursos de apoyo
-          </h2>
+      <PageHeader title={copy.title} description={copy.sectionDescription} />
 
-          <p className="materiales-section__description">
-            Resúmenes prácticos para repasar rápidamente las ideas principales
-            de cada sesión.
-          </p>
-
-          <MaterialsGrid materials={materials.support} />
-        </section>
-      )}
-
-      {materials.extended.length > 0 && (
-        <section
-          className="materiales-section"
-          aria-labelledby="extended-materials-title"
-        >
-          <h2
-            id="extended-materials-title"
-            className="materiales-section__title"
-          >
-            Materiales completos
-          </h2>
-
-          <p className="materiales-section__description">
-            Documentación ampliada para profundizar en los contenidos trabajados
-            en cada sesión.
-          </p>
-
-          <MaterialsGrid materials={materials.extended} />
-        </section>
+      {activeMaterials.length > 0 ? (
+        <MaterialsGrid materials={activeMaterials} />
+      ) : (
+        <MaterialEmptyState />
       )}
     </section>
   );
