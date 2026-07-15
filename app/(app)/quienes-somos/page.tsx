@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Users } from "lucide-react";
+import Image from "next/image";
 
 import TeamMemberCard from "@/components/shared/TeamMemberCard";
 
@@ -57,18 +56,25 @@ export default function QuienesSomosPage() {
 
           <aside className="card card-padding about-lead-card">
             <div className="about-lead-avatar" aria-hidden="true">
-              {LEAD_RESEARCHER.initials}
+              {LEAD_RESEARCHER.photoUrl ? (
+                <Image
+                  src={LEAD_RESEARCHER.photoUrl}
+                  alt=""
+                  fill
+                  sizes="80px"
+                />
+              ) : (
+                LEAD_RESEARCHER.initials
+              )}
             </div>
 
             <div>
               <p className="about-lead-name">{LEAD_RESEARCHER.name}</p>
 
-              <p className="about-lead-role">{LEAD_RESEARCHER.role}</p>
+              <p className="about-lead-role">
+                {LEAD_RESEARCHER.studies} · {LEAD_RESEARCHER.role}
+              </p>
             </div>
-
-            <Link href="/perfil" className="about-lead-link">
-              Ver perfil
-            </Link>
           </aside>
         </section>
 
@@ -82,9 +88,11 @@ export default function QuienesSomosPage() {
               <TeamMemberCard
                 key={member.name}
                 name={member.name}
+                studies={member.studies}
                 role={member.role}
                 description={member.description}
                 initials={member.initials}
+                photoUrl={member.photoUrl}
               />
             ))}
           </div>

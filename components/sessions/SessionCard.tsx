@@ -1,11 +1,13 @@
 import Image from "next/image";
 
-import { Calendar, Lock, PlayCircle } from "lucide-react";
+import { Calendar, CheckCircle2, Lock, PlayCircle } from "lucide-react";
 
 import type { SessionWithStatus } from "@/types/study-session";
 
 interface SessionCardProps {
   readonly session: SessionWithStatus;
+
+  readonly completed: boolean;
 
   readonly onOpen: (session: SessionWithStatus) => void;
 }
@@ -30,7 +32,11 @@ function formatDate(date: string): string {
  * Tarjeta de una sesión
  * del programa.
  */
-export default function SessionCard({ session, onOpen }: SessionCardProps) {
+export default function SessionCard({
+  session,
+  completed,
+  onOpen,
+}: SessionCardProps) {
   const isAvailable = session.status === "available";
 
   const formattedDate = formatDate(session.releaseDate);
@@ -67,6 +73,20 @@ export default function SessionCard({ session, onOpen }: SessionCardProps) {
           Sesión {session.sessionOrder}
         </span>
 
+        {isAvailable && session.isLive && (
+          <span className="session-card__live-badge">
+            <span className="session-card__live-dot" aria-hidden="true" />
+            EN DIRECTO
+          </span>
+        )}
+
+        {isAvailable && completed && (
+          <span className="session-card__watched-badge">
+            <CheckCircle2 size={13} />
+            Vista
+          </span>
+        )}
+
         {!isAvailable && (
           <div className="session-card__lock-overlay" aria-hidden="true">
             <Lock size={22} />
@@ -89,7 +109,9 @@ export default function SessionCard({ session, onOpen }: SessionCardProps) {
               <Calendar size={14} aria-hidden="true" />
 
               <span>
-                {AVAILABLE_TEXT} {formattedDate}
+                {session.isLive
+                  ? "Retransmisión en directo"
+                  : `${AVAILABLE_TEXT} ${formattedDate}`}
               </span>
             </div>
 

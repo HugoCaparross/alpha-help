@@ -1,8 +1,16 @@
-﻿import type { ReactNode } from "react";
+﻿import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 import "@/components/styles/admin.css";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface AdminLayoutProps {
   children: ReactNode;

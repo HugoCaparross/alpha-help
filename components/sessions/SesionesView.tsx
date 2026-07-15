@@ -8,6 +8,7 @@ import SessionEmptyState from "./SessionEmptyState";
 import SessionsGrid from "./SessionsGrid";
 
 import { getSessionsWithStatus } from "@/services/sessions/study-session.service";
+import { getCompletedSessionIds } from "@/services/sessions/session-progress.service";
 
 import type { SessionWithStatus } from "@/types/study-session";
 
@@ -28,6 +29,8 @@ const ERROR_MESSAGE =
 export default function SesionesView() {
   const [sessions, setSessions] = useState<SessionWithStatus[]>([]);
 
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
@@ -35,16 +38,20 @@ export default function SesionesView() {
   /**
    * Obtiene las sesiones
    * disponibles para el
-   * participante.
+   * participante y su progreso.
    */
   const loadSessions = useCallback(async () => {
     setLoading(true);
     setError("");
 
     try {
-      const data = await getSessionsWithStatus();
+      const [data, completed] = await Promise.all([
+        getSessionsWithStatus(),
+        getCompletedSessionIds(),
+      ]);
 
       setSessions(data);
+      setCompletedIds(new Set(completed));
     } catch (error) {
       if (process.env.NODE_ENV === "development") {
         console.error(error);
@@ -109,7 +116,11 @@ export default function SesionesView() {
     <section className="sesiones-page">
       <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
 
-      <SessionsGrid sessions={sessions} />
+      <SessionsGrid
+        sessions={sessions}
+        completedIds={completedIds}
+        onSessionCompleted={loadSessions}
+      />
     </section>
   );
 }

@@ -15,6 +15,7 @@ const SELECT_FIELDS = `
   session_order,
   release_date_spain,
   release_date_latam,
+  is_live,
   created_at,
   updated_at
 `;
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
     sessionOrder,
     releaseDateSpain,
     releaseDateLatam,
+    isLive,
   } = body ?? {};
 
   if (!title || !description || !youtubeUrl || !sessionOrder) {
@@ -117,6 +119,7 @@ export async function POST(request: Request) {
     session_order: sessionOrder,
     release_date_spain: releaseDateSpain || now,
     release_date_latam: releaseDateLatam || now,
+    is_live: Boolean(isLive),
     updated_at: now,
   };
 

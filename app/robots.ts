@@ -5,7 +5,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard/', '/api/'],
+      disallow: [
+        '/admin/',
+        '/dashboard/',
+        '/perfil/',
+        '/cuestionarios/',
+        '/sesiones/',
+        '/recursos/',
+        '/estudio/',
+        '/api/',
+      ],
     },
     sitemap: 'https://alpha-help.org/sitemap.xml',
   };

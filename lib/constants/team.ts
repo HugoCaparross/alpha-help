@@ -1,68 +1,104 @@
 /**
  * Información de un miembro del equipo investigador.
+ *
+ * `photoUrl` es opcional: si se indica una ruta
+ * (por ejemplo "/images/team/nombre.jpg"), se muestra
+ * la fotografía en lugar de las iniciales.
  */
 export interface TeamMember {
   name: string;
+  studies: string;
   role: string;
   description: string;
   initials: string;
+  photoUrl?: string;
 }
 
 /**
- * Investigadora principal del proyecto.
+ * Investigador principal del proyecto.
  */
 export const LEAD_RESEARCHER: TeamMember = {
-  name: "Dra. Elena Martínez García",
-  role: "Directora de Investigación",
+  name: "Eduardo González Fraile",
+  studies: "Dr. en Psicología",
+  role: "Investigador principal",
   description:
-    "Responsable científica del proyecto Alpha-Help y de la coordinación general de la investigación.",
-  initials: "EM",
+    "Docente universitario (UNIR) y especialista en intervenciones psicoeducativas. Su labor se centra en la dirección y coordinación del proyecto.",
+  initials: "EG",
 };
 
 /**
- * Equipo investigador.
+ * Resto del equipo investigador (colaboradores).
  */
 export const TEAM_MEMBERS: readonly TeamMember[] = [
   {
-    name: "Dr. Carlos López Ruiz",
-    role: "Psicólogo Clínico",
+    name: "Ana Ordoñez López",
+    studies: "Dra. en Psicología",
+    role: "Colaboradora",
     description:
-      "Especialista en adolescencia con más de 15 años de experiencia en evaluación psicológica.",
-    initials: "CR",
+      "Psicóloga clínica y docente universitaria (UNIR). Su labor se centra en la elaboración de materiales psicoeducativos y en la adaptación de contenidos científicos para facilitar su aplicación en el contexto familiar.",
+    initials: "AO",
   },
   {
-    name: "Dra. María Sánchez Díaz",
-    role: "Investigadora Senior",
+    name: "Pilar Berzosa Grande",
+    studies: "Dra. en Ciencias de la Educación",
+    role: "Colaboradora",
     description:
-      "Experta en metodología de investigación y análisis de datos en estudios longitudinales.",
-    initials: "MS",
+      "Psicóloga clínica, terapeuta familiar y de pareja, y docente universitaria (UNIR). Especialista en programas de intervención y prevención infanto-juvenil. Participa en el diseño y desarrollo de los contenidos formativos dirigidos a las familias. Impartidora de contenidos.",
+    initials: "PB",
   },
   {
-    name: "Dr. Juan Rodríguez Pérez",
-    role: "Psicólogo Educativo",
-    description:
-      "Especializado en intervención familiar y programas de bienestar en contextos educativos.",
-    initials: "JR",
+    name: "María Aranzazu Basterra González",
+    studies: "Dra. en Ciencias de la Educación",
+    role: "Colaboradora",
+    description: "",
+    initials: "MB",
   },
   {
-    name: "Dra. Ana Fernández López",
-    role: "Coordinadora de Participantes",
+    name: "María José Arroyo González",
+    studies: "Dra. en Pedagogía",
+    role: "Colaboradora",
     description:
-      "Responsable de la coordinación de participantes y del seguimiento de los protocolos éticos del estudio.",
-    initials: "AF",
+      "Docente universitaria (UNED). Experta en orientación educativa en centros escolares a niños, adolescentes y familias. Su labor se centra en el desarrollo e implementación del programa y análisis de resultados.",
+    initials: "MJ",
   },
   {
-    name: "Dr. Pedro García Moreno",
-    role: "Especialista en Adolescencia",
+    name: "Daniela Gabriela Baridon Chauvie",
+    studies: "Dra. en Desarrollo Psicológico, Aprendizaje y Educación",
+    role: "Colaboradora",
     description:
-      "Investigador en salud mental adolescente y bienestar familiar.",
-    initials: "PG",
+      "Docente universitaria (UNIR) y profesora de secundaria. Su labor se centra en la impartición y adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
+    initials: "DB",
   },
   {
-    name: "Dra. Laura Jiménez Romero",
-    role: "Psicóloga del Desarrollo",
+    name: "María Clara Villa Orozco",
+    studies: "Máster en Psicología Clínica",
+    role: "Colaboradora",
     description:
-      "Especialista en dinámicas familiares y acompañamiento emocional durante la adolescencia.",
+      "Docente y coordinadora universitaria (Fundación UNIR Colombia). Su labor se centra en la adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
+    initials: "MC",
+  },
+  {
+    name: "Eden Jaramillo Mar",
+    studies: "Dra. en Educación",
+    role: "Colaboradora",
+    description:
+      "Docente universitaria (UNIR México). Su labor se centra en la adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
+    initials: "EJ",
+  },
+  {
+    name: "Laura Victoria Jácome Rincón",
+    studies: "Máster en Neuropsicología y Educación",
+    role: "Colaboradora",
+    description:
+      "Docente universitaria (Fundación UNIR Colombia). Su labor se centra en la adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
     initials: "LJ",
+  },
+  {
+    name: "Hugo Alberto Xochicale Rojas",
+    studies: "Máster en Ciencias en Ciencias Computacionales",
+    role: "Colaborador",
+    description:
+      "Docente universitario (UNIR México). Su labor se centra en el tratamiento y análisis de resultados.",
+    initials: "HX",
   },
 ] as const;

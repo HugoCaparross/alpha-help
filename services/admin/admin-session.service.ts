@@ -7,6 +7,7 @@ export interface AdminSessionRow {
   session_order: number;
   release_date_spain: string;
   release_date_latam: string;
+  is_live: boolean;
 }
 
 export interface AdminSessionInput {
@@ -17,6 +18,7 @@ export interface AdminSessionInput {
   sessionOrder: number;
   releaseDateSpain?: string;
   releaseDateLatam?: string;
+  isLive: boolean;
 }
 
 const ERROR_LIST = "No se han podido cargar las sesiones.";

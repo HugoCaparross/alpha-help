@@ -11,6 +11,10 @@ import type { SessionWithStatus } from "@/types/study-session";
 
 interface SessionsGridProps {
   readonly sessions: readonly SessionWithStatus[];
+
+  readonly completedIds: ReadonlySet<string>;
+
+  readonly onSessionCompleted?: () => void;
 }
 
 /**
@@ -20,7 +24,11 @@ interface SessionsGridProps {
  * y garantiza que únicamente exista
  * un modal abierto al mismo tiempo.
  */
-export default function SessionsGrid({ sessions }: SessionsGridProps) {
+export default function SessionsGrid({
+  sessions,
+  completedIds,
+  onSessionCompleted,
+}: SessionsGridProps) {
   const [selectedSession, setSelectedSession] =
     useState<SessionWithStatus | null>(null);
 
@@ -57,6 +65,7 @@ export default function SessionsGrid({ sessions }: SessionsGridProps) {
           <SessionCard
             key={session.id}
             session={session}
+            completed={completedIds.has(session.id)}
             onOpen={openSession}
           />
         ))}
@@ -68,7 +77,12 @@ export default function SessionsGrid({ sessions }: SessionsGridProps) {
         onClose={closeSession}
         maxWidth={1200}
       >
-        {selectedSession && <SessionPlayer session={selectedSession} />}
+        {selectedSession && (
+          <SessionPlayer
+            session={selectedSession}
+            onCompleted={onSessionCompleted}
+          />
+        )}
       </Modal>
     </>
   );

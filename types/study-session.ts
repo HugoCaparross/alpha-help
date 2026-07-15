@@ -36,6 +36,17 @@ export interface Session {
   readonly releaseDateSpain: string;
 
   readonly releaseDateLatam: string;
+
+  /**
+   * Indica si la sesión se encuentra
+   * en este momento retransmitiéndose
+   * en directo. Lo activa/desactiva
+   * manualmente el administrador.
+   *
+   * Cuando es `false`, la sesión se
+   * considera grabada/en diferido.
+   */
+  readonly isLive: boolean;
 }
 
 /**

@@ -1,24 +1,38 @@
+import Image from "next/image";
+
 interface TeamMemberCardProps {
   name: string;
+  studies: string;
   role: string;
   description: string;
   initials: string;
+  photoUrl?: string;
 }
 
 /**
  * Tarjeta informativa de un miembro
  * del equipo investigador.
+ *
+ * Muestra una fotografía si se indica
+ * `photoUrl`; en caso contrario muestra
+ * las iniciales sobre un fondo de color.
  */
 export default function TeamMemberCard({
   name,
+  studies,
   role,
   description,
   initials,
+  photoUrl,
 }: TeamMemberCardProps) {
   return (
     <article className="about-member" aria-labelledby={`member-${initials}`}>
       <div className="about-member-avatar" aria-hidden="true">
-        {initials}
+        {photoUrl ? (
+          <Image src={photoUrl} alt="" fill sizes="72px" />
+        ) : (
+          initials
+        )}
       </div>
 
       <div className="about-member-content">
@@ -26,9 +40,13 @@ export default function TeamMemberCard({
           {name}
         </h3>
 
-        <p className="about-member-role">{role}</p>
+        <p className="about-member-role">
+          {studies} · {role}
+        </p>
 
-        <p className="about-member-description">{description}</p>
+        {description && (
+          <p className="about-member-description">{description}</p>
+        )}
       </div>
     </article>
   );

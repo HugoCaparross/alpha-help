@@ -28,7 +28,8 @@ const SESSION_FIELDS = `
   thumbnail_url,
   session_order,
   release_date_spain,
-  release_date_latam
+  release_date_latam,
+  is_live
 `;
 
 const ERROR_GET_SESSIONS =
@@ -56,6 +57,8 @@ interface SessionRow {
   release_date_spain: string;
 
   release_date_latam: string;
+
+  is_live: boolean;
 }
 
 /**
@@ -86,6 +89,9 @@ function mapSession(
 
     releaseDateLatam:
       row.release_date_latam,
+
+    isLive:
+      row.is_live,
   };
 }
 
@@ -200,7 +206,7 @@ function mapSessionWithStatus(
  * Obtiene todas las sesiones
  * del estudio.
  */
-export async function getSessions(): Promise<
+export async function getSessions(): Promise
   Session[]
 > {
   const {
@@ -267,7 +273,7 @@ export async function getSessionById(
  * la región del participante
  * y su estado.
  */
-export async function getSessionsWithStatus(): Promise<
+export async function getSessionsWithStatus(): Promise
   SessionWithStatus[]
 > {
   const [
@@ -291,7 +297,7 @@ export async function getSessionsWithStatus(): Promise<
  * Devuelve únicamente
  * las sesiones disponibles.
  */
-export async function getAvailableSessions(): Promise<
+export async function getAvailableSessions(): Promise
   SessionWithStatus[]
 > {
   const sessions =
@@ -309,7 +315,7 @@ export async function getAvailableSessions(): Promise<
  * sesión pendiente
  * de publicación.
  */
-export async function getNextSession(): Promise<
+export async function getNextSession(): Promise
   SessionWithStatus | null
 > {
   const sessions =

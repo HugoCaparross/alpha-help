@@ -24,7 +24,7 @@ export const ADMIN_USERNAME = "admin";
  */
 export const ADMIN_LOGIN_EMAIL =
   process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim() ||
-  "admin@alpha-help.internal";
+  "alpha-help@unir.net";
 
 /**
  * Resuelve el correo electrónico

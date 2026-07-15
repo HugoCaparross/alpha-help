@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, ExternalLink, Printer } from "lucide-react";
+import { Download } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 interface PdfViewerProps {
@@ -23,7 +23,10 @@ const LOAD_TIMEOUT = 10000;
  *
  * Su única responsabilidad es mostrar
  * el documento utilizando el visor
- * nativo del navegador.
+ * nativo del navegador y permitir
+ * su descarga. No incluye acciones
+ * de impresión ni de apertura en
+ * una nueva pestaña.
  *
  * El registro del progreso pertenece
  * exclusivamente a MaterialsGrid.
@@ -72,22 +75,7 @@ export default function PdfViewer({ title, pdfUrl }: PdfViewerProps) {
   }
 
   /**
-   * Abre el documento
-   * en una pestaña nueva.
-   */
-  function handleOpenNewTab() {
-    window.open(pdfUrl, "_blank", "noopener,noreferrer");
-  }
-
-  /**
    * Descarga el documento.
-   *
-   * Actualmente utiliza la URL
-   * del documento. Cuando los
-   * materiales se sirvan desde
-   * Supabase Storage mediante
-   * URLs firmadas, únicamente
-   * habrá que sustituir la URL.
    */
   function handleDownload() {
     const link = document.createElement("a");
@@ -103,23 +91,6 @@ export default function PdfViewer({ title, pdfUrl }: PdfViewerProps) {
     link.click();
 
     document.body.removeChild(link);
-  }
-
-  /**
-   * Imprime el documento.
-   */
-  function handlePrint() {
-    const printWindow = window.open(pdfUrl, "_blank", "noopener,noreferrer");
-
-    if (!printWindow) {
-      return;
-    }
-
-    printWindow.onload = () => {
-      printWindow.focus();
-
-      printWindow.print();
-    };
   }
 
   if (!pdfUrl) {
@@ -143,24 +114,6 @@ export default function PdfViewer({ title, pdfUrl }: PdfViewerProps) {
           >
             <Download size={17} />
             Descargar
-          </button>
-
-          <button
-            type="button"
-            className="pdf-viewer__button"
-            onClick={handlePrint}
-          >
-            <Printer size={17} />
-            Imprimir
-          </button>
-
-          <button
-            type="button"
-            className="pdf-viewer__button"
-            onClick={handleOpenNewTab}
-          >
-            <ExternalLink size={17} />
-            Nueva pestaña
           </button>
         </div>
       </header>

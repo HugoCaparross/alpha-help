@@ -22,6 +22,7 @@ interface FormState {
   youtubeUrl: string;
   releaseDateSpain: string;
   releaseDateLatam: string;
+  isLive: boolean;
 }
 
 const EMPTY_FORM: FormState = {
@@ -30,6 +31,7 @@ const EMPTY_FORM: FormState = {
   youtubeUrl: "",
   releaseDateSpain: "",
   releaseDateLatam: "",
+  isLive: false,
 };
 
 function toDatetimeLocal(iso: string | undefined): string {
@@ -96,6 +98,7 @@ export default function AdminSessionsPage() {
           youtubeUrl: existing.youtube_url,
           releaseDateSpain: toDatetimeLocal(existing.release_date_spain),
           releaseDateLatam: toDatetimeLocal(existing.release_date_latam),
+          isLive: existing.is_live,
         });
       } else {
         setForm(EMPTY_FORM);
@@ -117,6 +120,7 @@ export default function AdminSessionsPage() {
         description: form.description,
         youtubeUrl: form.youtubeUrl,
         sessionOrder: selectedOrder,
+        isLive: form.isLive,
         releaseDateSpain: form.releaseDateSpain
           ? new Date(form.releaseDateSpain).toISOString()
           : undefined,
@@ -189,6 +193,9 @@ export default function AdminSessionsPage() {
               <span className="admin-slot__title">
                 {item ? item.title : "Sin configurar"}
               </span>
+              {item?.is_live && (
+                <span className="admin-slot__live-badge">EN DIRECTO</span>
+              )}
               <span className="admin-slot__status">
                 {item ? "Publicada" : "Vacía"}
               </span>
@@ -247,6 +254,38 @@ export default function AdminSessionsPage() {
             <span className="admin-form__hint">
               Admite enlaces normales, de retransmisión en directo, youtu.be y
               shorts.
+            </span>
+          </div>
+
+          <div className="admin-form__row">
+            <label>Estado de la sesión</label>
+
+            <div className="admin-live-toggle">
+              <button
+                type="button"
+                className={`admin-live-toggle__option ${
+                  !form.isLive ? "admin-live-toggle__option--active" : ""
+                }`}
+                onClick={() => setForm((prev) => ({ ...prev, isLive: false }))}
+              >
+                Grabada / en diferido
+              </button>
+
+              <button
+                type="button"
+                className={`admin-live-toggle__option admin-live-toggle__option--live ${
+                  form.isLive ? "admin-live-toggle__option--active" : ""
+                }`}
+                onClick={() => setForm((prev) => ({ ...prev, isLive: true }))}
+              >
+                🔴 En directo ahora
+              </button>
+            </div>
+
+            <span className="admin-form__hint">
+              Puedes cambiar este estado en cualquier momento, incluso después
+              de publicar la sesión. Cuando el directo termine, vuelve aquí y
+              marca &quot;Grabada / en diferido&quot;.
             </span>
           </div>
 

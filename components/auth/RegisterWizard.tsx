@@ -54,6 +54,7 @@ export default function RegisterWizard() {
     password: "",
     confirmPassword: "",
     acceptedPolicy: false,
+    acceptedInformedConsent: false,
 
     /* PARTICIPANTE */
 
