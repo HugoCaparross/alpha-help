@@ -75,23 +75,17 @@ function mapSession(
 
     description: row.description,
 
-    youtubeUrl:
-      row.youtube_url,
+    youtubeUrl: row.youtube_url,
 
-    thumbnailUrl:
-      row.thumbnail_url,
+    thumbnailUrl: row.thumbnail_url,
 
-    sessionOrder:
-      row.session_order,
+    sessionOrder: row.session_order,
 
-    releaseDateSpain:
-      row.release_date_spain,
+    releaseDateSpain: row.release_date_spain,
 
-    releaseDateLatam:
-      row.release_date_latam,
+    releaseDateLatam: row.release_date_latam,
 
-    isLive:
-      row.is_live,
+    isLive: row.is_live,
   };
 }
 
@@ -100,8 +94,7 @@ function mapSession(
  * del participante autenticado.
  */
 async function getCurrentRegion(): Promise<Region> {
-  const profile =
-    await getProfile();
+  const profile = await getProfile();
 
   if (!profile) {
     throw new Error(
@@ -143,10 +136,6 @@ function isReleased(
  * Indica si una sesión
  * está disponible para
  * una determinada región.
- *
- * Función reutilizable por
- * Dashboard, Administrador
- * y futuros componentes.
  */
 export function isSessionAvailable(
   session: Session,
@@ -188,17 +177,15 @@ function mapSessionWithStatus(
   return {
     ...session,
 
-    releaseDate:
-      getReleaseDate(
-        session,
-        region,
-      ),
+    releaseDate: getReleaseDate(
+      session,
+      region,
+    ),
 
-    status:
-      getStatus(
-        session,
-        region,
-      ),
+    status: getStatus(
+      session,
+      region,
+    ),
   };
 }
 
@@ -206,21 +193,16 @@ function mapSessionWithStatus(
  * Obtiene todas las sesiones
  * del estudio.
  */
-export async function getSessions(): Promise
-  Session[]
-> {
+export async function getSessions(): Promise<Session[]> {
   const {
     data,
     error,
   } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
-    .order(
-      "session_order",
-      {
-        ascending: true,
-      },
-    );
+    .order("session_order", {
+      ascending: true,
+    });
 
   if (error) {
     throw new Error(
@@ -228,11 +210,10 @@ export async function getSessions(): Promise
     );
   }
 
-  return (data ?? []).map(
-    (row) =>
-      mapSession(
-        row as SessionRow,
-      ),
+  return (data ?? []).map((row) =>
+    mapSession(
+      row as SessionRow,
+    ),
   );
 }
 
@@ -273,9 +254,7 @@ export async function getSessionById(
  * la región del participante
  * y su estado.
  */
-export async function getSessionsWithStatus(): Promise
-  SessionWithStatus[]
-> {
+export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
   const [
     region,
     sessions,
@@ -297,9 +276,7 @@ export async function getSessionsWithStatus(): Promise
  * Devuelve únicamente
  * las sesiones disponibles.
  */
-export async function getAvailableSessions(): Promise
-  SessionWithStatus[]
-> {
+export async function getAvailableSessions(): Promise<SessionWithStatus[]> {
   const sessions =
     await getSessionsWithStatus();
 
@@ -315,9 +292,7 @@ export async function getAvailableSessions(): Promise
  * sesión pendiente
  * de publicación.
  */
-export async function getNextSession(): Promise
-  SessionWithStatus | null
-> {
+export async function getNextSession(): Promise<SessionWithStatus | null> {
   const sessions =
     await getSessionsWithStatus();
 
