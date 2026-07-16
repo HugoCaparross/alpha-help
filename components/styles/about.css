@@ -119,6 +119,13 @@
   font-weight: 700;
 }
 
+.about-lead-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .about-lead-name {
   font-size: 1.25rem;
   font-weight: 700;
@@ -245,6 +252,13 @@
 
   font-size: 1.75rem;
   font-weight: 700;
+}
+
+.about-member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .about-member-content {

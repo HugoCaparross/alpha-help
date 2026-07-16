@@ -41,10 +41,11 @@ export default function CookieBanner() {
             </div>
 
             <p className="cookie-banner-text">
-              Utilizamos cookies propias y de terceros para fines analíticos y
-              para mostrarte contenido personalizado en base a un perfil
-              elaborado a partir de tus hábitos de navegación. Puedes aceptar
-              todas las cookies, rechazarlas o consultar más información.
+              Utilizamos cookies técnicas necesarias para el funcionamiento de
+              la plataforma (por ejemplo, para mantener tu sesión iniciada) y,
+              en su caso, cookies analíticas para mejorar la experiencia de
+              navegación. Puedes aceptarlas, rechazarlas o consultar más
+              información.
             </p>
           </div>
 

@@ -13,23 +13,21 @@ import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 interface MaterialsGridProps {
   readonly materials: readonly StudyMaterialWithStatus[];
+
+  /**
+   * "cover" se usa para el material largo
+   * único: una sola tarjeta con la portada
+   * del PDF perfectamente cuadrada.
+   */
+  readonly variant?: "grid" | "cover";
 }
 
-/**
- * Tiempo mínimo que el participante
- * debe mantener abierto un material
- * para considerarlo consultado.
- */
 const MINIMUM_READING_TIME = 3000;
 
-/**
- * Rejilla de materiales.
- *
- * Gestiona la apertura del visor,
- * el registro de progreso y el
- * ciclo de vida del modal.
- */
-export default function MaterialsGrid({ materials }: MaterialsGridProps) {
+export default function MaterialsGrid({
+  materials,
+  variant = "grid",
+}: MaterialsGridProps) {
   const [selectedMaterial, setSelectedMaterial] =
     useState<StudyMaterialWithStatus | null>(null);
 
@@ -37,16 +35,10 @@ export default function MaterialsGrid({ materials }: MaterialsGridProps) {
 
   const hasRegisteredRef = useRef(false);
 
-  /**
-   * Abre un material.
-   */
   const openMaterial = useCallback((material: StudyMaterialWithStatus) => {
     setSelectedMaterial(material);
   }, []);
 
-  /**
-   * Cierra el visor.
-   */
   const closeMaterial = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -59,11 +51,6 @@ export default function MaterialsGrid({ materials }: MaterialsGridProps) {
     setSelectedMaterial(null);
   }, []);
 
-  /**
-   * Registra el material
-   * tras permanecer abierto
-   * el tiempo mínimo.
-   */
   useEffect(() => {
     if (!selectedMaterial) {
       return;
@@ -96,10 +83,6 @@ export default function MaterialsGrid({ materials }: MaterialsGridProps) {
     };
   }, [selectedMaterial]);
 
-  /**
-   * Título mostrado
-   * en el modal.
-   */
   const modalTitle = useMemo(() => {
     if (!selectedMaterial) {
       return "";
@@ -110,7 +93,12 @@ export default function MaterialsGrid({ materials }: MaterialsGridProps) {
 
   return (
     <>
-      <section className="materials-grid" aria-label="Listado de materiales">
+      <section
+        className={`materials-grid ${
+          variant === "cover" ? "materials-grid--cover" : ""
+        }`}
+        aria-label="Listado de materiales"
+      >
         {materials.map((material) => (
           <MaterialCard
             key={material.id}

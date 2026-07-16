@@ -54,6 +54,15 @@ export const metadata: Metadata = {
     locale: "es_ES",
 
     type: "website",
+
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ALPHA-HELP",
+      },
+    ],
   },
 
   robots: {
@@ -75,7 +84,12 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/logo_sin_letras.svg", type: "image/svg+xml" },
+    ],
+
+    apple: "/apple-touch-icon.png",
   },
 };
 

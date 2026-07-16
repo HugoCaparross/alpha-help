@@ -12,29 +12,29 @@ import {
   type AdminMaterialRow,
 } from "@/services/admin/admin-material.service";
 
-const TOTAL_SLOTS = 9;
-
-const SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, index) => index + 1);
-
 type MaterialType = "support" | "extended";
+type RegionValue = "España" | "Latinoamérica";
 
-const TABS: { id: MaterialType; label: string }[] = [
-  { id: "support", label: "Materiales de apoyo" },
-  { id: "extended", label: "Guías completas" },
+const TYPE_TABS: { id: MaterialType; label: string }[] = [
+  { id: "support", label: "Materiales cortos" },
+  { id: "extended", label: "Materiales largos" },
+];
+
+const REGION_TABS: { id: RegionValue; label: string }[] = [
+  { id: "España", label: "España" },
+  { id: "Latinoamérica", label: "Latinoamérica" },
 ];
 
 interface FormState {
   title: string;
   description: string;
-  releaseDateSpain: string;
-  releaseDateLatam: string;
+  releaseDate: string;
 }
 
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
-  releaseDateSpain: "",
-  releaseDateLatam: "",
+  releaseDate: "",
 };
 
 function toDatetimeLocal(iso: string | undefined): string {
@@ -53,7 +53,8 @@ function toDatetimeLocal(iso: string | undefined): string {
 
 export default function AdminMaterialsPage() {
   const [materials, setMaterials] = useState<AdminMaterialRow[]>([]);
-  const [activeTab, setActiveTab] = useState<MaterialType>("support");
+  const [activeType, setActiveType] = useState<MaterialType>("support");
+  const [activeRegion, setActiveRegion] = useState<RegionValue>("España");
   const [selectedOrder, setSelectedOrder] = useState<number>(1);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [file, setFile] = useState<File | null>(null);
@@ -61,6 +62,15 @@ export default function AdminMaterialsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const slots = useMemo(
+    () =>
+      Array.from(
+        { length: activeType === "extended" ? 1 : 9 },
+        (_, index) => index + 1,
+      ),
+    [activeType],
+  );
 
   const loadMaterials = useCallback(async () => {
     setLoading(true);
@@ -84,11 +94,15 @@ export default function AdminMaterialsPage() {
     const map = new Map<number, AdminMaterialRow>();
 
     materials
-      .filter((material) => material.material_type === activeTab)
+      .filter(
+        (material) =>
+          material.material_type === activeType &&
+          material.region === activeRegion,
+      )
       .forEach((material) => map.set(material.material_order, material));
 
     return map;
-  }, [materials, activeTab]);
+  }, [materials, activeType, activeRegion]);
 
   const selectSlot = useCallback(
     (order: number) => {
@@ -103,8 +117,7 @@ export default function AdminMaterialsPage() {
         setForm({
           title: existing.title,
           description: existing.description,
-          releaseDateSpain: toDatetimeLocal(existing.release_date_spain),
-          releaseDateLatam: toDatetimeLocal(existing.release_date_latam),
+          releaseDate: toDatetimeLocal(existing.release_date_spain),
         });
       } else {
         setForm(EMPTY_FORM);
@@ -113,8 +126,17 @@ export default function AdminMaterialsPage() {
     [materialByOrder],
   );
 
-  function selectTab(tab: MaterialType) {
-    setActiveTab(tab);
+  function selectType(type: MaterialType) {
+    setActiveType(type);
+    setSelectedOrder(1);
+    setForm(EMPTY_FORM);
+    setFile(null);
+    setError("");
+    setSuccess("");
+  }
+
+  function selectRegion(region: RegionValue) {
+    setActiveRegion(region);
     setSelectedOrder(1);
     setForm(EMPTY_FORM);
     setFile(null);
@@ -137,17 +159,18 @@ export default function AdminMaterialsPage() {
     setSuccess("");
 
     try {
+      const releaseIso = form.releaseDate
+        ? new Date(form.releaseDate).toISOString()
+        : undefined;
+
       await saveAdminMaterial({
         title: form.title,
         description: form.description,
-        materialType: activeTab,
+        materialType: activeType,
         materialOrder: selectedOrder,
-        releaseDateSpain: form.releaseDateSpain
-          ? new Date(form.releaseDateSpain).toISOString()
-          : undefined,
-        releaseDateLatam: form.releaseDateLatam
-          ? new Date(form.releaseDateLatam).toISOString()
-          : undefined,
+        region: activeRegion,
+        releaseDateSpain: releaseIso,
+        releaseDateLatam: releaseIso,
         pdfUrl: existing?.pdf_url,
         file,
       });
@@ -193,20 +216,36 @@ export default function AdminMaterialsPage() {
         <h1 className="admin-header__title">Materiales (PDF)</h1>
 
         <p className="admin-header__description">
-          Sube los materiales de apoyo (resúmenes cortos) y las guías completas
-          (documentos ampliados) de cada una de las 9 sesiones.
+          España y Latinoamérica son programas independientes. Los materiales
+          cortos tienen 9, uno por sesión; los materiales largos son un único
+          PDF con todo el contenido ampliado.
         </p>
       </header>
 
       <div className="admin-tabs">
-        {TABS.map((tab) => (
+        {REGION_TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
             className={`admin-tab ${
-              activeTab === tab.id ? "admin-tab--active" : ""
+              activeRegion === tab.id ? "admin-tab--active" : ""
             }`}
-            onClick={() => selectTab(tab.id)}
+            onClick={() => selectRegion(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-tabs">
+        {TYPE_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={`admin-tab ${
+              activeType === tab.id ? "admin-tab--active" : ""
+            }`}
+            onClick={() => selectType(tab.id)}
           >
             {tab.label}
           </button>
@@ -214,7 +253,7 @@ export default function AdminMaterialsPage() {
       </div>
 
       <div className="admin-slots-grid">
-        {SLOTS.map((order) => {
+        {slots.map((order) => {
           const item = materialByOrder.get(order);
 
           return (
@@ -226,7 +265,9 @@ export default function AdminMaterialsPage() {
                 selectedOrder === order ? "admin-slot--active" : ""
               }`}
             >
-              <span className="admin-slot__number">Sesión {order}</span>
+              <span className="admin-slot__number">
+                {activeType === "extended" ? "Guía única" : `Sesión ${order}`}
+              </span>
               <span className="admin-slot__title">
                 {item ? item.title : "Sin configurar"}
               </span>
@@ -244,8 +285,9 @@ export default function AdminMaterialsPage() {
         <form className="admin-form" onSubmit={handleSubmit}>
           <div className="admin-form__row">
             <label htmlFor="title">
-              Título ({TABS.find((t) => t.id === activeTab)?.label} · Sesión{" "}
-              {selectedOrder})
+              Título ({REGION_TABS.find((t) => t.id === activeRegion)?.label} ·{" "}
+              {TYPE_TABS.find((t) => t.id === activeType)?.label}
+              {activeType === "support" ? ` · Sesión ${selectedOrder}` : ""})
             </label>
             <input
               id="title"
@@ -289,45 +331,23 @@ export default function AdminMaterialsPage() {
             )}
           </div>
 
-          <div className="admin-form__row admin-form__row--split">
-            <div>
-              <label htmlFor="releaseDateSpain">
-                Publicación España (opcional)
-              </label>
-              <input
-                id="releaseDateSpain"
-                type="datetime-local"
-                value={form.releaseDateSpain}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateSpain: event.target.value,
-                  }))
-                }
-              />
-            </div>
-
-            <div>
-              <label htmlFor="releaseDateLatam">
-                Publicación Latinoamérica (opcional)
-              </label>
-              <input
-                id="releaseDateLatam"
-                type="datetime-local"
-                value={form.releaseDateLatam}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateLatam: event.target.value,
-                  }))
-                }
-              />
-            </div>
+          <div className="admin-form__row">
+            <label htmlFor="releaseDate">Publicación (opcional)</label>
+            <input
+              id="releaseDate"
+              type="datetime-local"
+              value={form.releaseDate}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  releaseDate: event.target.value,
+                }))
+              }
+            />
+            <span className="admin-form__hint">
+              Si la dejas vacía, el material se publica inmediatamente.
+            </span>
           </div>
-
-          <span className="admin-form__hint">
-            Si dejas las fechas vacías, el material se publica inmediatamente.
-          </span>
 
           {error && <p className="admin-form__error">{error}</p>}
           {success && <p className="admin-form__success">{success}</p>}

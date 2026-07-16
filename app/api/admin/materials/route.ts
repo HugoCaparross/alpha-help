@@ -17,19 +17,13 @@ const SELECT_FIELDS = `
   thumbnail_url,
   material_order,
   material_type,
+  region,
   release_date_spain,
   release_date_latam,
   created_at,
   updated_at
 `;
 
-/**
- * Garantiza que el bucket de
- * almacenamiento de materiales
- * exista y sea público, para
- * que los enlaces a los PDF
- * puedan consultarse directamente.
- */
 async function ensureBucket(
   admin: ReturnType<typeof createAdminClient>,
 ) {
@@ -83,8 +77,10 @@ export async function GET() {
  *
  * Recibe multipart/form-data con:
  * title, description, materialType ("support" | "extended"),
- * materialOrder (1-9), releaseDateSpain?, releaseDateLatam?,
- * thumbnailUrl?, file (PDF, opcional si ya existe pdfUrl).
+ * materialOrder (1-9 en support, siempre 1 en extended),
+ * region ("España" | "Latinoamérica"), releaseDateSpain?,
+ * releaseDateLatam?, thumbnailUrl?, file (PDF, opcional si
+ * ya existe pdfUrl).
  */
 export async function POST(request: Request) {
   const auth = await requireAdmin();
@@ -99,6 +95,7 @@ export async function POST(request: Request) {
   const description = form.get("description")?.toString().trim();
   const materialType = form.get("materialType")?.toString();
   const materialOrderRaw = form.get("materialOrder")?.toString();
+  const region = form.get("region")?.toString();
   const releaseDateSpain = form.get("releaseDateSpain")?.toString();
   const releaseDateLatam = form.get("releaseDateLatam")?.toString();
   const thumbnailUrl = form.get("thumbnailUrl")?.toString().trim();
@@ -107,13 +104,16 @@ export async function POST(request: Request) {
 
   const materialOrder = materialOrderRaw ? Number(materialOrderRaw) : null;
 
+  const maxOrder = materialType === "extended" ? 1 : 9;
+
   if (
     !title ||
     !description ||
     (materialType !== "support" && materialType !== "extended") ||
+    (region !== "España" && region !== "Latinoamérica") ||
     !materialOrder ||
     materialOrder < 1 ||
-    materialOrder > 9
+    materialOrder > maxOrder
   ) {
     return NextResponse.json(
       { error: "Faltan campos obligatorios o son inválidos." },
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
   if (file instanceof File && file.size > 0) {
     await ensureBucket(admin);
 
-    const path = `${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
+    const path = `${region}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
       file.name || "material.pdf",
     )}`;
 
@@ -167,6 +167,7 @@ export async function POST(request: Request) {
     .select("id")
     .eq("material_order", materialOrder)
     .eq("material_type", materialType)
+    .eq("region", region)
     .maybeSingle();
 
   const payload = {
@@ -176,6 +177,7 @@ export async function POST(request: Request) {
     thumbnail_url: thumbnailUrl || DEFAULT_THUMBNAIL,
     material_order: materialOrder,
     material_type: materialType,
+    region,
     release_date_spain: releaseDateSpain || now,
     release_date_latam: releaseDateLatam || now,
     updated_at: now,

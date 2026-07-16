@@ -4,9 +4,7 @@
 
 .private-layout {
   height: 100vh;
-
   overflow: hidden;
-
   background: var(--background);
 }
 
@@ -16,11 +14,8 @@
 
 .private-layout-shell {
   display: flex;
-
   height: 100%;
-
   overflow: hidden;
-
   isolation: isolate;
 }
 
@@ -40,7 +35,6 @@
   padding: 1.5rem;
 
   scroll-behavior: smooth;
-
   scrollbar-width: thin;
 }
 
@@ -50,7 +44,6 @@
 
 .private-layout-main::-webkit-scrollbar-thumb {
   background: var(--neutral-300);
-
   border-radius: 999px;
 }
 
@@ -66,16 +59,16 @@
 .right-panel {
   position: sticky;
   top: 0;
-
   flex-shrink: 0;
-
   height: 100vh;
-
   overflow: hidden;
 }
 
 /* ==========================================
    RESPONSIVE
+   Por debajo de 1024px, Sidebar se oculta
+   y MobileNav pasa a ocupar su lugar como
+   barra fija superior + menú desplegable.
 ========================================== */
 
 @media (max-width: 1280px) {
@@ -84,8 +77,30 @@
   }
 }
 
+@media (max-width: 1023px) {
+  .private-layout {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .private-layout-shell {
+    height: auto;
+    overflow: visible;
+  }
+
+  .private-layout-main {
+    height: auto;
+    overflow: visible;
+
+    padding: 1.5rem 1.25rem;
+    padding-top: calc(3.75rem + 1.5rem);
+  }
+}
+
 @media (max-width: 768px) {
   .private-layout-main {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
+    padding-top: calc(3.75rem + 1.25rem);
   }
 }

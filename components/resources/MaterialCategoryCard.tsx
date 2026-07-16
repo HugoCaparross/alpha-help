@@ -16,14 +16,6 @@ interface MaterialCategoryCardProps {
   readonly onOpen: (type: MaterialType) => void;
 }
 
-/**
- * Tarjeta de categoría mostrada
- * en la vista principal de materiales.
- *
- * Al seleccionarla, se muestran
- * las 9 sesiones correspondientes
- * a esa categoría.
- */
 export default function MaterialCategoryCard({
   type,
   title,
@@ -51,7 +43,11 @@ export default function MaterialCategoryCard({
         <p className="material-category-card__desc">{description}</p>
 
         <span className="material-category-card__count">
-          {available} de {total} sesiones disponibles
+          {type === "support"
+            ? `${available} de ${total} sesiones disponibles`
+            : available > 0
+              ? "Disponible"
+              : "Aún no disponible"}
         </span>
       </div>
 

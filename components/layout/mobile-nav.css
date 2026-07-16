@@ -1,0 +1,144 @@
+/* ==========================================
+   MOBILE NAV — Barra superior
+========================================== */
+
+.mobile-nav-bar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mobile-nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    height: 3.75rem;
+    padding-inline: 1.25rem;
+
+    background: var(--surface);
+    border-bottom: var(--border-light);
+  }
+}
+
+.mobile-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--neutral-900);
+}
+
+.mobile-nav-brand-mark {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.mobile-nav-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border-radius: var(--radius-sm);
+  color: var(--neutral-700);
+
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav-toggle:hover {
+  background: var(--neutral-100);
+}
+
+/* ==========================================
+   MOBILE NAV — Menú desplegable
+========================================== */
+
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+
+  display: flex;
+}
+
+.mobile-nav-backdrop {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.mobile-nav-drawer {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  width: min(20rem, 85vw);
+  height: 100%;
+
+  padding: 5rem 1.25rem 1.5rem;
+
+  background: var(--surface);
+  box-shadow: var(--shadow-hover);
+
+  overflow-y: auto;
+
+  animation: mobile-nav-slide-in 0.2s ease-out;
+}
+
+@keyframes mobile-nav-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobile-nav-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  width: 100%;
+
+  min-height: 3rem;
+  padding: 0.75rem;
+
+  border-radius: var(--radius-md);
+
+  color: var(--danger);
+
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav-logout:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.mobile-nav-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav-overlay {
+    display: none;
+  }
+}

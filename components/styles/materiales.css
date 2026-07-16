@@ -956,3 +956,16 @@
 .materiales-back:hover {
   color: var(--accent);
 }
+
+/* ==========================================
+   MATERIALES — Tarjeta única (guía larga)
+========================================== */
+
+.materials-grid--cover {
+  grid-template-columns: minmax(0, 340px);
+  justify-content: center;
+}
+
+.materials-grid--cover .material-card__thumb {
+  aspect-ratio: 1 / 1;
+}

@@ -29,6 +29,7 @@
   --neutral-700: #334155;
   --neutral-600: #64748b;
   --neutral-500: #94a3b8;
+  --neutral-400: #b0bcce;
   --neutral-300: #cbd5e1;
   --neutral-200: #e2e8f0;
   --neutral-100: #f1f5f9;
@@ -50,28 +51,64 @@
   --radius-lg: 24px;
   --radius-xl: 32px;
 
+  /* Spacing scale
+     Toda separación entre elementos
+     (gap, padding, margin) debería
+     tomar uno de estos valores en
+     lugar de números sueltos. */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Typography scale */
+
+  --text-xs: 0.8rem;
+  --text-sm: 0.9rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
   /* Shadows */
 
   --shadow-card:
-    0 10px 30px rgba(15, 23, 42, 0.04),
-    0 1px 2px rgba(15, 23, 42, 0.03);
+    0 10px 30px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.03);
 
   --shadow-hover:
-    0 16px 32px rgba(15, 23, 42, 0.05),
-    0 2px 4px rgba(15, 23, 42, 0.03);
+    0 16px 32px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.03);
 
-  --shadow-button:
-    0 8px 24px rgba(14, 165, 233, 0.25);
+  --shadow-button: 0 8px 24px rgba(14, 165, 233, 0.25);
 
-  /* Focus */
+  /* Focus
+     Usar siempre --focus-shadow en
+     :focus-visible de campos, botones
+     y elementos interactivos, para que
+     el foco se vea igual en toda la web. */
 
   --focus-ring: rgba(14, 165, 233, 0.12);
 
   --focus-border: rgba(14, 165, 233, 0.5);
 
   --focus-shadow:
-    0 0 0 4px var(--focus-ring),
-    0 4px 12px rgba(14, 165, 233, 0.08);
+    0 0 0 4px var(--focus-ring), 0 4px 12px rgba(14, 165, 233, 0.08);
+
+  /* Motion
+     Duraciones consistentes para
+     hover, apertura de menús y
+     transiciones de estado. */
+
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
 }
 
 /* ==========================================
@@ -191,8 +228,8 @@ ol {
 
   border-radius: 999px;
 
-  background: #e0f2fe;
-  color: #0369a1;
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--accent-hover);
 
   font-size: 0.875rem;
   font-weight: 600;

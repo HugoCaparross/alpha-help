@@ -6,6 +6,9 @@ export interface AdminMaterialRow {
   thumbnail_url: string;
   material_order: number;
   material_type: "support" | "extended";
+
+  region: "España" | "Latinoamérica";
+
   release_date_spain: string;
   release_date_latam: string;
 }
@@ -15,8 +18,12 @@ export interface AdminMaterialInput {
   description: string;
   materialType: "support" | "extended";
   materialOrder: number;
+
+  region: "España" | "Latinoamérica";
+
   releaseDateSpain?: string;
   releaseDateLatam?: string;
+
   thumbnailUrl?: string;
   pdfUrl?: string;
   file?: File | null;
@@ -27,7 +34,9 @@ const ERROR_SAVE = "No se ha podido guardar el material.";
 const ERROR_DELETE = "No se ha podido eliminar el material.";
 
 export async function listAdminMaterials(): Promise<AdminMaterialRow[]> {
-  const response = await fetch("/api/admin/materials", { cache: "no-store" });
+  const response = await fetch("/api/admin/materials", {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
     throw new Error(ERROR_LIST);
@@ -38,7 +47,9 @@ export async function listAdminMaterials(): Promise<AdminMaterialRow[]> {
   return materials as AdminMaterialRow[];
 }
 
-export async function saveAdminMaterial(input: AdminMaterialInput): Promise<void> {
+export async function saveAdminMaterial(
+  input: AdminMaterialInput,
+): Promise<void> {
   const form = new FormData();
 
   form.set("title", input.title);
@@ -46,11 +57,27 @@ export async function saveAdminMaterial(input: AdminMaterialInput): Promise<void
   form.set("materialType", input.materialType);
   form.set("materialOrder", String(input.materialOrder));
 
-  if (input.releaseDateSpain) form.set("releaseDateSpain", input.releaseDateSpain);
-  if (input.releaseDateLatam) form.set("releaseDateLatam", input.releaseDateLatam);
-  if (input.thumbnailUrl) form.set("thumbnailUrl", input.thumbnailUrl);
-  if (input.pdfUrl) form.set("pdfUrl", input.pdfUrl);
-  if (input.file) form.set("file", input.file);
+  form.set("region", input.region);
+
+  if (input.releaseDateSpain) {
+    form.set("releaseDateSpain", input.releaseDateSpain);
+  }
+
+  if (input.releaseDateLatam) {
+    form.set("releaseDateLatam", input.releaseDateLatam);
+  }
+
+  if (input.thumbnailUrl) {
+    form.set("thumbnailUrl", input.thumbnailUrl);
+  }
+
+  if (input.pdfUrl) {
+    form.set("pdfUrl", input.pdfUrl);
+  }
+
+  if (input.file) {
+    form.set("file", input.file);
+  }
 
   const response = await fetch("/api/admin/materials", {
     method: "POST",
@@ -64,10 +91,15 @@ export async function saveAdminMaterial(input: AdminMaterialInput): Promise<void
   }
 }
 
-export async function deleteAdminMaterial(id: string): Promise<void> {
-  const response = await fetch(`/api/admin/materials/${id}`, {
-    method: "DELETE",
-  });
+export async function deleteAdminMaterial(
+  id: string,
+): Promise<void> {
+  const response = await fetch(
+    `/api/admin/materials/${id}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   if (!response.ok) {
     throw new Error(ERROR_DELETE);

@@ -28,10 +28,6 @@ function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
 }
 
-/**
- * Tarjeta de un material
- * del programa.
- */
 export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
   const isAvailable = material.status === "available";
 
@@ -71,9 +67,11 @@ export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
           className="material-card__thumb-img"
         />
 
-        <span className="material-card__order">
-          Material {material.materialOrder}
-        </span>
+        {material.materialType === "support" && (
+          <span className="material-card__order">
+            Material {material.materialOrder}
+          </span>
+        )}
 
         {!isAvailable && (
           <div className="material-card__lock-overlay" aria-hidden="true">

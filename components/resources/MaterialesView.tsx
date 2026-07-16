@@ -42,30 +42,21 @@ interface CategoryCopy {
 
 const CATEGORY_COPY: Record<MaterialType, CategoryCopy> = {
   support: {
-    title: "Materiales de apoyo",
+    title: "Materiales cortos",
     description:
       "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
     sectionDescription:
       "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
   },
   extended: {
-    title: "Guías completas",
+    title: "Materiales largos",
     description:
-      "Documentación ampliada para profundizar en los contenidos trabajados en cada sesión.",
+      "Guía completa y ampliada con todo el contenido del programa en un único documento.",
     sectionDescription:
-      "Documentación ampliada para profundizar en los contenidos trabajados en cada sesión.",
+      "Guía completa y ampliada con todo el contenido del programa en un único documento.",
   },
 };
 
-/**
- * Vista principal del módulo
- * de materiales del estudio.
- *
- * Muestra primero dos categorías
- * (Materiales de apoyo y Guías
- * completas) y, al seleccionar una,
- * las 9 sesiones correspondientes.
- */
 export default function MaterialesView() {
   const [materials, setMaterials] =
     useState<GroupedStudyMaterials>(EMPTY_MATERIALS);
@@ -190,7 +181,10 @@ export default function MaterialesView() {
       <PageHeader title={copy.title} description={copy.sectionDescription} />
 
       {activeMaterials.length > 0 ? (
-        <MaterialsGrid materials={activeMaterials} />
+        <MaterialsGrid
+          materials={activeMaterials}
+          variant={activeCategory === "extended" ? "cover" : "grid"}
+        />
       ) : (
         <MaterialEmptyState />
       )}
