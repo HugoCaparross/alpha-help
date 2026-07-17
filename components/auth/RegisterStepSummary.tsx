@@ -159,10 +159,10 @@ export default function RegisterStepSummary({
         <aside className="summary-notice">
           <p className="summary-notice-text">
             <CheckCircle size={18} aria-hidden="true" />
-            Toda la información será tratada de forma confidencial y utilizada
-            exclusivamente para investigación científica. Las respuestas estarán
-            asociadas a un identificador interno para preservar la privacidad de
-            los participantes.
+            Toda la información recogida en este estudio será tratada de forma
+            confidencial y utilizada exclusivamente con fines de investigación
+            científica. Las respuestas estarán asociadas a un identificador
+            interno para preservar la privacidad de los participantes.
           </p>
         </aside>
       </div>

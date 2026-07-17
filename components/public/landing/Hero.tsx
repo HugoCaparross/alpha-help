@@ -12,7 +12,7 @@ export default function Hero() {
           <div className="container-custom">
             <div className="hero-content">
               <h1 id="hero-title" className="hero-title">
-                Acompañamos a
+                Ayudamos a
                 <br />
                 las familias
                 <br />
@@ -24,7 +24,8 @@ export default function Hero() {
               <p className="hero-description">
                 Alpha-Help ayuda a madres y padres a comprender, detectar y
                 actuar ante situaciones que pueden afectar al bienestar
-                emocional de sus hijos e hijas.
+                emocional de sus hijos e hijas durante la preadolescencia y la
+                adolescencia.
               </p>
 
               <div className="hero-actions">

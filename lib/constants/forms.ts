@@ -10,7 +10,6 @@ export const EDUCATION_LEVELS = [
   "Primarios",
   "Secundarios",
   "Universitarios",
-  "Doctorado",
 ] as const;
 
 export type EducationLevel =

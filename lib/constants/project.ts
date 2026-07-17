@@ -28,8 +28,14 @@ export const PROJECT_BENEFITS = [
   {
     title: "Basado en evidencia científica",
     description:
-      "Investigación desarrollada por especialistas.",
+      "Desarrollado a partir de investigación científica y buenas prácticas clínicas.",
     icon: FlaskConical,
+  },
+  {
+    title: "Equipo multidisciplinar",
+    description:
+      "El proyecto cuenta con profesionales e investigadores especializados en adolescencia, salud mental y educación.",
+    icon: Users,
   },
 ] as const;
 

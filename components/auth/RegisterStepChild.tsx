@@ -184,7 +184,7 @@ export default function RegisterStepChild({
 
             <div className="auth-field child-full-width">
               <label htmlFor={`child-support-${index}`} className="auth-label">
-                ¿Ha recibido atención psicológica?
+                ¿Alguna vez ha recibido atención psicológica?
               </label>
 
               <select

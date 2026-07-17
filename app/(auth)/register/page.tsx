@@ -13,10 +13,11 @@ export default function RegisterPage() {
             es la mejor prevención
           </h1>
 
-          <p className="auth-hero-description">
+          <p className="hero__description">
             Programa desarrollado por investigadores de la Universidad
-            Internacional de La Rioja para mejorar el bienestar emocional de
-            adolescentes y familias.
+            Internacional de La Rioja y profesionales de la salud mental
+            infanto-juvenil para mejorar el bienestar emocional de adolescentes
+            y familias.
           </p>
         </div>
       </section>
