@@ -3,12 +3,17 @@ import type { Region } from "@/lib/utils/regions";
 export const SCHOOLS: Readonly<
   Record<Region, readonly string[]>
 > = {
-  spain: [
-    "Nuestra Señora del Pilar (Jerez de la Frontera)",
-    'Jesús María "El Cuco" (Jerez de la Frontera)',
-    "C. E. Marni (Rascanya)",
-    "Otro centro",
-  ],
+spain: [
+  "Nuestra Señora del Pilar",
+  "Jesús María El Cuco",
+  "Las Colinas",
+  "Colegio Santa María del Puig",
+  "Marni. Grupo Colegios Siglo XXI",
+  "Colegio Educrea el Mirador",
+  "Colegio Montesión Palma",
+  "Base International School",
+  "Otro centro",
+],
 
   latam: [
     "Innovación Educativa Montessori",
