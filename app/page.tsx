@@ -8,7 +8,6 @@ import Footer from "@/components/public/landing/Footer";
 import Hero from "@/components/public/landing/Hero";
 import NavBar from "@/components/public/landing/NavBar";
 import Participation from "@/components/public/landing/Participation";
-import Research from "@/components/public/landing/Research";
 
 import "@/components/styles/landing.css";
 
@@ -32,8 +31,6 @@ export default function HomePage() {
         <Concerns />
 
         <Benefits />
-
-        <Research />
 
         <Participation />
 

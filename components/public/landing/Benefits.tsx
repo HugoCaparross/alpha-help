@@ -5,7 +5,7 @@ const BENEFITS = [
     icon: Brain,
     title: "Comprender",
     description:
-      "Acceda a información rigurosa y actualizada sobre los principales desafíos emocionales durante la adolescencia.",
+      "Acceda a información rigurosa y actualizada sobre los principales desafíos emocionales durante la preadolescencia y la adolescencia.",
   },
   {
     icon: Search,
@@ -37,8 +37,8 @@ export default function Benefits() {
           </h2>
 
           <p className="section-description">
-            Alpha-Help proporciona recursos basados en evidencia científica para
-            ayudar a las familias a afrontar los desafíos emocionales de la
+            Alpha-Help le proporcionará información y recursos útiles para
+            afrontar los desafíos emocionales de la preadolescencia y la
             adolescencia.
           </p>
         </header>

@@ -2,15 +2,15 @@ import Image from "next/image";
 
 const CONCERNS = [
   {
-    title: "Cambios bruscos de comportamiento",
+    title: "Gestión emocional",
     icon: "/images/landing/icons/comportamiento.png",
   },
   {
-    title: "Ansiedad o tristeza persistente",
+    title: "Ansiedad o malestar emocional",
     icon: "/images/landing/icons/ansiedad.png",
   },
   {
-    title: "Problemas con redes sociales y videojuegos",
+    title: "Uso problemático de dispositivos electrónicos y redes sociales",
     icon: "/images/landing/icons/videojuegos.png",
   },
   {
@@ -26,7 +26,11 @@ const CONCERNS = [
     icon: "/images/landing/icons/selfesteem.png",
   },
   {
-    title: "Dificultades para comunicarse",
+    title: "Problemas de comunicación",
+    icon: "/images/landing/icons/communication.png",
+  },
+  {
+    title: "Relaciones, sexualidad y pornografía",
     icon: "/images/landing/icons/communication.png",
   },
 ] as const;

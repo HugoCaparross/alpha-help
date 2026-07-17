@@ -15,9 +15,11 @@ export default function FinalCTA() {
           </h2>
 
           <p className="final-cta-description">
-            Únase a un proyecto basado en evidencia científica y acceda a
-            recursos diseñados para ayudar a las familias a afrontar los
-            desafíos emocionales de la adolescencia.
+            Únase a Alpha-Help, acceda a recursos diseñados para ayudar a las
+            familias a afrontar los desafíos emocionales de la preadolescencia y
+            la adolescencia, y colabore en un estudio científico que contribuirá
+            a mejorar el conocimiento sobre el bienestar emocional de los
+            adolescentes y sus familias.
           </p>
 
           <div className="final-cta-actions">

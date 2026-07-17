@@ -1,9 +1,4 @@
-import {
-  BookOpen,
-  ClipboardCheck,
-  HeartHandshake,
-  UserPlus,
-} from "lucide-react";
+import { BookOpen, ClipboardCheck, UserPlus } from "lucide-react";
 
 const PARTICIPATION_STEPS = [
   {
@@ -12,6 +7,7 @@ const PARTICIPATION_STEPS = [
     title: "Crear una cuenta",
     description:
       "Regístrese gratuitamente para acceder a todos los recursos y contenidos disponibles.",
+    date: "Agosto y septiembre de 2026",
   },
   {
     icon: ClipboardCheck,
@@ -19,6 +15,7 @@ const PARTICIPATION_STEPS = [
     title: "Completar la evaluación inicial",
     description:
       "Realice una breve evaluación que permitirá personalizar la experiencia y recopilar información relevante para la investigación.",
+    date: "Septiembre de 2026",
   },
   {
     icon: BookOpen,
@@ -26,13 +23,15 @@ const PARTICIPATION_STEPS = [
     title: "Acceder a los contenidos",
     description:
       "Consulte materiales prácticos, recursos educativos y herramientas diseñadas para las familias.",
+    date: "Septiembre de 2026 a mayo de 2027",
   },
   {
-    icon: HeartHandshake,
+    icon: ClipboardCheck,
     number: "04",
-    title: "Acompañamiento continuo",
+    title: "Completar la evaluación",
     description:
-      "Reciba apoyo y formación durante todo el proceso para afrontar los desafíos emocionales de la adolescencia.",
+      "Realice una última evaluación que permitirá conocer el efecto del programa y recopilar información relevante para la investigación.",
+    date: "Junio de 2027",
   },
 ] as const;
 
@@ -64,22 +63,28 @@ export default function Participation() {
             const Icon = step.icon;
 
             return (
-              <article key={step.number} className="participation-card">
-                <div
-                  className="participation-number"
-                  aria-label={`Paso ${step.number}`}
-                >
-                  {step.number}
-                </div>
+              <div key={step.number} className="participation-item">
+                <article className="participation-card">
+                  <div
+                    className="participation-number"
+                    aria-label={`Paso ${step.number}`}
+                  >
+                    {step.number}
+                  </div>
 
-                <div className="participation-icon" aria-hidden="true">
-                  <Icon size={28} />
-                </div>
+                  <div className="participation-icon" aria-hidden="true">
+                    <Icon size={28} />
+                  </div>
 
-                <h3 className="participation-title">{step.title}</h3>
+                  <h3 className="participation-title">{step.title}</h3>
 
-                <p className="participation-description">{step.description}</p>
-              </article>
+                  <p className="participation-description">
+                    {step.description}
+                  </p>
+                </article>
+
+                <p className="participation-date">{step.date}</p>
+              </div>
             );
           })}
         </div>
