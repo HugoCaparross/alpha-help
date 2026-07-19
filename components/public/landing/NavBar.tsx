@@ -45,6 +45,18 @@ export default function NavBar() {
               </Link>
 
               <Link
+                href="/quienes-somos"
+                className={`navbar-link ${
+                  pathname === "/quienes-somos" ? "active" : ""
+                }`}
+                aria-current={
+                  pathname === "/quienes-somos" ? "page" : undefined
+                }
+              >
+                Quiénes somos
+              </Link>
+
+              <Link
                 href="/faq"
                 className={`navbar-link ${pathname === "/faq" ? "active" : ""}`}
                 aria-current={pathname === "/faq" ? "page" : undefined}

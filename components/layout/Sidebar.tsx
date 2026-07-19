@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Book,
-  ClipboardList,
-  FileText,
-  User,
-  Users,
-  Video,
-} from "lucide-react";
+import { Book, ClipboardList, FileText, User, Video } from "lucide-react";
 
 interface NavigationItem {
   href: string;
@@ -42,14 +35,6 @@ const RESOURCES_NAVIGATION = [
     href: "/recursos",
     label: "Manuales",
     icon: Book,
-  },
-] as const satisfies readonly NavigationItem[];
-
-const INFO_NAVIGATION = [
-  {
-    href: "/quienes-somos",
-    label: "¿Quiénes somos?",
-    icon: Users,
   },
 ] as const satisfies readonly NavigationItem[];
 
@@ -112,14 +97,6 @@ export default function Sidebar() {
 
           <div className="sidebar-items">
             {renderNavigationItems(pathname, RESOURCES_NAVIGATION)}
-          </div>
-        </section>
-
-        <section className="sidebar-section">
-          <h2 className="sidebar-section-title">Información</h2>
-
-          <div className="sidebar-items">
-            {renderNavigationItems(pathname, INFO_NAVIGATION)}
           </div>
         </section>
       </nav>
