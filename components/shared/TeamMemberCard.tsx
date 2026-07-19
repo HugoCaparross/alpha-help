@@ -29,7 +29,13 @@ export default function TeamMemberCard({
     <article className="about-member" aria-labelledby={`member-${initials}`}>
       <div className="about-member-avatar" aria-hidden="true">
         {photoUrl ? (
-          <Image src={photoUrl} alt="" fill sizes="72px" />
+          <Image
+            src={photoUrl}
+            alt={name}
+            fill
+            sizes="72px"
+            className="about-member-avatar-image"
+          />
         ) : (
           initials
         )}
