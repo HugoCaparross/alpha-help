@@ -24,7 +24,7 @@ export const LEAD_RESEARCHER: TeamMember = {
   description:
     "Docente universitario (UNIR) y especialista en intervenciones psicoeducativas. Su labor se centra en la dirección y coordinación del proyecto.",
   initials: "EG",
-  photoUrl: "/images/team/eduardo-gonzalez-fraile.webp",
+  photoUrl: "/images/public/team/eduardo-gonzalez-fraile.webp",
 };
 
 /**
