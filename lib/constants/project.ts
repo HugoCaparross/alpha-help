@@ -72,25 +72,25 @@ export const PROJECT_TRUST = [
   {
     title: "Proyecto universitario",
     description:
-      "Investigación desarrollada dentro del ámbito académico.",
+      "Alpha-Help forma parte de un proyecto de investigación desarrollado en el ámbito universitario con fines científicos.",
     icon: GraduationCap,
   },
   {
     title: "Basado en evidencia científica",
     description:
-      "Los contenidos parten de investigación rigurosa y actualizada.",
+      "Todos los contenidos, materiales y recursos se fundamentan en investigación científica y literatura especializada.",
     icon: FlaskConical,
   },
   {
-    title: "Confidencialidad",
+    title: "Privacidad y confidencialidad",
     description:
-      "Toda la información se trata conforme a la normativa vigente.",
+      "Toda la información se trata siguiendo la normativa vigente en materia de protección de datos y confidencialidad.",
     icon: ShieldCheck,
   },
   {
     title: "Equipo multidisciplinar",
     description:
-      "Profesionales especializados en adolescencia, psicología y educación.",
+      "El proyecto cuenta con profesionales especializados en psicología, educación e investigación.",
     icon: Users,
   },
 ] as const;

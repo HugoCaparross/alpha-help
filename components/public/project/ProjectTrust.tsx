@@ -20,6 +20,12 @@ export default function ProjectTrust() {
           </h2>
         </div>
 
+        <p className="section-description">
+          Alpha-Help ha sido diseñado siguiendo criterios científicos, éticos y
+          de calidad, garantizando la protección de la información y el rigor
+          metodológico durante todo el estudio.
+        </p>
+
         <div className="project-trust-grid">
           {PROJECT_TRUST.map((item) => {
             const Icon = item.icon;

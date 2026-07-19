@@ -15,36 +15,40 @@ import {
  */
 const PROJECT_TOPICS = [
   {
-    title: "Bienestar emocional",
+    title: "Salud mental, emociones y familia",
     icon: Brain,
   },
   {
-    title: "Ansiedad y estado de ánimo",
-    icon: Heart,
-  },
-  {
-    title: "Autoestima",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Relaciones familiares",
-    icon: Users,
-  },
-  {
-    title: "Comunicación familiar",
+    title: "Relación y comunicación familiar",
     icon: MessageCircle,
   },
   {
-    title: "Entorno educativo",
+    title: "Acoso escolar",
     icon: School,
   },
   {
-    title: "Redes sociales y tecnología",
+    title: "Bienestar digital",
     icon: Smartphone,
   },
   {
-    title: "Prevención y promoción de la salud",
-    icon: BookOpen,
+    title: "Adicciones a sustancias",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Ansiedad y depresión",
+    icon: Heart,
+  },
+  {
+    title: "Autolesiones",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Riesgos de la conducta alimentaria",
+    icon: Heart,
+  },
+  {
+    title: "Relaciones, sexualidad y pornografía",
+    icon: Users,
   },
 ] as const;
 
@@ -64,11 +68,11 @@ export default function ProjectTopics() {
 
         <p className="section-description">
           Alpha-Help aborda diferentes factores que pueden influir en el
-          bienestar emocional durante la adolescencia, analizando tanto el
-          contexto familiar como el educativo y social.
+          bienestar emocional durante la preadolescencia y la adolescencia,
+          analizando tanto el contexto familiar como el educativo y social.
         </p>
 
-        <div className="project-topics-grid">
+        <div className="project-topics">
           {PROJECT_TOPICS.map((topic) => {
             const Icon = topic.icon;
 

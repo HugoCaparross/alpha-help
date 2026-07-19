@@ -24,23 +24,28 @@ export default function ProjectOverview() {
             </div>
 
             <p className="section-description">
-              Alpha-Help es un proyecto de investigación orientado a mejorar la
-              comprensión del bienestar emocional durante la adolescencia,
-              identificar factores de protección y proporcionar herramientas
-              útiles para las familias.
+              Alpha-Help es un proyecto de investigación orientado a madres y
+              padres de niños y niñas de entre 10 y 16 años.
             </p>
 
             <p className="section-description">
-              La participación de madres, padres y tutores permite obtener
-              información rigurosa que contribuirá al desarrollo de nuevas
-              estrategias de prevención, detección e intervención basadas en
-              evidencia científica.
+              El proyecto ofrece un programa de intervención online de 9
+              sesiones mensuales orientadas a mejorar la comprensión del
+              bienestar emocional del menor durante la etapa de la adolescencia
+              y la preadolescencia.
             </p>
 
             <p className="section-description">
-              El proyecto combina investigación, formación y acompañamiento para
-              ofrecer una experiencia útil tanto para las familias como para la
-              comunidad científica.
+              Estas sesiones vendrán acompañadas de contenidos de consulta
+              elaborados por expertos profesionales en salud mental
+              infanto-juvenil.
+            </p>
+
+            <p className="section-description">
+              Los contenidos que se ofrecen en el programa ayudarán a los
+              participantes a reconocer e identificar mejor los factores de
+              riesgo y protección de diferentes problemáticas presentes en la
+              adolescencia.
             </p>
           </div>
 

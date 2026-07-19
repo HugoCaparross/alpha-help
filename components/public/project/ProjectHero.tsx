@@ -23,9 +23,9 @@ export default function ProjectHero() {
 
             <p className="section-description">
               Alpha-Help es un proyecto de investigación orientado a comprender
-              mejor el bienestar emocional durante la adolescencia y ofrecer a
-              las familias herramientas basadas en evidencia científica para
-              afrontar esta etapa con mayor seguridad.
+              mejor el bienestar emocional durante la adolescencia y la
+              preadolescencia, y ofrecer a las familias herramientas basadas en
+              evidencia científica para afrontar esta etapa con mayor seguridad.
             </p>
 
             <div className="project-actions">

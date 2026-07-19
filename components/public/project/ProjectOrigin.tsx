@@ -21,23 +21,24 @@ export default function ProjectOrigin() {
             </div>
 
             <p className="section-description">
-              La adolescencia constituye una etapa de profundos cambios físicos,
-              emocionales y sociales. Durante este periodo pueden aparecer
-              situaciones que afectan tanto al bienestar de los adolescentes
-              como al equilibrio familiar.
+              El proyecto Alpha-Help nace de la experiencia y el trabajo conjunto
+              de profesionales procedentes de la psicología, la terapia familiar,
+              la educación y el ámbito académico.
             </p>
 
             <p className="section-description">
-              Muchas familias manifiestan dificultades para identificar señales
-              de alerta, comprender determinados comportamientos o saber cómo
-              actuar ante problemas relacionados con la salud emocional.
+              En los últimos años hemos observado que muchas familias encuentran
+              dificultades para comprender determinados comportamientos de sus
+              hijos, identificar señales de alarma o saber cómo actuar ante
+              situaciones relacionadas con su salud emocional.
             </p>
 
             <p className="section-description">
-              Alpha-Help nace con el objetivo de acercar la investigación
-              científica a las familias, proporcionando conocimiento, recursos y
-              herramientas que favorezcan una mejor comprensión de esta etapa y
-              contribuyan a la prevención de dificultades emocionales.
+              Al mismo tiempo, desde el ámbito de la investigación se ha
+              constatado un incremento de los problemas de bienestar emocional
+              entre niños, niñas y adolescentes, lo que pone de manifiesto la
+              necesidad de ofrecer recursos de orientación y apoyo accesibles
+              para las familias.
             </p>
           </div>
 
