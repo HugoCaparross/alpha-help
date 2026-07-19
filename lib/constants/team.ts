@@ -24,7 +24,7 @@ export const LEAD_RESEARCHER: TeamMember = {
   description:
     "Docente universitario (UNIR) y especialista en intervenciones psicoeducativas. Su labor se centra en la dirección y coordinación del proyecto.",
   initials: "EG",
-  photoUrl: "/images/public/team/eduardo-gonzalez-fraile.webp",
+  photoUrl: "/images/public/team/eduardo-gonzalez-fraile.jpg.webp",
 };
 
 /**
@@ -38,7 +38,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     description:
       "Psicóloga clínica y docente universitaria (UNIR). Su labor se centra en la elaboración de materiales psicoeducativos y en la adaptación de contenidos científicos para facilitar su aplicación en el contexto familiar.",
     initials: "AO",
-    photoUrl: "/images/team/ana-ordonez.jpg",
+    photoUrl: "/images/public/team/ana-ordonez.jpg",
   },
   {
     name: "Pilar Berzosa Grande",
@@ -47,7 +47,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     description:
       "Psicóloga clínica, terapeuta familiar y de pareja, y docente universitaria (UNIR). Especialista en programas de intervención y prevención infanto-juvenil. Participa en el diseño y desarrollo de los contenidos formativos dirigidos a las familias. Impartidora de contenidos.",
     initials: "PB",
-    photoUrl: "/images/team/pilar-berzosa.png",
+    photoUrl: "/images/public/team/pilar-berzosa.png",
   },
   {
     name: "María Aranzazu Basterra González",
@@ -55,7 +55,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     role: "Colaboradora",
     description: "",
     initials: "MB",
-    photoUrl: "/images/team/maria-aranzazu-basterra.jpg",
+    photoUrl: "/images/public/team/maria-aranzazu-basterra.jpg",
   },
   {
     name: "María José Arroyo González",
@@ -64,7 +64,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     description:
       "Docente universitaria (UNED). Experta en orientación educativa en centros escolares a niños, adolescentes y familias. Su labor se centra en el desarrollo e implementación del programa y análisis de resultados.",
     initials: "MJ",
-    photoUrl: "/images/team/maria-jose-arroyo.png",
+    photoUrl: "/images/public/team/maria-jose-arroyo.png",
   },
   {
     name: "Daniela Gabriela Baridon Chauvie",
@@ -73,7 +73,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     description:
       "Docente universitaria (UNIR) y profesora de secundaria. Su labor se centra en la impartición y adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
     initials: "DB",
-    photoUrl: "/images/team/daniela-baridon.jpg",
+    photoUrl: "/images/public/team/daniela-baridon.jpg",
   },
   {
     name: "María Clara Villa Orozco",
