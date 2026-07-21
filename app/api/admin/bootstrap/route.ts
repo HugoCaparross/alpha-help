@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
-import { ADMIN_LOGIN_EMAIL } from "@/lib/constants/admin";
+import { ADMIN_LOGIN_EMAIL } from "@/lib/auth/adminEmail.server";
 
 /**
  * POST /api/admin/bootstrap
@@ -12,11 +12,18 @@ import { ADMIN_LOGIN_EMAIL } from "@/lib/constants/admin";
  * Protegido mediante la cabecera
  * "x-bootstrap-secret", que debe
  * coincidir con la variable de
- * entorno ADMIN_BOOTSTRAP_SECRET.
+ * entorno ADMIN_BOOTSTRAP_SECRET,
+ * y además rechaza la petición si
+ * ya existe algún perfil con
+ * role = "admin": la cabecera secreta
+ * por sí sola no basta como control
+ * de "un solo uso" (si esa variable
+ * se filtrara, el endpoint seguiría
+ * siendo invocable indefinidamente).
  *
  * Una vez creado el administrador,
- * se recomienda eliminar este archivo
- * o la variable de entorno.
+ * se recomienda además eliminar este
+ * archivo o la variable de entorno.
  */
 export async function POST(request: Request) {
   const secret = process.env.ADMIN_BOOTSTRAP_SECRET;
@@ -32,6 +39,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
+  const admin = createAdminClient();
+
+  const { count: existingAdminCount, error: existingAdminError } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "admin");
+
+  if (existingAdminError) {
+    return NextResponse.json(
+      { error: "No se ha podido comprobar si ya existe un administrador." },
+      { status: 500 },
+    );
+  }
+
+  if (existingAdminCount && existingAdminCount > 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Ya existe una cuenta de administración. Este endpoint es de un solo uso; elimínalo o rota ADMIN_BOOTSTRAP_SECRET.",
+      },
+      { status: 409 },
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
 
   const password = body?.password;
@@ -42,8 +73,6 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-
-  const admin = createAdminClient();
 
   const { data: created, error: createError } =
     await admin.auth.admin.createUser({

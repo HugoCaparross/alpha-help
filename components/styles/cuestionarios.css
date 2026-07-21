@@ -377,7 +377,7 @@
   gap: 1.5rem;
 
   width: 100%;
-  max-width: 860px;
+  max-width: 720px;
 
   margin: 0 auto;
 }
@@ -467,9 +467,9 @@
 
   gap: .9rem;
 
-  min-height: 60px;
+  min-height: 52px;
 
-  padding: .95rem 1.2rem;
+  padding: .8rem 1.1rem;
 
   background: var(--surface);
 

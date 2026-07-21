@@ -8,11 +8,9 @@ import { useRouter } from "next/navigation";
 
 import { Eye, EyeOff, LoaderCircle, Lock, Mail } from "lucide-react";
 
-import { supabase } from "@/lib/supabase/client";
-
 import { loginSchema } from "@/validators";
 
-import { isAdminLoginInput, resolveLoginEmail } from "@/lib/constants/admin";
+import { isAdminLoginInput } from "@/lib/constants/admin";
 
 const ERROR_MESSAGES = {
   emailVerification:
@@ -78,32 +76,21 @@ export default function LoginForm() {
       setLoading(true);
       setError("");
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: resolveLoginEmail(email),
-        password,
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: email, password }),
       });
 
-      if (error) {
-        const message = error.message.toLowerCase();
+      const data = await response.json();
 
-        if (message.includes("email") || message.includes("confirm")) {
-          setError(ERROR_MESSAGES.emailVerification);
-
-          return;
-        }
-
-        if (message.includes("rate")) {
-          setError(ERROR_MESSAGES.rateLimit);
-
-          return;
-        }
-
-        setError(ERROR_MESSAGES.invalidCredentials);
+      if (!response.ok || !data.ok) {
+        setError(data?.error ?? ERROR_MESSAGES.unexpected);
 
         return;
       }
 
-      router.replace(isAdminInput ? "/admin" : "/dashboard");
+      router.replace(data.isAdmin ? "/admin" : "/dashboard");
 
       router.refresh();
     } catch (error) {

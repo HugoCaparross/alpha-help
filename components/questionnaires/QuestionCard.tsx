@@ -46,7 +46,9 @@ export default function QuestionCard({
 
   return (
     <Card
-      className={`question-card ${showError ? "question-card--error" : ""}`}
+      className={`question-card card-padding ${
+        showError ? "question-card--error" : ""
+      }`}
     >
       <header className="question-card__header">
         <p className="question-card__number">Pregunta {questionNumber}</p>
