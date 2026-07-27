@@ -147,7 +147,19 @@ export default function RegisterStepChild({
                 onChange={(event) => {
                   const value = event.target.value.replace(/\D/g, "");
 
-                  if (value.length <= 2) {
+                  if (value.length > 2) {
+                    return;
+                  }
+
+                  if (value === "") {
+                    updateChild(index, "age", "");
+
+                    return;
+                  }
+
+                  const age = Number(value);
+
+                  if (age >= 10 && age <= 16) {
                     updateChild(index, "age", value);
                   }
                 }}

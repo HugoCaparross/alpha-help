@@ -45,6 +45,23 @@ function sanitizeFileName(name: string): string {
 }
 
 /**
+ * Comprueba la firma binaria ("magic
+ * bytes") del archivo en lugar de
+ * confiar en `file.type` o en la
+ * extensión del nombre, que el cliente
+ * puede declarar como lo que quiera.
+ * Todo PDF válido empieza por la
+ * cabecera ASCII "%PDF-".
+ */
+async function isRealPdf(file: File): Promise<boolean> {
+  const header = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+
+  const signature = String.fromCharCode(...header);
+
+  return signature === "%PDF-";
+}
+
+/**
  * GET /api/admin/materials
  */
 export async function GET() {
@@ -126,6 +143,13 @@ export async function POST(request: Request) {
   let pdfUrl = existingPdfUrl || "";
 
   if (file instanceof File && file.size > 0) {
+    if (!(await isRealPdf(file))) {
+      return NextResponse.json(
+        { error: "El archivo debe ser un PDF válido." },
+        { status: 400 },
+      );
+    }
+
     await ensureBucket(admin);
 
     const path = `${region}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
@@ -137,7 +161,7 @@ export async function POST(request: Request) {
     const { error: uploadError } = await admin.storage
       .from(BUCKET)
       .upload(path, Buffer.from(arrayBuffer), {
-        contentType: file.type || "application/pdf",
+        contentType: "application/pdf",
         upsert: true,
       });
 

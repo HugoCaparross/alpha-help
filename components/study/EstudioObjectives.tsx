@@ -1,14 +1,15 @@
 import { Check } from "lucide-react";
 
 const OBJECTIVES = [
-  "Comprender mejor el bienestar emocional durante la adolescencia.",
-  "Identificar factores de protección y situaciones de riesgo.",
-  "Ofrecer herramientas y recursos de apoyo a las familias.",
-  "Generar evidencia científica útil para futuras intervenciones.",
+  "Mejorar la comunicación y la gestión emocional dentro de la familia.",
+  "Conocer y comprender mejor los riesgos propios de la adolescencia.",
+  "Identificar los factores de riesgo y protección.",
+  "Conocer las consecuencias de estos riesgos.",
+  "Saber qué hacer y qué no hacer ante un problema de este tipo.",
 ] as const;
 
 /**
- * Objetivos principales del proyecto Alpha-Help.
+ * Objetivos principales del estudio Alpha-Help.
  */
 export default function EstudioObjectives() {
   return (
@@ -19,13 +20,14 @@ export default function EstudioObjectives() {
       <div className="estudio-card-header">
         <div>
           <h2 id="estudio-objectives-title" className="estudio-card-title">
-            ¿Qué queremos conseguir?
+            Objetivo del estudio
           </h2>
 
           <p className="estudio-card-description">
-            Alpha-Help tiene como objetivo generar conocimiento científico y
-            ofrecer herramientas útiles para fortalecer el bienestar emocional
-            de los adolescentes y apoyar a sus familias.
+            El objetivo principal del estudio es aplicar un programa online
+            orientado a padres, madres y tutores legales de menores de entre 10
+            y 16 años de edad (ambos inclusive) y analizar sus posibles efectos
+            sobre aspectos relacionados con las competencias parentales.
           </p>
         </div>
       </div>

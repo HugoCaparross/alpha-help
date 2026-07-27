@@ -44,6 +44,7 @@ export default function ContactForm() {
     category: "",
     subject: "",
     message: "",
+    website: "", // honeypot: debe permanecer vacío
   });
 
   const [loading, setLoading] = useState(false);
@@ -116,6 +117,7 @@ export default function ContactForm() {
       category: formData.category,
       subject: formData.subject.trim(),
       message: formData.message.trim(),
+      website: formData.website,
     };
 
     try {
@@ -143,6 +145,7 @@ export default function ContactForm() {
         category: "",
         subject: "",
         message: "",
+        website: "",
       });
     } catch (err) {
       if (err instanceof Error) {
@@ -198,6 +201,17 @@ export default function ContactForm() {
       )}
 
       <form onSubmit={handleSubmit} className="contact-form">
+        <input
+          type="text"
+          name="website"
+          value={formData.website}
+          onChange={(e) => updateField("website", e.target.value)}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="contact-honeypot"
+        />
+
         <div className="contact-field">
           <div className="contact-input-wrapper">
             <User size={18} className="contact-input-icon" />

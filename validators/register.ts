@@ -14,7 +14,7 @@ const MIN_PARENT_AGE = 18;
 const MAX_PARENT_AGE = 99;
 
 const MIN_CHILD_AGE = 10;
-const MAX_CHILD_AGE = 17;
+const MAX_CHILD_AGE = 16;
 
 const MIN_CHILDREN = 1;
 const MAX_CHILDREN = 5;

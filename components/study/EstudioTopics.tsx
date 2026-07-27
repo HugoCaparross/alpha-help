@@ -1,17 +1,18 @@
 const TOPICS = [
-  "Salud mental",
-  "Bienestar emocional",
-  "Relaciones familiares",
-  "Uso responsable de la tecnología",
-  "Educación digital",
-  "Conductas de riesgo",
+  "Salud mental, emociones y familia",
+  "Relación y comunicación familiar",
+  "Acoso escolar",
+  "Bienestar digital",
+  "Adicciones a sustancias",
   "Ansiedad y depresión",
   "Autolesiones",
-  "Prevención",
+  "Riesgos de la conducta alimentaria",
+  "Relaciones, sexualidad y pornografía",
 ] as const;
 
 /**
- * Principales áreas de estudio del proyecto Alpha-Help.
+ * Principales temáticas abordadas
+ * durante el programa Alpha-Help.
  */
 export default function EstudioTopics() {
   return (
@@ -19,13 +20,13 @@ export default function EstudioTopics() {
       <div className="estudio-card-header">
         <div>
           <h2 id="estudio-topics-title" className="estudio-card-title">
-            ¿Qué temas abordamos?
+            Contenidos del programa
           </h2>
 
           <p className="estudio-card-description">
-            El estudio analiza distintas áreas relacionadas con el bienestar
-            emocional durante la adolescencia, el contexto familiar y los
-            factores que pueden influir en su desarrollo.
+            Durante el estudio las familias participantes tendrán acceso a
+            contenidos relacionados con la prevención de riesgos asociados a la
+            adolescencia y el bienestar emocional del menor.
           </p>
         </div>
       </div>

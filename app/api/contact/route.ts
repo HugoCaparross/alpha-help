@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createServerClient } from "@/lib/supabase/admin";
+import { getClientIp, isAllowedByRateLimit } from "@/lib/utils/rateLimit";
 
 const MESSAGES = {
   invalidContentType:
@@ -24,6 +25,9 @@ const MESSAGES = {
   invalidMessage:
     "El mensaje no es válido.",
 
+  rateLimited:
+    "Se han enviado demasiadas solicitudes. Inténtalo de nuevo en unos minutos.",
+
   saveError:
     "No se ha podido guardar el mensaje.",
 
@@ -40,12 +44,35 @@ const VALID_CATEGORIES = [
 
 const MAX_MESSAGE_LENGTH = 1000;
 
+/**
+ * Máximo de envíos permitidos por IP
+ * dentro de la ventana de tiempo
+ * definida abajo.
+ */
+const RATE_LIMIT_MAX_REQUESTS = 5;
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+
 interface ContactRequest {
   name: string;
   email: string;
   category: string;
   subject: string;
   message: string;
+
+  /**
+   * Campo trampa ("honeypot"): no se
+   * muestra a personas reales en el
+   * formulario (se oculta por CSS),
+   * así que solo un bot que rellene
+   * todos los inputs del DOM lo
+   * completará. Si llega con contenido,
+   * se descarta la petición en
+   * silencio, como si se hubiera
+   * guardado correctamente, para no
+   * darle pistas al bot.
+   */
+  website?: string;
 }
 
 function isValidEmail(email: string): boolean {
@@ -68,8 +95,38 @@ export async function POST(request: Request) {
       );
     }
 
+    const clientIp = getClientIp(request);
+
+    if (
+      !isAllowedByRateLimit(
+        `contact:${clientIp}`,
+        RATE_LIMIT_MAX_REQUESTS,
+        RATE_LIMIT_WINDOW_MS,
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error: MESSAGES.rateLimited,
+        },
+        {
+          status: 429,
+        },
+      );
+    }
+
     const body: ContactRequest =
       await request.json();
+
+    if (body.website) {
+      return NextResponse.json(
+        {
+          success: true,
+        },
+        {
+          status: 201,
+        },
+      );
+    }
 
     const name =
       body.name?.trim();

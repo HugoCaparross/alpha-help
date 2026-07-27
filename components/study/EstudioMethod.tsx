@@ -1,7 +1,7 @@
 import { BookOpen, ClipboardCheck, Laptop } from "lucide-react";
 
 /**
- * Metodología del proyecto Alpha-Help.
+ * Metodología del estudio Alpha-Help.
  */
 export default function EstudioMethod() {
   return (
@@ -9,13 +9,14 @@ export default function EstudioMethod() {
       <div className="estudio-card-header">
         <div>
           <h2 id="estudio-method-title" className="estudio-card-title">
-            ¿Cómo desarrollamos el estudio?
+            ¿Cómo se desarrolla el estudio?
           </h2>
 
           <p className="estudio-card-description">
-            Alpha-Help combina formación, materiales de apoyo y un seguimiento
-            científico estructurado para estudiar el bienestar emocional durante
-            la adolescencia y favorecer el acompañamiento familiar.
+            El estudio se desarrolla en tres fases: una evaluación inicial, un
+            programa de intervención online y una evaluación final para analizar
+            los posibles efectos de la intervención sobre las competencias
+            parentales y el bienestar familiar.
           </p>
         </div>
       </div>
@@ -23,14 +24,28 @@ export default function EstudioMethod() {
       <div className="estudio-method-grid">
         <article className="estudio-method-card">
           <div className="estudio-method-icon" aria-hidden="true">
+            <ClipboardCheck size={24} />
+          </div>
+
+          <h3 className="estudio-method-title">Evaluación inicial</h3>
+
+          <p className="estudio-method-description">
+            Los participantes completan una evaluación online antes de acceder
+            al programa de intervención.
+          </p>
+        </article>
+
+        <article className="estudio-method-card">
+          <div className="estudio-method-icon" aria-hidden="true">
             <Laptop size={24} />
           </div>
 
-          <h3 className="estudio-method-title">Sesiones formativas</h3>
+          <h3 className="estudio-method-title">Programa de intervención</h3>
 
           <p className="estudio-method-description">
-            Contenido audiovisual diseñado por profesionales para trabajar
-            estrategias y herramientas relacionadas con el bienestar emocional.
+            Acceso a 9 sesiones online y a materiales elaborados por expertos en
+            salud mental infanto-juvenil, publicados mensualmente durante el
+            desarrollo del estudio.
           </p>
         </article>
 
@@ -39,25 +54,11 @@ export default function EstudioMethod() {
             <BookOpen size={24} />
           </div>
 
-          <h3 className="estudio-method-title">Materiales de apoyo</h3>
+          <h3 className="estudio-method-title">Evaluación final</h3>
 
           <p className="estudio-method-description">
-            Documentos y recursos complementarios que ayudan a trasladar los
-            contenidos a la vida cotidiana de las familias.
-          </p>
-        </article>
-
-        <article className="estudio-method-card">
-          <div className="estudio-method-icon" aria-hidden="true">
-            <ClipboardCheck size={24} />
-          </div>
-
-          <h3 className="estudio-method-title">Seguimiento científico</h3>
-
-          <p className="estudio-method-description">
-            Evaluaciones realizadas mediante cuestionarios validados
-            científicamente para analizar la evolución de los participantes a lo
-            largo del estudio.
+            Al finalizar el programa, los participantes realizan una nueva
+            evaluación que permitirá analizar los efectos de la intervención.
           </p>
         </article>
       </div>

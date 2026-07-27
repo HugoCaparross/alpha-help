@@ -1,6 +1,7 @@
 export const GENDERS = [
   "Mujer",
   "Hombre",
+  "Otros",
 ] as const;
 
 export type Gender =
@@ -10,6 +11,7 @@ export const EDUCATION_LEVELS = [
   "Primarios",
   "Secundarios",
   "Universitarios",
+  "Otros",
 ] as const;
 
 export type EducationLevel =
@@ -22,6 +24,7 @@ export const EMPLOYMENT_STATUS = [
   "Gestión doméstica",
   "Jubilado/a",
   "Incapacitado/a",
+  "Otros",
 ] as const;
 
 export type EmploymentStatus =
@@ -32,6 +35,7 @@ export const MARITAL_STATUS = [
   "Casado/a",
   "Separado/a, Divorciado/a",
   "Viudo/a",
+  "Otros",
 ] as const;
 
 export type MaritalStatus =
@@ -43,6 +47,7 @@ export const SOCIOECONOMIC_LEVELS = [
   "Medio",
   "Medio-alto",
   "Alto",
+  "Otros",
 ] as const;
 
 export type SocioeconomicLevel =
