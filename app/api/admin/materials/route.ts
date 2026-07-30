@@ -38,10 +38,20 @@ async function ensureBucket(
 }
 
 function sanitizeFileName(name: string): string {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9.\-_]/g, "-");
+  const extension = name.split(".").pop() ?? "pdf";
+
+  const baseName = name.replace(/\.[^.]+$/, "");
+
+  return (
+    baseName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9_-]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") +
+    "." +
+    extension.toLowerCase()
+  );
 }
 
 /**
@@ -151,9 +161,14 @@ export async function POST(request: Request) {
 
     await ensureBucket(admin);
 
-    const path = `${region}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
-      file.name || "material.pdf",
-    )}`;
+    const storageRegion =
+  region === "España"
+    ? "spain"
+    : "latam";
+
+const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
+  file.name || "material.pdf",
+)}`;
 
     const arrayBuffer = await file.arrayBuffer();
 
@@ -165,11 +180,16 @@ export async function POST(request: Request) {
       });
 
     if (uploadError) {
-      return NextResponse.json(
-        { error: "No se ha podido subir el PDF." },
-        { status: 500 },
-      );
-    }
+  console.error(uploadError);
+
+  return NextResponse.json(
+    {
+      error: uploadError.message,
+      details: uploadError,
+    },
+    { status: 500 },
+  );
+}
 
     const { data: publicUrlData } = admin.storage.from(BUCKET).getPublicUrl(path);
 
