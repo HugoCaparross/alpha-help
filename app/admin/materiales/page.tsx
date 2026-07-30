@@ -55,7 +55,7 @@ export default function AdminMaterialsPage() {
   const [materials, setMaterials] = useState<AdminMaterialRow[]>([]);
   const [activeType, setActiveType] = useState<MaterialType>("support");
   const [activeRegion, setActiveRegion] = useState<RegionValue>("España");
-  const [selectedOrder, setSelectedOrder] = useState<number>(1);
+  const [selectedOrder, setSelectedOrder] = useState<number>(0);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,12 +64,8 @@ export default function AdminMaterialsPage() {
   const [success, setSuccess] = useState("");
 
   const slots = useMemo(
-    () =>
-      Array.from(
-        { length: activeType === "extended" ? 1 : 11 },
-        (_, index) => index,
-      ),
-    [activeType],
+    () => Array.from({ length: 11 }, (_, index) => index),
+    [],
   );
 
   const loadMaterials = useCallback(async () => {
@@ -128,7 +124,7 @@ export default function AdminMaterialsPage() {
 
   function selectType(type: MaterialType) {
     setActiveType(type);
-    setSelectedOrder(1);
+    setSelectedOrder(0);
     setForm(EMPTY_FORM);
     setFile(null);
     setError("");
@@ -137,7 +133,7 @@ export default function AdminMaterialsPage() {
 
   function selectRegion(region: RegionValue) {
     setActiveRegion(region);
-    setSelectedOrder(1);
+    setSelectedOrder(0);
     setForm(EMPTY_FORM);
     setFile(null);
     setError("");
