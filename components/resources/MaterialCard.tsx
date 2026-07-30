@@ -20,9 +20,7 @@ const AVAILABLE_TEXT = "Disponible desde";
 
 const LOCKED_TEXT = "Bloqueado";
 
-const SUPPORT_CTA = "Consultar recurso";
-
-const EXTENDED_CTA = "Abrir guía";
+const CTA_TEXT = "Consultar recurso";
 
 function formatDate(date: string): string {
   return dateFormatter.format(Date.parse(date));
@@ -40,8 +38,7 @@ export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
     .filter(Boolean)
     .join(" ");
 
-  const ctaText =
-    material.materialType === "support" ? SUPPORT_CTA : EXTENDED_CTA;
+  const ctaText = CTA_TEXT;
 
   function handleOpen() {
     if (!isAvailable) {
@@ -67,11 +64,11 @@ export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
           className="material-card__thumb-img"
         />
 
-        {material.materialType === "support" && (
-          <span className="material-card__order">
-            Material {material.materialOrder}
-          </span>
-        )}
+        <span className="material-card__order">
+          {material.materialOrder === 0
+            ? "Introducción"
+            : `Sesión ${material.materialOrder}`}
+        </span>
 
         {!isAvailable && (
           <div className="material-card__lock-overlay" aria-hidden="true">

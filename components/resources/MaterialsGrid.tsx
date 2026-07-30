@@ -19,15 +19,11 @@ interface MaterialsGridProps {
    * único: una sola tarjeta con la portada
    * del PDF perfectamente cuadrada.
    */
-  readonly variant?: "grid" | "cover";
 }
 
 const MINIMUM_READING_TIME = 3000;
 
-export default function MaterialsGrid({
-  materials,
-  variant = "grid",
-}: MaterialsGridProps) {
+export default function MaterialsGrid({ materials }: MaterialsGridProps) {
   const [selectedMaterial, setSelectedMaterial] =
     useState<StudyMaterialWithStatus | null>(null);
 
@@ -88,17 +84,16 @@ export default function MaterialsGrid({
       return "";
     }
 
-    return `Material ${selectedMaterial.materialOrder} · ${selectedMaterial.title}`;
+    if (selectedMaterial.materialOrder === 0) {
+      return selectedMaterial.title;
+    }
+
+    return `Sesión ${selectedMaterial.materialOrder} · ${selectedMaterial.title}`;
   }, [selectedMaterial]);
 
   return (
     <>
-      <section
-        className={`materials-grid ${
-          variant === "cover" ? "materials-grid--cover" : ""
-        }`}
-        aria-label="Listado de materiales"
-      >
+      <section className="materials-grid" aria-label="Listado de materiales">
         {materials.map((material) => (
           <MaterialCard
             key={material.id}

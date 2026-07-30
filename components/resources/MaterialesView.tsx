@@ -181,10 +181,7 @@ export default function MaterialesView() {
       <PageHeader title={copy.title} description={copy.sectionDescription} />
 
       {activeMaterials.length > 0 ? (
-        <MaterialsGrid
-          materials={activeMaterials}
-          variant={activeCategory === "extended" ? "cover" : "grid"}
-        />
+        <MaterialsGrid materials={activeMaterials} />
       ) : (
         <MaterialEmptyState />
       )}

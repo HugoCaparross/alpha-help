@@ -19,7 +19,7 @@ const STUDY_MATERIALS_TABLE =
  * Número total de materiales
  * (uno por sesión del estudio).
  */
-export const TOTAL_STUDY_MATERIALS = 9;
+export const TOTAL_STUDY_MATERIALS = 11;
 
 const MATERIAL_FIELDS = `
   id,

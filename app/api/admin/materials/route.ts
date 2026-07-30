@@ -94,7 +94,7 @@ export async function GET() {
  *
  * Recibe multipart/form-data con:
  * title, description, materialType ("support" | "extended"),
- * materialOrder (1-9 en support, siempre 1 en extended),
+  * materialOrder (0-10 para support y extended),
  * region ("España" | "Latinoamérica"), releaseDateSpain?,
  * releaseDateLatam?, thumbnailUrl?, file (PDF, opcional si
  * ya existe pdfUrl).
@@ -121,22 +121,21 @@ export async function POST(request: Request) {
 
   const materialOrder = materialOrderRaw ? Number(materialOrderRaw) : null;
 
-  const maxOrder = materialType === "extended" ? 1 : 9;
-
   if (
-    !title ||
-    !description ||
-    (materialType !== "support" && materialType !== "extended") ||
-    (region !== "España" && region !== "Latinoamérica") ||
-    !materialOrder ||
-    materialOrder < 1 ||
-    materialOrder > maxOrder
-  ) {
-    return NextResponse.json(
-      { error: "Faltan campos obligatorios o son inválidos." },
-      { status: 400 },
-    );
-  }
+  !title ||
+  !description ||
+  (materialType !== "support" && materialType !== "extended") ||
+  (region !== "España" && region !== "Latinoamérica") ||
+  materialOrder === null ||
+  Number.isNaN(materialOrder) ||
+  materialOrder < 0 ||
+  materialOrder > 10
+) {
+  return NextResponse.json(
+    { error: "Faltan campos obligatorios o son inválidos." },
+    { status: 400 },
+  );
+}
 
   const admin = createAdminClient();
 

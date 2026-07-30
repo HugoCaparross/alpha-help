@@ -66,8 +66,8 @@ export default function AdminMaterialsPage() {
   const slots = useMemo(
     () =>
       Array.from(
-        { length: activeType === "extended" ? 1 : 9 },
-        (_, index) => index + 1,
+        { length: activeType === "extended" ? 1 : 11 },
+        (_, index) => index,
       ),
     [activeType],
   );
@@ -216,9 +216,10 @@ export default function AdminMaterialsPage() {
         <h1 className="admin-header__title">Materiales (PDF)</h1>
 
         <p className="admin-header__description">
-          España y Latinoamérica son programas independientes. Los materiales
-          cortos tienen 9, uno por sesión; los materiales largos son un único
-          PDF con todo el contenido ampliado.
+          España y Latinoamérica son programas independientes. Tanto los
+          materiales cortos como los materiales largos disponen de un recurso
+          para la Introducción y de un recurso para cada una de las diez
+          sesiones del programa.
         </p>
       </header>
 
@@ -266,7 +267,7 @@ export default function AdminMaterialsPage() {
               }`}
             >
               <span className="admin-slot__number">
-                {activeType === "extended" ? "Guía única" : `Sesión ${order}`}
+                {order === 0 ? "Introducción" : `Sesión ${order}`}
               </span>
               <span className="admin-slot__title">
                 {item ? item.title : "Sin configurar"}
@@ -287,7 +288,9 @@ export default function AdminMaterialsPage() {
             <label htmlFor="title">
               Título ({REGION_TABS.find((t) => t.id === activeRegion)?.label} ·{" "}
               {TYPE_TABS.find((t) => t.id === activeType)?.label}
-              {activeType === "support" ? ` · Sesión ${selectedOrder}` : ""})
+              {selectedOrder === 0
+                ? " · Introducción"
+                : ` · Sesión ${selectedOrder}`}
             </label>
             <input
               id="title"
