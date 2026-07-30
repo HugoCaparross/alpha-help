@@ -15,8 +15,8 @@ import type { SessionWithStatus } from "@/types/study-session";
 const PAGE_TITLE = "Sesiones del programa";
 
 const PAGE_DESCRIPTION =
-  "A lo largo del programa tendrás acceso a nueve sesiones formativas. Cada sesión se desbloqueará automáticamente en su fecha de publicación según tu región.";
-
+  "A lo largo del programa tendrás acceso a una introducción y diez sesiones formativas. Cada sesión se desbloqueará automáticamente en su fecha de publicación según tu región.";
+  
 const LOADING_MESSAGE = "Preparando las sesiones...";
 
 const ERROR_MESSAGE =

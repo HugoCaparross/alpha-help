@@ -18,7 +18,7 @@ const STUDY_SESSIONS_TABLE =
  * Número total de sesiones
  * que componen el estudio.
  */
-export const TOTAL_STUDY_SESSIONS = 9;
+export const TOTAL_STUDY_SESSIONS = 11;
 
 const SESSION_FIELDS = `
   id,

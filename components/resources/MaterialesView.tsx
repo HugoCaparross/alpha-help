@@ -22,7 +22,7 @@ import "@/components/styles/materiales.css";
 const PAGE_TITLE = "Recursos";
 
 const PAGE_DESCRIPTION =
-  "Accede a todos los recursos del programa de intervención. Cada mes tendrás disponibles los materiales correspondientes a la sesión, tanto en una versión resumida de fácil lectura como en una versión ampliada con contenidos complementarios.";
+  "Aquí encontrarás documentos de apoyo que te servirán para complementar cada sesión del programa. Cada tema se publicará automáticamente cada mes, siguiendo el calendario del estudio y podrás descargarlo y consultarlo siempre que lo necesites.";
 
 const LOADING_MESSAGE = "Preparando los recursos...";
 
@@ -41,19 +41,19 @@ interface CategoryCopy {
 
 const CATEGORY_COPY: Record<MaterialType, CategoryCopy> = {
   support: {
-    title: "Versión reducida",
+    title: "Versiones reducidas",
     description:
-      "Versión resumida y de fácil lectura con las ideas principales de cada tema del programa.",
+      "Guías prácticas para repasar rápidamente las ideas de cada sesión.",
     sectionDescription:
-      "Versión resumida y de fácil lectura para consultar rápidamente los contenidos principales de cada sesión.",
+      "Guías prácticas para repasar rápidamente las ideas de cada sesión.",
   },
 
   extended: {
-    title: "Versión extendida",
+    title: "Versiones extendidas",
     description:
-      "Versión completa con contenidos ampliados, ejercicios, enlaces y materiales complementarios.",
+      "Manuales completos y ampliados con contenidos adicionales (casos prácticos, ejercicios, material complementario y test) para que puedas profundizar en las ideas de cada sesión.",
     sectionDescription:
-      "Versión completa con contenidos ampliados, ejercicios, enlaces y recursos complementarios.",
+      "Manuales completos y ampliados con contenidos adicionales (casos prácticos, ejercicios, material complementario y test) para que puedas profundizar en las ideas de cada sesión.",
   },
 };
 
