@@ -15,7 +15,11 @@ interface QuestionCardProps {
 
   showPrevious?: boolean;
 
+  showNext?: boolean;
+
   onPrevious?: () => void;
+
+  onNext?: () => void;
 
   onChange: (questionId: string, value: number) => void;
 }
@@ -33,7 +37,9 @@ export default function QuestionCard({
   showError = false,
   disabled = false,
   showPrevious = false,
+  showNext = false,
   onPrevious,
+  onNext,
   onChange,
 }: QuestionCardProps) {
   const options = SCALES[question.scaleType];
@@ -102,17 +108,31 @@ export default function QuestionCard({
       </fieldset>
 
       <footer className="question-card__footer">
-        {showPrevious && (
-          <button
-            type="button"
-            className="question-card__previous"
-            onClick={onPrevious}
-            disabled={disabled}
-            aria-label="Volver a la pregunta anterior"
-          >
-            ← Anterior
-          </button>
-        )}
+        <div className="question-card__navigation">
+          {showPrevious && (
+            <button
+              type="button"
+              className="question-card__previous"
+              onClick={onPrevious}
+              disabled={disabled}
+              aria-label="Volver a la pregunta anterior"
+            >
+              ← Anterior
+            </button>
+          )}
+
+          {showNext && (
+            <button
+              type="button"
+              className="question-card__previous"
+              onClick={onNext}
+              disabled={disabled}
+              aria-label="Ir a la siguiente pregunta"
+            >
+              Siguiente →
+            </button>
+          )}
+        </div>
 
         {hasSelection && (
           <span className="question-card__answered">

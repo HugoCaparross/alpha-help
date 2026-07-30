@@ -19,15 +19,14 @@ import type { MaterialType } from "@/types/study-material";
 
 import "@/components/styles/materiales.css";
 
-const PAGE_TITLE = "Materiales";
+const PAGE_TITLE = "Recursos";
 
 const PAGE_DESCRIPTION =
-  "Documentos de apoyo para acompañar cada sesión del programa. Cada material se publica automáticamente según el calendario del estudio y queda disponible para consultarlo siempre que lo necesites.";
+  "Accede a todos los recursos del programa de intervención. Cada mes tendrás disponibles los materiales correspondientes a la sesión, tanto en una versión resumida de fácil lectura como en una versión ampliada con contenidos complementarios.";
 
-const LOADING_MESSAGE = "Preparando los materiales...";
+const LOADING_MESSAGE = "Preparando los recursos...";
 
-const LOAD_ERROR =
-  "No se han podido cargar los materiales. Inténtalo de nuevo.";
+const LOAD_ERROR = "No se han podido cargar los recursos. Inténtalo de nuevo.";
 
 const EMPTY_MATERIALS: GroupedStudyMaterials = {
   support: [],
@@ -42,18 +41,19 @@ interface CategoryCopy {
 
 const CATEGORY_COPY: Record<MaterialType, CategoryCopy> = {
   support: {
-    title: "Materiales cortos",
+    title: "Versión reducida",
     description:
-      "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
+      "Versión resumida y de fácil lectura con las ideas principales de cada tema del programa.",
     sectionDescription:
-      "Resúmenes prácticos para repasar rápidamente las ideas principales de cada sesión.",
+      "Versión resumida y de fácil lectura para consultar rápidamente los contenidos principales de cada sesión.",
   },
+
   extended: {
-    title: "Materiales largos",
+    title: "Versión extendida",
     description:
-      "Guía completa y ampliada con todo el contenido del programa en un único documento.",
+      "Versión completa con contenidos ampliados, ejercicios, enlaces y materiales complementarios.",
     sectionDescription:
-      "Guía completa y ampliada con todo el contenido del programa en un único documento.",
+      "Versión completa con contenidos ampliados, ejercicios, enlaces y recursos complementarios.",
   },
 };
 
@@ -175,7 +175,7 @@ export default function MaterialesView() {
         onClick={() => setActiveCategory(null)}
       >
         <ArrowLeft size={16} />
-        <span>Volver a materiales</span>
+        <span>Volver a recursos</span>
       </button>
 
       <PageHeader title={copy.title} description={copy.sectionDescription} />

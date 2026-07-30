@@ -18,8 +18,7 @@ import type {
 } from "@/types/questionnaire";
 
 const PAGE_DESCRIPTION =
-  "Completa los cuestionarios siguiendo el orden indicado. Tus respuestas son completamente confidenciales y se utilizarán exclusivamente con fines de investigación.";
-
+  "Completa los cuestionarios siguiendo el orden indicado. La evaluación inicial se realiza antes de acceder al programa de intervención y la evaluación final estará disponible una vez finalizado. Todas las respuestas son confidenciales y se utilizarán exclusivamente con fines de investigación.";
 const LOAD_ERROR =
   "No se han podido cargar los cuestionarios. Inténtalo de nuevo.";
 

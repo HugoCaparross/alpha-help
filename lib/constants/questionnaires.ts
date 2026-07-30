@@ -26,37 +26,39 @@ export interface Question {
 export const QUESTIONNAIRE_STEPS = [
   {
     id: "capsm",
-    title: "CAPSM-IJ",
-    description:
-      "Conocimientos y creencias sobre salud mental infantojuvenil.",
+    title:
+  "Cuestionario de Alfabetización Parental en Salud Mental Infanto-Juvenil (CAPSM-IJ)",
+
+description:
+  "Evalúa el conocimiento de los padres y madres sobre la salud mental infanto-juvenil, la identificación de problemas emocionales y las actitudes hacia la búsqueda de ayuda profesional.",
   },
 
   {
     id: "psoc",
-    title: "PSOC",
+    title: "Escala de Sentido de Competencia Parental (PSOC)",
     description:
-      "Percepción de competencia parental.",
+       "Evalúa la percepción que tienen los padres y madres sobre su competencia y eficacia en el ejercicio de la parentalidad.",
   },
 
   {
     id: "ecpp",
-    title: "ECPP-P",
+    title: "Escala de Competencia Parental Percibida (ECPP-P)",
     description:
-      "Competencias parentales percibidas.",
+       "Evalúa las competencias parentales percibidas en aspectos relacionados con la educación, el acompañamiento y el cuidado de los hijos.",
   },
 
   {
     id: "pss",
-    title: "PSS",
+    title: "Escala de Estrés Parental (PSS)",
     description:
-      "Nivel de estrés parental.",
+      "Evalúa el nivel de estrés asociado al ejercicio de la parentalidad y el impacto que tiene en el bienestar familiar.",
   },
 
   {
     id: "kidscreen",
-    title: "KIDSCREEN",
+    title: "Escala KIDSCREEN-27",
     description:
-      "Bienestar y calidad de vida del menor.",
+      "Evalúa distintos aspectos relacionados con el bienestar y la calidad de vida percibida de los hijos.",
   },
 ];
 
@@ -142,7 +144,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "agreement_7",
     required: true,
     question:
-      "Evitaría que mi hijo se relacionase demasiado con otros niños con dificultades psicológicas por miedo a que no desarrolle ese mismo problema.",
+      "Evitaría que mi hijo se relacionase demasiado con otro niño con dificultades psicológicas por miedo a que desarrolle ese mismo problema.",
   },
 
   {
@@ -190,7 +192,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "agreement_7",
     required: true,
     question:
-      "Me preocuparía que otras personas de mi entorno pudieran pensar mal de mí si mi hijo/a tuviera un problema de salud mental.",
+      "Me preocuparía que otras personas de mi entorno pudieran pensar si mi hijo/a tuviera un problema de salud mental.",
   },
 
   {
@@ -230,7 +232,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "agreement_7",
     required: true,
     question:
-      "Los menores rara vez presentan trastornos mentales diagnosticables, salvo que hayan sido hereditarios.",
+      "Los menores rara vez presentan trastornos mentales diagnosticables, salvo que hayan sido heredados.",
   },
 
   {
@@ -294,7 +296,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "help_probability_5",
     required: true,
     question:
-      "¿Qué probabilidad habría de que buscara apoyo en alguna de las opciones anteriores si su hijo/a tuviera una dificultad relacionada con la salud mental?",
+      "En general, ¿qué probabilidad habría de que buscaras apoyo en alguna de las opciones anteriores si tu hijo/a tuviera una dificultad relacionada con la salud mental?",
   },
 
   {
@@ -302,7 +304,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "help_confidence_5",
     required: true,
     question:
-      "¿Qué nivel de confianza tendría para buscar ayuda si su hijo/a estuviera experimentando una dificultad relacionada con la salud mental?",
+      "En general, ¿qué nivel de confianza tendrías para buscar ayuda si tu hijo/a estuviera experimentando una dificultad relacionada con la salud mental?",
   },
 ];
 
@@ -507,7 +509,7 @@ export const ECPP_QUESTIONS: Question[] = [
     scaleType: "ecpp_4",
     required: true,
     question:
-      "Colaboro en las tareas del hogar y así transmitir la importancia de la colaboración y la responsabilidad.",
+      "Colaboro en las tareas del hogar y así transmito la importancia de la colaboración y la responsabilidad.",
   },
 
   {
@@ -523,7 +525,7 @@ export const ECPP_QUESTIONS: Question[] = [
     scaleType: "ecpp_4",
     required: true,
     question:
-      "Mantengo organizado una especie de archivo de mis hijos/as donde se incluyan datos médicos, escolares y legales.",
+      "Mantengo organizado una especie de archivo/registro de mis hijos/as donde se incluyen datos médicos, escolares, legales...",
   },
 
   {
@@ -563,7 +565,7 @@ export const ECPP_QUESTIONS: Question[] = [
     scaleType: "ecpp_4",
     required: true,
     question:
-      "Hago pequeñas salidas familiares al cine, zoológico, museos, parques u otras ciudades.",
+      "Hago pequeñas salidas familiares al cine, zoológico, museos, parques, otras ciudades...",
   },
 
   {
@@ -859,9 +861,9 @@ export const EVALUATIONS: QuestionnaireWithStatus[] = [
     id: "pre",
     title: "Evaluación inicial",
     description:
-      "Cuestionario previo al programa de acompañamiento familiar. Debe completarse antes de acceder a la evaluación final.",
+      "Esta evaluación debe realizarse antes de comenzar el programa de intervención. Sus respuestas servirán como punto de partida para el estudio.",
     blocks: QUESTIONNAIRE_STEPS.length,
-    estimatedMinutes: 25,
+    estimatedMinutes: 15,
     status: "pending",
   },
 
@@ -869,9 +871,9 @@ export const EVALUATIONS: QuestionnaireWithStatus[] = [
     id: "post",
     title: "Evaluación final",
     description:
-      "Disponible una vez se haya completado la evaluación inicial.",
+      "Esta evaluación estará disponible una vez finalizado el programa de intervención y permitirá comparar los resultados obtenidos.",
     blocks: QUESTIONNAIRE_STEPS.length,
-    estimatedMinutes: 25,
+    estimatedMinutes: 15,
     status: "locked",
   },
 ];

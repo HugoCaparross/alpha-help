@@ -47,6 +47,17 @@ const ALL_QUESTIONS = [
 
 const TOTAL_QUESTIONS = ALL_QUESTIONS.length;
 
+/**
+ * Longitud de cada bloque del cuestionario.
+ */
+const QUESTIONNAIRE_SEGMENTS = [
+  CAPSM_QUESTIONS.length,
+  PSOC_QUESTIONS.length,
+  ECPP_QUESTIONS.length,
+  PSS_QUESTIONS.length,
+  KIDSCREEN_QUESTIONS.length,
+] as const;
+
 const QUESTION_INDEX = new Map(
   ALL_QUESTIONS.map((question, index) => [question.id, index + 1]),
 );
@@ -108,7 +119,9 @@ export default function QuestionBlock({
 
   const currentQuestionPosition = currentQuestion
     ? (QUESTION_INDEX.get(currentQuestion.id) ?? 1)
-    : 1; /**
+    : 1;
+
+  /**
    * Cancela cualquier avance automático
    * pendiente.
    */
@@ -213,7 +226,6 @@ export default function QuestionBlock({
       void goToNextQuestion();
     }, AUTO_ADVANCE_DELAY);
   }
-
   /**
    * Regresa a la pregunta
    * anterior.
@@ -246,12 +258,38 @@ export default function QuestionBlock({
       setCurrentQuestionIndex(previousQuestions.length - 1);
     }
   }
+
+  /**
+   * Avanza manualmente a la
+   * siguiente pregunta.
+   */
+  function handleNext() {
+    if (
+      !currentQuestion ||
+      isSubmitting ||
+      isTransitioning ||
+      answers[currentQuestion.id] === undefined
+    ) {
+      return;
+    }
+
+    clearAutoAdvanceTimeout();
+
+    void goToNextQuestion();
+  }
+
+  const canGoNext =
+    currentQuestion &&
+    answers[currentQuestion.id] !== undefined &&
+    !(isSubmitting || isTransitioning);
+
   return (
     <section className="question-block">
       <QuestionnaireProgress
         questionnaireTitle={sectionTitle}
         currentStep={currentQuestionPosition}
         totalSteps={TOTAL_QUESTIONS}
+        segments={QUESTIONNAIRE_SEGMENTS}
       />
 
       <div className="question-block__body">
@@ -269,7 +307,9 @@ export default function QuestionBlock({
               showError={Boolean(error)}
               disabled={isSubmitting || isTransitioning}
               showPrevious={!(isFirstStep && isFirstQuestion)}
+              showNext={canGoNext}
               onPrevious={handlePrevious}
+              onNext={handleNext}
               onChange={handleAnswerChange}
             />
           )}

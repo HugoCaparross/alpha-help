@@ -21,19 +21,19 @@ const CONTENT: Record<
   }
 > = {
   pre: {
-    title: "Evaluación inicial completada",
+    title: "Has terminado de responder a las preguntas.",
 
     description:
-      "Has completado correctamente la evaluación inicial. Tus respuestas se han registrado y serán utilizadas exclusivamente con fines de investigación. Ya puedes continuar con las siguientes fases del estudio cuando estén disponibles.",
+      "Muchas gracias por tu tiempo. Tus respuestas se han registrado correctamente y serán utilizadas exclusivamente con fines de investigación. Ya puedes acceder a los contenidos de la intervención.",
 
-    button: "Continuar",
+    button: "Acceder a los contenidos",
   },
 
   post: {
-    title: "Evaluación final completada",
+    title: "Has terminado de responder a las preguntas.",
 
     description:
-      "Has finalizado tu participación en esta fase del estudio. Agradecemos sinceramente el tiempo dedicado y tu colaboración. Tus respuestas contribuirán al desarrollo de la investigación.",
+      "Muchas gracias por tu tiempo. Tus respuestas se han registrado correctamente y contribuirán al desarrollo de la investigación.",
 
     button: "Finalizar",
   },

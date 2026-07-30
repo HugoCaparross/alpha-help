@@ -32,7 +32,7 @@ const INFO_ITEMS = [
   {
     title: "Importante",
     value:
-      "Una vez iniciada la evaluación, procura completarla sin interrupciones. Si abandonas el cuestionario antes de finalizarlo, el progreso podría no conservarse.",
+      "Si abandonas el cuestionario antes de finalizarlo, el progreso no se guardará.",
   },
 ] as const;
 
@@ -78,7 +78,7 @@ export default function QuestionnaireIntroduction({
         <p className="questionnaire-introduction__description">
           Reserva aproximadamente{" "}
           <strong>{evaluation.estimatedMinutes} minutos</strong> para completar
-          esta evaluación en un entorno tranquilo y sin interrupciones.
+          este cuestionario en un entorno tranquilo y sin interrupciones.
         </p>
       </header>
 

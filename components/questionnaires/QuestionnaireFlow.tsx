@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import QuestionBlock from "./QuestionBlock";
 import QuestionnaireCompletion from "./QuestionnaireCompletion";
 import QuestionnaireIntroduction from "./QuestionnaireIntroduction";
+import QuestionnaireInstructions from "./QuestionnaireInstructions";
 
 import { hasCompletedQuestionnaire } from "@/services/questionnaires/questionnaire.service";
 
@@ -18,6 +19,7 @@ interface QuestionnaireFlowProps {
 type FlowScreen =
   | "loading"
   | "introduction"
+  | "instructions"
   | "in_progress"
   | "completed"
   | "error";
@@ -98,8 +100,13 @@ export default function QuestionnaireFlow({
       return (
         <QuestionnaireIntroduction
           questionnaireId={questionnaireId}
-          onStart={() => setScreen("in_progress")}
+          onStart={() => setScreen("instructions")}
         />
+      );
+
+    case "instructions":
+      return (
+        <QuestionnaireInstructions onStart={() => setScreen("in_progress")} />
       );
 
     case "in_progress":

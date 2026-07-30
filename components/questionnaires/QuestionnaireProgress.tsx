@@ -4,6 +4,8 @@ interface QuestionnaireProgressProps {
   currentStep: number;
 
   totalSteps: number;
+
+  segments: readonly number[];
 }
 
 /**
@@ -25,12 +27,27 @@ export default function QuestionnaireProgress({
   questionnaireTitle,
   currentStep,
   totalSteps,
+  segments,
 }: QuestionnaireProgressProps) {
   const progress = calculateProgress(currentStep, totalSteps);
 
   const progressDescriptionId = "questionnaire-progress-description";
 
   const progressLabel = `Pregunta ${currentStep} de ${totalSteps}`;
+
+  /**
+   * Calcula la posición acumulada
+   * de cada separador.
+   */
+  const dividerPositions: number[] = [];
+
+  let accumulated = 0;
+
+  for (let index = 0; index < segments.length - 1; index++) {
+    accumulated += segments[index];
+
+    dividerPositions.push((accumulated / totalSteps) * 100);
+  }
 
   return (
     <section
@@ -54,9 +71,7 @@ export default function QuestionnaireProgress({
           </p>
         </div>
 
-        <p className="questionnaire-progress__percentage">
-          {progress}%
-        </p>
+        <p className="questionnaire-progress__percentage">{progress}%</p>
       </header>
 
       <div
@@ -75,6 +90,17 @@ export default function QuestionnaireProgress({
             width: `${progress}%`,
           }}
         />
+
+        {dividerPositions.map((position, index) => (
+          <span
+            key={index}
+            className="questionnaire-progress__divider"
+            style={{
+              left: `${position}%`,
+            }}
+            aria-hidden="true"
+          />
+        ))}
       </div>
     </section>
   );
