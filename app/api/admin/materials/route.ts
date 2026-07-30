@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
+import { generateThumbnail } from "@/lib/pdf/generate-thumbnail";
 
 const TABLE = "study_materials";
 
-const BUCKET = "study-materials";
+const PDF_BUCKET = "study-materials";
+
+const THUMBNAIL_BUCKET =
+  "study-material-thumbnails";
 
 const DEFAULT_THUMBNAIL = "/images/logo.png";
 
@@ -26,11 +30,13 @@ const SELECT_FIELDS = `
 
 async function ensureBucket(
   admin: ReturnType<typeof createAdminClient>,
+  bucket: string,
 ) {
-  const { data } = await admin.storage.getBucket(BUCKET);
+  const { data } =
+    await admin.storage.getBucket(bucket);
 
   if (!data) {
-    await admin.storage.createBucket(BUCKET, {
+    await admin.storage.createBucket(bucket, {
       public: true,
       fileSizeLimit: "25MB",
     });
@@ -159,8 +165,15 @@ export async function POST(request: Request) {
       );
     }
 
-    await ensureBucket(admin);
+await ensureBucket(
+  admin,
+  PDF_BUCKET,
+);
 
+await ensureBucket(
+  admin,
+  THUMBNAIL_BUCKET,
+);
     const storageRegion =
   region === "España"
     ? "spain"
@@ -170,11 +183,76 @@ const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${
   file.name || "material.pdf",
 )}`;
 
-    const arrayBuffer = await file.arrayBuffer();
+const pdfBuffer = Buffer.from(arrayBuffer);
+
+const { error: uploadError } = await admin.storage
+  .from(PDF_BUCKET)
+  .upload(path, pdfBuffer, {
+    contentType: "application/pdf",
+    upsert: true,
+  });
+
+if (uploadError) {
+  console.error(uploadError);
+
+  return NextResponse.json(
+    {
+      error: uploadError.message,
+      details: uploadError,
+    },
+    { status: 500 },
+  );
+}
+
+const { data: publicUrlData } =
+  admin.storage
+    .from(PDF_BUCKET)
+    .getPublicUrl(path);
+
+pdfUrl = publicUrlData.publicUrl;
+
+let generatedThumbnailUrl = "";
+
+try {
+  const thumbnailBuffer =
+    await generateThumbnail(pdfBuffer);
+
+  const thumbnailPath =
+    path.replace(/\.pdf$/i, ".png");
+
+  const { error: thumbnailError } =
+    await admin.storage
+      .from(THUMBNAIL_BUCKET)
+      .upload(
+        thumbnailPath,
+        thumbnailBuffer,
+        {
+          contentType: "image/png",
+          upsert: true,
+        },
+      );
+
+  if (!thumbnailError) {
+    const {
+      data: thumbnailPublicUrl,
+    } = admin.storage
+      .from(THUMBNAIL_BUCKET)
+      .getPublicUrl(
+        thumbnailPath,
+      );
+
+    generatedThumbnailUrl =
+      thumbnailPublicUrl.publicUrl;
+  }
+} catch (error) {
+  console.error(
+    "Error generando miniatura:",
+    error,
+  );
+}
 
     const { error: uploadError } = await admin.storage
-      .from(BUCKET)
-      .upload(path, Buffer.from(arrayBuffer), {
+.from(PDF_BUCKET)      .upload(path, Buffer.from(arrayBuffer), {
         contentType: "application/pdf",
         upsert: true,
       });
@@ -191,7 +269,7 @@ const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${
   );
 }
 
-    const { data: publicUrlData } = admin.storage.from(BUCKET).getPublicUrl(path);
+    const { data: publicUrlData } = admin.storage.from(PDF_BUCKET).getPublicUrl(path);
 
     pdfUrl = publicUrlData.publicUrl;
   }
@@ -217,7 +295,10 @@ const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${
     title,
     description,
     pdf_url: pdfUrl,
-    thumbnail_url: thumbnailUrl || DEFAULT_THUMBNAIL,
+    thumbnail_url:
+  generatedThumbnailUrl ||
+  thumbnailUrl ||
+  DEFAULT_THUMBNAIL,
     material_order: materialOrder,
     material_type: materialType,
     region,
