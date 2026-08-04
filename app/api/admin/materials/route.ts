@@ -156,6 +156,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
 
   let pdfUrl = existingPdfUrl || "";
+let generatedThumbnailUrl = "";
 
   if (file instanceof File && file.size > 0) {
     if (!(await isRealPdf(file))) {
@@ -183,6 +184,7 @@ const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${
   file.name || "material.pdf",
 )}`;
 
+const arrayBuffer = await file.arrayBuffer();
 const pdfBuffer = Buffer.from(arrayBuffer);
 
 const { error: uploadError } = await admin.storage
@@ -211,27 +213,29 @@ const { data: publicUrlData } =
 
 pdfUrl = publicUrlData.publicUrl;
 
-let generatedThumbnailUrl = "";
 
 try {
   const thumbnailBuffer =
-    await generateThumbnail(pdfBuffer);
+  await generateThumbnail(pdfBuffer);
+
+console.log("Miniatura generada:", thumbnailBuffer.length);
 
   const thumbnailPath =
     path.replace(/\.pdf$/i, ".png");
 
   const { error: thumbnailError } =
-    await admin.storage
-      .from(THUMBNAIL_BUCKET)
-      .upload(
-        thumbnailPath,
-        thumbnailBuffer,
-        {
-          contentType: "image/png",
-          upsert: true,
-        },
-      );
+  await admin.storage
+    .from(THUMBNAIL_BUCKET)
+    .upload(
+      thumbnailPath,
+      thumbnailBuffer,
+      {
+        contentType: "image/png",
+        upsert: true,
+      },
+    );
 
+console.log("Upload miniatura:", thumbnailError);
   if (!thumbnailError) {
     const {
       data: thumbnailPublicUrl,
@@ -240,6 +244,11 @@ try {
       .getPublicUrl(
         thumbnailPath,
       );
+
+      console.log(
+  "URL miniatura:",
+  thumbnailPublicUrl.publicUrl,
+);
 
     generatedThumbnailUrl =
       thumbnailPublicUrl.publicUrl;
@@ -250,29 +259,6 @@ try {
     error,
   );
 }
-
-    const { error: uploadError } = await admin.storage
-.from(PDF_BUCKET)      .upload(path, Buffer.from(arrayBuffer), {
-        contentType: "application/pdf",
-        upsert: true,
-      });
-
-    if (uploadError) {
-  console.error(uploadError);
-
-  return NextResponse.json(
-    {
-      error: uploadError.message,
-      details: uploadError,
-    },
-    { status: 500 },
-  );
-}
-
-    const { data: publicUrlData } = admin.storage.from(PDF_BUCKET).getPublicUrl(path);
-
-    pdfUrl = publicUrlData.publicUrl;
-  }
 
   if (!pdfUrl) {
     return NextResponse.json(
@@ -290,6 +276,11 @@ try {
     .eq("material_type", materialType)
     .eq("region", region)
     .maybeSingle();
+
+    console.log({
+  generatedThumbnailUrl,
+  thumbnailUrl,
+});
 
   const payload = {
     title,
@@ -321,4 +312,5 @@ try {
   }
 
   return NextResponse.json({ ok: true });
+}
 }

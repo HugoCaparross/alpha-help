@@ -13,6 +13,10 @@ function getSupabaseHostname(): string | null {
 const supabaseHostname = getSupabaseHostname();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: [
+    "@napi-rs/canvas",
+  ],
+
   images: {
     remotePatterns: [
       {
@@ -56,10 +60,6 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           {
-            // "frame-ancestors 'none'" es el equivalente
-            // moderno de X-Frame-Options: DENY y además
-            // cubre a los navegadores que ya no respetan
-            // esa cabecera antigua.
             key: "Content-Security-Policy",
             value: "frame-ancestors 'none';",
           },

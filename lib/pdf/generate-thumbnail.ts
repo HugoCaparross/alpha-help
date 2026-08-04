@@ -1,48 +1,36 @@
-import { createThumbnail } from "@mkholt/pdf-thumbnail";
-import { promises as fs } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { randomUUID } from "node:crypto";
+import * as mupdf from "mupdf";
 
-/**
- * Genera una miniatura PNG de la primera página de un PDF.
- *
- * La librería trabaja sobre archivos, por lo que
- * escribimos el PDF temporalmente en disco,
- * generamos la miniatura y eliminamos el archivo.
- */
 export async function generateThumbnail(
   pdfBuffer: Buffer,
 ): Promise<Buffer> {
-  const tempFile = join(
-    tmpdir(),
-    `${randomUUID()}.pdf`,
-  );
-
   try {
-    await fs.writeFile(tempFile, pdfBuffer);
+    const document = mupdf.Document.openDocument(
+      pdfBuffer,
+      "application/pdf",
+    );
 
-    const thumbnail = await createThumbnail(tempFile, {
-      output: "buffer",
-      page: 1,
-      scale: 2,
-      logLevel: "error",
-    });
-
-    if (!thumbnail) {
-      throw new Error(
-        "No se ha podido generar la miniatura.",
-      );
+    if (document.countPages() === 0) {
+      throw new Error("El PDF no contiene páginas.");
     }
 
-    if (thumbnail.thumbType === "error") {
-      throw new Error(thumbnail.thumbData);
-    }
+    const page = document.loadPage(0);
 
-    return thumbnail.thumbData;
-  } finally {
-    await fs.rm(tempFile, {
-      force: true,
-    });
+    const scale = 2;
+
+    const matrix = mupdf.Matrix.scale(scale, scale);
+
+    const pixmap = page.toPixmap(
+      matrix,
+      mupdf.ColorSpace.DeviceRGB,
+      false,
+    );
+
+    return Buffer.from(pixmap.asPNG());
+  } catch (error) {
+    throw new Error(
+      `No se pudo generar la miniatura del PDF: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
   }
 }
