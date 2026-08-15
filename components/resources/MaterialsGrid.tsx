@@ -84,11 +84,9 @@ export default function MaterialsGrid({ materials }: MaterialsGridProps) {
       return "";
     }
 
-    if (selectedMaterial.materialOrder === 0) {
-      return selectedMaterial.title;
-    }
-
-    return `Sesión ${selectedMaterial.materialOrder} · ${selectedMaterial.title}`;
+    return selectedMaterial.materialOrder === 0
+      ? selectedMaterial.title
+      : `Sesión ${selectedMaterial.materialOrder} · ${selectedMaterial.title}`;
   }, [selectedMaterial]);
 
   return (

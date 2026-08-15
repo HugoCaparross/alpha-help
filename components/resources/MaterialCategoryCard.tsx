@@ -44,7 +44,7 @@ export default function MaterialCategoryCard({
 
         <span className="material-category-card__count">
           {type === "support"
-            ? `${available} de ${total} sesiones disponibles`
+            ? `${available} de ${total} recursos disponibles`
             : available > 0
               ? "Disponible"
               : "Aún no disponible"}
