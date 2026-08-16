@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 interface TeamMemberCardProps {
@@ -10,12 +13,13 @@ interface TeamMemberCardProps {
 }
 
 /**
- * Tarjeta informativa de un miembro
- * del equipo investigador.
+ * Tarjeta informativa de un miembro del equipo investigador.
  *
- * Muestra una fotografía si se indica
- * `photoUrl`; en caso contrario muestra
- * las iniciales sobre un fondo de color.
+ * Si existe una fotografía y puede cargarse correctamente,
+ * se muestra la imagen.
+ *
+ * Si no existe fotografía o la imagen falla al cargar,
+ * se muestran las iniciales del nombre y primer apellido.
  */
 export default function TeamMemberCard({
   name,
@@ -25,19 +29,24 @@ export default function TeamMemberCard({
   initials,
   photoUrl,
 }: TeamMemberCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  const showPhoto = Boolean(photoUrl) && !imageError;
+
   return (
     <article className="about-member" aria-labelledby={`member-${initials}`}>
-      <div className="about-member-avatar" aria-hidden="true">
-        {photoUrl ? (
+      <div className="about-member-avatar">
+        {showPhoto ? (
           <Image
-            src={photoUrl}
-            alt={name}
+            src={photoUrl!}
+            alt=""
             fill
             sizes="72px"
             className="about-member-avatar-image"
+            onError={() => setImageError(true)}
           />
         ) : (
-          initials
+          <span aria-hidden="true">{initials}</span>
         )}
       </div>
 

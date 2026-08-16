@@ -19,8 +19,8 @@ import { ADMIN_USERNAME } from "@/lib/constants/admin";
  *
  * Este módulo importa "server-only",
  * así que cualquier intento de usarlo
- * desde un componente cliente falla en
- * tiempo de build en lugar de filtrar
+ * desde un componente cliente falla
+ * en tiempo de build en lugar de filtrar
  * el secreto silenciosamente.
  */
 export const ADMIN_LOGIN_EMAIL =

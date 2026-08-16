@@ -1,9 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import type { FormEvent } from "react";
 
-import { LoaderCircle, Trash2 } from "lucide-react";
+import {
+  LoaderCircle,
+  Trash2,
+} from "lucide-react";
 
 import {
   deleteAdminSession,
@@ -12,9 +21,12 @@ import {
   type AdminSessionRow,
 } from "@/services/admin/admin-session.service";
 
-const TOTAL_SLOTS = 9;
+const TOTAL_SLOTS = 10;
 
-const SLOTS = Array.from({ length: TOTAL_SLOTS }, (_, index) => index + 1);
+const SLOTS = Array.from(
+  { length: TOTAL_SLOTS },
+  (_, index) => index,
+);
 
 interface FormState {
   title: string;
@@ -34,80 +46,136 @@ const EMPTY_FORM: FormState = {
   isLive: false,
 };
 
-function toDatetimeLocal(iso: string | undefined): string {
-  if (!iso) return "";
+function toDatetimeLocal(
+  iso: string | undefined,
+): string {
+  if (!iso) {
+    return "";
+  }
 
   const date = new Date(iso);
 
-  if (Number.isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
 
-  const pad = (value: number) => String(value).padStart(2, "0");
+  const pad = (value: number) =>
+    String(value).padStart(2, "0");
 
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+  return `${date.getFullYear()}-${pad(
+    date.getMonth() + 1,
+  )}-${pad(
     date.getDate(),
-  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  )}T${pad(
+    date.getHours(),
+  )}:${pad(
+    date.getMinutes(),
+  )}`;
 }
 
 export default function AdminSessionsPage() {
-  const [sessions, setSessions] = useState<AdminSessionRow[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<number>(1);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [sessions, setSessions] =
+    useState<AdminSessionRow[]>([]);
 
-  const loadSessions = useCallback(async () => {
-    setLoading(true);
+  const [selectedOrder, setSelectedOrder] =
+    useState<number>(0);
 
-    try {
-      const data = await listAdminSessions();
+  const [form, setForm] =
+    useState<FormState>(EMPTY_FORM);
 
-      setSessions(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [saving, setSaving] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  const loadSessions =
+    useCallback(async () => {
+      setLoading(true);
+
+      try {
+        const data =
+          await listAdminSessions();
+
+        setSessions(data);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Error inesperado.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     void loadSessions();
   }, [loadSessions]);
 
-  const sessionByOrder = useMemo(() => {
-    const map = new Map<number, AdminSessionRow>();
+  const sessionByOrder =
+    useMemo(() => {
+      const map =
+        new Map<
+          number,
+          AdminSessionRow
+        >();
 
-    sessions.forEach((session) => map.set(session.session_order, session));
+      sessions.forEach(
+        (session) =>
+          map.set(
+            session.session_order,
+            session,
+          ),
+      );
 
-    return map;
-  }, [sessions]);
+      return map;
+    }, [sessions]);
 
-  const selectSlot = useCallback(
-    (order: number) => {
-      setSelectedOrder(order);
-      setError("");
-      setSuccess("");
+  const selectSlot =
+    useCallback(
+      (order: number) => {
+        setSelectedOrder(order);
+        setError("");
+        setSuccess("");
 
-      const existing = sessionByOrder.get(order);
+        const existing =
+          sessionByOrder.get(order);
 
-      if (existing) {
-        setForm({
-          title: existing.title,
-          description: existing.description,
-          youtubeUrl: existing.youtube_url,
-          releaseDateSpain: toDatetimeLocal(existing.release_date_spain),
-          releaseDateLatam: toDatetimeLocal(existing.release_date_latam),
-          isLive: existing.is_live,
-        });
-      } else {
-        setForm(EMPTY_FORM);
-      }
-    },
-    [sessionByOrder],
-  );
+        if (existing) {
+          setForm({
+            title: existing.title,
+            description:
+              existing.description,
+            youtubeUrl:
+              existing.youtube_url,
+            releaseDateSpain:
+              toDatetimeLocal(
+                existing.release_date_spain,
+              ),
+            releaseDateLatam:
+              toDatetimeLocal(
+                existing.release_date_latam,
+              ),
+            isLive:
+              existing.is_live,
+          });
+        } else {
+          setForm(EMPTY_FORM);
+        }
+      },
+      [sessionByOrder],
+    );
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     setSaving(true);
@@ -121,83 +189,135 @@ export default function AdminSessionsPage() {
         youtubeUrl: form.youtubeUrl,
         sessionOrder: selectedOrder,
         isLive: form.isLive,
-        releaseDateSpain: form.releaseDateSpain
-          ? new Date(form.releaseDateSpain).toISOString()
-          : undefined,
-        releaseDateLatam: form.releaseDateLatam
-          ? new Date(form.releaseDateLatam).toISOString()
-          : undefined,
+        releaseDateSpain:
+          form.releaseDateSpain
+            ? new Date(
+              form.releaseDateSpain,
+            ).toISOString()
+            : undefined,
+        releaseDateLatam:
+          form.releaseDateLatam
+            ? new Date(
+              form.releaseDateLatam,
+            ).toISOString()
+            : undefined,
       });
 
-      setSuccess("Sesión guardada. Ya está disponible para los participantes.");
+      setSuccess(
+        "Contenido guardado. Ya está disponible para los participantes.",
+      );
 
       await loadSessions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error inesperado.",
+      );
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete() {
-    const existing = sessionByOrder.get(selectedOrder);
+    const existing =
+      sessionByOrder.get(
+        selectedOrder,
+      );
 
-    if (!existing) return;
+    if (!existing) {
+      return;
+    }
 
-    if (!window.confirm("¿Eliminar esta sesión?")) return;
+    if (
+      !window.confirm(
+        "¿Eliminar este contenido?",
+      )
+    ) {
+      return;
+    }
 
     setSaving(true);
 
     try {
-      await deleteAdminSession(existing.id);
+      await deleteAdminSession(
+        existing.id,
+      );
 
       setForm(EMPTY_FORM);
-      setSuccess("Sesión eliminada.");
+      setSuccess(
+        "Contenido eliminado.",
+      );
 
       await loadSessions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error inesperado.",
+      );
     } finally {
       setSaving(false);
     }
   }
 
-  const existing = sessionByOrder.get(selectedOrder);
+  const existing =
+    sessionByOrder.get(
+      selectedOrder,
+    );
 
   return (
     <section>
       <header className="admin-header">
-        <h1 className="admin-header__title">Sesiones (vídeos)</h1>
+        <h1 className="admin-header__title">
+          Sesiones (vídeos)
+        </h1>
 
         <p className="admin-header__description">
-          Sube la URL de YouTube de cada sesión (en directo o ya grabada). En
-          cuanto se guarda, la sesión queda disponible de inmediato para los
-          participantes, salvo que indiques una fecha de publicación futura.
+          Configura la introducción y las
+          nueve sesiones del programa. Cada
+          contenido puede publicarse de
+          inmediato o programarse mediante
+          una fecha de publicación.
         </p>
       </header>
 
       <div className="admin-slots-grid">
         {SLOTS.map((order) => {
-          const item = sessionByOrder.get(order);
+          const item =
+            sessionByOrder.get(order);
 
           return (
             <button
               key={order}
               type="button"
-              onClick={() => selectSlot(order)}
-              className={`admin-slot ${item ? "admin-slot--filled" : ""} ${
-                selectedOrder === order ? "admin-slot--active" : ""
-              }`}
+              onClick={() =>
+                selectSlot(order)
+              }
+              className={`admin-slot ${item
+                  ? "admin-slot--filled"
+                  : ""
+                } ${selectedOrder === order
+                  ? "admin-slot--active"
+                  : ""
+                }`}
             >
-              <span className="admin-slot__number">Sesión {order}</span>
-              <span className="admin-slot__title">
-                {item ? item.title : "Sin configurar"}
+              <span className="admin-slot__number">
+                {order === 0
+                  ? "Introducción"
+                  : `Sesión ${order}`}
               </span>
-              {item?.is_live && (
-                <span className="admin-slot__live-badge">EN DIRECTO</span>
-              )}
+
+              <span className="admin-slot__title">
+                {item
+                  ? item.title
+                  : "Sin configurar"}
+              </span>
+
               <span className="admin-slot__status">
-                {item ? "Publicada" : "Vacía"}
+                {item
+                  ? "Publicado"
+                  : "Vacío"}
               </span>
             </button>
           );
@@ -207,22 +327,39 @@ export default function AdminSessionsPage() {
       {loading ? (
         <p>Cargando sesiones...</p>
       ) : (
-        <form className="admin-form" onSubmit={handleSubmit}>
+        <form
+          className="admin-form"
+          onSubmit={handleSubmit}
+        >
           <div className="admin-form__row">
-            <label htmlFor="title">Título de la sesión {selectedOrder}</label>
+            <label htmlFor="title">
+              Título (
+              {selectedOrder === 0
+                ? "Introducción"
+                : `Sesión ${selectedOrder}`}
+              )
+            </label>
+
             <input
               id="title"
               type="text"
               required
               value={form.title}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, title: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  title:
+                    event.target.value,
+                }))
               }
             />
           </div>
 
           <div className="admin-form__row">
-            <label htmlFor="description">Descripción</label>
+            <label htmlFor="description">
+              Descripción
+            </label>
+
             <textarea
               id="description"
               required
@@ -230,14 +367,18 @@ export default function AdminSessionsPage() {
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
-                  description: event.target.value,
+                  description:
+                    event.target.value,
                 }))
               }
             />
           </div>
 
           <div className="admin-form__row">
-            <label htmlFor="youtubeUrl">URL de YouTube (directo o vídeo)</label>
+            <label htmlFor="youtubeUrl">
+              URL de YouTube
+            </label>
+
             <input
               id="youtubeUrl"
               type="url"
@@ -247,114 +388,150 @@ export default function AdminSessionsPage() {
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
-                  youtubeUrl: event.target.value,
+                  youtubeUrl:
+                    event.target.value,
                 }))
               }
             />
+
             <span className="admin-form__hint">
-              Admite enlaces normales, de retransmisión en directo, youtu.be y
-              shorts.
+              Admite enlaces normales,
+              retransmisiones en directo,
+              youtu.be y shorts.
             </span>
           </div>
 
           <div className="admin-form__row">
-            <label>Estado de la sesión</label>
+            <label>
+              Estado de la sesión
+            </label>
 
             <div className="admin-live-toggle">
               <button
                 type="button"
-                className={`admin-live-toggle__option ${
-                  !form.isLive ? "admin-live-toggle__option--active" : ""
-                }`}
-                onClick={() => setForm((prev) => ({ ...prev, isLive: false }))}
+                className={`admin-live-toggle__option ${!form.isLive
+                    ? "admin-live-toggle__option--active"
+                    : ""
+                  }`}
+                onClick={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    isLive: false,
+                  }))
+                }
               >
                 Grabada / en diferido
               </button>
 
               <button
                 type="button"
-                className={`admin-live-toggle__option admin-live-toggle__option--live ${
-                  form.isLive ? "admin-live-toggle__option--active" : ""
-                }`}
-                onClick={() => setForm((prev) => ({ ...prev, isLive: true }))}
+                className={`admin-live-toggle__option admin-live-toggle__option--live ${form.isLive
+                    ? "admin-live-toggle__option--active"
+                    : ""
+                  }`}
+                onClick={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    isLive: true,
+                  }))
+                }
               >
-                🔴 En directo ahora
+                En directo
               </button>
             </div>
-
-            <span className="admin-form__hint">
-              Puedes cambiar este estado en cualquier momento, incluso después
-              de publicar la sesión. Cuando el directo termine, vuelve aquí y
-              marca &quot;Grabada / en diferido&quot;.
-            </span>
           </div>
 
-          <div className="admin-form__row admin-form__row--split">
-            <div>
-              <label htmlFor="releaseDateSpain">
-                Publicación España (opcional)
-              </label>
-              <input
-                id="releaseDateSpain"
-                type="datetime-local"
-                value={form.releaseDateSpain}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateSpain: event.target.value,
-                  }))
-                }
-              />
-            </div>
+          <div className="admin-form__row">
+            <label htmlFor="releaseDateSpain">
+              Publicación España
+            </label>
 
-            <div>
-              <label htmlFor="releaseDateLatam">
-                Publicación Latinoamérica (opcional)
-              </label>
-              <input
-                id="releaseDateLatam"
-                type="datetime-local"
-                value={form.releaseDateLatam}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateLatam: event.target.value,
-                  }))
-                }
-              />
-            </div>
+            <input
+              id="releaseDateSpain"
+              type="datetime-local"
+              value={
+                form.releaseDateSpain
+              }
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  releaseDateSpain:
+                    event.target.value,
+                }))
+              }
+            />
           </div>
 
-          <span className="admin-form__hint">
-            Si dejas las fechas vacías, la sesión se publica inmediatamente.
-          </span>
+          <div className="admin-form__row">
+            <label htmlFor="releaseDateLatam">
+              Publicación Latinoamérica
+            </label>
 
-          {error && <p className="admin-form__error">{error}</p>}
-          {success && <p className="admin-form__success">{success}</p>}
+            <input
+              id="releaseDateLatam"
+              type="datetime-local"
+              value={
+                form.releaseDateLatam
+              }
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  releaseDateLatam:
+                    event.target.value,
+                }))
+              }
+            />
+          </div>
 
           <div className="admin-form__actions">
-            <button type="submit" className="btn-primary" disabled={saving}>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={saving}
+            >
               {saving ? (
                 <>
-                  <LoaderCircle size={16} className="animate-spin" />{" "}
+                  <LoaderCircle
+                    size={16}
+                    className="spin"
+                  />
                   Guardando...
                 </>
               ) : (
-                "Guardar sesión"
+                "Guardar contenido"
               )}
             </button>
 
             {existing && (
               <button
                 type="button"
-                className="admin-delete-button"
+                className="btn-danger"
                 onClick={handleDelete}
                 disabled={saving}
               >
-                <Trash2 size={15} /> Eliminar
+                <Trash2 size={16} />
+                Eliminar
               </button>
             )}
           </div>
+
+          {error && (
+            <p
+              className="admin-form__error"
+              role="alert"
+            >
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <p
+              className="admin-form__success"
+              role="status"
+            >
+              {success}
+            </p>
+          )}
         </form>
       )}
     </section>

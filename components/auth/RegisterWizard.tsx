@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { supabase } from "@/lib/supabase/client";
-
 import RegisterStepAccount from "./RegisterStepAccount";
 import RegisterStepParticipant from "./RegisterStepParticipant";
 import RegisterStepChild from "./RegisterStepChild";
@@ -27,14 +25,27 @@ const STEP_LABELS = [
   "Resumen",
 ];
 
-function getAuthErrorMessage(message: string) {
+interface RegisterResponse {
+  ok?: boolean;
+  error?: string;
+}
+
+function getRegistrationErrorMessage(
+  message: string,
+) {
   const error = message.toLowerCase();
 
-  if (error.includes("rate limit")) {
+  if (
+    error.includes("rate") ||
+    error.includes("demasiadas")
+  ) {
     return "Se han realizado demasiadas solicitudes recientemente. Inténtalo de nuevo dentro de unos minutos.";
   }
 
-  if (error.includes("already registered")) {
+  if (
+    error.includes("already registered") ||
+    error.includes("ya existe")
+  ) {
     return "Ya existe una cuenta registrada con este correo electrónico.";
   }
 
@@ -46,101 +57,109 @@ export default function RegisterWizard() {
 
   const [step, setStep] = useState(1);
 
-  const [formData, setFormData] = useState<RegisterData>({
-    /* CUENTA */
+  const [formData, setFormData] =
+    useState<RegisterData>({
+      /* CUENTA */
 
-    email: "",
-    region: "",
-    password: "",
-    confirmPassword: "",
-    acceptedPolicy: false,
-    acceptedInformedConsent: false,
+      email: "",
+      region: "",
+      password: "",
+      confirmPassword: "",
+      acceptedPolicy: false,
+      acceptedInformedConsent: false,
 
-    /* PARTICIPANTE */
+      /* PARTICIPANTE */
 
-    gender: "",
-    age: "",
-    educationLevel: "",
-    employmentStatus: "",
-    maritalStatus: "",
+      gender: "",
+      age: "",
+      educationLevel: "",
+      employmentStatus: "",
+      maritalStatus: "",
 
-    /* FAMILIA */
+      /* FAMILIA */
 
-    socioeconomicLevel: "",
-    schoolType: "",
-    numberOfChildren: "",
-    familyStructure: "",
-    schoolCenter: "",
+      socioeconomicLevel: "",
+      schoolType: "",
+      numberOfChildren: "",
+      familyStructure: "",
+      schoolCenter: "",
 
-    /* HIJOS */
+      /* HIJOS */
 
-    children: [],
-  });
+      children: [],
+    });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [submitError, setSubmitError] = useState("");
+  const [submitError, setSubmitError] =
+    useState("");
 
   function nextStep() {
-    setStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
+    setStep((prev) =>
+      Math.min(
+        prev + 1,
+        TOTAL_STEPS,
+      ),
+    );
   }
 
   function previousStep() {
-    setStep((prev) => Math.max(prev - 1, 1));
+    setStep((prev) =>
+      Math.max(prev - 1, 1),
+    );
   }
 
   async function handleSubmit() {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     setSubmitError("");
 
     try {
       setLoading(true);
 
-      const { error } = await supabase.auth.signUp({
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
+      const response = await fetch(
+        "/api/auth/register",
+        {
+          method: "POST",
 
-        options: {
-          data: {
-            region: formData.region,
-
-            gender: formData.gender,
-            age: formData.age,
-
-            education_level: formData.educationLevel,
-            employment_status: formData.employmentStatus,
-
-            marital_status: formData.maritalStatus,
-
-            socioeconomic_level: formData.socioeconomicLevel,
-
-            school_type: formData.schoolType,
-
-            number_of_children: formData.numberOfChildren,
-
-            family_structure: formData.familyStructure,
-
-            school_center: formData.schoolCenter,
-
-            children: formData.children,
-
-            accepted_policy: true,
+          headers: {
+            "Content-Type":
+              "application/json",
           },
-        },
-      });
 
-      if (error) {
-        setSubmitError(getAuthErrorMessage(error.message));
+          body: JSON.stringify(
+            formData,
+          ),
+        },
+      );
+
+      const result =
+        (await response
+          .json()
+          .catch(() => null)) as
+        | RegisterResponse
+        | null;
+
+      if (!response.ok || !result?.ok) {
+        setSubmitError(
+          getRegistrationErrorMessage(
+            result?.error ??
+            "No se ha podido crear la cuenta.",
+          ),
+        );
+
         return;
       }
 
-      router.push("/login?registered=true");
-    } catch (error) {
+      router.push(
+        "/login?registered=true",
+      );
+    } catch {
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "Ha ocurrido un error inesperado.",
+        "No se ha podido completar el registro. Inténtalo de nuevo.",
       );
     } finally {
       setLoading(false);
@@ -150,24 +169,28 @@ export default function RegisterWizard() {
   return (
     <div className="register-card">
       <div className="register-stepper">
-        {STEP_LABELS.map((label, index) => {
-          const currentStep = index + 1;
+        {STEP_LABELS.map(
+          (label, index) => {
+            const currentStep =
+              index + 1;
 
-          return (
-            <div
-              key={label}
-              className={`step-item ${
-                step > currentStep
-                  ? "completed"
-                  : step === currentStep
-                    ? "active"
-                    : ""
-              }`}
-            >
-              {label}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={label}
+                className={`step-item ${step >
+                    currentStep
+                    ? "completed"
+                    : step ===
+                      currentStep
+                      ? "active"
+                      : ""
+                  }`}
+              >
+                {label}
+              </div>
+            );
+          },
+        )}
       </div>
 
       <div className="register-step-content">
@@ -184,7 +207,9 @@ export default function RegisterWizard() {
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            previousStep={previousStep}
+            previousStep={
+              previousStep
+            }
           />
         )}
 
@@ -193,7 +218,9 @@ export default function RegisterWizard() {
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            previousStep={previousStep}
+            previousStep={
+              previousStep
+            }
           />
         )}
 
@@ -202,7 +229,9 @@ export default function RegisterWizard() {
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            previousStep={previousStep}
+            previousStep={
+              previousStep
+            }
           />
         )}
 
@@ -211,17 +240,25 @@ export default function RegisterWizard() {
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            previousStep={previousStep}
+            previousStep={
+              previousStep
+            }
           />
         )}
 
         {step === TOTAL_STEPS && (
           <RegisterStepSummary
             formData={formData}
-            previousStep={previousStep}
-            handleSubmit={handleSubmit}
+            previousStep={
+              previousStep
+            }
+            handleSubmit={
+              handleSubmit
+            }
             loading={loading}
-            submitError={submitError}
+            submitError={
+              submitError
+            }
           />
         )}
       </div>

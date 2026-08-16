@@ -1,18 +1,21 @@
 import type { ScaleType } from "./types";
 
 /**
- * Escalas oficiales utilizadas
- * por los cuestionarios del estudio.
+ * Escalas utilizadas por los
+ * cuestionarios del estudio.
  *
  * La posición de cada elemento
  * determina su valor numérico.
+ *
+ * IMPORTANTE:
+ * questionnaire_responses.answer
+ * admite actualmente valores 1-6.
  */
 export const SCALES: Record<ScaleType, readonly string[]> = {
-  agreement_7: [
+  agreement_6: [
     "Muy de acuerdo",
     "De acuerdo",
     "Algo de acuerdo",
-    "Ni de acuerdo ni en desacuerdo",
     "Algo en desacuerdo",
     "En desacuerdo",
     "Muy en desacuerdo",
@@ -43,12 +46,7 @@ export const SCALES: Record<ScaleType, readonly string[]> = {
     "Sí, totalmente de acuerdo",
   ],
 
-  ecpp_4: [
-    "Nunca",
-    "A veces",
-    "Casi siempre",
-    "Siempre",
-  ],
+  ecpp_4: ["Nunca", "A veces", "Casi siempre", "Siempre"],
 
   pss_5: [
     "Totalmente en desacuerdo",

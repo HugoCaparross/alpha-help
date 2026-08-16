@@ -1,14 +1,10 @@
 /* ==========================================
    ABOUT PAGE — ¿QUIÉNES SOMOS?
-   Hereda el Design System de globals.css
-========================================== */
-
-/* ==========================================
-   PAGE
 ========================================== */
 
 .about-page {
   width: 100%;
+  padding-bottom: 6rem;
 }
 
 .about-container {
@@ -16,11 +12,13 @@
 }
 
 /* ==========================================
-   HEADER
+   PAGE INTRODUCTION
 ========================================== */
 
 .about-header {
-  margin-bottom: 4rem;
+  max-width: 900px;
+  margin: 0 auto 5rem;
+  text-align: center;
 }
 
 .about-title {
@@ -30,162 +28,20 @@
 
 .about-description {
   max-width: 760px;
+  margin-inline: auto;
 }
 
 /* ==========================================
-   HERO
-========================================== */
-
-.about-hero {
-  display: grid;
-
-  gap: 2rem;
-
-  margin-bottom: 5rem;
-}
-
-.about-hero-content {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1.5rem;
-}
-
-.about-hero-icon {
-  width: 88px;
-  height: 88px;
-
-  flex-shrink: 0;
-}
-
-.about-hero-title {
-  color: var(--neutral-900);
-
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.about-hero-text {
-  color: var(--neutral-600);
-
-  font-size: 1rem;
-  line-height: 1.8;
-
-  overflow-wrap: anywhere;
-}
-
-/* ==========================================
-   LEAD RESEARCHER
-========================================== */
-
-.about-lead-card {
-  display: flex;
-  flex-direction: column;
-
-  gap: 1.5rem;
-
-  padding: 2rem;
-
-  color: #fff;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--accent),
-      var(--accent-light)
-    );
-
-  border-radius: var(--radius-lg);
-
-  box-shadow: var(--shadow-card);
-}
-
-.about-lead-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  width: 80px;
-  height: 80px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.15);
-
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-.about-lead-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.about-lead-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.about-lead-role {
-  font-size: 0.95rem;
-  line-height: 1.5;
-
-  opacity: 0.9;
-}
-
-.about-lead-link {
-  display: inline-flex;
-  align-items: center;
-
-  gap: 0.5rem;
-
-  width: fit-content;
-
-  padding: 0.75rem 1rem;
-
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-
-  background: rgba(255, 255, 255, 0.15);
-
-  color: inherit;
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.about-lead-link:hover {
-  background: rgba(255, 255, 255, 0.22);
-
-  transform: translateY(-2px);
-}
-
-.about-lead-link:focus-visible {
-  outline: none;
-
-  box-shadow: var(--focus-shadow);
-}
-
-/* ==========================================
-   TEAM
+   TEAM SECTION
 ========================================== */
 
 .about-team {
-  margin-bottom: 5rem;
+  width: 100%;
+  margin-bottom: 6rem;
 }
 
 .about-team-title {
-  margin-bottom: 3rem;
+  margin: 0 0 2.75rem;
 
   color: var(--neutral-900);
 
@@ -193,25 +49,31 @@
 
   font-size: clamp(2rem, 3vw, 2.5rem);
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .about-team-list {
   display: grid;
 
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
   gap: 1.5rem;
+
+  align-items: stretch;
 }
 
 /* ==========================================
-   MEMBER CARD
+   TEAM MEMBER CARD
 ========================================== */
 
 .about-member {
   display: flex;
   flex-direction: column;
 
-  gap: 1.25rem;
+  min-width: 0;
+  height: 100%;
 
-  padding: 1.5rem;
+  padding: 1.75rem;
 
   background: var(--surface);
 
@@ -222,7 +84,8 @@
 
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .about-member:hover {
@@ -238,10 +101,10 @@
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
 
-  width: 72px;
-  height: 72px;
+  margin-bottom: 1.5rem;
 
   overflow: hidden;
 
@@ -253,9 +116,13 @@
 
   font-size: 1.75rem;
   font-weight: 700;
+  line-height: 1;
 }
 
 .about-member-avatar-image {
+  width: 100%;
+  height: 100%;
+
   object-fit: cover;
 }
 
@@ -264,13 +131,15 @@
   flex: 1;
   flex-direction: column;
 
-  gap: 0.75rem;
+  min-width: 0;
 }
 
 .about-member-name {
+  margin: 0 0 0.65rem;
+
   color: var(--neutral-900);
 
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 700;
   line-height: 1.35;
 
@@ -278,72 +147,329 @@
 }
 
 .about-member-role {
+  margin: 0 0 1rem;
+
   color: var(--accent);
 
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 .about-member-description {
+  margin: 0;
+
   color: var(--neutral-600);
 
-  font-size: 0.95rem;
+  font-size: 0.94rem;
   line-height: 1.7;
 
   overflow-wrap: anywhere;
 }
 
-.about-member-action {
-  display: inline-flex;
+/* ==========================================
+   LEAD RESEARCHER SECTION
+========================================== */
+
+.about-hero {
+  display: grid;
+
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+
+  gap: 4rem;
+
   align-items: center;
 
-  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 2.5rem;
 
-  margin-top: auto;
+  background: var(--surface);
 
-  width: fit-content;
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
 
-  color: var(--accent);
-
-  font-size: 0.95rem;
-  font-weight: 600;
-
-  transition:
-    gap 0.2s ease,
-    color 0.2s ease;
-}
-
-.about-member-action:hover {
-  gap: 0.8rem;
-}
-
-.about-member-action:focus-visible {
-  outline: none;
-
-  box-shadow: var(--focus-shadow);
+  box-shadow: var(--shadow-card);
 }
 
 /* ==========================================
-   RESPONSIVE
+   LEAD RESEARCHER CARD
 ========================================== */
 
-@media (min-width: 768px) {
+.about-lead-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  min-height: 320px;
+
+  padding: 2.25rem;
+
+  overflow: hidden;
+
+  color: #fff;
+
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+
+  border: 0;
+  border-radius: var(--radius-lg);
+
+  box-shadow: none;
+}
+
+/*
+ * Decorative background element.
+ * Kept deliberately subtle so the researcher
+ * remains the visual focus.
+ */
+.about-lead-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: -100px;
+  right: -80px;
+
+  width: 240px;
+  height: 240px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
+.about-lead-card::after {
+  content: "";
+
+  position: absolute;
+
+  top: -45px;
+  right: -25px;
+
+  width: 150px;
+  height: 150px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.about-lead-avatar {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 96px;
+  height: 96px;
+
+  margin-bottom: auto;
+
+  overflow: hidden;
+
+  border: 4px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.14);
+
+  color: #fff;
+
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.about-lead-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  border-radius: 50%;
+}
+
+.about-lead-name {
+  position: relative;
+  z-index: 1;
+
+  margin: 0 0 0.45rem;
+
+  color: #fff;
+
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.about-lead-role {
+  position: relative;
+  z-index: 1;
+
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.92);
+
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   LEAD RESEARCHER CONTENT
+========================================== */
+
+.about-hero-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1.25rem;
+
+  min-width: 0;
+}
+
+.about-hero-title {
+  margin: 0;
+
+  max-width: 650px;
+
+  color: var(--neutral-900);
+
+  font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.about-hero-text {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: var(--neutral-600);
+
+  font-size: 1rem;
+  line-height: 1.8;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 1100px) {
   .about-team-list {
-    grid-template-columns:
-      repeat(
-        auto-fit,
-        minmax(320px, 1fr)
-      );
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-hero {
+    grid-template-columns: minmax(0, 1fr);
+
+    gap: 2rem;
+  }
+
+  .about-lead-card {
+    min-height: 280px;
   }
 }
 
-@media (min-width: 1024px) {
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 767px) {
+  .about-page {
+    padding-bottom: 4rem;
+  }
+
+  .about-header {
+    margin-bottom: 3.5rem;
+  }
+
+  .about-team {
+    margin-bottom: 4rem;
+  }
+
+  .about-team-title {
+    margin-bottom: 2rem;
+
+    font-size: 2rem;
+  }
+
+  .about-team-list {
+    grid-template-columns: 1fr;
+
+    gap: 1rem;
+  }
+
+  .about-member {
+    padding: 1.5rem;
+  }
+
+  .about-member-avatar {
+    width: 80px;
+    height: 80px;
+
+    margin-bottom: 1.25rem;
+  }
+
+  .about-member-name {
+    font-size: 1.05rem;
+  }
+
+  .about-member-description {
+    font-size: 0.93rem;
+  }
+
   .about-hero {
-    display: grid;
+    gap: 1.5rem;
 
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: center;
+    margin-top: 0;
+    padding: 1rem;
 
-    gap: 4rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .about-lead-card {
+    min-height: 260px;
+
+    padding: 1.75rem;
+  }
+
+  .about-lead-avatar {
+    width: 84px;
+    height: 84px;
+  }
+
+  .about-lead-name {
+    font-size: 1.2rem;
+  }
+
+  .about-hero-content {
+    padding: 1rem;
+  }
+
+  .about-hero-title {
+    font-size: 1.75rem;
+  }
+
+  .about-hero-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .about-member {
+    transition: none;
+  }
+
+  .about-member:hover {
+    transform: none;
   }
 }

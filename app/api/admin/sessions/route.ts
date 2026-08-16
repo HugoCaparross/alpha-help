@@ -20,13 +20,6 @@ const SELECT_FIELDS = `
   updated_at
 `;
 
-/**
- * GET /api/admin/sessions
- *
- * Devuelve todas las sesiones del
- * estudio, sin filtrar por región
- * ni estado de disponibilidad.
- */
 export async function GET() {
   const auth = await requireAdmin();
 
@@ -43,24 +36,18 @@ export async function GET() {
 
   if (error) {
     return NextResponse.json(
-      { error: "No se han podido recuperar las sesiones." },
+      {
+        error: "No se han podido recuperar las sesiones.",
+      },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ sessions: data ?? [] });
+  return NextResponse.json({
+    sessions: data ?? [],
+  });
 }
 
-/**
- * POST /api/admin/sessions
- *
- * Crea o actualiza (por session_order)
- * una sesión del estudio. Si el vídeo
- * no incluye fechas de publicación,
- * se libera de inmediato para que el
- * participante pueda acceder en cuanto
- * el administrador suba la URL.
- */
 export async function POST(request: Request) {
   const auth = await requireAdmin();
 
@@ -81,9 +68,32 @@ export async function POST(request: Request) {
     isLive,
   } = body ?? {};
 
-  if (!title || !description || !youtubeUrl || !sessionOrder) {
+  if (
+    !title ||
+    !description ||
+    !youtubeUrl ||
+    sessionOrder === undefined ||
+    sessionOrder === null
+  ) {
     return NextResponse.json(
-      { error: "Faltan campos obligatorios." },
+      {
+        error: "Faltan campos obligatorios.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const numericSessionOrder = Number(sessionOrder);
+
+  if (
+    !Number.isInteger(numericSessionOrder) ||
+    numericSessionOrder < 0 ||
+    numericSessionOrder > 9
+  ) {
+    return NextResponse.json(
+      {
+        error: "El orden de la sesión debe estar entre 0 y 9.",
+      },
       { status: 400 },
     );
   }
@@ -93,12 +103,13 @@ export async function POST(request: Request) {
   const youtubeId = extractYoutubeId(youtubeUrl);
 
   const resolvedThumbnail =
-    thumbnailUrl ||
-    (youtubeId ? getYoutubeThumbnail(youtubeId) : null);
+    thumbnailUrl || (youtubeId ? getYoutubeThumbnail(youtubeId) : null);
 
   if (!resolvedThumbnail) {
     return NextResponse.json(
-      { error: "La URL de YouTube no es válida." },
+      {
+        error: "La URL de YouTube no es válida.",
+      },
       { status: 400 },
     );
   }
@@ -108,7 +119,7 @@ export async function POST(request: Request) {
   const { data: existing } = await admin
     .from(TABLE)
     .select("id")
-    .eq("session_order", sessionOrder)
+    .eq("session_order", numericSessionOrder)
     .maybeSingle();
 
   const payload = {
@@ -116,7 +127,7 @@ export async function POST(request: Request) {
     description,
     youtube_url: youtubeUrl,
     thumbnail_url: resolvedThumbnail,
-    session_order: sessionOrder,
+    session_order: numericSessionOrder,
     release_date_spain: releaseDateSpain || now,
     release_date_latam: releaseDateLatam || now,
     is_live: Boolean(isLive),
@@ -131,10 +142,14 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json(
-      { error: "No se ha podido guardar la sesión." },
+      {
+        error: "No se ha podido guardar la sesión.",
+      },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+  });
 }

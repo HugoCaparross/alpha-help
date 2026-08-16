@@ -37,8 +37,7 @@ const PROFILE_FIELDS = `
   updated_at
 `;
 
-const ERROR_GET_PROFILE =
-  "No se ha podido recuperar el perfil del usuario.";
+const ERROR_GET_PROFILE = "No se ha podido recuperar el perfil del usuario.";
 
 const ERROR_INVALID_REGION =
   "La región almacenada en la base de datos no es válida.";
@@ -55,9 +54,7 @@ interface ProfileRow {
 
   role: "admin" | "user";
 
-  region:
-    | "España"
-    | "Latinoamérica";
+  region: "España" | "Latinoamérica";
 
   accepted_policy: boolean;
 
@@ -95,9 +92,7 @@ interface ProfileRow {
  * en la base de datos al modelo
  * utilizado por la aplicación.
  */
-function mapRegion(
-  region: ProfileRow["region"],
-): Region {
+function mapRegion(region: ProfileRow["region"]): Region {
   switch (region) {
     case "España":
       return "spain";
@@ -106,9 +101,7 @@ function mapRegion(
       return "latam";
 
     default:
-      throw new Error(
-        ERROR_INVALID_REGION,
-      );
+      throw new Error(ERROR_INVALID_REGION);
   }
 }
 
@@ -116,69 +109,50 @@ function mapRegion(
  * Convierte una fila de Supabase
  * al modelo de dominio.
  */
-function mapProfile(
-  row: ProfileRow,
-): UserProfile {
+function mapProfile(row: ProfileRow): UserProfile {
   return {
     id: row.id,
 
     email: row.email,
 
-    participantCode:
-      row.participant_code,
+    participantCode: row.participant_code,
 
     role: row.role,
 
-    acceptedPolicy:
-      row.accepted_policy,
+    acceptedPolicy: row.accepted_policy,
 
-    acceptedAt:
-      row.accepted_at,
+    acceptedAt: row.accepted_at,
 
-    region: mapRegion(
-      row.region,
-    ),
+    region: mapRegion(row.region),
 
     gender: row.gender,
 
     age: row.age,
 
-    maritalStatus:
-      row.marital_status,
+    maritalStatus: row.marital_status,
 
-    educationLevel:
-      row.education_level,
+    educationLevel: row.education_level,
 
-    employmentStatus:
-      row.employment_status,
+    employmentStatus: row.employment_status,
 
-    socioeconomicLevel:
-      row.socioeconomic_level,
+    socioeconomicLevel: row.socioeconomic_level,
 
-    schoolType:
-      row.school_type,
+    schoolType: row.school_type,
 
-    schoolCenter:
-      row.school_center,
+    schoolCenter: row.school_center,
 
-    numberOfChildren:
-      row.number_of_children,
+    numberOfChildren: row.number_of_children,
 
-    familyStructure:
-      row.family_structure,
+    familyStructure: row.family_structure,
 
-    children:
-      Object.freeze(
-        row.children ?? [],
-      ),
+    children: Object.freeze(row.children ?? []),
 
-    createdAt:
-      row.created_at,
+    createdAt: row.created_at,
 
-    updatedAt:
-      row.updated_at,
+    updatedAt: row.updated_at,
   };
 }
+
 /**
  * Devuelve el perfil
  * del usuario autenticado.
@@ -192,10 +166,7 @@ export async function getProfile(): Promise<UserProfile | null> {
     return null;
   }
 
-  const {
-    data,
-    error,
-  } = await supabase
+  const { data, error } = await supabase
     .from(PROFILES_TABLE)
     .select(PROFILE_FIELDS)
     .eq("id", user.id)
@@ -206,12 +177,8 @@ export async function getProfile(): Promise<UserProfile | null> {
       return null;
     }
 
-    throw new Error(
-      ERROR_GET_PROFILE,
-    );
+    throw new Error(ERROR_GET_PROFILE);
   }
 
-  return mapProfile(
-    data as ProfileRow,
-  );
+  return mapProfile(data as ProfileRow);
 }

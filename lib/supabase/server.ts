@@ -27,26 +27,22 @@ const supabaseAnonKey = getRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 export async function createServerClient() {
   const cookieStore = await cookies();
 
-  return createSupabaseServerClient(
-    supabaseUrl,
-    supabaseAnonKey,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
-          } catch {
-            // Server Components no pueden modificar cookies.
-            // El middleware se encargará de refrescar la sesión.
-          }
-        },
+  return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
       },
-    }
-  );
+
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Server Components no pueden modificar cookies.
+          // El middleware se encargará de refrescar la sesión.
+        }
+      },
+    },
+  });
 }

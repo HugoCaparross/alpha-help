@@ -4,6 +4,11 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 import { buildCsv, csvResponse } from "@/lib/utils/csv";
 
+import {
+  getClientIp,
+  isAllowedByRateLimit,
+} from "@/lib/utils/rateLimit";
+
 interface SubmissionRow {
   user_id: string;
 
@@ -38,8 +43,23 @@ interface ProfileRow {
  * con una columna por cada pregunta
  * respondida (prefijada con pre_/post_).
  */
-export async function GET() {
+export async function GET(request: Request) {
   const auth = await requireAdmin();
+
+    const ip = getClientIp(request);
+
+  if (
+    !isAllowedByRateLimit(
+      `admin-export-questionnaires:${auth.user.id}:${ip}`,
+      5,
+      10 * 60_000,
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Demasiadas exportaciones. Inténtalo más tarde." },
+      { status: 429 },
+    );
+  }
 
   if (!auth.ok) {
     return NextResponse.json({ error: auth.message }, { status: auth.status });

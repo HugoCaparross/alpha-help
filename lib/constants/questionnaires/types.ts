@@ -2,11 +2,11 @@
  * Tipos de escalas disponibles
  * para las preguntas del estudio.
  *
- * Deben corresponder siempre con las
- * escalas definidas en scales.ts.
+ * Deben corresponder siempre con
+ * las escalas definidas en scales.ts.
  */
 export type ScaleType =
-  | "agreement_7"
+  | "agreement_6"
   | "help_confidence_5"
   | "help_probability_5"
   | "psoc_6"
@@ -21,18 +21,11 @@ export type ScaleType =
 export interface Question {
   /**
    * Identificador único.
-   *
-   * Ejemplos:
-   * capsm_1
-   * psoc_8
-   * pss_5
    */
   id: string;
 
   /**
    * Texto literal de la pregunta.
-   * Debe coincidir exactamente con
-   * el instrumento oficial.
    */
   question: string;
 
@@ -49,9 +42,6 @@ export interface Question {
   /**
    * Indica si la puntuación debe
    * invertirse durante el cálculo.
-   *
-   * Solo debe utilizarse cuando el
-   * instrumento oficial así lo indique.
    */
   reverse?: boolean;
 }

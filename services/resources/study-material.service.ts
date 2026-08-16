@@ -1,10 +1,9 @@
 import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
 
-import {
-  isSpain,
-  type Region,
-} from "@/lib/utils/regions";
+import { isSpain, type Region } from "@/lib/utils/regions";
+
+import { extractStoragePath } from "@/lib/utils/storage";
 
 import type {
   MaterialType,
@@ -12,14 +11,20 @@ import type {
   StudyMaterialWithStatus,
 } from "@/types/study-material";
 
-const STUDY_MATERIALS_TABLE =
-  "study_materials";
+const STUDY_MATERIALS_TABLE = "study_materials";
+
+const PDF_BUCKET = "study-materials";
+
+const THUMBNAIL_BUCKET = "study-material-thumbnails";
 
 /**
  * Número total de materiales
- * (uno por sesión del estudio).
+ * del programa:
+ *
+ * 0 = Introducción
+ * 1-10 = sesiones
  */
-export const TOTAL_STUDY_MATERIALS = 10;
+export const TOTAL_STUDY_MATERIALS = 11;
 
 const MATERIAL_FIELDS = `
   id,
@@ -33,25 +38,20 @@ const MATERIAL_FIELDS = `
   release_date_latam
 `;
 
-const ERROR_GET_MATERIALS =
-  "No se han podido recuperar los materiales.";
+const ERROR_GET_MATERIALS = "No se han podido recuperar los materiales.";
 
 const ERROR_PROFILE_NOT_FOUND =
   "No se ha podido recuperar el perfil del participante.";
 
-/**
- * Materiales agrupados
- * por tipo.
- */
+const ERROR_SIGNED_URL =
+  "No se ha podido generar el acceso seguro al material.";
+
 export interface GroupedStudyMaterials {
   readonly support: StudyMaterialWithStatus[];
 
   readonly extended: StudyMaterialWithStatus[];
 }
 
-/**
- * Modelo recibido desde Supabase.
- */
 interface StudyMaterialRow {
   id: string;
 
@@ -72,13 +72,7 @@ interface StudyMaterialRow {
   release_date_latam: string;
 }
 
-/**
- * Convierte una fila de Supabase
- * al modelo de dominio.
- */
-function mapMaterial(
-  row: StudyMaterialRow,
-): StudyMaterial {
+function mapMaterial(row: StudyMaterialRow): StudyMaterial {
   return {
     id: row.id,
 
@@ -88,109 +82,54 @@ function mapMaterial(
 
     pdfUrl: row.pdf_url,
 
-    thumbnailUrl:
-      row.thumbnail_url,
+    thumbnailUrl: row.thumbnail_url,
 
-    materialOrder:
-      row.material_order,
+    materialOrder: row.material_order,
 
-    materialType:
-      row.material_type,
+    materialType: row.material_type,
 
-    releaseDateSpain:
-      row.release_date_spain,
+    releaseDateSpain: row.release_date_spain,
 
-    releaseDateLatam:
-      row.release_date_latam,
+    releaseDateLatam: row.release_date_latam,
   };
 }
 
-/**
- * Obtiene automáticamente
- * la región del participante.
- */
 async function getCurrentRegion(): Promise<Region> {
-  const profile =
-    await getProfile();
+  const profile = await getProfile();
 
   if (!profile) {
-    throw new Error(
-      ERROR_PROFILE_NOT_FOUND,
-    );
+    throw new Error(ERROR_PROFILE_NOT_FOUND);
   }
 
   return profile.region;
 }
 
-/**
- * Devuelve la fecha de publicación
- * correspondiente a la región.
- */
-function getReleaseDate(
-  material: StudyMaterial,
-  region: Region,
-): string {
+function getReleaseDate(material: StudyMaterial, region: Region): string {
   return isSpain(region)
     ? material.releaseDateSpain
     : material.releaseDateLatam;
 }
 
-/**
- * Comprueba si una fecha
- * ya ha sido alcanzada.
- */
-function isReleased(
-  releaseDate: string,
-): boolean {
-  return (
-    Date.parse(releaseDate) <=
-    Date.now()
-  );
+function isReleased(releaseDate: string): boolean {
+  const timestamp = Date.parse(releaseDate);
+
+  return Number.isFinite(timestamp) && timestamp <= Date.now();
 }
 
-/**
- * Indica si un material
- * está disponible para
- * una determinada región.
- *
- * Función reutilizable por
- * Dashboard, Recursos,
- * Administración y futuros
- * componentes.
- */
 export function isMaterialAvailable(
   material: StudyMaterial,
   region: Region,
 ): boolean {
-  return isReleased(
-    getReleaseDate(
-      material,
-      region,
-    ),
-  );
+  return isReleased(getReleaseDate(material, region));
 }
 
-/**
- * Calcula el estado
- * de un material.
- */
 function getStatus(
   material: StudyMaterial,
   region: Region,
 ): StudyMaterialWithStatus["status"] {
-  return isMaterialAvailable(
-    material,
-    region,
-  )
-    ? "available"
-    : "locked";
+  return isMaterialAvailable(material, region) ? "available" : "locked";
 }
 
-/**
- * Convierte un material
- * al modelo utilizado
- * por la interfaz.
- */
 function mapMaterialWithStatus(
   material: StudyMaterial,
   region: Region,
@@ -198,175 +137,177 @@ function mapMaterialWithStatus(
   return {
     ...material,
 
-    releaseDate:
-      getReleaseDate(
-        material,
-        region,
-      ),
+    releaseDate: getReleaseDate(material, region),
 
-    status:
-      getStatus(
-        material,
-        region,
-      ),
+    status: getStatus(material, region),
   };
 }
 
 /**
- * Obtiene todos los materiales
- * del estudio.
+ * Convierte una ruta privada de
+ * Storage en una URL firmada.
+ *
+ * Las URLs firmadas son temporales
+ * y no exponen públicamente el
+ * contenido del bucket.
  */
-export async function getStudyMaterials(): Promise<
-  StudyMaterial[]
-> {
-  const {
-    data,
-    error,
-  } = await supabase
-    .from(STUDY_MATERIALS_TABLE)
-    .select(MATERIAL_FIELDS)
-    .order(
-      "material_order",
-      {
-        ascending: true,
-      },
-    )
-    .order(
-      "material_type",
-      {
-        ascending: true,
-      },
-    );
+async function createSignedStorageUrl(
+  value: string,
+  bucket: string,
+): Promise<string> {
+  const path = extractStoragePath(value, bucket);
 
-  if (error) {
-    throw new Error(
-      ERROR_GET_MATERIALS,
-    );
+  if (!path) {
+    throw new Error(ERROR_SIGNED_URL);
   }
 
-  return (data ?? []).map(
-    (row) =>
-      mapMaterial(
-        row as StudyMaterialRow,
-      ),
-  );
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(path, 60 * 60);
+
+  if (error || !data?.signedUrl) {
+    throw new Error(ERROR_SIGNED_URL);
+  }
+
+  return data.signedUrl;
 }
 
 /**
- * Obtiene un material concreto.
+ * Resuelve las URLs privadas de
+ * un material que ya está disponible.
+ *
+ * Las miniaturas locales de Next.js
+ * se mantienen tal cual.
  */
+async function resolveMaterialUrls(
+  material: StudyMaterial,
+): Promise<StudyMaterial> {
+  const pdfUrl = await createSignedStorageUrl(material.pdfUrl, PDF_BUCKET);
+
+  let thumbnailUrl = material.thumbnailUrl;
+
+  const thumbnailPath = extractStoragePath(
+    material.thumbnailUrl,
+    THUMBNAIL_BUCKET,
+  );
+
+  if (thumbnailPath) {
+    thumbnailUrl = await createSignedStorageUrl(
+      material.thumbnailUrl,
+      THUMBNAIL_BUCKET,
+    );
+  }
+
+  return {
+    ...material,
+
+    pdfUrl,
+
+    thumbnailUrl,
+  };
+}
+
+export async function getStudyMaterials(): Promise<StudyMaterial[]> {
+  const { data, error } = await supabase
+    .from(STUDY_MATERIALS_TABLE)
+    .select(MATERIAL_FIELDS)
+    .order("material_order", {
+      ascending: true,
+    })
+    .order("material_type", {
+      ascending: true,
+    });
+
+  if (error) {
+    throw new Error(ERROR_GET_MATERIALS);
+  }
+
+  return (data ?? []).map((row) => mapMaterial(row as StudyMaterialRow));
+}
+
 export async function getStudyMaterialById(
   materialId: string,
 ): Promise<StudyMaterial | null> {
-  const {
-    data,
-    error,
-  } = await supabase
-    .from(STUDY_MATERIALS_TABLE)
-    .select(MATERIAL_FIELDS)
-    .eq("id", materialId)
-    .maybeSingle();
+  const [region, result] = await Promise.all([
+    getCurrentRegion(),
+
+    supabase
+      .from(STUDY_MATERIALS_TABLE)
+      .select(MATERIAL_FIELDS)
+      .eq("id", materialId)
+      .maybeSingle(),
+  ]);
+
+  const { data, error } = result;
 
   if (error) {
-    throw new Error(
-      ERROR_GET_MATERIALS,
-    );
+    throw new Error(ERROR_GET_MATERIALS);
   }
 
   if (!data) {
     return null;
   }
 
-  return mapMaterial(
-    data as StudyMaterialRow,
-  );
+  const material = mapMaterial(data as StudyMaterialRow);
+
+  if (!isMaterialAvailable(material, region)) {
+    return material;
+  }
+
+  return resolveMaterialUrls(material);
 }
 
-/**
- * Obtiene todos los materiales
- * resolviendo automáticamente
- * la región del participante
- * y su estado.
- */
 export async function getStudyMaterialsWithStatus(): Promise<
   StudyMaterialWithStatus[]
 > {
-  const [
-    region,
-    materials,
-  ] = await Promise.all([
+  const [region, materials] = await Promise.all([
     getCurrentRegion(),
     getStudyMaterials(),
   ]);
 
-  return materials.map(
-    (material) =>
-      mapMaterialWithStatus(
-        material,
-        region,
-      ),
+  const materialsWithStatus = materials.map((material) =>
+    mapMaterialWithStatus(material, region),
+  );
+
+  return Promise.all(
+    materialsWithStatus.map(async (material) => {
+      if (material.status !== "available") {
+        return material;
+      }
+
+      const resolved = await resolveMaterialUrls(material);
+
+      return {
+        ...resolved,
+        releaseDate: material.releaseDate,
+        status: material.status,
+      };
+    }),
   );
 }
 
-/**
- * Agrupa los materiales
- * por tipo.
- */
-export async function getGroupedStudyMaterials(): Promise<
-  GroupedStudyMaterials
-> {
-  const materials =
-    await getStudyMaterialsWithStatus();
+export async function getGroupedStudyMaterials(): Promise<GroupedStudyMaterials> {
+  const materials = await getStudyMaterialsWithStatus();
 
   return {
-    support: materials.filter(
-      ({ materialType }) =>
-        materialType ===
-        "support",
-    ),
+    support: materials.filter(({ materialType }) => materialType === "support"),
 
     extended: materials.filter(
-      ({ materialType }) =>
-        materialType ===
-        "extended",
+      ({ materialType }) => materialType === "extended",
     ),
   };
 }
 
-/**
- * Devuelve únicamente
- * los materiales
- * disponibles.
- */
 export async function getAvailableStudyMaterials(): Promise<
   StudyMaterialWithStatus[]
 > {
-  const materials =
-    await getStudyMaterialsWithStatus();
+  const materials = await getStudyMaterialsWithStatus();
 
-  return materials.filter(
-    ({ status }) =>
-      status ===
-      "available",
-  );
+  return materials.filter(({ status }) => status === "available");
 }
 
-/**
- * Devuelve el siguiente
- * material pendiente
- * de publicación.
- */
-export async function getNextStudyMaterial(): Promise<
-  StudyMaterialWithStatus | null>
-{
-  const materials =
-    await getStudyMaterialsWithStatus();
+export async function getNextStudyMaterial(): Promise<StudyMaterialWithStatus | null> {
+  const materials = await getStudyMaterialsWithStatus();
 
-  return (
-    materials.find(
-      ({ status }) =>
-        status ===
-        "locked",
-    ) ?? null
-  );
+  return materials.find(({ status }) => status === "locked") ?? null;
 }

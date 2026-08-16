@@ -1,4 +1,3 @@
-import { Users } from "lucide-react";
 import Image from "next/image";
 
 import Footer from "@/components/public/landing/Footer";
@@ -21,7 +20,6 @@ export default function QuienesSomosPage() {
       <main className="about-page section-small">
         <div className="container-custom about-container">
           <header className="section-header about-header">
-            <span className="section-badge">Investigación científica</span>
 
             <h1 className="section-title about-title">¿Quiénes somos?</h1>
 
@@ -80,10 +78,6 @@ export default function QuienesSomosPage() {
             </aside>
 
             <div className="about-hero-content">
-              <div className="card-icon about-hero-icon" aria-hidden="true">
-                <Users size={36} />
-              </div>
-
               <h2 id="about-hero-title" className="about-hero-title">
                 Un equipo comprometido con la investigación y el bienestar
                 emocional

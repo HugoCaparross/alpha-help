@@ -32,8 +32,6 @@ export const ADMIN_USERNAME = "admin";
  * por el usuario corresponde
  * al usuario administrador.
  */
-export function isAdminLoginInput(
-  input: string,
-): boolean {
+export function isAdminLoginInput(input: string): boolean {
   return input.trim().toLowerCase() === ADMIN_USERNAME;
 }

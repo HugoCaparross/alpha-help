@@ -1,76 +1,127 @@
 import { NextResponse } from "next/server";
 
-import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_LOGIN_EMAIL } from "@/lib/auth/adminEmail.server";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
+import { getClientIp, isAllowedByRateLimit } from "@/lib/utils/rateLimit";
+
+const BOOTSTRAP_RATE_LIMIT = 3;
+const BOOTSTRAP_RATE_WINDOW = 15 * 60 * 1000;
+
+const MAX_BODY_SIZE = 10_000;
+
+function isValidPassword(password: unknown): password is string {
+  if (typeof password !== "string") {
+    return false;
+  }
+
+  return (
+    password.length >= 12 &&
+    password.length <= 128 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password)
+  );
+}
 
 /**
  * POST /api/admin/bootstrap
  *
- * Endpoint de un solo uso para crear
- * la cuenta de administración.
+ * Endpoint temporal para crear el
+ * primer administrador.
  *
- * Protegido mediante la cabecera
- * "x-bootstrap-secret", que debe
- * coincidir con la variable de
- * entorno ADMIN_BOOTSTRAP_SECRET,
- * y además rechaza la petición si
- * ya existe algún perfil con
- * role = "admin": la cabecera secreta
- * por sí sola no basta como control
- * de "un solo uso" (si esa variable
- * se filtrara, el endpoint seguiría
- * siendo invocable indefinidamente).
- *
- * Una vez creado el administrador,
- * se recomienda además eliminar este
- * archivo o la variable de entorno.
+ * Debe eliminarse una vez inicializada
+ * la cuenta administrativa.
  */
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+
+  if (
+    !isAllowedByRateLimit(
+      `admin-bootstrap:${ip}`,
+      BOOTSTRAP_RATE_LIMIT,
+      BOOTSTRAP_RATE_WINDOW,
+    )
+  ) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Inténtalo más tarde." },
+      { status: 429 },
+    );
+  }
+
+  const existingAdminAuth = await requireAdmin();
+
+  if (existingAdminAuth.ok) {
+    return NextResponse.json(
+      {
+        error:
+          "El administrador ya está configurado. Este endpoint debe eliminarse.",
+      },
+      { status: 409 },
+    );
+  }
+
   const secret = process.env.ADMIN_BOOTSTRAP_SECRET;
 
   if (!secret) {
     return NextResponse.json(
-      { error: "ADMIN_BOOTSTRAP_SECRET no está configurada." },
-      { status: 500 },
+      { error: "Endpoint de bootstrap no disponible." },
+      { status: 503 },
     );
   }
 
-  if (request.headers.get("x-bootstrap-secret") !== secret) {
+  const providedSecret = request.headers.get("x-bootstrap-secret");
+
+  if (!providedSecret || providedSecret !== secret) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_SIZE) {
+    return NextResponse.json(
+      { error: "Solicitud demasiado grande." },
+      { status: 413 },
+    );
+  }
+
+  const body = await request.json().catch(() => null);
+
+  const password = body?.password;
+
+  if (!isValidPassword(password)) {
+    return NextResponse.json(
+      {
+        error:
+          "La contraseña debe tener entre 12 y 128 caracteres e incluir mayúsculas, minúsculas y números.",
+      },
+      { status: 400 },
+    );
   }
 
   const admin = createAdminClient();
 
   const { count: existingAdminCount, error: existingAdminError } = await admin
     .from("profiles")
-    .select("id", { count: "exact", head: true })
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
     .eq("role", "admin");
 
   if (existingAdminError) {
     return NextResponse.json(
-      { error: "No se ha podido comprobar si ya existe un administrador." },
+      { error: "No se ha podido comprobar el estado del administrador." },
       { status: 500 },
     );
   }
 
-  if (existingAdminCount && existingAdminCount > 0) {
+  if ((existingAdminCount ?? 0) > 0) {
     return NextResponse.json(
       {
-        error:
-          "Ya existe una cuenta de administración. Este endpoint es de un solo uso; elimínalo o rota ADMIN_BOOTSTRAP_SECRET.",
+        error: "La cuenta administrativa ya está configurada.",
       },
       { status: 409 },
-    );
-  }
-
-  const body = await request.json().catch(() => ({}));
-
-  const password = body?.password;
-
-  if (!password || typeof password !== "string" || password.length < 8) {
-    return NextResponse.json(
-      { error: "Debes indicar una contraseña de al menos 8 caracteres." },
-      { status: 400 },
     );
   }
 
@@ -83,7 +134,7 @@ export async function POST(request: Request) {
 
   if (createError || !created.user) {
     return NextResponse.json(
-      { error: createError?.message ?? "No se ha podido crear el administrador." },
+      { error: "No se ha podido crear el administrador." },
       { status: 500 },
     );
   }
@@ -100,10 +151,14 @@ export async function POST(request: Request) {
 
   if (profileError) {
     return NextResponse.json(
-      { error: "Usuario creado, pero no se ha podido crear el perfil de administrador." },
+      {
+        error: "No se ha podido completar la configuración administrativa.",
+      },
       { status: 500 },
     );
   }
 
-  return NextResponse.json({ ok: true, email: ADMIN_LOGIN_EMAIL });
+  return NextResponse.json({
+    ok: true,
+  });
 }

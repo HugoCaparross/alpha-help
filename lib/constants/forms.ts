@@ -1,11 +1,6 @@
-export const GENDERS = [
-  "Mujer",
-  "Hombre",
-  "Otros",
-] as const;
+export const GENDERS = ["Mujer", "Hombre", "Otros"] as const;
 
-export type Gender =
-  (typeof GENDERS)[number];
+export type Gender = (typeof GENDERS)[number];
 
 export const EDUCATION_LEVELS = [
   "Primarios",
@@ -14,8 +9,7 @@ export const EDUCATION_LEVELS = [
   "Otros",
 ] as const;
 
-export type EducationLevel =
-  (typeof EDUCATION_LEVELS)[number];
+export type EducationLevel = (typeof EDUCATION_LEVELS)[number];
 
 export const EMPLOYMENT_STATUS = [
   "Estudiante",
@@ -27,8 +21,7 @@ export const EMPLOYMENT_STATUS = [
   "Otros",
 ] as const;
 
-export type EmploymentStatus =
-  (typeof EMPLOYMENT_STATUS)[number];
+export type EmploymentStatus = (typeof EMPLOYMENT_STATUS)[number];
 
 export const MARITAL_STATUS = [
   "Soltero/a",
@@ -38,8 +31,7 @@ export const MARITAL_STATUS = [
   "Otros",
 ] as const;
 
-export type MaritalStatus =
-  (typeof MARITAL_STATUS)[number];
+export type MaritalStatus = (typeof MARITAL_STATUS)[number];
 
 export const SOCIOECONOMIC_LEVELS = [
   "Bajo",
@@ -50,17 +42,11 @@ export const SOCIOECONOMIC_LEVELS = [
   "Otros",
 ] as const;
 
-export type SocioeconomicLevel =
-  (typeof SOCIOECONOMIC_LEVELS)[number];
+export type SocioeconomicLevel = (typeof SOCIOECONOMIC_LEVELS)[number];
 
-export const SCHOOL_TYPES = [
-  "Público",
-  "Concertado",
-  "Privado",
-] as const;
+export const SCHOOL_TYPES = ["Público", "Concertado", "Privado"] as const;
 
-export type SchoolType =
-  (typeof SCHOOL_TYPES)[number];
+export type SchoolType = (typeof SCHOOL_TYPES)[number];
 
 export const FAMILY_STRUCTURES = [
   "Biparental",
@@ -70,5 +56,4 @@ export const FAMILY_STRUCTURES = [
   "Otra",
 ] as const;
 
-export type FamilyStructure =
-  (typeof FAMILY_STRUCTURES)[number];
+export type FamilyStructure = (typeof FAMILY_STRUCTURES)[number];
