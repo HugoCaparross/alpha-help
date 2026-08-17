@@ -19,7 +19,7 @@ import EstudioTopics from "./EstudioTopics";
 export default function EstudioView() {
   return (
     <div className="estudio-page">
-      <div className="page-navigation">
+      <div className="page-navigation page-navigation--refined">
         <BackToDashboard />
       </div>
 

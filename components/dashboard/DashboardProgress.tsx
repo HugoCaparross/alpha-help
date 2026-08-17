@@ -122,7 +122,7 @@ export default function DashboardProgress({
           Tu progreso
         </h2>
 
-        <div className="dashboard-progress">
+        <div className="dashboard-progress dashboard-progress--refined">
           {progressItems.map(
             (item) => (
               <ProgressItem

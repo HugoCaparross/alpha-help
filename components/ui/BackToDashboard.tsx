@@ -8,7 +8,7 @@ interface BackToDashboardProps {
 export default function BackToDashboard({
     className = "",
 }: BackToDashboardProps) {
-    const classes = ["btn-secondary", className]
+    const classes = ["btn-secondary", "back-to-dashboard", className]
         .filter(Boolean)
         .join(" ");
 

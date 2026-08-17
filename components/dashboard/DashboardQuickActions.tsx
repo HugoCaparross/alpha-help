@@ -86,7 +86,7 @@ export default function DashboardQuickActions() {
         Accesos rápidos
       </h2>
 
-      <div className="dashboard-actions-grid">
+      <div className="dashboard-actions-grid dashboard-actions-grid--refined">
         {QUICK_ACTIONS.map((action) => (
           <QuickActionCard key={action.href} {...action} />
         ))}

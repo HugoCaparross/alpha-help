@@ -56,9 +56,9 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`admin-sidebar__item ${
-                active ? "admin-sidebar__item--active" : ""
-              }`}
+              className={`admin-sidebar__item ${active ? "admin-sidebar__item--active" : ""
+                }`}
+              aria-current={active ? "page" : undefined}
             >
               <Icon size={18} />
               <span>{item.label}</span>

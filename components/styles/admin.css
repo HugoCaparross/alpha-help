@@ -681,3 +681,32 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* TANDA 5 — navegación administrativa */
+.admin-sidebar__item {
+  min-height: 2.75rem;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-sidebar__item:focus-visible,
+.admin-sidebar__logout:focus-visible {
+  outline: 2px solid var(--color-primary, #1f5f9f);
+  outline-offset: 3px;
+}
+
+.admin-sidebar__item[data-active="true"] {
+  font-weight: 600;
+}
+
+.admin-sidebar__item:not([data-active="true"]):hover {
+  transform: translateX(2px);
+}
+
+@media (max-width: 700px) {
+  .admin-sidebar__item {
+    min-height: 3rem;
+  }
+}

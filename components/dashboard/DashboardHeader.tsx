@@ -28,7 +28,7 @@ export default function DashboardHeader({
           {DASHBOARD_TITLE}
         </h1>
 
-        <div className="dashboard-header__meta">
+        <div className="dashboard-header__meta dashboard-header__meta--refined">
           <p className="dashboard-header__participant-code">
             Código del participante:{" "}
             <strong>{participantCode}</strong>

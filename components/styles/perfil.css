@@ -267,3 +267,29 @@
     padding-block: 0.625rem;
   }
 }
+
+/* TANDA 5 — estados de información del perfil */
+.perfil-field {
+  min-width: 0;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.perfil-field--empty .perfil-value {
+  color: var(--neutral-400);
+  font-style: italic;
+}
+
+.perfil-field:focus-within {
+  border-radius: var(--radius-sm, 0.5rem);
+  outline: 2px solid
+    color-mix(in srgb, var(--color-primary, #1f5f9f) 18%, transparent);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .perfil-field:focus-within {
+    outline-offset: 1px;
+  }
+}

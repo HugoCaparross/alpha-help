@@ -368,7 +368,7 @@ export default function AdminMaterialsPage() {
   }
 
   return (
-    <section>
+    <section className="admin-page admin-page--materials">
       <header className="admin-header">
         <h1 className="admin-header__title">
           Materiales (PDF)
@@ -394,9 +394,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeRegion ===
-                  tab.id
-                  ? "admin-tab--active"
-                  : ""
+                tab.id
+                ? "admin-tab--active"
+                : ""
                 }`}
               onClick={() =>
                 selectRegion(
@@ -417,9 +417,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeType ===
-                  tab.id
-                  ? "admin-tab--active"
-                  : ""
+                tab.id
+                ? "admin-tab--active"
+                : ""
                 }`}
               onClick={() =>
                 selectType(
@@ -451,8 +451,8 @@ export default function AdminMaterialsPage() {
                   )
                 }
                 className={`admin-slot ${item
-                    ? "admin-slot--filled"
-                    : ""
+                  ? "admin-slot--filled"
+                  : ""
                   } ${selectedOrder ===
                     order
                     ? "admin-slot--active"

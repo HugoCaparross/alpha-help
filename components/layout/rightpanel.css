@@ -298,3 +298,36 @@
   outline-offset: 2px;
   box-shadow: none;
 }
+
+/* ==========================================================
+   UX/UI REFINEMENT — TANDA 4
+========================================================== */
+
+.right-panel {
+  width: 18rem;
+}
+
+.right-panel-content {
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.right-panel-card {
+  padding: 1.125rem;
+  border-radius: var(--radius-md);
+}
+
+.right-panel-link,
+.right-panel-logout {
+  min-height: 2.75rem;
+}
+
+.right-panel-link:hover {
+  text-decoration: none;
+}
+
+@media (max-width: 1200px) {
+  .right-panel {
+    width: 17rem;
+  }
+}

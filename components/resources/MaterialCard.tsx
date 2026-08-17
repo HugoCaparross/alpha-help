@@ -51,6 +51,8 @@ export default function MaterialCard({ material, onOpen }: MaterialCardProps) {
   return (
     <article
       className={cardClassName}
+      data-status={material.status}
+      data-material-type={material.materialType}
       aria-labelledby={`material-title-${material.id}`}
     >
       <div className="material-card__thumb">

@@ -658,3 +658,24 @@
     border-color 180ms ease,
     background-color 180ms ease;
 }
+
+/* TANDA 5 — densidad y responsive de la rejilla */
+.sessions-grid {
+  align-items: stretch;
+}
+
+.sessions-grid .session-card {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .sessions-grid {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sessions-grid {
+    gap: 0.875rem;
+  }
+}

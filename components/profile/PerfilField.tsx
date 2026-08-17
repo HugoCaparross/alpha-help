@@ -49,8 +49,14 @@ const PerfilField = forwardRef<
     },
     ref,
   ) => {
+    const isEmpty =
+      value === null ||
+      value === undefined ||
+      value === "";
+
     const classes = [
       "perfil-field",
+      isEmpty && "perfil-field--empty",
       className,
     ]
       .filter(Boolean)
@@ -60,6 +66,7 @@ const PerfilField = forwardRef<
       <div
         ref={ref}
         className={classes}
+        data-empty={isEmpty ? "true" : "false"}
         {...props}
       >
         <span className="perfil-label">

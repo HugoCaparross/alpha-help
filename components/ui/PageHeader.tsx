@@ -26,7 +26,7 @@ const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(
     },
     ref,
   ) => {
-    const classes = ["page-header", className].filter(Boolean).join(" ");
+    const classes = ["page-header", "page-header--refined", className].filter(Boolean).join(" ");
 
     return (
       <header ref={ref} className={classes} {...props}>

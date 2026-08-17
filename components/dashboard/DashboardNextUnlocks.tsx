@@ -83,7 +83,7 @@ export default function DashboardNextUnlocks({
         Próximos desbloqueos
       </h2>
 
-      <div className="dashboard-next-grid">
+      <div className="dashboard-next-grid dashboard-next-grid--refined">
         <NextUnlockCard
           title="Próxima sesión"
           content={nextSessionContent}

@@ -441,3 +441,36 @@
   outline-offset: 2px;
   box-shadow: var(--focus-shadow);
 }
+
+/* TANDA 6 — refinamiento UX/UI */
+.page-header {
+  gap: 1rem;
+}
+
+.page-header__content {
+  min-width: 0;
+}
+
+.page-header__title,
+.page-header__description {
+  overflow-wrap: anywhere;
+}
+
+.page-header__back {
+  width: fit-content;
+  min-height: 36px;
+}
+
+.page-header__actions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    gap: 0.875rem;
+  }
+
+  .page-header__actions {
+    width: 100%;
+  }
+}

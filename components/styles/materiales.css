@@ -968,3 +968,36 @@
     min-height: 140px;
   }
 }
+
+/* TANDA 5 — estados y lectura de tarjetas de materiales */
+.material-card {
+  min-width: 0;
+}
+
+.material-card__body {
+  min-width: 0;
+}
+
+.material-card__title,
+.material-card__desc {
+  overflow-wrap: anywhere;
+}
+
+.material-card[data-status="locked"] .material-card__body {
+  background: color-mix(
+    in srgb,
+    var(--surface, #ffffff) 94%,
+    var(--neutral-200, #e5e7eb)
+  );
+}
+
+.material-card__cta:focus-visible {
+  outline: 2px solid var(--color-primary, #1f5f9f);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .material-card__desc {
+    line-height: 1.55;
+  }
+}

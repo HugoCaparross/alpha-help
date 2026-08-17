@@ -50,21 +50,25 @@ export default function SessionsGrid({
    * Título mostrado
    * en el modal.
    */
-const modalTitle = useMemo(() => {
-  if (!selectedSession) {
-    return "";
-  }
+  const modalTitle = useMemo(() => {
+    if (!selectedSession) {
+      return "";
+    }
 
-  if (selectedSession.sessionOrder === 0) {
-    return selectedSession.title;
-  }
+    if (selectedSession.sessionOrder === 0) {
+      return selectedSession.title;
+    }
 
-  return `Sesión ${selectedSession.sessionOrder} · ${selectedSession.title}`;
-}, [selectedSession]);
+    return `Sesión ${selectedSession.sessionOrder} · ${selectedSession.title}`;
+  }, [selectedSession]);
 
   return (
     <>
-      <section className="sessions-grid" aria-label="Listado de sesiones">
+      <section
+        className="sessions-grid"
+        data-session-count={sessions.length}
+        aria-label="Listado de sesiones"
+      >
         {sessions.map((session) => (
           <SessionCard
             key={session.id}

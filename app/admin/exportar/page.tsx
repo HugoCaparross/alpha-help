@@ -4,7 +4,7 @@ import { Download } from "lucide-react";
 
 export default function AdminExportPage() {
   return (
-    <section>
+    <section className="admin-page admin-page--exports">
       <header className="admin-header">
         <h1 className="admin-header__title">Exportar datos</h1>
 

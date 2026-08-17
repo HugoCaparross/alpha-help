@@ -23,7 +23,7 @@ export default function AdminHomePage() {
   }, []);
 
   return (
-    <section>
+    <section className="admin-page admin-page--overview">
       <header className="admin-header">
         <h1 className="admin-header__title">Panel de administración</h1>
 

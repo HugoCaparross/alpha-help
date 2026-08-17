@@ -20,7 +20,7 @@ export default function DashboardInfo() {
           <ShieldCheck size={22} />
         </div>
 
-        <div className="dashboard-info-content">
+        <div className="dashboard-info-content dashboard-info-content--refined">
           <h2 id="dashboard-info-title" className="dashboard-info-title">
             {INFO_TITLE}
           </h2>

@@ -1259,3 +1259,48 @@
     padding: 1rem;
   }
 }
+
+/* TANDA 5 — refinamiento del indicador de progreso */
+.questionnaire-progress {
+  min-width: 0;
+}
+
+.questionnaire-progress__heading {
+  min-width: 0;
+}
+
+.questionnaire-progress__title,
+.questionnaire-progress__step {
+  overflow-wrap: anywhere;
+}
+
+.questionnaire-progress__percentage {
+  flex: 0 0 auto;
+  min-width: 3.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.questionnaire-progress__bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.questionnaire-progress__fill {
+  transition: width 240ms ease;
+}
+
+.questionnaire-progress[data-progress-level="complete"]
+  .questionnaire-progress__fill {
+  filter: saturate(0.9);
+}
+
+@media (max-width: 480px) {
+  .questionnaire-progress__header {
+    gap: 0.75rem;
+  }
+
+  .questionnaire-progress__percentage {
+    min-width: 2.75rem;
+  }
+}

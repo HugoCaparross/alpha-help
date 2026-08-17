@@ -267,7 +267,7 @@ export default function AdminSessionsPage() {
     );
 
   return (
-    <section>
+    <section className="admin-page admin-page--sessions">
       <header className="admin-header">
         <h1 className="admin-header__title">
           Sesiones (vídeos)
@@ -295,8 +295,8 @@ export default function AdminSessionsPage() {
                 selectSlot(order)
               }
               className={`admin-slot ${item
-                  ? "admin-slot--filled"
-                  : ""
+                ? "admin-slot--filled"
+                : ""
                 } ${selectedOrder === order
                   ? "admin-slot--active"
                   : ""
@@ -410,8 +410,8 @@ export default function AdminSessionsPage() {
               <button
                 type="button"
                 className={`admin-live-toggle__option ${!form.isLive
-                    ? "admin-live-toggle__option--active"
-                    : ""
+                  ? "admin-live-toggle__option--active"
+                  : ""
                   }`}
                 onClick={() =>
                   setForm((prev) => ({
@@ -426,8 +426,8 @@ export default function AdminSessionsPage() {
               <button
                 type="button"
                 className={`admin-live-toggle__option admin-live-toggle__option--live ${form.isLive
-                    ? "admin-live-toggle__option--active"
-                    : ""
+                  ? "admin-live-toggle__option--active"
+                  : ""
                   }`}
                 onClick={() =>
                   setForm((prev) => ({

@@ -31,6 +31,15 @@ export default function QuestionnaireProgress({
 }: QuestionnaireProgressProps) {
   const progress = calculateProgress(currentStep, totalSteps);
 
+  const progressLevel =
+    progress >= 100
+      ? "complete"
+      : progress >= 75
+        ? "high"
+        : progress >= 40
+          ? "medium"
+          : "low";
+
   const progressDescriptionId = "questionnaire-progress-description";
 
   const progressLabel = `Pregunta ${currentStep} de ${totalSteps}`;
@@ -52,6 +61,7 @@ export default function QuestionnaireProgress({
   return (
     <section
       className="questionnaire-progress"
+      data-progress-level={progressLevel}
       aria-labelledby="questionnaire-progress-title"
     >
       <header className="questionnaire-progress__header">

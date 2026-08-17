@@ -675,3 +675,45 @@
     padding: 1.25rem;
   }
 }
+
+/* ==========================================================
+   UX/UI REFINEMENT — TANDA 4
+========================================================== */
+
+.contact-content {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+.contact-layout {
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+.contact-info-card,
+.contact-form-card {
+  border-radius: var(--radius-md);
+}
+
+.contact-input,
+.contact-textarea {
+  border-radius: var(--radius-sm);
+}
+
+.contact-input:focus-visible,
+.contact-textarea:focus-visible,
+.contact-category-card:focus-visible,
+.contact-submit-button:focus-visible,
+.contact-success-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.contact-category-card {
+  min-height: 4rem;
+}
+
+@media (max-width: 768px) {
+  .contact-content {
+    width: min(100% - 1.5rem, 72rem);
+  }
+}

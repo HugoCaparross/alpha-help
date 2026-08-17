@@ -574,3 +574,75 @@
     padding: 1rem;
   }
 }
+
+/* TANDA 6 — refinamiento UX/UI */
+.estudio-header {
+  max-width: 860px;
+}
+
+.estudio-title {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.estudio-description,
+.estudio-card-description,
+.estudio-step-description,
+.estudio-method-description,
+.estudio-privacy-description {
+  overflow-wrap: anywhere;
+}
+
+.estudio-card {
+  box-shadow: var(--shadow-card);
+}
+
+.estudio-card-header {
+  max-width: 900px;
+}
+
+.estudio-highlight,
+.estudio-objective,
+.estudio-method-card,
+.estudio-step {
+  min-width: 0;
+}
+
+.estudio-step-title,
+.estudio-card-title,
+.estudio-method-title,
+.estudio-privacy-title {
+  text-wrap: balance;
+}
+
+.estudio-topic {
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .estudio-title {
+    font-size: 2rem;
+  }
+
+  .estudio-description {
+    line-height: 1.65;
+  }
+
+  .estudio-card-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .estudio-topic {
+    padding: 0.75rem 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estudio-card,
+  .estudio-highlight,
+  .estudio-objective,
+  .estudio-topic,
+  .estudio-method-card {
+    transition: none;
+  }
+}
