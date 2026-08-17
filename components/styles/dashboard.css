@@ -524,3 +524,75 @@
     padding: 0.9rem;
   }
 }
+
+/* TANDA 3 — refinamiento visual */
+.dashboard-header__content--refined {
+  max-width: 860px;
+}
+
+.dashboard-header__meta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin-top: 16px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border, #d9e0e8);
+  border-radius: 8px;
+  background: var(--color-surface-subtle, #f7f9fb);
+}
+
+.dashboard-header__participant-code {
+  margin: 0;
+}
+
+.dashboard-info-card--refined {
+  align-items: flex-start;
+}
+
+.dashboard-action-card--refined {
+  min-height: 172px;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.dashboard-action-card--refined:hover {
+  transform: translateY(-2px);
+}
+
+.dashboard-action-card--refined:focus-visible {
+  outline: 2px solid var(--color-primary, #1f5f9f);
+  outline-offset: 3px;
+}
+
+.dashboard-progress-item--completed .dashboard-progress-icon {
+  color: var(--color-success, #2f7d5b);
+}
+
+.dashboard-progress-item--pending .dashboard-progress-icon {
+  color: var(--color-text-muted, #7a8795);
+}
+
+.dashboard-next-card--has-content {
+  border-color: var(--color-border, #d9e0e8);
+}
+
+.dashboard-next-card--empty {
+  background: var(--color-surface-subtle, #f8fafc);
+}
+
+@media (max-width: 767px) {
+  .dashboard-header__content--refined {
+    max-width: none;
+  }
+
+  .dashboard-header__meta {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .dashboard-action-card--refined {
+    min-height: 0;
+  }
+}

@@ -56,6 +56,9 @@ export default function SessionCard({
   return (
     <article
       className={cardClassName}
+      data-status={isAvailable ? "available" : "locked"}
+      data-live={session.isLive ? "true" : "false"}
+      data-completed={completed ? "true" : "false"}
       aria-labelledby={`session-title-${session.id}`}
     >
       <div className="session-card__thumb">
@@ -69,11 +72,11 @@ export default function SessionCard({
           className="session-card__thumb-img"
         />
 
-<span className="session-card__order">
-  {session.sessionOrder === 0
-    ? "Introducción"
-    : `Sesión ${session.sessionOrder}`}
-</span>
+        <span className="session-card__order">
+          {session.sessionOrder === 0
+            ? "Introducción"
+            : `Sesión ${session.sessionOrder}`}
+        </span>
 
         {isAvailable && session.isLive && (
           <span className="session-card__live-badge">

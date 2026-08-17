@@ -4,10 +4,7 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 import { buildCsv, csvResponse } from "@/lib/utils/csv";
 
-import {
-  getClientIp,
-  isAllowedByRateLimit,
-} from "@/lib/utils/rateLimit";
+import { getClientIp, isAllowedByRateLimit } from "@/lib/utils/rateLimit";
 
 interface SubmissionRow {
   user_id: string;
@@ -46,11 +43,15 @@ interface ProfileRow {
 export async function GET(request: Request) {
   const auth = await requireAdmin();
 
-    const ip = getClientIp(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.message }, { status: auth.status });
+  }
+
+  const ip = getClientIp(request);
 
   if (
     !isAllowedByRateLimit(
-      `admin-export-questionnaires:${auth.user.id}:${ip}`,
+      `admin-export-questionnaires:${auth.userId}:${ip}`,
       5,
       10 * 60_000,
     )
@@ -59,10 +60,6 @@ export async function GET(request: Request) {
       { error: "Demasiadas exportaciones. Inténtalo más tarde." },
       { status: 429 },
     );
-  }
-
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
   }
 
   const admin = createAdminClient();
@@ -83,7 +80,11 @@ export async function GET(request: Request) {
         .select("user_id, questionnaire_type, question_key, answer"),
     ]);
 
-  if (profilesResult.error || submissionsResult.error || responsesResult.error) {
+  if (
+    profilesResult.error ||
+    submissionsResult.error ||
+    responsesResult.error
+  ) {
     return NextResponse.json(
       { error: "No se han podido exportar los cuestionarios." },
       { status: 500 },
@@ -97,16 +98,16 @@ export async function GET(request: Request) {
   const preKeys = Array.from(
     new Set(
       responses
-        .filter((r) => r.questionnaire_type === "pre")
-        .map((r) => r.question_key),
+        .filter((response) => response.questionnaire_type === "pre")
+        .map((response) => response.question_key),
     ),
   ).sort();
 
   const postKeys = Array.from(
     new Set(
       responses
-        .filter((r) => r.questionnaire_type === "post")
-        .map((r) => r.question_key),
+        .filter((response) => response.questionnaire_type === "post")
+        .map((response) => response.question_key),
     ),
   ).sort();
 
@@ -128,11 +129,15 @@ export async function GET(request: Request) {
     };
 
     const preSubmission = submissions.find(
-      (s) => s.user_id === profile.id && s.questionnaire_type === "pre",
+      (submission) =>
+        submission.user_id === profile.id &&
+        submission.questionnaire_type === "pre",
     );
 
     const postSubmission = submissions.find(
-      (s) => s.user_id === profile.id && s.questionnaire_type === "post",
+      (submission) =>
+        submission.user_id === profile.id &&
+        submission.questionnaire_type === "post",
     );
 
     row.pre_submitted_at = preSubmission?.submitted_at ?? "";
@@ -140,10 +145,10 @@ export async function GET(request: Request) {
 
     for (const key of preKeys) {
       const answer = responses.find(
-        (r) =>
-          r.user_id === profile.id &&
-          r.questionnaire_type === "pre" &&
-          r.question_key === key,
+        (response) =>
+          response.user_id === profile.id &&
+          response.questionnaire_type === "pre" &&
+          response.question_key === key,
       );
 
       row[`pre_${key}`] = answer?.answer ?? "";
@@ -151,10 +156,10 @@ export async function GET(request: Request) {
 
     for (const key of postKeys) {
       const answer = responses.find(
-        (r) =>
-          r.user_id === profile.id &&
-          r.questionnaire_type === "post" &&
-          r.question_key === key,
+        (response) =>
+          response.user_id === profile.id &&
+          response.questionnaire_type === "post" &&
+          response.question_key === key,
       );
 
       row[`post_${key}`] = answer?.answer ?? "";

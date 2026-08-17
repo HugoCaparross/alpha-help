@@ -262,3 +262,39 @@
 
   cursor: not-allowed;
 }
+
+/* ==========================================
+   UX/UI REFINEMENT — RIGHT PANEL
+========================================== */
+
+.right-panel {
+  width: 18.5rem;
+}
+
+.right-panel-content {
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.right-panel-card {
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+}
+
+.right-panel-card:hover {
+  transform: none;
+}
+
+.right-panel-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.right-panel-link:focus-visible,
+.right-panel-logout:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: none;
+}

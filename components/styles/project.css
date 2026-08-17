@@ -108,8 +108,8 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-benefit:hover {
@@ -251,8 +251,8 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-process-item:hover {
@@ -317,9 +317,9 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-topic-card:hover {
@@ -391,8 +391,8 @@
   line-height: 1.8;
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-trust-card:hover {
@@ -422,8 +422,8 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-study-card:hover {
@@ -475,8 +475,8 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-team-card:hover {
@@ -538,8 +538,8 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .project-partner-card:hover {
@@ -666,5 +666,60 @@
 
   .project-section {
     padding: 4rem 0;
+  }
+}
+/* UX/UI refinement — TANDA 2 */
+.project-hero {
+  padding: 2.5rem 0 4.5rem;
+}
+.project-section {
+  padding-block: 4rem;
+}
+.project-section-heading {
+  margin-bottom: 2rem;
+}
+.project-benefits,
+.project-topics,
+.project-trust-grid,
+.project-team-grid,
+.project-partners {
+  gap: 1.25rem;
+}
+.project-benefit,
+.project-topic-card,
+.project-trust-card,
+.project-team-card,
+.project-partner-card {
+  padding: 1.5rem;
+}
+.project-process {
+  gap: 1rem;
+}
+.project-process-item {
+  padding: 1.25rem;
+}
+.project-image-card {
+  overflow: hidden;
+}
+.project-actions {
+  gap: 0.75rem;
+}
+@media (max-width: 768px) {
+  .project-hero {
+    padding: 1.5rem 0 3rem;
+  }
+  .project-section {
+    padding-block: 2.75rem;
+  }
+  .project-section-heading {
+    margin-bottom: 1.5rem;
+  }
+  .project-benefit,
+  .project-topic-card,
+  .project-trust-card,
+  .project-team-card,
+  .project-partner-card,
+  .project-process-item {
+    padding: 1.125rem;
   }
 }

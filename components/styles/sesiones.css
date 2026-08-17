@@ -472,7 +472,7 @@
 
   color: var(--neutral-600);
 
-  font-size: .97rem;
+  font-size: 0.97rem;
   line-height: 1.85;
 }
 
@@ -507,7 +507,6 @@
 ========================================== */
 
 @keyframes modal-fade-in {
-
   from {
     opacity: 0;
   }
@@ -515,15 +514,13 @@
   to {
     opacity: 1;
   }
-
 }
 
 @keyframes modal-scale-in {
-
   from {
     opacity: 0;
 
-    transform: scale(.97);
+    transform: scale(0.97);
   }
 
   to {
@@ -531,7 +528,6 @@
 
     transform: scale(1);
   }
-
 }
 
 /* ==========================================
@@ -563,8 +559,13 @@
 }
 
 @keyframes session-live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .session-card__watched-badge {
@@ -626,4 +627,34 @@
 .session-player__watched-hint {
   font-size: 0.82rem;
   color: var(--neutral-500);
+}
+
+/* TANDA 3 — estados visuales de sesión */
+.session-card {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.session-card[data-status="available"]:hover {
+  transform: translateY(-2px);
+}
+
+.session-card[data-status="available"]:focus-within {
+  border-color: var(--color-primary, #1f5f9f);
+}
+
+.session-card[data-completed="true"] .session-card__watched-badge {
+  font-weight: 600;
+}
+
+.session-card[data-live="true"] .session-card__live-badge {
+  font-weight: 700;
+}
+
+.session-card--locked {
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
 }

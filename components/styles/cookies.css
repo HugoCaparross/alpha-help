@@ -176,3 +176,42 @@
     width: 100%;
   }
 }
+/* UX/UI refinement — TANDA 2 */
+.cookie-banner {
+  padding: 1.25rem;
+}
+.cookie-banner-card {
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+}
+.cookie-banner-content {
+  min-width: 0;
+}
+.cookie-banner-actions {
+  gap: 0.625rem;
+}
+.cookie-banner-link {
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+.cookie-banner-link:focus-visible,
+.cookie-banner button:focus-visible {
+  outline: 3px solid rgba(14, 165, 233, 0.28);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .cookie-banner {
+    padding: 0.75rem;
+  }
+  .cookie-banner-card {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .cookie-banner-actions {
+    width: 100%;
+  }
+  .cookie-banner-actions > * {
+    flex: 1 1 0;
+  }
+}

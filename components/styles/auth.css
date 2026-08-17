@@ -927,4 +927,68 @@ select.auth-input {
   line-height: 1.8;
 
   color: var(--neutral-700);
-} 
+}
+/* UX/UI refinement — TANDA 2 */
+.auth-form-section {
+  padding: 24px 32px;
+}
+.login-card,
+.register-card {
+  border-radius: var(--radius-lg);
+}
+.auth-label {
+  margin-bottom: 0.4rem;
+}
+.auth-field {
+  gap: 0.4rem;
+}
+.auth-input {
+  min-height: 2.75rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.auth-input:focus {
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+.region-selector {
+  gap: 0.75rem;
+}
+.region-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.region-card:hover {
+  transform: translateY(-1px);
+}
+.step-actions {
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+@media (max-width: 900px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+  .auth-hero {
+    display: none;
+  }
+  .auth-form-section {
+    min-height: 100vh;
+    padding: 1.5rem 1rem;
+  }
+}
+@media (max-width: 640px) {
+  .auth-form-section {
+    padding: 1rem;
+  }
+  .login-card,
+  .register-card {
+    padding: 1.25rem;
+  }
+  .step-actions {
+    margin-top: 1.25rem;
+  }
+}

@@ -370,3 +370,74 @@
     padding: 1.5rem;
   }
 }
+
+/* ==========================================
+   UX/UI REFINEMENT — COMPONENTES BASE
+========================================== */
+
+.page-header {
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-header__content {
+  gap: 0.625rem;
+  max-width: 48rem;
+}
+
+.page-header__back {
+  min-height: 2.5rem;
+  padding: 0.5rem 0.625rem;
+  margin-inline-start: -0.625rem;
+  border-radius: var(--radius-sm);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.page-header__back:hover {
+  transform: none;
+  background: var(--neutral-100);
+}
+
+.page-header__back:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.page-header__title {
+  letter-spacing: -0.02em;
+}
+
+.card {
+  border-radius: var(--radius-lg);
+}
+
+.card-padding {
+  padding: 1.5rem;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+  min-height: 3rem;
+  padding-inline: 1.25rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.btn-outline:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-outline:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--focus-shadow);
+}

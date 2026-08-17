@@ -1162,3 +1162,100 @@
 
   font-weight: 600;
 }
+
+/* ==========================================================
+   UX/UI REFINEMENT — CUESTIONARIOS
+   ========================================================== */
+
+.questionnaires-page {
+  max-width: 960px;
+}
+
+.questionnaires-list {
+  gap: 1rem;
+}
+
+.evaluation-card {
+  border-radius: var(--radius-lg);
+}
+
+.evaluation-card__content {
+  padding: 1.5rem;
+}
+
+.evaluation-card__header {
+  gap: 0.75rem;
+}
+
+.evaluation-card__description {
+  line-height: 1.65;
+}
+
+.question-block {
+  gap: 1rem;
+}
+
+.question-card {
+  border-radius: var(--radius-lg);
+}
+
+.question-card__header {
+  gap: 0.75rem;
+}
+
+.question-card__title {
+  line-height: 1.55;
+}
+
+.question-card__options {
+  gap: 0.625rem;
+}
+
+.question-card__option {
+  min-height: 3rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: var(--radius-md);
+}
+
+.question-card__option:hover {
+  transform: none;
+}
+
+.question-card__input:focus-visible + .question-card__label {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.question-card__navigation {
+  gap: 0.75rem;
+}
+
+.questionnaire-progress {
+  gap: 0.75rem;
+}
+
+.questionnaire-progress__bar {
+  height: 0.5rem;
+  border-radius: 999px;
+}
+
+.questionnaire-completion .card {
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 768px) {
+  .evaluation-card__content {
+    padding: 1.25rem;
+  }
+
+  .question-card__option {
+    min-height: 2.875rem;
+    padding: 0.7rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .evaluation-card__content {
+    padding: 1rem;
+  }
+}

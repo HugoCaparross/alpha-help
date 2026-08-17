@@ -59,7 +59,7 @@ function QuickActionCard({
       href={href}
       prefetch
       aria-label={`Ir a ${title}`}
-      className="dashboard-action-card"
+      className="dashboard-action-card dashboard-action-card--refined"
     >
       <div className="dashboard-action-icon" aria-hidden="true">
         <Icon size={22} />

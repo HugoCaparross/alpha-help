@@ -15,7 +15,7 @@ export default function DashboardInfo() {
       className="dashboard-section"
       aria-labelledby="dashboard-info-title"
     >
-      <div className="dashboard-info-card">
+      <div className="dashboard-info-card dashboard-info-card--refined">
         <div className="dashboard-info-icon" aria-hidden="true">
           <ShieldCheck size={22} />
         </div>

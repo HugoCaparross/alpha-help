@@ -26,7 +26,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
   if (
     !isAllowedByRateLimit(
-      `admin-contact-delete:${auth.user.id}:${ip}`,
+      `admin-contact-delete:${auth.userId}:${ip}`,
       30,
       60_000,
     )

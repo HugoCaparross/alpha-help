@@ -508,7 +508,10 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
 .admin-live-toggle__option--active {
@@ -620,4 +623,61 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 1.1rem;
+}
+/* UX/UI refinement — TANDA 2 */
+.admin-layout__main {
+  padding: 2rem 2.5rem;
+}
+.admin-sidebar {
+  width: 16.5rem;
+  padding: 1.5rem 1rem;
+}
+.admin-sidebar__item {
+  min-height: 2.75rem;
+}
+.admin-header {
+  margin-bottom: 1.5rem;
+}
+.admin-quick-links {
+  gap: 1rem;
+}
+.admin-message-card {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.admin-message-card:hover {
+  transform: translateY(-1px);
+}
+.admin-form {
+  gap: 1rem;
+}
+.admin-form__row {
+  gap: 1rem;
+}
+.admin-export-grid {
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .admin-layout__main {
+    padding: 1.5rem;
+  }
+  .admin-sidebar {
+    width: 15.5rem;
+  }
+}
+@media (max-width: 700px) {
+  .admin-layout__main {
+    padding: 1rem;
+  }
+  .admin-sidebar {
+    display: none;
+  }
+  .admin-form__row--split {
+    grid-template-columns: 1fr;
+  }
+  .admin-export-grid {
+    grid-template-columns: 1fr;
+  }
 }

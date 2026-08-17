@@ -1,4 +1,3 @@
-
 /* ==========================================
    HONEYPOT (anti-spam, oculto a personas)
 ========================================== */
@@ -99,15 +98,15 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .contact-email:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(14,165,233,.22);
+  border-color: rgba(14, 165, 233, 0.22);
 
   box-shadow: var(--shadow-hover);
 }
@@ -127,12 +126,12 @@
 .contact-email a {
   color: var(--neutral-800);
 
-  font-size: .95rem;
+  font-size: 0.95rem;
   font-weight: 600;
 
   text-decoration: none;
 
-  transition: color .2s ease;
+  transition: color 0.2s ease;
 }
 
 .contact-email a:hover,
@@ -153,7 +152,7 @@
 .contact-layout {
   display: grid;
 
-  grid-template-columns: 360px minmax(0,1fr);
+  grid-template-columns: 360px minmax(0, 1fr);
 
   gap: 3rem;
 
@@ -196,21 +195,21 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .contact-info-card:hover {
   transform: translateY(-3px);
 
-  border-color: rgba(14,165,233,.18);
+  border-color: rgba(14, 165, 233, 0.18);
 
   box-shadow: var(--shadow-hover);
 }
 
 .contact-info-card h3 {
-  margin: 1.125rem 0 .75rem;
+  margin: 1.125rem 0 0.75rem;
 
   color: var(--neutral-900);
 
@@ -224,7 +223,7 @@
 
   color: var(--neutral-600);
 
-  font-size: .95rem;
+  font-size: 0.95rem;
   line-height: 1.75;
 
   overflow-wrap: anywhere;
@@ -244,13 +243,13 @@
 
   border-radius: var(--radius-md);
 
-  background: rgba(14,165,233,.08);
+  background: rgba(14, 165, 233, 0.08);
 
   color: var(--accent);
 
   transition:
-    transform .2s ease,
-    background-color .2s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .contact-info-card:hover .contact-info-icon {
@@ -263,19 +262,19 @@
 }
 
 .contact-info-icon-success {
-  background: rgba(34,197,94,.08);
+  background: rgba(34, 197, 94, 0.08);
 
   color: #16a34a;
 }
 
 .contact-info-icon-warning {
-  background: rgba(245,158,11,.08);
+  background: rgba(245, 158, 11, 0.08);
 
   color: #d97706;
 }
 
 .contact-info-icon-neutral {
-  background: rgba(148,163,184,.12);
+  background: rgba(148, 163, 184, 0.12);
 
   color: #475569;
 }
@@ -296,7 +295,7 @@
 }
 
 .contact-form-title {
-  margin: 0 0 .625rem;
+  margin: 0 0 0.625rem;
 
   color: var(--neutral-900);
 
@@ -310,7 +309,7 @@
 
   color: var(--neutral-600);
 
-  font-size: .95rem;
+  font-size: 0.95rem;
   line-height: 1.8;
 
   overflow-wrap: anywhere;
@@ -367,9 +366,9 @@
   font-size: 0.95rem;
 
   transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    background-color .2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .contact-input::placeholder {
@@ -401,8 +400,8 @@
   pointer-events: none;
 
   transition:
-    color .2s ease,
-    transform .2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .contact-input-wrapper:hover .contact-input-icon {
@@ -451,29 +450,29 @@
   cursor: pointer;
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    background-color .2s ease,
-    color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .contact-category-card:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(14, 165, 233, .25);
+  border-color: rgba(14, 165, 233, 0.25);
 
   box-shadow: var(--shadow-hover);
 }
 
 .contact-category-card.active {
-  background: rgba(14, 165, 233, .08);
+  background: rgba(14, 165, 233, 0.08);
 
   border-color: var(--accent);
 
   color: var(--neutral-900);
 
-  box-shadow: 0 0 0 3px rgba(14,165,233,.12);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
 }
 
 .contact-category-card:focus-visible {
@@ -511,9 +510,9 @@
   line-height: 1.7;
 
   transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    background-color .2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .contact-textarea::placeholder {
@@ -619,5 +618,60 @@
 
   .contact-category-card {
     min-height: 72px;
+  }
+}
+/* UX/UI refinement — TANDA 2 */
+.contact-content {
+  gap: 1.5rem;
+}
+.contact-layout {
+  gap: 1.5rem;
+}
+.contact-form-card,
+.contact-info-card {
+  padding: 1.5rem;
+}
+.contact-form-title {
+  margin-bottom: 0.5rem;
+}
+.contact-field {
+  gap: 0.4rem;
+}
+.contact-input,
+.contact-textarea {
+  min-height: 2.75rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.contact-input:focus,
+.contact-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+.contact-textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+.contact-category-selector {
+  gap: 0.75rem;
+}
+.contact-category-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.contact-category-card:hover {
+  transform: translateY(-1px);
+}
+@media (max-width: 768px) {
+  .contact-content,
+  .contact-layout {
+    gap: 1rem;
+  }
+  .contact-form-card,
+  .contact-info-card {
+    padding: 1.25rem;
   }
 }

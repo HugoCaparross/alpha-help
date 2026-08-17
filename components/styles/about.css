@@ -473,3 +473,41 @@
     transform: none;
   }
 }
+
+/* UX/UI refinement — TANDA 2 */
+.about-page {
+  padding-bottom: 5rem;
+}
+.about-header {
+  margin-bottom: 4rem;
+}
+.about-team {
+  margin-top: 0;
+}
+.about-team-title {
+  margin-bottom: 1.5rem;
+}
+.about-team-list {
+  gap: 1.25rem;
+}
+.about-member {
+  min-height: 100%;
+  padding: 1.5rem;
+}
+.about-member-avatar {
+  flex: 0 0 auto;
+}
+.about-member-content {
+  min-width: 0;
+}
+@media (max-width: 768px) {
+  .about-page {
+    padding-bottom: 3rem;
+  }
+  .about-header {
+    margin-bottom: 2.5rem;
+  }
+  .about-member {
+    padding: 1.25rem;
+  }
+}

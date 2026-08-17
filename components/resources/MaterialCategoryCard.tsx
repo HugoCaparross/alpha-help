@@ -29,7 +29,7 @@ export default function MaterialCategoryCard({
   return (
     <button
       type="button"
-      className="material-category-card"
+      className={`material-category-card material-category-card--${type}`}
       onClick={() => onOpen(type)}
       aria-label={`Ver ${title}`}
     >

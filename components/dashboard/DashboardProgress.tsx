@@ -143,7 +143,7 @@ function ProgressItem({
   description,
 }: ProgressItemProps) {
   return (
-    <div className="dashboard-progress-item">
+    <div className={`dashboard-progress-item ${completed ? "dashboard-progress-item--completed" : "dashboard-progress-item--pending"}`}>
       <div
         className="dashboard-progress-icon"
         aria-hidden="true"

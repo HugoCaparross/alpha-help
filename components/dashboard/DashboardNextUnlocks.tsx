@@ -39,7 +39,7 @@ function NextUnlockCard({
   emptyMessage,
 }: NextUnlockCardProps) {
   return (
-    <article className="dashboard-next-card">
+    <article className={`dashboard-next-card ${content ? "dashboard-next-card--has-content" : "dashboard-next-card--empty"}`}>
       <div className="dashboard-next-icon" aria-hidden="true">
         <CalendarDays size={22} />
       </div>

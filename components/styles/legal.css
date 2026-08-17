@@ -178,3 +178,38 @@
     font-size: 1.35rem;
   }
 }
+/* UX/UI refinement — TANDA 2 */
+.legal-page {
+  padding: 4rem 1.5rem;
+}
+.legal-card {
+  padding: 2.5rem;
+}
+.legal-header {
+  margin-bottom: 2rem;
+}
+.legal-content {
+  line-height: 1.75;
+}
+.legal-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.875rem;
+}
+.legal-content h3 {
+  margin-top: 1.75rem;
+  margin-bottom: 0.625rem;
+}
+.legal-note {
+  margin-top: 1.5rem;
+}
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 2rem 1rem;
+  }
+  .legal-card {
+    padding: 1.5rem;
+  }
+  .legal-content {
+    line-height: 1.7;
+  }
+}

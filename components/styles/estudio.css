@@ -62,15 +62,15 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .estudio-card:hover {
   transform: translateY(-3px);
 
-  border-color: rgba(14,165,233,.18);
+  border-color: rgba(14, 165, 233, 0.18);
 
   box-shadow: var(--shadow-hover);
 }
@@ -89,7 +89,7 @@
 }
 
 .estudio-card-title {
-  margin: 0 0 .5rem;
+  margin: 0 0 0.5rem;
 
   color: var(--neutral-900);
 
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
 
-  gap: .75rem;
+  gap: 0.75rem;
 
   padding: 1rem;
 
@@ -137,15 +137,15 @@
   font-weight: 500;
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .estudio-highlight:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(14,165,233,.18);
+  border-color: rgba(14, 165, 233, 0.18);
 
   box-shadow: var(--shadow-card);
 }
@@ -156,22 +156,16 @@
   color: var(--accent);
 }
 
-@media (max-width:768px){
-
-  .estudio-highlights{
-
-    grid-template-columns:1fr;
-
+@media (max-width: 768px) {
+  .estudio-highlights {
+    grid-template-columns: 1fr;
   }
 
-  .estudio-card-header{
+  .estudio-card-header {
+    flex-direction: column;
 
-    flex-direction:column;
-
-    margin-bottom:1.5rem;
-
+    margin-bottom: 1.5rem;
   }
-
 }
 
 /* ==========================================
@@ -201,15 +195,15 @@
   border-radius: var(--radius-md);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .estudio-objective:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(14,165,233,.18);
+  border-color: rgba(14, 165, 233, 0.18);
 
   box-shadow: var(--shadow-card);
 }
@@ -226,7 +220,7 @@
 
   border-radius: 999px;
 
-  background: rgba(16,185,129,.12);
+  background: rgba(16, 185, 129, 0.12);
 
   color: var(--success);
 }
@@ -245,13 +239,13 @@
   display: flex;
   flex-wrap: wrap;
 
-  gap: .75rem;
+  gap: 0.75rem;
 
   margin-top: 2rem;
 }
 
 .estudio-topic {
-  padding: .8rem 1rem;
+  padding: 0.8rem 1rem;
 
   background: var(--background);
 
@@ -260,14 +254,14 @@
 
   color: var(--neutral-700);
 
-  font-size: .9rem;
+  font-size: 0.9rem;
   font-weight: 500;
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    background-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .estudio-topic:hover {
@@ -275,7 +269,7 @@
 
   background: var(--surface);
 
-  border-color: rgba(14,165,233,.25);
+  border-color: rgba(14, 165, 233, 0.25);
 
   box-shadow: var(--shadow-card);
 }
@@ -308,15 +302,15 @@
   border-radius: var(--radius-md);
 
   transition:
-    transform .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .estudio-method-card:hover {
   transform: translateY(-2px);
 
-  border-color: rgba(14,165,233,.18);
+  border-color: rgba(14, 165, 233, 0.18);
 
   box-shadow: var(--shadow-hover);
 }
@@ -331,7 +325,7 @@
 
   border-radius: var(--radius-md);
 
-  background: rgba(14,165,233,.08);
+  background: rgba(14, 165, 233, 0.08);
 
   color: var(--accent);
 
@@ -354,19 +348,15 @@
 
   color: var(--neutral-600);
 
-  font-size: .95rem;
+  font-size: 0.95rem;
 
   line-height: 1.7;
 }
 
-@media (max-width:1024px){
-
-  .estudio-method-grid{
-
-    grid-template-columns:1fr;
-
+@media (max-width: 1024px) {
+  .estudio-method-grid {
+    grid-template-columns: 1fr;
   }
-
 }
 
 /* ==========================================
@@ -378,7 +368,7 @@
 
   display: grid;
 
-  grid-template-columns: repeat(4, minmax(0,1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 2rem;
 
@@ -390,7 +380,7 @@
 
   position: absolute;
 
-  top: .7rem;
+  top: 0.7rem;
   left: 0;
   right: 0;
 
@@ -405,9 +395,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: .75rem;
+  gap: 0.75rem;
 
-  padding-right: .75rem;
+  padding-right: 0.75rem;
 }
 
 .estudio-step-number {
@@ -421,10 +411,10 @@
 
   color: var(--accent);
 
-  font-size: .85rem;
+  font-size: 0.85rem;
   font-weight: 700;
 
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
 
 .estudio-step-title {
@@ -443,39 +433,29 @@
 
   color: var(--neutral-600);
 
-  font-size: .9rem;
+  font-size: 0.9rem;
 
   line-height: 1.7;
 }
 
-@media (max-width:1024px){
+@media (max-width: 1024px) {
+  .estudio-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  .estudio-timeline{
-
-    grid-template-columns:repeat(2,minmax(0,1fr));
-
-    gap:1.5rem;
-
+    gap: 1.5rem;
   }
 
-  .estudio-timeline::before{
-
-    display:none;
-
+  .estudio-timeline::before {
+    display: none;
   }
-
 }
 
-@media (max-width:768px){
+@media (max-width: 768px) {
+  .estudio-timeline {
+    grid-template-columns: 1fr;
 
-  .estudio-timeline{
-
-    grid-template-columns:1fr;
-
-    margin:1.5rem 0;
-
+    margin: 1.5rem 0;
   }
-
 }
 
 /* ==========================================
@@ -492,9 +472,9 @@
 
   padding: 1.5rem;
 
-  background: rgba(16,185,129,.05);
+  background: rgba(16, 185, 129, 0.05);
 
-  border: 1px solid rgba(16,185,129,.18);
+  border: 1px solid rgba(16, 185, 129, 0.18);
   border-radius: var(--radius-lg);
 }
 
@@ -510,7 +490,7 @@
 
   border-radius: 50%;
 
-  background: rgba(16,185,129,.12);
+  background: rgba(16, 185, 129, 0.12);
 
   color: var(--success);
 }
@@ -519,7 +499,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .estudio-privacy-title {
@@ -536,19 +516,61 @@
 
   color: var(--neutral-700);
 
-  font-size: .95rem;
+  font-size: 0.95rem;
 
   line-height: 1.7;
 }
 
-@media (max-width:768px){
+@media (max-width: 768px) {
+  .estudio-privacy {
+    flex-direction: column;
 
-  .estudio-privacy{
-
-    flex-direction:column;
-
-    padding:1.25rem;
-
+    padding: 1.25rem;
   }
-
+}
+/* UX/UI refinement — TANDA 2 */
+.estudio-page {
+  gap: 1.5rem;
+}
+.estudio-header {
+  gap: 0.625rem;
+}
+.estudio-card {
+  padding: 1.5rem;
+}
+.estudio-card-header {
+  gap: 0.75rem;
+}
+.estudio-highlights,
+.estudio-method-grid,
+.estudio-topics {
+  gap: 1rem;
+}
+.estudio-highlight,
+.estudio-method-card,
+.estudio-topic {
+  padding: 1.25rem;
+}
+.estudio-timeline {
+  gap: 1rem;
+}
+.estudio-step {
+  padding: 1.25rem;
+}
+.estudio-privacy {
+  margin-top: 0.5rem;
+}
+@media (max-width: 768px) {
+  .estudio-page {
+    gap: 1rem;
+  }
+  .estudio-card {
+    padding: 1.25rem;
+  }
+  .estudio-highlight,
+  .estudio-method-card,
+  .estudio-topic,
+  .estudio-step {
+    padding: 1rem;
+  }
 }

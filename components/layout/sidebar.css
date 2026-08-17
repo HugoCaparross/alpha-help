@@ -321,3 +321,52 @@
 
   overflow-wrap: anywhere;
 }
+
+/* ==========================================
+   UX/UI REFINEMENT — SIDEBAR
+========================================== */
+
+.sidebar {
+  width: 15.5rem;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.25rem;
+}
+
+.sidebar-nav {
+  padding: 1.25rem 0.75rem;
+}
+
+.sidebar-section:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-items {
+  gap: 0.25rem;
+}
+
+.sidebar-item {
+  min-height: 2.875rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-item:hover {
+  transform: none;
+}
+
+.sidebar-item-icon {
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.625rem;
+}
+
+.sidebar-profile {
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-profile:hover {
+  transform: none;
+}

@@ -19,7 +19,7 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   return (
     <header className="dashboard-header">
-      <div className="dashboard-header__content">
+      <div className="dashboard-header__content dashboard-header__content--refined">
         <span className="dashboard-header__eyebrow">
           Área privada
         </span>
@@ -28,10 +28,12 @@ export default function DashboardHeader({
           {DASHBOARD_TITLE}
         </h1>
 
-        <p className="dashboard-header__participant-code">
-          Código del participante:{" "}
-          <strong>{participantCode}</strong>
-        </p>
+        <div className="dashboard-header__meta">
+          <p className="dashboard-header__participant-code">
+            Código del participante:{" "}
+            <strong>{participantCode}</strong>
+          </p>
+        </div>
 
         <p className="dashboard-header__description">
           {DASHBOARD_DESCRIPTION}
