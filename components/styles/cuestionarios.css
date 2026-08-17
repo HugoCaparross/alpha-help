@@ -1304,3 +1304,55 @@
     min-width: 2.75rem;
   }
 }
+
+.questionnaires-loading__message {
+  margin: 0;
+  padding: 2rem;
+  color: var(--neutral-600);
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.evaluation-card--completed {
+  border-color: rgba(16, 185, 129, 0.18);
+  background: linear-gradient(
+    180deg,
+    var(--surface),
+    rgba(16, 185, 129, 0.025)
+  );
+}
+
+.evaluation-card--locked {
+  opacity: 0.88;
+}
+
+.evaluation-card--completed:hover,
+.evaluation-card--locked:hover {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+.evaluation-card__helper-wrap {
+  min-height: 2.9rem;
+}
+
+.evaluation-card__helper {
+  margin: 0;
+}
+
+.evaluation-card__footer button:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+@media (max-width: 768px) {
+  .evaluation-card__content {
+    gap: 1.25rem;
+  }
+
+  .evaluation-card__footer {
+    padding-top: 1.25rem;
+  }
+}

@@ -224,5 +224,23 @@ export async function getQuestionnaireState(): Promise<QuestionnaireProgress> {
 }
 
 export async function canStartPostQuestionnaire(): Promise<boolean> {
-  return hasCompletedQuestionnaire("pre");
+  const hasCompletedPre = await hasCompletedQuestionnaire("pre");
+
+  if (!hasCompletedPre) {
+    return false;
+  }
+
+  const response = await fetch("/api/questionnaires/status", {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return false;
+  }
+
+  const payload = (await response.json().catch(() => null)) as {
+    postAvailable?: boolean;
+  } | null;
+
+  return payload?.postAvailable === true;
 }

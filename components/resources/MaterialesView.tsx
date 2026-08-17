@@ -101,24 +101,25 @@ export default function MaterialesView() {
 
   if (loading) {
     return (
-      <section className="materiales-loading" aria-busy="true">
-        <p>{LOADING_MESSAGE}</p>
+      <section className="materiales-page" aria-busy="true">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+        <div className="materiales-loading">
+          <p>{LOADING_MESSAGE}</p>
+        </div>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section className="materiales-error" role="alert" aria-live="polite">
-        <p>{error}</p>
-
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={retryLoadMaterials}
-        >
-          Reintentar
-        </button>
+      <section className="materiales-page">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+        <div className="materiales-error" role="alert" aria-live="polite">
+          <p>{error}</p>
+          <button type="button" className="btn-primary" onClick={retryLoadMaterials}>
+            Reintentar
+          </button>
+        </div>
       </section>
     );
   }

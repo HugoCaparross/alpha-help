@@ -215,7 +215,7 @@ export default function PerfilView({
   );
 
   return (
-    <main className="perfil-page">
+    <div className="perfil-view">
       <header className="perfil-summary">
         <div
           className="perfil-summary-avatar"
@@ -225,10 +225,6 @@ export default function PerfilView({
         </div>
 
         <div className="perfil-summary-content">
-          <h1 className="perfil-summary-title">
-            Mi perfil
-          </h1>
-
           <p className="perfil-summary-role">
             Participante
           </p>
@@ -303,6 +299,6 @@ export default function PerfilView({
           )}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

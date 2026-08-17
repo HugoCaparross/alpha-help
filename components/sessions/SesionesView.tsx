@@ -117,35 +117,25 @@ export default function SesionesView() {
 
   if (loading) {
     return (
-      <section
-        className="sesiones-loading"
-        aria-busy="true"
-      >
-        <p>
-          {LOADING_MESSAGE}
-        </p>
+      <section className="sesiones-page" aria-busy="true">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+        <div className="sesiones-loading">
+          <p>{LOADING_MESSAGE}</p>
+        </div>
       </section>
     );
   }
 
   if (error) {
     return (
-      <section
-        className="sesiones-error"
-        role="alert"
-        aria-live="polite"
-      >
-        <p>{error}</p>
-
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() =>
-            void loadSessions()
-          }
-        >
-          Reintentar
-        </button>
+      <section className="sesiones-page">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+        <div className="sesiones-error" role="alert" aria-live="polite">
+          <p>{error}</p>
+          <button type="button" className="btn-primary" onClick={() => void loadSessions()}>
+            Reintentar
+          </button>
+        </div>
       </section>
     );
   }

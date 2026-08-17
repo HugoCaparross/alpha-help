@@ -1,4 +1,4 @@
-import BackToDashboard from "@/components/ui/BackToDashboard";
+import PageHeader from "@/components/ui/PageHeader";
 
 import "@/components/styles/estudio.css";
 
@@ -9,46 +9,22 @@ import EstudioParticipation from "./EstudioParticipation";
 import EstudioPrivacy from "./EstudioPrivacy";
 import EstudioTopics from "./EstudioTopics";
 
-/**
- * Página informativa del estudio Alpha-Help.
- *
- * Presenta los objetivos, metodología,
- * áreas de investigación, participación
- * y tratamiento de la información.
- */
 export default function EstudioView() {
   return (
-    <div className="estudio-page">
-      <div className="page-navigation page-navigation--refined">
-        <BackToDashboard />
-      </div>
+    <section className="estudio-page">
+      <PageHeader
+        title="El estudio"
+        description="Conoce en qué consiste el proyecto de investigación Alpha-Help y cómo contribuimos al bienestar emocional de adolescentes y sus familias."
+      />
 
-      <header className="estudio-header">
-        <h1 className="estudio-title">
-          El estudio
-        </h1>
-
-        <p className="estudio-description">
-          Conoce en qué consiste el proyecto
-          de investigación Alpha-Help y cómo
-          contribuimos al bienestar emocional
-          de adolescentes y sus familias.
-        </p>
-      </header>
-
-      <main className="estudio-content">
+      <div className="estudio-content">
         <EstudioIntro />
-
         <EstudioObjectives />
-
         <EstudioTopics />
-
         <EstudioMethod />
-
         <EstudioParticipation />
-
         <EstudioPrivacy />
-      </main>
-    </div>
+      </div>
+    </section>
   );
 }

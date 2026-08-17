@@ -41,7 +41,15 @@ export default function SessionCard({
 
   const formattedDate = formatDate(session.releaseDate);
 
-  const cardClassName = ["session-card", !isAvailable && "session-card--locked"]
+  const hasThumbnail =
+    typeof session.thumbnailUrl === "string" &&
+    session.thumbnailUrl.trim().length > 0;
+
+  const cardClassName = [
+    "session-card",
+    !isAvailable && "session-card--locked",
+    !hasThumbnail && "session-card--no-thumbnail",
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -56,21 +64,20 @@ export default function SessionCard({
   return (
     <article
       className={cardClassName}
-      data-status={isAvailable ? "available" : "locked"}
-      data-live={session.isLive ? "true" : "false"}
-      data-completed={completed ? "true" : "false"}
       aria-labelledby={`session-title-${session.id}`}
     >
       <div className="session-card__thumb">
-        <Image
-          src={session.thumbnailUrl}
-          alt={session.title}
-          fill
-          loading="lazy"
-          priority={false}
-          sizes="(max-width: 768px) 100vw, 400px"
-          className="session-card__thumb-img"
-        />
+        {hasThumbnail && (
+          <Image
+            src={session.thumbnailUrl}
+            alt={session.title}
+            fill
+            loading="lazy"
+            priority={false}
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="session-card__thumb-img"
+          />
+        )}
 
         <span className="session-card__order">
           {session.sessionOrder === 0

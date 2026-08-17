@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from "react";
+
+import BackToDashboard from "@/components/ui/BackToDashboard";
 
 interface PageHeaderProps extends ComponentPropsWithoutRef<"header"> {
   title: string;
@@ -13,7 +13,6 @@ interface PageHeaderProps extends ComponentPropsWithoutRef<"header"> {
   showDashboardLink?: boolean;
 }
 
-/** Cabecera reutilizable de las páginas del área privada. */
 const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(
   (
     {
@@ -26,32 +25,23 @@ const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(
     },
     ref,
   ) => {
-    const classes = ["page-header", "page-header--refined", className].filter(Boolean).join(" ");
+    const classes = ["page-header", className].filter(Boolean).join(" ");
 
     return (
       <header ref={ref} className={classes} {...props}>
         <div className="page-header__content">
-          {showDashboardLink && (
-            <Link
-              href="/dashboard"
-              className="page-header__back"
-              aria-label="Volver al Dashboard"
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              <span>Volver al Dashboard</span>
-            </Link>
-          )}
+          {showDashboardLink && <BackToDashboard />}
 
-          <h1 className="page-header__title">{title}</h1>
+          <div className="page-header__text">
+            <h1 className="page-header__title">{title}</h1>
 
-          {description && (
-            <p className="page-header__description">{description}</p>
-          )}
+            {description && (
+              <p className="page-header__description">{description}</p>
+            )}
+          </div>
         </div>
 
-        {actions && (
-          <div className="page-header__actions">{actions}</div>
-        )}
+        {actions && <div className="page-header__actions">{actions}</div>}
       </header>
     );
   },

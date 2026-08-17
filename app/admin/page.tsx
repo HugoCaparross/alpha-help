@@ -5,6 +5,8 @@ import Link from "next/link";
 
 import { Download, FileText, Video } from "lucide-react";
 
+import QuestionnaireUnlockPanel from "@/components/admin/QuestionnaireUnlockPanel";
+
 import { listAdminSessions } from "@/services/admin/admin-session.service";
 import { listAdminMaterials } from "@/services/admin/admin-material.service";
 
@@ -48,6 +50,8 @@ export default function AdminHomePage() {
           <div className="admin-stat-card__label">Materiales configurados</div>
         </div>
       </div>
+
+      <QuestionnaireUnlockPanel />
 
       <div className="admin-quick-links">
         <Link href="/admin/sesiones" className="admin-quick-link">

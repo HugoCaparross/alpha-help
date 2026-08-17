@@ -710,3 +710,182 @@
     min-height: 3rem;
   }
 }
+
+/* Configuración de evaluación final */
+.admin-questionnaire-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-questionnaire-settings__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-section-title {
+  margin: 0;
+  color: var(--neutral-900);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.admin-muted {
+  margin: 0.35rem 0 0;
+  color: var(--neutral-600);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-status-pill--active {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.admin-status-pill--inactive {
+  color: var(--neutral-600);
+  background: var(--neutral-100);
+}
+
+.admin-questionnaire-settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 620px;
+}
+
+.admin-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.75rem;
+  color: var(--neutral-800);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-checkbox-row input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  color: var(--neutral-700);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-field input {
+  width: 100%;
+  min-height: 2.9rem;
+  box-sizing: border-box;
+  padding: 0.7rem 0.85rem;
+  border: var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--neutral-900);
+  font: inherit;
+}
+
+.admin-field input:focus-visible,
+.admin-checkbox-row input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.admin-feedback {
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.admin-feedback--error {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.16);
+}
+
+.admin-feedback--success {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.16);
+}
+
+.admin-questionnaire-settings__actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (max-width: 600px) {
+  .admin-questionnaire-settings {
+    padding: 1.25rem;
+  }
+
+  .admin-questionnaire-settings__header {
+    flex-direction: column;
+  }
+}
+
+.admin-unlock-button {
+  align-self: flex-start;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-unlock-button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.admin-unlock-button--active {
+  background: var(--surface);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.admin-unlock-button--active:hover {
+  background: rgba(239, 68, 68, 0.05);
+  border-color: var(--danger);
+}
+
+.admin-unlock-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

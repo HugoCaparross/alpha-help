@@ -57,12 +57,12 @@ export default function ProjectParticipation() {
           <h2 id="project-participation-title" className="section-title">
             ¿Cómo participar?
           </h2>
-
-          <p className="section-description">
-            El proceso de participación ha sido diseñado para ser sencillo,
-            accesible y completamente guiado.
-          </p>
         </div>
+
+        <p className="section-description project-participation-description">
+          El proceso de participación ha sido diseñado para ser sencillo,
+          accesible y completamente guiado.
+        </p>
 
         <div className="participation-timeline">
           {PARTICIPATION_STEPS.map((step) => {

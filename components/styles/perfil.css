@@ -1,30 +1,28 @@
-/* ==========================================
-   PERFIL PAGE
-========================================== */
-
 .perfil-page {
   display: flex;
   flex-direction: column;
-
-  max-width: 900px;
-  gap: 2rem;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  min-width: 0;
 }
 
-/* ==========================================
-   SUMMARY
-========================================== */
+.perfil-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
 
 .perfil-summary {
   display: flex;
   align-items: center;
   gap: 1rem;
-
-  padding: 1.5rem;
-
+  padding: 1.35rem 1.5rem;
   background: var(--surface);
   border: var(--border-light);
   border-radius: var(--radius-lg);
-
   box-shadow: var(--shadow-card);
 }
 
@@ -32,264 +30,174 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  flex-shrink: 0;
-
-  width: 3rem;
-  height: 3rem;
-
+  flex: 0 0 3.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
   border-radius: 50%;
-
   background: var(--accent);
   color: #fff;
-
-  font-size: 1.125rem;
-  font-weight: 700;
-
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-size: 1rem;
+  font-weight: 750;
 }
 
 .perfil-summary-content {
   display: flex;
   flex-direction: column;
-
-  min-width: 0;
   gap: 0.2rem;
+  min-width: 0;
 }
 
-.perfil-summary-name {
+.perfil-summary-title {
   margin: 0;
-
   color: var(--neutral-900);
+  font-size: 1.35rem;
+  font-weight: 750;
+  line-height: 1.25;
+}
 
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.3;
-
+.perfil-summary-role,
+.perfil-summary-code {
+  margin: 0;
+  color: var(--neutral-600);
+  font-size: 0.9rem;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
-.perfil-summary-region {
-  margin: 0;
-
-  color: var(--neutral-600);
-
-  font-size: 0.95rem;
-  line-height: 1.5;
+.perfil-summary-code {
+  color: var(--neutral-500);
 }
 
-/* ==========================================
-   GRID
-========================================== */
+.perfil-introduction {
+  max-width: 900px;
+  padding: 1rem 1.15rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(14, 165, 233, 0.04);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.perfil-introduction p {
+  margin: 0;
+  color: var(--neutral-600);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
 
 .perfil-grid {
   display: grid;
-
-  grid-template-columns: 1.1fr 1.35fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-
   align-items: stretch;
 }
 
-/* ==========================================
-   CARDS
-========================================== */
-
 .perfil-card {
-  position: relative;
-
-  display: flex;
-  flex-direction: column;
-
-  height: 100%;
-  padding: 1.5rem;
-
+  min-width: 0;
+  padding: 1.35rem;
   background: var(--surface);
-
   border: var(--border-light);
   border-radius: var(--radius-lg);
-
   box-shadow: var(--shadow-card);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-
-  box-sizing: border-box;
 }
 
-.perfil-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  right: 0;
-  left: 0;
-
-  height: 3px;
-
-  background: var(--accent);
-
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.perfil-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow: var(--shadow-hover);
+.perfil-card--children {
+  grid-column: 1 / -1;
 }
 
 .perfil-card-title {
-  margin: 0 0 1rem;
-
+  margin: 0 0 0.75rem;
   color: var(--neutral-900);
-
   font-size: 1rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
-/* ==========================================
-   FIELDS
-========================================== */
-
 .perfil-field {
-  display: flex;
-  flex-direction: column;
-
-  gap: 0.25rem;
-
-  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: minmax(130px, 0.75fr) minmax(0, 1.25fr);
+  gap: 1rem;
+  align-items: baseline;
+  min-width: 0;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--neutral-100);
 }
 
 .perfil-field:last-child {
-  margin-bottom: 0;
+  border-bottom: 0;
 }
 
 .perfil-label {
   color: var(--neutral-500);
-
   font-size: 0.8rem;
-  font-weight: 500;
-  line-height: 1.3;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .perfil-value {
-  color: var(--neutral-900);
-
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.45;
-
-  overflow-wrap: anywhere;
-}
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
-@media (max-width: 1200px) {
-  .perfil-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .perfil-page {
-    max-width: 100%;
-  }
-
-  .perfil-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .perfil-summary {
-    padding: 1.25rem;
-  }
-
-  .perfil-summary-avatar {
-    width: 2.75rem;
-    height: 2.75rem;
-
-    font-size: 1rem;
-  }
-
-  .perfil-card {
-    padding: 1.25rem;
-  }
-
-  .perfil-card-title {
-    font-size: 0.95rem;
-  }
-
-  .perfil-value {
-    font-size: 0.95rem;
-  }
-}
-/* UX/UI refinement — TANDA 2 */
-.perfil-page {
-  gap: 1.5rem;
-}
-.perfil-summary {
-  padding: 1.25rem 1.5rem;
-}
-.perfil-grid {
-  gap: 1.25rem;
-}
-.perfil-card {
-  padding: 1.5rem;
-}
-.perfil-card-title {
-  margin-bottom: 1.25rem;
-}
-.perfil-field {
-  gap: 0.375rem;
-  padding-block: 0.75rem;
-}
-.perfil-label {
-  letter-spacing: 0.01em;
-}
-@media (max-width: 768px) {
-  .perfil-page {
-    gap: 1rem;
-  }
-  .perfil-summary {
-    padding: 1rem;
-  }
-  .perfil-card {
-    padding: 1.25rem;
-  }
-  .perfil-field {
-    padding-block: 0.625rem;
-  }
-}
-
-/* TANDA 5 — estados de información del perfil */
-.perfil-field {
   min-width: 0;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  color: var(--neutral-900);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .perfil-field--empty .perfil-value {
   color: var(--neutral-400);
+  font-weight: 500;
   font-style: italic;
 }
 
-.perfil-field:focus-within {
-  border-radius: var(--radius-sm, 0.5rem);
-  outline: 2px solid
-    color-mix(in srgb, var(--color-primary, #1f5f9f) 18%, transparent);
-  outline-offset: 2px;
+.perfil-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--neutral-600);
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
 }
 
-@media (max-width: 480px) {
-  .perfil-field:focus-within {
-    outline-offset: 1px;
+.perfil-state--error {
+  color: var(--danger);
+}
+
+@media (max-width: 900px) {
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-card--children {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .perfil-page,
+  .perfil-view {
+    gap: 1rem;
+  }
+
+  .perfil-summary {
+    align-items: flex-start;
+    padding: 1.15rem;
+  }
+
+  .perfil-summary-avatar {
+    flex-basis: 3rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .perfil-card {
+    padding: 1.15rem;
+  }
+
+  .perfil-field {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    padding: 0.75rem 0;
   }
 }

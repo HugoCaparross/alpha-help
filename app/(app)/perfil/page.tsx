@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 
-import BackToDashboard from "@/components/ui/BackToDashboard";
-
+import PageHeader from "@/components/ui/PageHeader";
 import PerfilView from "@/components/profile/PerfilView";
 
 import { getProfile } from "@/lib/supabase/getProfile";
-
 import type { UserProfile } from "@/types/user";
 
 import "@/components/styles/perfil.css";
@@ -16,24 +14,14 @@ const PAGE_TITLE = "Mi perfil";
 
 const MESSAGES = {
   loading: "Cargando perfil...",
-  empty:
-    "No se ha podido recuperar la información de tu perfil.",
-  unknownError:
-    "Ha ocurrido un error al cargar el perfil.",
+  empty: "No se ha podido recuperar la información de tu perfil.",
+  unknownError: "Ha ocurrido un error al cargar el perfil.",
 } as const;
 
-/**
- * Página del perfil del participante.
- */
 export default function PerfilPage() {
-  const [profile, setProfile] =
-    useState<UserProfile | null>(null);
-
-  const [isLoading, setIsLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState<string | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -43,35 +31,22 @@ export default function PerfilPage() {
         setIsLoading(true);
         setError(null);
 
-        const data =
-          await getProfile();
+        const data = await getProfile();
 
-        if (!isMounted) {
-          return;
-        }
-
+        if (!isMounted) return;
         setProfile(data);
-      } catch (error) {
-        if (!isMounted) {
-          return;
-        }
+      } catch (loadError) {
+        if (!isMounted) return;
 
         setError(
-          error instanceof Error
-            ? error.message
-            : MESSAGES.unknownError,
+          loadError instanceof Error ? loadError.message : MESSAGES.unknownError,
         );
 
-        if (
-          process.env.NODE_ENV ===
-          "development"
-        ) {
-          console.error(error);
+        if (process.env.NODE_ENV === "development") {
+          console.error(loadError);
         }
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        if (isMounted) setIsLoading(false);
       }
     }
 
@@ -82,65 +57,29 @@ export default function PerfilPage() {
     };
   }, []);
 
-  if (isLoading) {
-    return (
-      <section
-        className="perfil-page"
-        aria-busy="true"
-      >
-        <div className="page-navigation">
-          <BackToDashboard />
-        </div>
-
-        <h1>{PAGE_TITLE}</h1>
-
-        <p role="status">
-          {MESSAGES.loading}
-        </p>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="perfil-page">
-        <div className="page-navigation">
-          <BackToDashboard />
-        </div>
-
-        <h1>{PAGE_TITLE}</h1>
-
-        <p
-          role="alert"
-          aria-live="polite"
-        >
-          {error}
-        </p>
-      </section>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <section className="perfil-page">
-        <div className="page-navigation">
-          <BackToDashboard />
-        </div>
-
-        <h1>{PAGE_TITLE}</h1>
-
-        <p>{MESSAGES.empty}</p>
-      </section>
-    );
-  }
-
   return (
     <section className="perfil-page">
-      <div className="page-navigation">
-        <BackToDashboard />
-      </div>
+      <PageHeader title={PAGE_TITLE} />
 
-      <PerfilView profile={profile} />
+      {isLoading && (
+        <div className="perfil-state" aria-busy="true" role="status">
+          {MESSAGES.loading}
+        </div>
+      )}
+
+      {!isLoading && error && (
+        <div className="perfil-state perfil-state--error" role="alert" aria-live="polite">
+          {error}
+        </div>
+      )}
+
+      {!isLoading && !error && !profile && (
+        <div className="perfil-state" role="status">
+          {MESSAGES.empty}
+        </div>
+      )}
+
+      {!isLoading && !error && profile && <PerfilView profile={profile} />}
     </section>
   );
 }

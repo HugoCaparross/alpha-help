@@ -646,3 +646,62 @@
     transition: none;
   }
 }
+
+/* Corrección final: ritmo y separación entre tarjetas */
+.estudio-page {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  gap: 2rem;
+}
+
+.estudio-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.estudio-content > * {
+  min-width: 0;
+}
+
+.estudio-card,
+.estudio-privacy {
+  margin: 0;
+}
+
+.estudio-highlights,
+.estudio-objectives,
+.estudio-method-grid,
+.estudio-timeline {
+  gap: 1.25rem;
+}
+
+.estudio-topics {
+  row-gap: 1rem;
+  column-gap: 0.875rem;
+}
+
+.estudio-card + .estudio-card,
+.estudio-method-grid + .estudio-card,
+.estudio-highlights + .estudio-card {
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .estudio-page {
+    gap: 1.5rem;
+  }
+
+  .estudio-content {
+    gap: 1.25rem;
+  }
+
+  .estudio-highlights,
+  .estudio-objectives,
+  .estudio-method-grid,
+  .estudio-timeline {
+    gap: 1rem;
+  }
+}

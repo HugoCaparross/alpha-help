@@ -1,7 +1,5 @@
 import { CalendarOff } from "lucide-react";
 
-import BackToDashboard from "@/components/ui/BackToDashboard";
-
 const EMPTY_TITLE = "No hay sesiones disponibles";
 
 const EMPTY_DESCRIPTION =
@@ -14,10 +12,6 @@ export default function SessionEmptyState() {
       role="status"
       aria-live="polite"
     >
-      <div className="page-navigation">
-        <BackToDashboard />
-      </div>
-
       <div
         className="sessions-empty__icon"
         aria-hidden="true"

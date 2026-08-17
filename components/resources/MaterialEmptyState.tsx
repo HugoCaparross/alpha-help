@@ -1,7 +1,5 @@
 import { FileX } from "lucide-react";
 
-import BackToDashboard from "@/components/ui/BackToDashboard";
-
 export default function MaterialEmptyState() {
   return (
     <section
@@ -9,10 +7,6 @@ export default function MaterialEmptyState() {
       role="status"
       aria-live="polite"
     >
-      <div className="page-navigation">
-        <BackToDashboard />
-      </div>
-
       <div
         className="materials-empty__icon"
         aria-hidden="true"
