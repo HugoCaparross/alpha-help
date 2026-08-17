@@ -3,7 +3,13 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+} from "lucide-react";
 
 import LegalModal from "@/components/legal/LegalModal";
 import PrivacyContent from "@/components/legal/PrivacyContent";
@@ -18,7 +24,9 @@ import type { RegisterData } from "./register.types";
 interface Props {
   formData: RegisterData;
 
-  setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<RegisterData>
+  >;
 
   nextStep: () => void;
 }
@@ -28,19 +36,25 @@ export default function RegisterStepAccount({
   setFormData,
   nextStep,
 }: Props) {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState(false);
 
   const [error, setError] = useState("");
 
-  const [openPrivacy, setOpenPrivacy] = useState(false);
+  const [openPrivacy, setOpenPrivacy] =
+    useState(false);
 
-  const [openLegal, setOpenLegal] = useState(false);
+  const [openLegal, setOpenLegal] =
+    useState(false);
 
-  const [openCookies, setOpenCookies] = useState(false);
+  const [openCookies, setOpenCookies] =
+    useState(false);
 
-  const [openInformedConsent, setOpenInformedConsent] = useState(false);
+  const [openInformedConsent, setOpenInformedConsent] =
+    useState(false);
 
   function updateField<K extends keyof RegisterData>(
     field: K,
@@ -61,11 +75,15 @@ export default function RegisterStepAccount({
       password: formData.password,
       confirmPassword: formData.confirmPassword,
       acceptedPolicy: formData.acceptedPolicy,
-      acceptedInformedConsent: formData.acceptedInformedConsent,
+      acceptedInformedConsent:
+        formData.acceptedInformedConsent,
     });
 
     if (!result.success) {
-      setError(result.error.issues[0].message);
+      setError(
+        result.error.issues[0]?.message ??
+        "Revisa los datos introducidos.",
+      );
 
       return false;
     }
@@ -73,7 +91,9 @@ export default function RegisterStepAccount({
     return true;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     if (!validateStep()) {
@@ -83,22 +103,31 @@ export default function RegisterStepAccount({
     nextStep();
   }
 
+  const fieldInvalid = Boolean(error);
+
   return (
     <>
       <form onSubmit={handleSubmit} noValidate>
         <div className="register-header">
-          <h1 className="register-title">Crear cuenta</h1>
+          <h1 className="register-title">
+            Crear cuenta
+          </h1>
         </div>
 
-        {/* EMAIL */}
-
         <div className="auth-field">
-          <label htmlFor="email" className="auth-label">
+          <label
+            htmlFor="email"
+            className="auth-label"
+          >
             Correo electrónico
           </label>
 
           <div className="auth-input-wrapper">
-            <Mail size={18} className="auth-input-icon" />
+            <Mail
+              size={18}
+              className="auth-input-icon"
+              aria-hidden="true"
+            />
 
             <input
               id="email"
@@ -106,14 +135,20 @@ export default function RegisterStepAccount({
               autoComplete="email"
               className="auth-input auth-input-with-icon"
               placeholder="Correo electrónico"
-              value={formData.email.trimStart()}
-              aria-invalid={!!error}
-              onChange={(event) => updateField("email", event.target.value)}
+              value={formData.email}
+              aria-invalid={fieldInvalid}
+              aria-describedby={
+                error ? "register-account-error" : undefined
+              }
+              onChange={(event) =>
+                updateField(
+                  "email",
+                  event.target.value,
+                )
+              }
             />
           </div>
         </div>
-
-        {/* REGIÓN */}
 
         <div
           className="region-selector"
@@ -122,13 +157,21 @@ export default function RegisterStepAccount({
         >
           <button
             type="button"
-            aria-pressed={formData.region === "spain"}
-            className={`region-card ${
-              formData.region === "spain" ? "active" : ""
-            }`}
-            onClick={() => updateField("region", "spain")}
+            role="radio"
+            aria-checked={
+              formData.region === "spain"
+            }
+            className={`region-card ${formData.region === "spain"
+                ? "active"
+                : ""
+              }`}
+            onClick={() =>
+              updateField("region", "spain")
+            }
           >
-            <span className="region-card-title">España</span>
+            <span className="region-card-title">
+              España
+            </span>
 
             <span className="region-card-description">
               Participantes residentes en España
@@ -137,74 +180,119 @@ export default function RegisterStepAccount({
 
           <button
             type="button"
-            aria-pressed={formData.region === "latam"}
-            className={`region-card ${
-              formData.region === "latam" ? "active" : ""
-            }`}
-            onClick={() => updateField("region", "latam")}
+            role="radio"
+            aria-checked={
+              formData.region === "latam"
+            }
+            className={`region-card ${formData.region === "latam"
+                ? "active"
+                : ""
+              }`}
+            onClick={() =>
+              updateField("region", "latam")
+            }
           >
-            <span className="region-card-title">Latinoamérica</span>
+            <span className="region-card-title">
+              Latinoamérica
+            </span>
 
             <span className="region-card-description">
-              Participantes residentes en Latinoamérica
+              Participantes residentes en
+              Latinoamérica
             </span>
           </button>
         </div>
 
-        {/* CONTRASEÑA */}
-
         <div className="auth-field">
-          <label htmlFor="password" className="auth-label">
+          <label
+            htmlFor="password"
+            className="auth-label"
+          >
             Contraseña
           </label>
 
           <div className="auth-input-wrapper">
-            <Lock size={18} className="auth-input-icon" />
+            <Lock
+              size={18}
+              className="auth-input-icon"
+              aria-hidden="true"
+            />
 
             <input
               id="password"
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               autoComplete="new-password"
               className="auth-input auth-input-with-icon"
               placeholder="Contraseña"
               value={formData.password}
-              aria-invalid={!!error}
-              onChange={(event) => updateField("password", event.target.value)}
+              aria-invalid={fieldInvalid}
+              onChange={(event) =>
+                updateField(
+                  "password",
+                  event.target.value,
+                )
+              }
             />
 
             <button
               type="button"
               className="auth-toggle"
               aria-label={
-                showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                showPassword
+                  ? "Ocultar contraseña"
+                  : "Mostrar contraseña"
               }
-              onClick={() => setShowPassword((previous) => !previous)}
+              onClick={() =>
+                setShowPassword(
+                  (previous) => !previous,
+                )
+              }
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? (
+                <EyeOff size={18} />
+              ) : (
+                <Eye size={18} />
+              )}
             </button>
           </div>
         </div>
 
-        {/* CONFIRMAR CONTRASEÑA */}
-
         <div className="auth-field">
-          <label htmlFor="confirm-password" className="auth-label">
+          <label
+            htmlFor="confirm-password"
+            className="auth-label"
+          >
             Confirmar contraseña
           </label>
 
           <div className="auth-input-wrapper">
-            <Lock size={18} className="auth-input-icon" />
+            <Lock
+              size={18}
+              className="auth-input-icon"
+              aria-hidden="true"
+            />
 
             <input
               id="confirm-password"
-              type={showConfirmPassword ? "text" : "password"}
+              type={
+                showConfirmPassword
+                  ? "text"
+                  : "password"
+              }
               autoComplete="new-password"
               className="auth-input auth-input-with-icon"
               placeholder="Confirmar contraseña"
               value={formData.confirmPassword}
-              aria-invalid={!!error}
+              aria-invalid={fieldInvalid}
               onChange={(event) =>
-                updateField("confirmPassword", event.target.value)
+                updateField(
+                  "confirmPassword",
+                  event.target.value,
+                )
               }
             />
 
@@ -216,9 +304,17 @@ export default function RegisterStepAccount({
                   ? "Ocultar contraseña"
                   : "Mostrar contraseña"
               }
-              onClick={() => setShowConfirmPassword((previous) => !previous)}
+              onClick={() =>
+                setShowConfirmPassword(
+                  (previous) => !previous,
+                )
+              }
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showConfirmPassword ? (
+                <EyeOff size={18} />
+              ) : (
+                <Eye size={18} />
+              )}
             </button>
           </div>
         </div>
@@ -228,7 +324,10 @@ export default function RegisterStepAccount({
             type="checkbox"
             checked={formData.acceptedPolicy}
             onChange={(event) =>
-              updateField("acceptedPolicy", event.target.checked)
+              updateField(
+                "acceptedPolicy",
+                event.target.checked,
+              )
             }
           />
 
@@ -237,7 +336,9 @@ export default function RegisterStepAccount({
             <button
               type="button"
               className="auth-legal-link"
-              onClick={() => setOpenPrivacy(true)}
+              onClick={() =>
+                setOpenPrivacy(true)
+              }
             >
               Política de Privacidad
             </button>
@@ -245,7 +346,9 @@ export default function RegisterStepAccount({
             <button
               type="button"
               className="auth-legal-link"
-              onClick={() => setOpenLegal(true)}
+              onClick={() =>
+                setOpenLegal(true)
+              }
             >
               Aviso Legal
             </button>{" "}
@@ -253,7 +356,9 @@ export default function RegisterStepAccount({
             <button
               type="button"
               className="auth-legal-link"
-              onClick={() => setOpenCookies(true)}
+              onClick={() =>
+                setOpenCookies(true)
+              }
             >
               Política de Cookies
             </button>
@@ -264,9 +369,14 @@ export default function RegisterStepAccount({
         <label className="auth-checkbox">
           <input
             type="checkbox"
-            checked={formData.acceptedInformedConsent}
+            checked={
+              formData.acceptedInformedConsent
+            }
             onChange={(event) =>
-              updateField("acceptedInformedConsent", event.target.checked)
+              updateField(
+                "acceptedInformedConsent",
+                event.target.checked,
+              )
             }
           />
 
@@ -275,7 +385,9 @@ export default function RegisterStepAccount({
             <button
               type="button"
               className="auth-legal-link"
-              onClick={() => setOpenInformedConsent(true)}
+              onClick={() =>
+                setOpenInformedConsent(true)
+              }
             >
               Registro Informado
             </button>{" "}
@@ -284,19 +396,31 @@ export default function RegisterStepAccount({
         </label>
 
         {error && (
-          <p className="auth-error" role="alert" aria-live="polite">
+          <p
+            id="register-account-error"
+            className="auth-error"
+            role="alert"
+            aria-live="polite"
+          >
             {error}
           </p>
         )}
 
         <div className="register-login-link">
-          <span>¿Ya tienes cuenta?</span>
+          <span>
+            ¿Ya tienes cuenta?
+          </span>
 
-          <Link href="/login">Iniciar sesión</Link>
+          <Link href="/login">
+            Iniciar sesión
+          </Link>
         </div>
 
         <div className="step-actions step-actions-full">
-          <button type="submit" className="btn-primary btn-full">
+          <button
+            type="submit"
+            className="btn-primary btn-full"
+          >
             Continuar
             <ArrowRight size={18} />
           </button>
@@ -306,7 +430,9 @@ export default function RegisterStepAccount({
       <LegalModal
         open={openPrivacy}
         title="Política de Privacidad"
-        onClose={() => setOpenPrivacy(false)}
+        onClose={() =>
+          setOpenPrivacy(false)
+        }
       >
         <PrivacyContent />
       </LegalModal>
@@ -314,7 +440,9 @@ export default function RegisterStepAccount({
       <LegalModal
         open={openLegal}
         title="Aviso Legal"
-        onClose={() => setOpenLegal(false)}
+        onClose={() =>
+          setOpenLegal(false)
+        }
       >
         <LegalContent />
       </LegalModal>
@@ -322,7 +450,9 @@ export default function RegisterStepAccount({
       <LegalModal
         open={openCookies}
         title="Política de Cookies"
-        onClose={() => setOpenCookies(false)}
+        onClose={() =>
+          setOpenCookies(false)
+        }
       >
         <CookiesContent />
       </LegalModal>
@@ -330,7 +460,9 @@ export default function RegisterStepAccount({
       <LegalModal
         open={openInformedConsent}
         title="Registro Informado"
-        onClose={() => setOpenInformedConsent(false)}
+        onClose={() =>
+          setOpenInformedConsent(false)
+        }
       >
         <InformedConsentContent />
       </LegalModal>

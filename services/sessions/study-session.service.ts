@@ -7,15 +7,10 @@ import type { Session, SessionWithStatus } from "@/types/study-session";
 
 const STUDY_SESSIONS_TABLE = "study_sessions";
 
-/**
- * Número total de contenidos
- * audiovisuales que componen
- * el estudio:
- *
- * - Introducción
- * - 9 sesiones
- */
+/** Introducción + 9 sesiones. */
 export const TOTAL_STUDY_SESSIONS = 10;
+const FIRST_SESSION_ORDER = 0;
+const LAST_SESSION_ORDER = 9;
 
 const SESSION_FIELDS = `
   id,
@@ -30,7 +25,6 @@ const SESSION_FIELDS = `
 `;
 
 const ERROR_GET_SESSIONS = "No se han podido recuperar las sesiones.";
-
 const ERROR_PROFILE_NOT_FOUND =
   "No se ha podido recuperar el perfil del participante.";
 
@@ -60,6 +54,16 @@ function mapSession(row: SessionRow): Session {
   };
 }
 
+function normalizeSessions(sessions: Session[]): Session[] {
+  return sessions
+    .filter(
+      (session) =>
+        session.sessionOrder >= FIRST_SESSION_ORDER &&
+        session.sessionOrder <= LAST_SESSION_ORDER,
+    )
+    .sort((first, second) => first.sessionOrder - second.sessionOrder);
+}
+
 async function getCurrentRegion(): Promise<Region> {
   const profile = await getProfile();
 
@@ -75,18 +79,12 @@ function getReleaseDate(session: Session, region: Region): string {
 }
 
 function isReleased(releaseDate: string): boolean {
-  return Date.parse(releaseDate) <= Date.now();
+  const timestamp = Date.parse(releaseDate);
+  return Number.isFinite(timestamp) && timestamp <= Date.now();
 }
 
 export function isSessionAvailable(session: Session, region: Region): boolean {
   return isReleased(getReleaseDate(session, region));
-}
-
-function getStatus(
-  session: Session,
-  region: Region,
-): SessionWithStatus["status"] {
-  return isSessionAvailable(session, region) ? "available" : "locked";
 }
 
 function mapSessionWithStatus(
@@ -96,7 +94,7 @@ function mapSessionWithStatus(
   return {
     ...session,
     releaseDate: getReleaseDate(session, region),
-    status: getStatus(session, region),
+    status: isSessionAvailable(session, region) ? "available" : "locked",
   };
 }
 
@@ -104,15 +102,17 @@ export async function getSessions(): Promise<Session[]> {
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
-    .order("session_order", {
-      ascending: true,
-    });
+    .gte("session_order", FIRST_SESSION_ORDER)
+    .lte("session_order", LAST_SESSION_ORDER)
+    .order("session_order", { ascending: true });
 
   if (error) {
     throw new Error(ERROR_GET_SESSIONS);
   }
 
-  return (data ?? []).map((row) => mapSession(row as SessionRow));
+  return normalizeSessions(
+    (data ?? []).map((row) => mapSession(row as SessionRow)),
+  );
 }
 
 export async function getSessionById(
@@ -132,7 +132,16 @@ export async function getSessionById(
     return null;
   }
 
-  return mapSession(data as SessionRow);
+  const session = mapSession(data as SessionRow);
+
+  if (
+    session.sessionOrder < FIRST_SESSION_ORDER ||
+    session.sessionOrder > LAST_SESSION_ORDER
+  ) {
+    return null;
+  }
+
+  return session;
 }
 
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
@@ -146,12 +155,10 @@ export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
 
 export async function getAvailableSessions(): Promise<SessionWithStatus[]> {
   const sessions = await getSessionsWithStatus();
-
   return sessions.filter(({ status }) => status === "available");
 }
 
 export async function getNextSession(): Promise<SessionWithStatus | null> {
   const sessions = await getSessionsWithStatus();
-
   return sessions.find(({ status }) => status === "locked") ?? null;
 }

@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import {
+  useState,
+  type FormEvent,
+} from "react";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 
 import { familySchema } from "@/validators";
 
@@ -17,7 +23,9 @@ import type { RegisterData } from "./register.types";
 interface Props {
   formData: RegisterData;
 
-  setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<RegisterData>
+  >;
 
   nextStep: () => void;
 
@@ -30,7 +38,8 @@ export default function RegisterStepFamily({
   nextStep,
   previousStep,
 }: Props) {
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
   function updateField<K extends keyof RegisterData>(
     field: K,
@@ -45,18 +54,23 @@ export default function RegisterStepFamily({
   }
 
   function validateStep(): boolean {
-    const result = familySchema.safeParse({
-      socioeconomicLevel: formData.socioeconomicLevel,
-
-      schoolType: formData.schoolType,
-
-      numberOfChildren: formData.numberOfChildren,
-
-      familyStructure: formData.familyStructure,
-    });
+    const result =
+      familySchema.safeParse({
+        socioeconomicLevel:
+          formData.socioeconomicLevel,
+        schoolType:
+          formData.schoolType,
+        numberOfChildren:
+          formData.numberOfChildren,
+        familyStructure:
+          formData.familyStructure,
+      });
 
     if (!result.success) {
-      setError(result.error.issues[0].message);
+      setError(
+        result.error.issues[0]?.message ??
+        "Revisa los datos familiares.",
+      );
 
       return false;
     }
@@ -64,7 +78,9 @@ export default function RegisterStepFamily({
     return true;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     if (!validateStep()) {
@@ -75,68 +91,100 @@ export default function RegisterStepFamily({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <h2 className="step-title">Información familiar</h2>
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      <h2 className="step-title">
+        Información familiar
+      </h2>
 
       <p className="step-description">
-        Queremos conocer mejor el entorno familiar para contextualizar la
+        Queremos conocer mejor el entorno
+        familiar para contextualizar la
         participación en el estudio.
       </p>
 
-      {/* NIVEL SOCIOECONÓMICO */}
-
       <div className="auth-field">
-        <label htmlFor="socioeconomic-level" className="auth-label">
+        <label
+          htmlFor="socioeconomic-level"
+          className="auth-label"
+        >
           Nivel socioeconómico familiar
         </label>
 
         <select
           id="socioeconomic-level"
           className="auth-input"
-          aria-invalid={!!error}
-          value={formData.socioeconomicLevel}
+          aria-invalid={Boolean(error)}
+          value={
+            formData.socioeconomicLevel
+          }
           onChange={(event) =>
-            updateField("socioeconomicLevel", event.target.value)
+            updateField(
+              "socioeconomicLevel",
+              event.target.value,
+            )
           }
         >
-          <option value="">Selecciona una opción</option>
+          <option value="">
+            Selecciona una opción
+          </option>
 
-          {SOCIOECONOMIC_LEVELS.map((level) => (
-            <option key={level} value={level}>
-              {level}
-            </option>
-          ))}
+          {SOCIOECONOMIC_LEVELS.map(
+            (level) => (
+              <option
+                key={level}
+                value={level}
+              >
+                {level}
+              </option>
+            ),
+          )}
         </select>
       </div>
 
-      {/* TIPO DE CENTRO */}
-
       <div className="auth-field">
-        <label htmlFor="school-type" className="auth-label">
-          Centro escolar al que acuden mis hijos
+        <label
+          htmlFor="school-type"
+          className="auth-label"
+        >
+          Centro escolar al que acuden
+          mis hijos
         </label>
 
         <select
           id="school-type"
           className="auth-input"
-          aria-invalid={!!error}
+          aria-invalid={Boolean(error)}
           value={formData.schoolType}
-          onChange={(event) => updateField("schoolType", event.target.value)}
+          onChange={(event) =>
+            updateField(
+              "schoolType",
+              event.target.value,
+            )
+          }
         >
-          <option value="">Selecciona una opción</option>
+          <option value="">
+            Selecciona una opción
+          </option>
 
           {SCHOOL_TYPES.map((type) => (
-            <option key={type} value={type}>
+            <option
+              key={type}
+              value={type}
+            >
               {type}
             </option>
           ))}
         </select>
       </div>
 
-      {/* NÚMERO DE HIJOS */}
-
       <div className="auth-field">
-        <label htmlFor="number-of-children" className="auth-label">
+        <label
+          htmlFor="number-of-children"
+          className="auth-label"
+        >
           Número de hijos/as
         </label>
 
@@ -147,57 +195,86 @@ export default function RegisterStepFamily({
           pattern="[0-9]*"
           className="auth-input"
           placeholder="Número de hijos"
-          aria-invalid={!!error}
+          aria-invalid={Boolean(error)}
           value={formData.numberOfChildren}
           onChange={(event) => {
-            const value = event.target.value.replace(/\D/g, "");
+            const value =
+              event.target.value.replace(
+                /\D/g,
+                "",
+              );
 
             if (value.length <= 1) {
-              updateField("numberOfChildren", value);
+              updateField(
+                "numberOfChildren",
+                value,
+              );
             }
           }}
         />
       </div>
 
-      {/* ESTRUCTURA FAMILIAR */}
-
       <div className="auth-field">
-        <label htmlFor="family-structure" className="auth-label">
+        <label
+          htmlFor="family-structure"
+          className="auth-label"
+        >
           Tipo de estructura familiar
         </label>
 
         <select
           id="family-structure"
           className="auth-input"
-          aria-invalid={!!error}
+          aria-invalid={Boolean(error)}
           value={formData.familyStructure}
           onChange={(event) =>
-            updateField("familyStructure", event.target.value)
+            updateField(
+              "familyStructure",
+              event.target.value,
+            )
           }
         >
-          <option value="">Selecciona una opción</option>
+          <option value="">
+            Selecciona una opción
+          </option>
 
-          {FAMILY_STRUCTURES.map((structure) => (
-            <option key={structure} value={structure}>
-              {structure}
-            </option>
-          ))}
+          {FAMILY_STRUCTURES.map(
+            (structure) => (
+              <option
+                key={structure}
+                value={structure}
+              >
+                {structure}
+              </option>
+            ),
+          )}
         </select>
       </div>
 
       {error && (
-        <p className="auth-error" role="alert" aria-live="polite">
+        <p
+          className="auth-error"
+          role="alert"
+          aria-live="polite"
+        >
           {error}
         </p>
       )}
 
       <div className="step-actions">
-        <button type="button" className="btn-secondary" onClick={previousStep}>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={previousStep}
+        >
           <ArrowLeft size={18} />
           Atrás
         </button>
 
-        <button type="submit" className="btn-primary">
+        <button
+          type="submit"
+          className="btn-primary"
+        >
           Continuar
           <ArrowRight size={18} />
         </button>

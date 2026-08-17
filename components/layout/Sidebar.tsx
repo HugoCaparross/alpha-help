@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   Book,
   ClipboardList,
@@ -53,7 +54,10 @@ function isNavigationItemActive(
     return pathname === "/dashboard";
   }
 
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return (
+    pathname === href ||
+    pathname.startsWith(`${href}/`)
+  );
 }
 
 function renderNavigationItems(
@@ -63,18 +67,23 @@ function renderNavigationItems(
   return items.map((item) => {
     const Icon = item.icon;
 
-    const active = isNavigationItemActive(
-      pathname,
-      item.href,
-    );
+    const active =
+      isNavigationItemActive(
+        pathname,
+        item.href,
+      );
 
     return (
       <Link
         key={item.href}
         href={item.href}
-        className={`sidebar-item ${active ? "sidebar-item--active" : ""
+        className={`sidebar-item ${active
+            ? "sidebar-item--active"
+            : ""
           }`}
-        aria-current={active ? "page" : undefined}
+        aria-current={
+          active ? "page" : undefined
+        }
       >
         <div className="sidebar-item-icon">
           <Icon size={20} />
@@ -117,7 +126,8 @@ export default function Sidebar() {
             </h1>
 
             <p className="sidebar-subtitle">
-              Investigación y bienestar adolescente
+              Investigación y bienestar
+              adolescente
             </p>
           </div>
         </Link>

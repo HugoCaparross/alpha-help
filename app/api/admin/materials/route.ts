@@ -33,12 +33,19 @@ async function ensureBucket(
 ) {
   const { data } = await admin.storage.getBucket(bucket);
 
-  if (!data) {
-    await admin.storage.createBucket(bucket, {
-      public: true,
-      fileSizeLimit: "25MB",
-    });
+  if (data) {
+    return;
   }
+
+  const isThumbnailBucket = bucket === THUMBNAIL_BUCKET;
+
+  await admin.storage.createBucket(bucket, {
+    public: false,
+    fileSizeLimit: "25MB",
+    allowedMimeTypes: isThumbnailBucket
+      ? ["image/png", "image/jpeg", "image/webp"]
+      : ["application/pdf"],
+  });
 }
 
 function sanitizeFileName(name: string): string {

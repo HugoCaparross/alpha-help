@@ -1,11 +1,16 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import {
+  useState,
+  type FormEvent,
+} from "react";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 
 import { getSchools } from "@/lib/constants";
-
 import { schoolSchema } from "@/validators";
 
 import type { RegisterData } from "./register.types";
@@ -13,7 +18,9 @@ import type { RegisterData } from "./register.types";
 interface Props {
   formData: RegisterData;
 
-  setFormData: React.Dispatch<React.SetStateAction<RegisterData>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<RegisterData>
+  >;
 
   nextStep: () => void;
 
@@ -26,7 +33,8 @@ export default function RegisterStepSchool({
   nextStep,
   previousStep,
 }: Props) {
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
   function updateField<K extends keyof RegisterData>(
     field: K,
@@ -41,12 +49,17 @@ export default function RegisterStepSchool({
   }
 
   function validateStep(): boolean {
-    const result = schoolSchema.safeParse({
-      schoolCenter: formData.schoolCenter,
-    });
+    const result =
+      schoolSchema.safeParse({
+        schoolCenter:
+          formData.schoolCenter,
+      });
 
     if (!result.success) {
-      setError(result.error.issues[0].message);
+      setError(
+        result.error.issues[0]?.message ??
+        "Selecciona un centro escolar.",
+      );
 
       return false;
     }
@@ -54,7 +67,9 @@ export default function RegisterStepSchool({
     return true;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     if (!validateStep()) {
@@ -64,18 +79,29 @@ export default function RegisterStepSchool({
     nextStep();
   }
 
-  const schools = formData.region ? getSchools(formData.region) : [];
+  const schools = formData.region
+    ? getSchools(formData.region)
+    : [];
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <h2 className="step-title">Centro escolar</h2>
+    <form
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      <h2 className="step-title">
+        Centro escolar
+      </h2>
 
       <p className="step-description">
-        Selecciona el centro escolar al que acuden tus hijos.
+        Selecciona el centro escolar al que
+        acuden tus hijos.
       </p>
 
       <div className="auth-field">
-        <label htmlFor="school-center" className="auth-label">
+        <label
+          htmlFor="school-center"
+          className="auth-label"
+        >
           Centro escolar
         </label>
 
@@ -84,13 +110,30 @@ export default function RegisterStepSchool({
           className="auth-input"
           value={formData.schoolCenter}
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? "school-center-error" : undefined}
-          onChange={(event) => updateField("schoolCenter", event.target.value)}
+          aria-describedby={
+            error
+              ? "school-center-error"
+              : undefined
+          }
+          disabled={!formData.region}
+          onChange={(event) =>
+            updateField(
+              "schoolCenter",
+              event.target.value,
+            )
+          }
         >
-          <option value="">Selecciona una opción</option>
+          <option value="">
+            {formData.region
+              ? "Selecciona una opción"
+              : "Selecciona primero tu región"}
+          </option>
 
           {schools.map((school) => (
-            <option key={school} value={school}>
+            <option
+              key={school}
+              value={school}
+            >
               {school}
             </option>
           ))}
@@ -109,12 +152,19 @@ export default function RegisterStepSchool({
       )}
 
       <div className="step-actions">
-        <button type="button" className="btn-secondary" onClick={previousStep}>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={previousStep}
+        >
           <ArrowLeft size={18} />
           Atrás
         </button>
 
-        <button type="submit" className="btn-primary">
+        <button
+          type="submit"
+          className="btn-primary"
+        >
           Continuar
           <ArrowRight size={18} />
         </button>

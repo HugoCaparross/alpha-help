@@ -2,9 +2,7 @@ import type { Region } from "@/lib/utils/regions";
 
 export interface ChildData {
   age: string;
-
   gender: string;
-
   psychologicalSupport: boolean;
 }
 
@@ -16,8 +14,13 @@ export interface RegisterData {
   email: string;
 
   /**
-   * Durante el primer paso todavía
-   * no se ha seleccionado ninguna región.
+   * Valor interno utilizado por la aplicación.
+   *
+   * La base de datos almacena:
+   * - España
+   * - Latinoamérica
+   *
+   * La conversión se realiza en el backend/trigger.
    */
   region: Region | "";
 

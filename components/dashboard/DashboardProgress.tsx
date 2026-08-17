@@ -1,4 +1,7 @@
-import { CheckCircle2, Circle } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 
 interface DashboardProgressProps {
   preCompleted: boolean;
@@ -22,7 +25,8 @@ interface ProgressItemData {
   description?: string;
 }
 
-interface ProgressItemProps extends ProgressItemData {}
+interface ProgressItemProps
+  extends ProgressItemData { }
 
 export default function DashboardProgress({
   preCompleted,
@@ -32,26 +36,78 @@ export default function DashboardProgress({
   completedMaterials,
   totalMaterials,
 }: DashboardProgressProps) {
-  const progressItems: readonly ProgressItemData[] = [
-    {
-      title: "Cuestionario inicial",
-      completed: preCompleted,
-    },
-    {
-      title: "Sesiones del programa",
-      completed: completedSessions === totalSessions,
-      description: `${completedSessions} de ${totalSessions} sesiones completadas`,
-    },
-    {
-      title: "Materiales de apoyo",
-      completed: completedMaterials === totalMaterials,
-      description: `${completedMaterials} de ${totalMaterials} materiales completados`,
-    },
-    {
-      title: "Evaluación final",
-      completed: postCompleted,
-    },
-  ];
+  const safeTotalSessions =
+    Math.max(
+      totalSessions,
+      1,
+    );
+
+  const safeTotalMaterials =
+    Math.max(
+      totalMaterials,
+      1,
+    );
+
+  const safeCompletedSessions =
+    Math.min(
+      Math.max(
+        completedSessions,
+        0,
+      ),
+      safeTotalSessions,
+    );
+
+  const safeCompletedMaterials =
+    Math.min(
+      Math.max(
+        completedMaterials,
+        0,
+      ),
+      safeTotalMaterials,
+    );
+
+  const progressItems: readonly ProgressItemData[] =
+    [
+      {
+        title:
+          "Cuestionario inicial",
+
+        completed:
+          preCompleted,
+      },
+
+      {
+        title:
+          "Sesiones del programa",
+
+        completed:
+          safeCompletedSessions ===
+          safeTotalSessions,
+
+        description:
+          `${safeCompletedSessions} de ${safeTotalSessions} sesiones completadas`,
+      },
+
+      {
+        title:
+          "Materiales del programa",
+
+        completed:
+          safeCompletedMaterials ===
+          safeTotalMaterials,
+
+        description:
+          `${safeCompletedMaterials} de ${safeTotalMaterials} contenidos completados`,
+      },
+
+      {
+        title:
+          "Evaluación final",
+
+        completed:
+          postCompleted,
+      },
+    ];
 
   return (
     <section
@@ -59,32 +115,55 @@ export default function DashboardProgress({
       aria-labelledby="dashboard-progress-title"
     >
       <div className="dashboard-card">
-        <h2 id="dashboard-progress-title" className="dashboard-card-title">
+        <h2
+          id="dashboard-progress-title"
+          className="dashboard-card-title"
+        >
           Tu progreso
         </h2>
 
         <div className="dashboard-progress">
-          {progressItems.map((item) => (
-            <ProgressItem key={item.title} {...item} />
-          ))}
+          {progressItems.map(
+            (item) => (
+              <ProgressItem
+                key={item.title}
+                {...item}
+              />
+            ),
+          )}
         </div>
       </div>
     </section>
   );
 }
 
-function ProgressItem({ title, completed, description }: ProgressItemProps) {
+function ProgressItem({
+  title,
+  completed,
+  description,
+}: ProgressItemProps) {
   return (
     <div className="dashboard-progress-item">
-      <div className="dashboard-progress-icon" aria-hidden="true">
-        {completed ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+      <div
+        className="dashboard-progress-icon"
+        aria-hidden="true"
+      >
+        {completed ? (
+          <CheckCircle2 size={20} />
+        ) : (
+          <Circle size={20} />
+        )}
       </div>
 
       <div className="dashboard-progress-content">
-        <span className="dashboard-progress-label">{title}</span>
+        <span className="dashboard-progress-label">
+          {title}
+        </span>
 
         {description && (
-          <span className="dashboard-progress-description">{description}</span>
+          <span className="dashboard-progress-description">
+            {description}
+          </span>
         )}
       </div>
     </div>

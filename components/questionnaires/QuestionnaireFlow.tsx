@@ -3,12 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import BackToDashboard from "@/components/ui/BackToDashboard";
+
 import QuestionBlock from "./QuestionBlock";
 import QuestionnaireCompletion from "./QuestionnaireCompletion";
 import QuestionnaireIntroduction from "./QuestionnaireIntroduction";
 import QuestionnaireInstructions from "./QuestionnaireInstructions";
 
-import { hasCompletedQuestionnaire } from "@/services/questionnaires/questionnaire.service";
+import {
+  hasCompletedQuestionnaire,
+} from "@/services/questionnaires/questionnaire.service";
 
 import type { QuestionnaireType } from "@/types/questionnaire";
 
@@ -24,46 +28,53 @@ type FlowScreen =
   | "completed"
   | "error";
 
-const LOAD_ERROR = "No se ha podido cargar el cuestionario.";
+const LOAD_ERROR =
+  "No se ha podido cargar el cuestionario.";
 
 export default function QuestionnaireFlow({
   questionnaireId,
 }: QuestionnaireFlowProps) {
   const router = useRouter();
 
-  const [screen, setScreen] = useState<FlowScreen>("loading");
+  const [screen, setScreen] =
+    useState<FlowScreen>("loading");
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  /**
-   * Comprueba si el cuestionario
-   * puede iniciarse.
-   */
-  const loadQuestionnaire = useCallback(async () => {
-    try {
-      setError("");
+  const loadQuestionnaire =
+    useCallback(async () => {
+      try {
+        setError("");
 
-      if (questionnaireId === "post") {
-        const hasCompletedPre = await hasCompletedQuestionnaire("pre");
+        if (questionnaireId === "post") {
+          const hasCompletedPre =
+            await hasCompletedQuestionnaire(
+              "pre",
+            );
 
-        if (!hasCompletedPre) {
-          router.replace("/cuestionarios");
+          if (!hasCompletedPre) {
+            router.replace(
+              "/cuestionarios",
+            );
 
-          return;
+            return;
+          }
         }
+
+        setScreen("introduction");
+      } catch (error) {
+        if (
+          process.env.NODE_ENV ===
+          "development"
+        ) {
+          console.error(error);
+        }
+
+        setError(LOAD_ERROR);
+        setScreen("error");
       }
-
-      setScreen("introduction");
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(error);
-      }
-
-      setError(LOAD_ERROR);
-
-      setScreen("error");
-    }
-  }, [questionnaireId, router]);
+    }, [questionnaireId, router]);
 
   useEffect(() => {
     void loadQuestionnaire();
@@ -72,7 +83,14 @@ export default function QuestionnaireFlow({
   switch (screen) {
     case "loading":
       return (
-        <section className="questionnaire-loading" aria-live="polite">
+        <section
+          className="questionnaire-loading"
+          aria-live="polite"
+        >
+          <div className="page-navigation">
+            <BackToDashboard />
+          </div>
+
           Cargando cuestionario...
         </section>
       );
@@ -84,12 +102,18 @@ export default function QuestionnaireFlow({
           role="alert"
           aria-live="polite"
         >
+          <div className="page-navigation">
+            <BackToDashboard />
+          </div>
+
           <p>{error}</p>
 
           <button
             type="button"
             className="btn-primary"
-            onClick={() => void loadQuestionnaire()}
+            onClick={() =>
+              void loadQuestionnaire()
+            }
           >
             Reintentar
           </button>
@@ -98,31 +122,69 @@ export default function QuestionnaireFlow({
 
     case "introduction":
       return (
-        <QuestionnaireIntroduction
-          questionnaireId={questionnaireId}
-          onStart={() => setScreen("instructions")}
-        />
+        <section className="questionnaire-flow">
+          <div className="page-navigation">
+            <BackToDashboard />
+          </div>
+
+          <QuestionnaireIntroduction
+            questionnaireId={
+              questionnaireId
+            }
+            onStart={() =>
+              setScreen(
+                "instructions",
+              )
+            }
+          />
+        </section>
       );
 
     case "instructions":
       return (
-        <QuestionnaireInstructions onStart={() => setScreen("in_progress")} />
+        <section className="questionnaire-flow">
+          <div className="page-navigation">
+            <BackToDashboard />
+          </div>
+
+          <QuestionnaireInstructions
+            onStart={() =>
+              setScreen(
+                "in_progress",
+              )
+            }
+          />
+        </section>
       );
 
     case "in_progress":
       return (
         <QuestionBlock
-          questionnaireId={questionnaireId}
-          onComplete={() => setScreen("completed")}
+          questionnaireId={
+            questionnaireId
+          }
+          onComplete={() =>
+            setScreen("completed")
+          }
         />
       );
 
     case "completed":
       return (
-        <QuestionnaireCompletion
-          questionnaireId={questionnaireId}
-          onFinish={() => setScreen("introduction")}
-        />
+        <section className="questionnaire-flow">
+          <div className="page-navigation">
+            <BackToDashboard />
+          </div>
+
+          <QuestionnaireCompletion
+            questionnaireId={
+              questionnaireId
+            }
+            onFinish={() =>
+              setScreen("introduction")
+            }
+          />
+        </section>
       );
 
     default:

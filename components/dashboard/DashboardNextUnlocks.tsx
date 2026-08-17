@@ -5,33 +5,39 @@ import type { StudyMaterialWithStatus } from "@/types/study-material";
 
 interface DashboardNextUnlocksProps {
   nextSession: SessionWithStatus | null;
-
   nextMaterial: StudyMaterialWithStatus | null;
 }
 
 interface UnlockContent {
   title: string;
-
   releaseDate: string;
 }
 
 interface NextUnlockCardProps {
   title: string;
-
   content: UnlockContent | null;
-
   emptyMessage: string;
 }
 
 function formatDate(date: string): string {
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Fecha pendiente";
+  }
+
   return new Intl.DateTimeFormat("es-ES", {
     day: "2-digit",
     month: "long",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(parsed);
 }
 
-function NextUnlockCard({ title, content, emptyMessage }: NextUnlockCardProps) {
+function NextUnlockCard({
+  title,
+  content,
+  emptyMessage,
+}: NextUnlockCardProps) {
   return (
     <article className="dashboard-next-card">
       <div className="dashboard-next-icon" aria-hidden="true">
@@ -44,7 +50,6 @@ function NextUnlockCard({ title, content, emptyMessage }: NextUnlockCardProps) {
         {content ? (
           <>
             <p className="dashboard-next-card-name">{content.title}</p>
-
             <p className="dashboard-next-card-date">
               {formatDate(content.releaseDate)}
             </p>
@@ -57,27 +62,16 @@ function NextUnlockCard({ title, content, emptyMessage }: NextUnlockCardProps) {
   );
 }
 
-/**
- * Muestra el siguiente contenido
- * pendiente de desbloquear para
- * el participante.
- */
 export default function DashboardNextUnlocks({
   nextSession,
   nextMaterial,
 }: DashboardNextUnlocksProps) {
-  const nextSessionContent: UnlockContent | null = nextSession
-    ? {
-        title: nextSession.title,
-        releaseDate: nextSession.releaseDate,
-      }
+  const nextSessionContent = nextSession
+    ? { title: nextSession.title, releaseDate: nextSession.releaseDate }
     : null;
 
-  const nextMaterialContent: UnlockContent | null = nextMaterial
-    ? {
-        title: nextMaterial.title,
-        releaseDate: nextMaterial.releaseDate,
-      }
+  const nextMaterialContent = nextMaterial
+    ? { title: nextMaterial.title, releaseDate: nextMaterial.releaseDate }
     : null;
 
   return (
@@ -93,13 +87,13 @@ export default function DashboardNextUnlocks({
         <NextUnlockCard
           title="Próxima sesión"
           content={nextSessionContent}
-          emptyMessage="No quedan sesiones pendientes."
+          emptyMessage="No hay otra sesión pendiente de desbloqueo."
         />
 
         <NextUnlockCard
           title="Próximo material"
           content={nextMaterialContent}
-          emptyMessage="No quedan materiales pendientes."
+          emptyMessage="No hay otro material pendiente de desbloqueo."
         />
       </div>
     </section>

@@ -36,14 +36,14 @@ export default function AdminHomePage() {
       <div className="admin-stats">
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {sessionsCount ?? "—"} / 9
+            {sessionsCount ?? "—"} / 10
           </div>
-          <div className="admin-stat-card__label">Sesiones configuradas</div>
+          <div className="admin-stat-card__label">Contenidos configurados</div>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {materialsCount ?? "—"} / 18
+            {materialsCount ?? "—"} / 20
           </div>
           <div className="admin-stat-card__label">Materiales configurados</div>
         </div>

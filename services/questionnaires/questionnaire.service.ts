@@ -20,18 +20,6 @@ export interface QuestionnaireAnswers {
   [questionId: string]: number;
 }
 
-interface QuestionnaireResponseInsert {
-  submission_id: string;
-
-  user_id: string;
-
-  questionnaire_type: QuestionnaireType;
-
-  question_key: string;
-
-  answer: number;
-}
-
 interface CompletedQuestionnaireRow {
   questionnaire_type: QuestionnaireType;
 }
@@ -43,8 +31,6 @@ const MIN_ANSWER = 1;
 const MAX_ANSWER = 6;
 
 const SUBMISSIONS_TABLE = "questionnaire_submissions";
-
-const RESPONSES_TABLE = "questionnaire_responses";
 
 const ALL_QUESTIONS: readonly Question[] = [
   ...CAPSM_QUESTIONS,
@@ -67,9 +53,6 @@ const ERROR_EMPTY_ANSWERS = "No se han proporcionado respuestas.";
 const ERROR_CHECK = "No se ha podido comprobar el estado del cuestionario.";
 
 const ERROR_SUBMISSION = "No se ha podido crear el registro del cuestionario.";
-
-const ERROR_RESPONSES =
-  "No se han podido guardar las respuestas del cuestionario.";
 
 const ERROR_COMPLETED = "Este cuestionario ya ha sido completado.";
 
@@ -110,25 +93,6 @@ function validateAnswers(answers: QuestionnaireAnswers): void {
   }
 }
 
-function buildResponses(
-  submissionId: string,
-  userId: string,
-  questionnaireType: QuestionnaireType,
-  answers: QuestionnaireAnswers,
-): QuestionnaireResponseInsert[] {
-  return Object.entries(answers).map(([questionKey, answer]) => ({
-    submission_id: submissionId,
-
-    user_id: userId,
-
-    questionnaire_type: questionnaireType,
-
-    question_key: questionKey,
-
-    answer,
-  }));
-}
-
 async function hasCompletedQuestionnaireByUser(
   userId: string,
   questionnaireType: QuestionnaireType,
@@ -147,16 +111,6 @@ async function hasCompletedQuestionnaireByUser(
   return data !== null;
 }
 
-async function getAuthenticatedUser() {
-  const user = await getUser();
-
-  if (!user) {
-    throw new Error(ERROR_UNAUTHENTICATED);
-  }
-
-  return user;
-}
-
 export async function submitQuestionnaire(
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
@@ -165,7 +119,11 @@ export async function submitQuestionnaire(
 
   validateAnswers(answers);
 
-  const user = await getAuthenticatedUser();
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error(ERROR_UNAUTHENTICATED);
+  }
 
   const alreadyCompleted = await hasCompletedQuestionnaireByUser(
     user.id,
@@ -187,51 +145,32 @@ export async function submitQuestionnaire(
     }
   }
 
-  const { data: submission, error: submissionError } = await supabase
-    .from(SUBMISSIONS_TABLE)
-    .insert({
-      user_id: user.id,
+  const response = await fetch("/api/questionnaires/submit", {
+    method: "POST",
 
-      questionnaire_type: questionnaireType,
-    })
-    .select()
-    .single();
+    headers: {
+      "Content-Type": "application/json",
+    },
 
-  if (submissionError || !submission) {
-    throw new Error(ERROR_SUBMISSION);
+    body: JSON.stringify({
+      questionnaireType,
+      answers,
+    }),
+  });
+
+  const payload = (await response.json().catch(() => null)) as {
+    ok?: boolean;
+    error?: string;
+    submissionId?: string;
+  } | null;
+
+  if (!response.ok || !payload?.ok || !payload.submissionId) {
+    throw new Error(payload?.error ?? ERROR_SUBMISSION);
   }
 
-  const responses = buildResponses(
-    submission.id,
-    user.id,
-    questionnaireType,
-    answers,
-  );
-
-  const { error: responsesError } = await supabase
-    .from(RESPONSES_TABLE)
-    .insert(responses);
-
-  if (responsesError) {
-    /**
-     * No intentamos eliminar el
-     * submission desde el cliente.
-     *
-     * La política RLS actual no
-     * concede DELETE al participante.
-     *
-     * El error se devuelve para que
-     * el envío no se considere
-     * correctamente completado.
-     */
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error guardando respuestas:", responsesError);
-    }
-
-    throw new Error(ERROR_RESPONSES);
-  }
-
-  return submission;
+  return {
+    id: payload.submissionId,
+  };
 }
 
 export async function hasCompletedQuestionnaire(

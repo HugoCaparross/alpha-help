@@ -3,26 +3,17 @@ import { getUser } from "@/lib/supabase/getUser";
 
 const MATERIAL_VIEWS_TABLE = "material_views" as const;
 
+/** Introducción + 9 sesiones. */
+export const TOTAL_MATERIAL_CONTENTS = 10;
+const FIRST_SESSION_ORDER = 0;
+const LAST_SESSION_ORDER = 9;
+
 const ERROR_UNAUTHENTICATED = "Usuario no autenticado.";
-
 const ERROR_REGISTER = "No se ha podido registrar la consulta del material.";
-
 const ERROR_CHECK = "No se ha podido comprobar el progreso del material.";
-
 const ERROR_PROGRESS = "No se ha podido recuperar el progreso.";
-
-/**
- * Código PostgreSQL para
- * violación de clave única.
- */
 const UNIQUE_VIOLATION = "23505";
 
-/**
- * Devuelve el usuario autenticado.
- *
- * El identificador del usuario siempre
- * procede de la sesión autenticada.
- */
 async function getAuthenticatedUser() {
   const user = await getUser();
 
@@ -33,59 +24,43 @@ async function getAuthenticatedUser() {
   return user;
 }
 
-/**
- * Marca como consultado el material
- * correspondiente a una sesión.
- *
- * Cada sesión únicamente puede
- * registrarse una vez por usuario,
- * independientemente del documento
- * consultado (recurso de apoyo o
- * guía ampliada).
- *
- * La base de datos garantiza esta
- * restricción mediante una clave
- * UNIQUE (user_id, session_order).
- */
+function isValidSessionOrder(sessionOrder: number): boolean {
+  return (
+    Number.isInteger(sessionOrder) &&
+    sessionOrder >= FIRST_SESSION_ORDER &&
+    sessionOrder <= LAST_SESSION_ORDER
+  );
+}
+
 export async function markMaterialAsCompleted(
   sessionOrder: number,
 ): Promise<void> {
   const user = await getAuthenticatedUser();
+
+  if (!isValidSessionOrder(sessionOrder)) {
+    throw new Error(ERROR_REGISTER);
+  }
 
   const { error } = await supabase.from(MATERIAL_VIEWS_TABLE).insert({
     user_id: user.id,
     session_order: sessionOrder,
   });
 
-  if (!error) {
-    return;
-  }
-
-  /**
-   * El material ya estaba registrado.
-   *
-   * El estado final deseado ya se cumple,
-   * por lo que no se considera un error.
-   */
-  if (error.code === UNIQUE_VIOLATION) {
+  if (!error || error.code === UNIQUE_VIOLATION) {
     return;
   }
 
   throw new Error(ERROR_REGISTER);
 }
 
-/**
- * Comprueba si el participante
- * ya ha consultado el material
- * correspondiente a una sesión.
- *
- * El usuario siempre se obtiene
- * de la sesión autenticada.
- */
 export async function hasCompletedMaterial(
   sessionOrder: number,
 ): Promise<boolean> {
   const user = await getAuthenticatedUser();
+
+  if (!isValidSessionOrder(sessionOrder)) {
+    return false;
+  }
 
   const { data, error } = await supabase
     .from(MATERIAL_VIEWS_TABLE)
@@ -101,10 +76,6 @@ export async function hasCompletedMaterial(
   return data !== null;
 }
 
-/**
- * Devuelve las sesiones cuyos
- * materiales ya han sido consultados.
- */
 export async function getCompletedSessionOrders(): Promise<number[]> {
   const user = await getAuthenticatedUser();
 
@@ -112,51 +83,44 @@ export async function getCompletedSessionOrders(): Promise<number[]> {
     .from(MATERIAL_VIEWS_TABLE)
     .select("session_order")
     .eq("user_id", user.id)
-    .order("session_order", {
-      ascending: true,
-    });
+    .order("session_order", { ascending: true });
 
   if (error) {
     throw new Error(ERROR_PROGRESS);
   }
 
-  return (data ?? []).map(({ session_order }) => session_order);
+  return (data ?? [])
+    .map(({ session_order }) => session_order)
+    .filter(isValidSessionOrder);
 }
 
-/**
- * Devuelve el número de sesiones
- * cuyos materiales han sido consultados.
- */
 export async function getCompletedSessionsCount(): Promise<number> {
   const user = await getAuthenticatedUser();
 
   const { count, error } = await supabase
     .from(MATERIAL_VIEWS_TABLE)
-    .select("*", {
-      count: "exact",
-      head: true,
-    })
+    .select("*", { count: "exact", head: true })
     .eq("user_id", user.id);
 
   if (error) {
     throw new Error(ERROR_PROGRESS);
   }
 
-  return count ?? 0;
+  return Math.min(count ?? 0, TOTAL_MATERIAL_CONTENTS);
 }
 
-/**
- * Calcula el porcentaje de progreso
- * respecto a los materiales del estudio.
- */
 export async function getMaterialProgress(
-  totalSessions: number,
+  totalSessions = TOTAL_MATERIAL_CONTENTS,
 ): Promise<number> {
-  if (totalSessions <= 0) {
+  const normalizedTotal = Math.min(
+    Math.max(totalSessions, 0),
+    TOTAL_MATERIAL_CONTENTS,
+  );
+
+  if (normalizedTotal === 0) {
     return 0;
   }
 
   const completed = await getCompletedSessionsCount();
-
-  return Math.round((completed / totalSessions) * 100);
+  return Math.round((completed / normalizedTotal) * 100);
 }

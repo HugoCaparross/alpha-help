@@ -1,6 +1,10 @@
 "use client";
 
-import { ArrowLeft, CheckCircle, LoaderCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  LoaderCircle,
+} from "lucide-react";
 
 import type { RegisterData } from "./register.types";
 
@@ -38,17 +42,39 @@ function SummarySection({
 }) {
   return (
     <>
-      <h3 className="summary-section-title">{title}</h3>
+      <h3 className="summary-section-title">
+        {title}
+      </h3>
 
       {items.map((item) => (
-        <div key={`${title}-${item.label}`} className="summary-item">
+        <div
+          key={`${title}-${item.label}`}
+          className="summary-item"
+        >
           <span>{item.label}</span>
 
-          <strong>{item.value}</strong>
+          <strong>
+            {item.value || "No disponible"}
+          </strong>
         </div>
       ))}
     </>
   );
+}
+
+function getRegionLabel(
+  region: RegisterData["region"],
+): string {
+  switch (region) {
+    case "spain":
+      return "España";
+
+    case "latam":
+      return "Latinoamérica";
+
+    default:
+      return "No disponible";
+  }
 }
 
 export default function RegisterStepSummary({
@@ -60,10 +86,13 @@ export default function RegisterStepSummary({
 }: Props) {
   return (
     <>
-      <h2 className="step-title">Revisar información</h2>
+      <h2 className="step-title">
+        Revisar información
+      </h2>
 
       <p className="step-description">
-        Revisa la información antes de completar el registro.
+        Revisa la información antes de
+        completar el registro.
       </p>
 
       <div className="summary-layout">
@@ -77,7 +106,9 @@ export default function RegisterStepSummary({
               },
               {
                 label: "Región",
-                value: formData.region === "spain" ? "España" : "Latinoamérica",
+                value: getRegionLabel(
+                  formData.region,
+                ),
               },
             ]}
           />
@@ -91,19 +122,25 @@ export default function RegisterStepSummary({
               },
               {
                 label: "Edad",
-                value: `${formData.age} años`,
+                value: formData.age
+                  ? `${formData.age} años`
+                  : "",
               },
               {
                 label: "Estudios",
-                value: formData.educationLevel,
+                value:
+                  formData.educationLevel,
               },
               {
-                label: "Situación laboral",
-                value: formData.employmentStatus,
+                label:
+                  "Situación laboral",
+                value:
+                  formData.employmentStatus,
               },
               {
                 label: "Estado civil",
-                value: formData.maritalStatus,
+                value:
+                  formData.maritalStatus,
               },
             ]}
           />
@@ -112,20 +149,27 @@ export default function RegisterStepSummary({
             title="Familia"
             items={[
               {
-                label: "Nivel socioeconómico",
-                value: formData.socioeconomicLevel,
+                label:
+                  "Nivel socioeconómico",
+                value:
+                  formData.socioeconomicLevel,
               },
               {
                 label: "Tipo de centro",
-                value: formData.schoolType,
+                value:
+                  formData.schoolType,
               },
               {
-                label: "Número de hijos",
-                value: formData.numberOfChildren,
+                label:
+                  "Número de hijos",
+                value:
+                  formData.numberOfChildren,
               },
               {
-                label: "Estructura familiar",
-                value: formData.familyStructure,
+                label:
+                  "Estructura familiar",
+                value:
+                  formData.familyStructure,
               },
             ]}
           />
@@ -135,40 +179,69 @@ export default function RegisterStepSummary({
             items={[
               {
                 label: "Centro",
-                value: formData.schoolCenter,
+                value:
+                  formData.schoolCenter,
               },
             ]}
           />
 
-          <h3 className="summary-section-title">Hijos</h3>
+          <h3 className="summary-section-title">
+            Hijos
+          </h3>
 
-          {formData.children.map((child, index) => (
-            <div key={`summary-child-${index}`} className="summary-item">
-              <span>{CHILD_ORDINALS[index]} hijo/a</span>
+          {formData.children.map(
+            (child, index) => (
+              <div
+                key={`summary-child-${index}`}
+                className="summary-item"
+              >
+                <span>
+                  {
+                    CHILD_ORDINALS[
+                    index
+                    ]
+                  }{" "}
+                  hijo/a
+                </span>
 
-              <strong>
-                Edad: {child.age} años · Sexo: {child.gender} ·{" "}
-                {child.psychologicalSupport
-                  ? "Con atención psicológica"
-                  : "Sin atención psicológica"}
-              </strong>
-            </div>
-          ))}
+                <strong>
+                  Edad: {child.age} años ·
+                  Sexo: {child.gender} ·{" "}
+                  {child.psychologicalSupport
+                    ? "Con atención psicológica"
+                    : "Sin atención psicológica"}
+                </strong>
+              </div>
+            ),
+          )}
         </div>
 
         <aside className="summary-notice">
           <p className="summary-notice-text">
-            <CheckCircle size={18} aria-hidden="true" />
-            Toda la información recogida en este estudio será tratada de forma
-            confidencial y utilizada exclusivamente con fines de investigación
-            científica. Las respuestas estarán asociadas a un identificador
-            interno para preservar la privacidad de los participantes.
+            <CheckCircle
+              size={18}
+              aria-hidden="true"
+            />
+
+            Toda la información recogida
+            en este estudio será tratada de
+            forma confidencial y utilizada
+            exclusivamente con fines de
+            investigación científica. Las
+            respuestas estarán asociadas a
+            un identificador interno para
+            preservar la privacidad de los
+            participantes.
           </p>
         </aside>
       </div>
 
       {submitError && (
-        <p className="auth-error" role="alert" aria-live="polite">
+        <p
+          className="auth-error"
+          role="alert"
+          aria-live="polite"
+        >
           {submitError}
         </p>
       )}
@@ -194,7 +267,10 @@ export default function RegisterStepSummary({
         >
           {loading ? (
             <>
-              <LoaderCircle size={18} className="animate-spin" />
+              <LoaderCircle
+                size={18}
+                className="animate-spin"
+              />
               Creando cuenta...
             </>
           ) : (

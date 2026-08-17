@@ -22,7 +22,7 @@ import "@/components/styles/materiales.css";
 const PAGE_TITLE = "Recursos";
 
 const PAGE_DESCRIPTION =
-  "Aquí encontrarás documentos de apoyo que te servirán para complementar cada sesión del programa. Cada tema se publicará automáticamente cada mes, siguiendo el calendario del estudio y podrás descargarlo y consultarlo siempre que lo necesites.";
+  "Aquí encontrarás los documentos que complementan la introducción y las nueve sesiones del programa. Los contenidos se publican progresivamente según el calendario del estudio y podrás consultarlos cuando estén disponibles.";
 
 const LOADING_MESSAGE = "Preparando los recursos...";
 
@@ -124,7 +124,12 @@ export default function MaterialesView() {
   }
 
   if (materials.support.length === 0 && materials.extended.length === 0) {
-    return <MaterialEmptyState />;
+    return (
+      <section className="materiales-page">
+        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+        <MaterialEmptyState />
+      </section>
+    );
   }
 
   if (!activeCategory) {

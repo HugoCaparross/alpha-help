@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import BackToDashboard from "@/components/ui/BackToDashboard";
+
 import PerfilView from "@/components/profile/PerfilView";
 
 import { getProfile } from "@/lib/supabase/getProfile";
@@ -14,19 +16,24 @@ const PAGE_TITLE = "Mi perfil";
 
 const MESSAGES = {
   loading: "Cargando perfil...",
-  empty: "No se ha podido recuperar la información de tu perfil.",
-  unknownError: "Ha ocurrido un error al cargar el perfil.",
+  empty:
+    "No se ha podido recuperar la información de tu perfil.",
+  unknownError:
+    "Ha ocurrido un error al cargar el perfil.",
 } as const;
 
 /**
  * Página del perfil del participante.
  */
 export default function PerfilPage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] =
+    useState<UserProfile | null>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] =
+    useState(true);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] =
+    useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -36,7 +43,8 @@ export default function PerfilPage() {
         setIsLoading(true);
         setError(null);
 
-        const data = await getProfile();
+        const data =
+          await getProfile();
 
         if (!isMounted) {
           return;
@@ -49,10 +57,15 @@ export default function PerfilPage() {
         }
 
         setError(
-          error instanceof Error ? error.message : MESSAGES.unknownError,
+          error instanceof Error
+            ? error.message
+            : MESSAGES.unknownError,
         );
 
-        if (process.env.NODE_ENV === "development") {
+        if (
+          process.env.NODE_ENV ===
+          "development"
+        ) {
           console.error(error);
         }
       } finally {
@@ -71,10 +84,19 @@ export default function PerfilPage() {
 
   if (isLoading) {
     return (
-      <section className="perfil-page" aria-busy="true">
+      <section
+        className="perfil-page"
+        aria-busy="true"
+      >
+        <div className="page-navigation">
+          <BackToDashboard />
+        </div>
+
         <h1>{PAGE_TITLE}</h1>
 
-        <p role="status">{MESSAGES.loading}</p>
+        <p role="status">
+          {MESSAGES.loading}
+        </p>
       </section>
     );
   }
@@ -82,9 +104,16 @@ export default function PerfilPage() {
   if (error) {
     return (
       <section className="perfil-page">
+        <div className="page-navigation">
+          <BackToDashboard />
+        </div>
+
         <h1>{PAGE_TITLE}</h1>
 
-        <p role="alert" aria-live="polite">
+        <p
+          role="alert"
+          aria-live="polite"
+        >
           {error}
         </p>
       </section>
@@ -94,6 +123,10 @@ export default function PerfilPage() {
   if (!profile) {
     return (
       <section className="perfil-page">
+        <div className="page-navigation">
+          <BackToDashboard />
+        </div>
+
         <h1>{PAGE_TITLE}</h1>
 
         <p>{MESSAGES.empty}</p>
@@ -101,5 +134,13 @@ export default function PerfilPage() {
     );
   }
 
-  return <PerfilView profile={profile} />;
+  return (
+    <section className="perfil-page">
+      <div className="page-navigation">
+        <BackToDashboard />
+      </div>
+
+      <PerfilView profile={profile} />
+    </section>
+  );
 }

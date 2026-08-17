@@ -3,6 +3,11 @@ import { getUser } from "@/lib/supabase/getUser";
 
 const SESSION_VIEWS_TABLE = "session_views" as const;
 
+const TOTAL_STUDY_SESSIONS = 10;
+
+const FIRST_SESSION_ORDER = 0;
+const LAST_SESSION_ORDER = 9;
+
 const ERROR_UNAUTHENTICATED = "Usuario no autenticado.";
 
 const ERROR_REGISTER =
@@ -12,18 +17,8 @@ const ERROR_CHECK = "No se ha podido comprobar el progreso de la sesión.";
 
 const ERROR_PROGRESS = "No se ha podido recuperar el progreso.";
 
-/**
- * Código PostgreSQL para
- * violación de clave única.
- */
 const UNIQUE_VIOLATION = "23505";
 
-/**
- * Devuelve el usuario autenticado.
- *
- * El identificador del usuario siempre
- * procede de la sesión autenticada.
- */
 async function getAuthenticatedUser() {
   const user = await getUser();
 
@@ -34,18 +29,26 @@ async function getAuthenticatedUser() {
   return user;
 }
 
+function isValidSessionOrder(sessionOrder: number): boolean {
+  return (
+    Number.isInteger(sessionOrder) &&
+    sessionOrder >= FIRST_SESSION_ORDER &&
+    sessionOrder <= LAST_SESSION_ORDER
+  );
+}
+
 /**
  * Marca una sesión como visualizada.
  *
- * Cada sesión únicamente puede
- * registrarse una vez por participante.
- *
- * La integridad está garantizada
- * mediante la restricción UNIQUE
- * (user_id, session_id).
+ * La BD garantiza que un participante
+ * solo tenga una visualización por sesión.
  */
 export async function markSessionCompleted(sessionId: string): Promise<void> {
   const user = await getAuthenticatedUser();
+
+  if (!sessionId.trim()) {
+    throw new Error(ERROR_REGISTER);
+  }
 
   const { error } = await supabase.from(SESSION_VIEWS_TABLE).insert({
     user_id: user.id,
@@ -56,12 +59,6 @@ export async function markSessionCompleted(sessionId: string): Promise<void> {
     return;
   }
 
-  /**
-   * La sesión ya estaba registrada.
-   *
-   * El estado final deseado ya se cumple,
-   * por lo que no se considera un error.
-   */
   if (error.code === UNIQUE_VIOLATION) {
     return;
   }
@@ -69,13 +66,6 @@ export async function markSessionCompleted(sessionId: string): Promise<void> {
   throw new Error(ERROR_REGISTER);
 }
 
-/**
- * Comprueba si el participante
- * ya ha visualizado una sesión.
- *
- * El usuario siempre se obtiene
- * de la sesión autenticada.
- */
 export async function isSessionCompleted(sessionId: string): Promise<boolean> {
   const user = await getAuthenticatedUser();
 
@@ -93,11 +83,6 @@ export async function isSessionCompleted(sessionId: string): Promise<boolean> {
   return data !== null;
 }
 
-/**
- * Devuelve los identificadores
- * de todas las sesiones visualizadas
- * por el participante autenticado.
- */
 export async function getCompletedSessionIds(): Promise<string[]> {
   const user = await getAuthenticatedUser();
 
@@ -113,10 +98,6 @@ export async function getCompletedSessionIds(): Promise<string[]> {
   return (data ?? []).map(({ session_id }) => session_id);
 }
 
-/**
- * Devuelve el número de sesiones
- * visualizadas por el participante.
- */
 export async function getCompletedSessionsCount(): Promise<number> {
   const user = await getAuthenticatedUser();
 
@@ -132,21 +113,26 @@ export async function getCompletedSessionsCount(): Promise<number> {
     throw new Error(ERROR_PROGRESS);
   }
 
-  return count ?? 0;
+  return Math.min(count ?? 0, TOTAL_STUDY_SESSIONS);
 }
 
-/**
- * Calcula el porcentaje de progreso
- * respecto a las sesiones del estudio.
- */
 export async function getSessionProgress(
-  totalSessions: number,
+  totalSessions = TOTAL_STUDY_SESSIONS,
 ): Promise<number> {
-  if (totalSessions <= 0) {
+  const normalizedTotal = Math.min(
+    Math.max(totalSessions, 0),
+    TOTAL_STUDY_SESSIONS,
+  );
+
+  if (normalizedTotal === 0) {
     return 0;
   }
 
   const completed = await getCompletedSessionsCount();
 
-  return Math.round((completed / totalSessions) * 100);
+  return Math.round((completed / normalizedTotal) * 100);
+}
+
+export function isValidSessionProgressOrder(sessionOrder: number): boolean {
+  return isValidSessionOrder(sessionOrder);
 }
