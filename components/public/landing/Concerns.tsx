@@ -1,37 +1,46 @@
-import Image from "next/image";
+import {
+  Brain,
+  Gamepad2,
+  Heart,
+  MessageCircle,
+  Pill,
+  ShieldAlert,
+  Smartphone,
+  UsersRound,
+} from "lucide-react";
 
 const CONCERNS = [
   {
     title: "Gestión emocional",
-    icon: "/images/landing/icons/comportamiento.png",
+    icon: Brain,
   },
   {
     title: "Ansiedad o malestar emocional",
-    icon: "/images/landing/icons/ansiedad.png",
+    icon: Heart,
   },
   {
     title: "Uso problemático de dispositivos electrónicos y redes sociales",
-    icon: "/images/landing/icons/videojuegos.png",
+    icon: Gamepad2,
   },
   {
     title: "Acoso o ciberacoso escolar",
-    icon: "/images/landing/icons/acoso.png",
+    icon: ShieldAlert,
   },
   {
     title: "Consumo de sustancias",
-    icon: "/images/landing/icons/medicinas.png",
+    icon: Pill,
   },
   {
     title: "Problemas de autoestima e imagen corporal",
-    icon: "/images/landing/icons/selfesteem.png",
+    icon: UsersRound,
   },
   {
     title: "Problemas de comunicación",
-    icon: "/images/landing/icons/communication.png",
+    icon: MessageCircle,
   },
   {
     title: "Relaciones, sexualidad y pornografía",
-    icon: "/images/landing/icons/communication.png",
+    icon: MessageCircle,
   },
 ] as const;
 
@@ -57,22 +66,19 @@ export default function Concerns() {
         </header>
 
         <div className="concerns-grid">
-          {CONCERNS.map((concern) => (
-            <article key={concern.title} className="concern-card">
-              <div className="concern-icon" aria-hidden="true">
-                <Image
-                  src={concern.icon}
-                  alt=""
-                  width={120}
-                  height={120}
-                  loading="lazy"
-                  sizes="120px"
-                />
-              </div>
+          {CONCERNS.map((concern) => {
+            const Icon = concern.icon;
 
-              <h3 className="concern-title">{concern.title}</h3>
-            </article>
-          ))}
+            return (
+              <article key={concern.title} className="concern-card">
+                <div className="concern-icon" aria-hidden="true">
+                  <Icon size={34} strokeWidth={1.9} />
+                </div>
+
+                <h3 className="concern-title">{concern.title}</h3>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

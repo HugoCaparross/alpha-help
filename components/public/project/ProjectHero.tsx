@@ -17,11 +17,11 @@ export default function ProjectHero() {
           <div className="project-hero-content">
             <span className="section-badge">Proyecto de investigación</span>
 
-            <h1 id="project-hero-title" className="section-title">
+            <h1 id="project-hero-title" className="section-title project-hero-title">
               Conoce Alpha-Help
             </h1>
 
-            <p className="section-description">
+            <p className="section-description project-hero-description">
               Alpha-Help es un proyecto de investigación orientado a comprender
               mejor el bienestar emocional durante la adolescencia y la
               preadolescencia, y ofrecer a las familias herramientas basadas en
@@ -37,26 +37,6 @@ export default function ProjectHero() {
                 Contactar con el equipo
               </Link>
             </div>
-
-            <div className="project-benefits">
-              {PROJECT_BENEFITS.map((benefit) => {
-                const Icon = benefit.icon;
-
-                return (
-                  <article key={benefit.title} className="project-benefit">
-                    <div className="project-benefit-icon" aria-hidden="true">
-                      <Icon size={22} />
-                    </div>
-
-                    <div className="project-benefit-content">
-                      <h2>{benefit.title}</h2>
-
-                      <p>{benefit.description}</p>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
           </div>
 
           <div className="project-hero-image">
@@ -68,6 +48,25 @@ export default function ProjectHero() {
               priority
             />
           </div>
+        </div>
+
+        <div className="project-benefits" aria-label="Beneficios del proyecto">
+          {PROJECT_BENEFITS.map((benefit) => {
+            const Icon = benefit.icon;
+
+            return (
+              <article key={benefit.title} className="project-benefit">
+                <div className="project-benefit-icon" aria-hidden="true">
+                  <Icon size={22} strokeWidth={2} />
+                </div>
+
+                <div className="project-benefit-content">
+                  <h2>{benefit.title}</h2>
+                  <p>{benefit.description}</p>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

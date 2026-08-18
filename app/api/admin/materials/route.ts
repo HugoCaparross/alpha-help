@@ -270,14 +270,24 @@ export async function POST(request: Request) {
   const { error } = await query;
 
   if (error) {
+    console.error("Error guardando material:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+
     return NextResponse.json(
       {
-        error: "No se ha podido guardar el material.",
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
       },
       { status: 500 },
     );
   }
-
+  
   return NextResponse.json({
     ok: true,
   });

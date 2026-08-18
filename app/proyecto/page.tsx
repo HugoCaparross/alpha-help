@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     "Conoce Alpha-Help, un proyecto de investigación orientado a comprender y mejorar el bienestar emocional durante la adolescencia mediante herramientas basadas en evidencia científica.",
 };
 
+/**
+ * Página institucional del proyecto Alpha-Help.
+ */
 export default function ProjectPage() {
   return (
     <>
@@ -25,10 +28,15 @@ export default function ProjectPage() {
 
       <main className="project-page">
         <ProjectHero />
+
         <ProjectOrigin />
+
         <ProjectOverview />
+
         <ProjectTopics />
+
         <ProjectGuarantees />
+
         <ProjectParticipation />
       </main>
 
