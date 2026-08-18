@@ -8,6 +8,8 @@ const TABLE = "study_sessions";
 
 const REGIONS = ["España", "Latinoamérica"] as const;
 
+type AdminRegion = (typeof REGIONS)[number];
+
 const MIN_SESSION_ORDER = 0;
 const MAX_SESSION_ORDER = 10;
 
@@ -26,11 +28,36 @@ const SELECT_FIELDS = `
   updated_at
 `;
 
+function normalizeString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeRegion(value: unknown): AdminRegion | null {
+  const region = normalizeString(value);
+
+  if (region === "España" || region === "ES") {
+    return "España";
+  }
+
+  if (region === "Latinoamérica" || region === "LATAM") {
+    return "Latinoamérica";
+  }
+
+  return null;
+}
+
 export async function GET() {
   const auth = await requireAdmin();
 
   if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
+    return NextResponse.json(
+      {
+        error: auth.message,
+      },
+      {
+        status: auth.status,
+      },
+    );
   }
 
   const admin = createAdminClient();
@@ -52,7 +79,9 @@ export async function GET() {
       {
         error: "No se han podido recuperar las sesiones.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 
@@ -65,7 +94,14 @@ export async function POST(request: Request) {
   const auth = await requireAdmin();
 
   if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
+    return NextResponse.json(
+      {
+        error: auth.message,
+      },
+      {
+        status: auth.status,
+      },
+    );
   }
 
   let body: unknown;
@@ -75,80 +111,128 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json(
       {
-        error: "La petición contiene un JSON inválido.",
+        error: "La petición contiene datos inválidos.",
       },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
 
-  const {
-    title,
-    description,
-    youtubeUrl,
-    thumbnailUrl,
-    sessionOrder,
-    region,
-    releaseDateSpain,
-    releaseDateLatam,
-    isLive,
-  } = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  if (!body || typeof body !== "object") {
+    return NextResponse.json(
+      {
+        error: "La petición contiene datos inválidos.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
 
-  const normalizedOrder = Number(sessionOrder);
+  const data = body as Record<string, unknown>;
+
+  const title = normalizeString(data.title);
+
+  const description = normalizeString(data.description);
+
+  const youtubeUrl = normalizeString(data.youtubeUrl);
+
+  const thumbnailUrl = normalizeString(data.thumbnailUrl);
+
+  const region = normalizeRegion(data.region);
+
+  const sessionOrder = Number(data.sessionOrder);
+
+  const releaseDateSpain = normalizeString(data.releaseDateSpain);
+
+  const releaseDateLatam = normalizeString(data.releaseDateLatam);
+
+  const isLive = Boolean(data.isLive);
+
+  if (!title) {
+    return NextResponse.json(
+      {
+        error: "El título de la sesión es obligatorio.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  if (!description) {
+    return NextResponse.json(
+      {
+        error: "La descripción de la sesión es obligatoria.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  if (!youtubeUrl) {
+    return NextResponse.json(
+      {
+        error: "La URL de YouTube es obligatoria.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  if (!region) {
+    return NextResponse.json(
+      {
+        error: "La región de la sesión no es válida.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
 
   if (
-    typeof title !== "string" ||
-    !title.trim() ||
-    typeof description !== "string" ||
-    !description.trim() ||
-    typeof youtubeUrl !== "string" ||
-    !youtubeUrl.trim() ||
-    !REGIONS.includes(region as (typeof REGIONS)[number]) ||
-    !Number.isInteger(normalizedOrder) ||
-    normalizedOrder < MIN_SESSION_ORDER ||
-    normalizedOrder > MAX_SESSION_ORDER
+    !Number.isInteger(sessionOrder) ||
+    sessionOrder < MIN_SESSION_ORDER ||
+    sessionOrder > MAX_SESSION_ORDER
   ) {
     return NextResponse.json(
       {
-        error: "Faltan campos obligatorios o son inválidos.",
+        error: "El orden de la sesión no es válido.",
       },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
 
-  const normalizedRegion = region as (typeof REGIONS)[number];
-
   const youtubeId = extractYoutubeId(youtubeUrl);
 
-  const resolvedThumbnail =
-    typeof thumbnailUrl === "string" && thumbnailUrl.trim()
-      ? thumbnailUrl.trim()
-      : youtubeId
-        ? getYoutubeThumbnail(youtubeId)
-        : null;
-
-  if (!resolvedThumbnail) {
+  if (!youtubeId) {
     return NextResponse.json(
       {
         error: "La URL de YouTube no es válida.",
       },
-      { status: 400 },
+      {
+        status: 400,
+      },
     );
   }
+
+  const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
   const now = new Date().toISOString();
 
   const admin = createAdminClient();
 
-  /*
-   * Buscamos exclusivamente la sesión
-   * correspondiente a la región y orden
-   * seleccionados.
-   */
   const { data: existing, error: existingError } = await admin
     .from(TABLE)
     .select("id")
-    .eq("region", normalizedRegion)
-    .eq("session_order", normalizedOrder)
+    .eq("region", region)
+    .eq("session_order", sessionOrder)
     .maybeSingle();
 
   if (existingError) {
@@ -158,34 +242,39 @@ export async function POST(request: Request) {
       {
         error: "No se ha podido comprobar la sesión existente.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 
   const payload = {
-    title: title.trim(),
-    description: description.trim(),
-    youtube_url: youtubeUrl.trim(),
+    title,
+    description,
+    youtube_url: youtubeUrl,
     thumbnail_url: resolvedThumbnail,
-    session_order: normalizedOrder,
-    region: normalizedRegion,
-    release_date_spain:
-      typeof releaseDateSpain === "string" && releaseDateSpain.trim()
-        ? releaseDateSpain
-        : now,
-    release_date_latam:
-      typeof releaseDateLatam === "string" && releaseDateLatam.trim()
-        ? releaseDateLatam
-        : now,
-    is_live: Boolean(isLive),
+    session_order: sessionOrder,
+    region,
+    release_date_spain: releaseDateSpain || now,
+    release_date_latam: releaseDateLatam || now,
+    is_live: isLive,
     updated_at: now,
   };
 
-  const query = existing
-    ? admin.from(TABLE).update(payload).eq("id", existing.id)
-    : admin.from(TABLE).insert(payload);
+  let error;
 
-  const { error } = await query;
+  if (existing) {
+    const result = await admin
+      .from(TABLE)
+      .update(payload)
+      .eq("id", existing.id);
+
+    error = result.error;
+  } else {
+    const result = await admin.from(TABLE).insert(payload);
+
+    error = result.error;
+  }
 
   if (error) {
     console.error("[admin/sessions][SAVE]", {
@@ -197,7 +286,9 @@ export async function POST(request: Request) {
       {
         error: "No se ha podido guardar la sesión.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 
