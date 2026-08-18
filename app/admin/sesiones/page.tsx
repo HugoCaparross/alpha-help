@@ -7,9 +7,7 @@ import {
   useState,
 } from "react";
 
-import type {
-  FormEvent,
-} from "react";
+import type { FormEvent } from "react";
 
 import {
   LoaderCircle,
@@ -164,19 +162,14 @@ export default function AdminSessionsPage() {
         setLoading(
           true,
         );
-
         setError("");
 
         try {
           const data =
             await listAdminSessions();
 
-          setSessions(
-            data,
-          );
-        } catch (
-        err
-        ) {
+          setSessions(data);
+        } catch (err) {
           setError(
             err instanceof Error
               ? err.message
@@ -300,47 +293,37 @@ export default function AdminSessionsPage() {
   ) {
     event.preventDefault();
 
-    setSaving(
-      true,
-    );
-
+    setSaving(true);
     setError("");
     setSuccess("");
 
     try {
-      await saveAdminSession({
-        title:
-          form.title,
-        description:
-          form.description,
-        youtubeUrl:
-          form.youtubeUrl,
-        sessionOrder:
-          selectedOrder,
-        region:
-          activeRegion,
-        releaseDateSpain:
-          form.releaseDateSpain
-            ? new Date(
-              form.releaseDateSpain,
-            ).toISOString()
-            : undefined,
-        releaseDateLatam:
-          form.releaseDateLatam
-            ? new Date(
-              form.releaseDateLatam,
-            ).toISOString()
-            : undefined,
+      const result = await saveAdminSession({
+        title: form.title,
+        description: form.description,
+        youtubeUrl: form.youtubeUrl,
+        sessionOrder: selectedOrder,
+        region: activeRegion,
+        releaseDateSpain: form.releaseDateSpain
+          ? new Date(form.releaseDateSpain).toISOString()
+          : undefined,
+        releaseDateLatam: form.releaseDateLatam
+          ? new Date(form.releaseDateLatam).toISOString()
+          : undefined,
       });
 
       setSuccess(
-        "Sesión guardada correctamente.",
+        result.youtubeStatusSource === "youtube-api"
+          ? result.isLive
+            ? "Sesión guardada correctamente. YouTube la ha identificado como contenido en directo."
+            : "Sesión guardada correctamente. YouTube la ha identificado como contenido en diferido."
+          : result.isLive
+            ? "Sesión guardada correctamente. El estado se ha inferido por la URL /live/ porque la consulta de YouTube no estaba disponible."
+            : "Sesión guardada correctamente. El estado se ha inferido por la URL porque la consulta de YouTube no estaba disponible.",
       );
 
       await loadSessions();
-    } catch (
-    err
-    ) {
+    } catch (err) {
       setError(
         err instanceof Error
           ? err.message
@@ -371,10 +354,7 @@ export default function AdminSessionsPage() {
       return;
     }
 
-    setSaving(
-      true,
-    );
-
+    setSaving(true);
     setError("");
     setSuccess("");
 
@@ -392,9 +372,7 @@ export default function AdminSessionsPage() {
       );
 
       await loadSessions();
-    } catch (
-    err
-    ) {
+    } catch (err) {
       setError(
         err instanceof Error
           ? err.message
@@ -435,9 +413,9 @@ export default function AdminSessionsPage() {
               key={region.id}
               type="button"
               className={`admin-tab ${activeRegion ===
-                  region.id
-                  ? "admin-tab--active"
-                  : ""
+                region.id
+                ? "admin-tab--active"
+                : ""
                 }`}
               onClick={() =>
                 selectRegion(
@@ -469,8 +447,8 @@ export default function AdminSessionsPage() {
                   )
                 }
                 className={`admin-slot ${item
-                    ? "admin-slot--filled"
-                    : ""
+                  ? "admin-slot--filled"
+                  : ""
                   } ${selectedOrder ===
                     order
                     ? "admin-slot--active"
@@ -674,9 +652,9 @@ export default function AdminSessionsPage() {
           </div>
 
           <span className="admin-form__hint">
-            El estado del vídeo se determina
-            automáticamente consultando YouTube.
-            No tienes que cambiarlo manualmente.
+            El estado "En directo" o "En diferido"
+            se determina automáticamente consultando
+            YouTube. No tienes que cambiarlo manualmente.
           </span>
 
           {error && (

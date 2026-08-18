@@ -14,6 +14,9 @@ export default function AdminHomePage() {
   const [sessionsCount, setSessionsCount] = useState<number | null>(null);
   const [materialsCount, setMaterialsCount] = useState<number | null>(null);
 
+  const TOTAL_ADMIN_SESSIONS = 20;
+  const TOTAL_ADMIN_MATERIALS = 40;
+
   useEffect(() => {
     void listAdminSessions()
       .then((data) => setSessionsCount(data.length))
@@ -38,14 +41,14 @@ export default function AdminHomePage() {
       <div className="admin-stats">
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {sessionsCount ?? "—"} / 10
+            {sessionsCount ?? "—"} / {TOTAL_ADMIN_SESSIONS}
           </div>
           <div className="admin-stat-card__label">Contenidos configurados</div>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {materialsCount ?? "—"} / 20
+            {materialsCount ?? "—"} / {TOTAL_ADMIN_MATERIALS}
           </div>
           <div className="admin-stat-card__label">Materiales configurados</div>
         </div>

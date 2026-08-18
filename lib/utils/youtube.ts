@@ -22,21 +22,27 @@ export interface YoutubeStatusResult {
   readonly actualEndTime: string | null;
 }
 
+export interface YoutubeStatusError extends Error {
+  code: "missing_api_key" | "api_error" | "not_found" | "invalid_video_id";
+  httpStatus?: number;
+}
+
+function createYoutubeError(
+  message: string,
+  code: YoutubeStatusError["code"],
+  httpStatus?: number,
+): YoutubeStatusError {
+  const error = new Error(message) as YoutubeStatusError;
+  error.name = "YoutubeStatusError";
+  error.code = code;
+  error.httpStatus = httpStatus;
+  return error;
+}
+
 function normalizeHostname(hostname: string): string {
   return hostname.toLowerCase().replace(/^www\./, "");
 }
 
-/**
- * Extrae el ID de un vídeo de YouTube.
- *
- * Formatos admitidos:
- *
- * - /watch?v=ID
- * - youtu.be/ID
- * - /embed/ID
- * - /shorts/ID
- * - /live/ID
- */
 export function extractYoutubeId(url: string): string | null {
   if (typeof url !== "string" || !url.trim()) {
     return null;
@@ -62,13 +68,11 @@ export function extractYoutubeId(url: string): string | null {
 
   if (hostname === "youtu.be") {
     const id = parsedUrl.pathname.split("/").filter(Boolean)[0];
-
     return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
   if (parsedUrl.pathname === "/watch") {
     const id = parsedUrl.searchParams.get("v");
-
     return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
@@ -76,7 +80,6 @@ export function extractYoutubeId(url: string): string | null {
 
   if (parts.length >= 2 && ["embed", "shorts", "live"].includes(parts[0])) {
     const id = parts[1];
-
     return YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
@@ -87,47 +90,77 @@ export function getYoutubeThumbnail(youtubeId: string): string {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
 
+export function isYoutubeLiveUrl(url: string): boolean {
+  if (typeof url !== "string") {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(url.trim());
+    const hostname = normalizeHostname(parsed.hostname);
+
+    if (!YOUTUBE_HOSTS.has(hostname)) {
+      return false;
+    }
+
+    const parts = parsed.pathname.split("/").filter(Boolean);
+    return parts[0] === "live";
+  } catch {
+    return false;
+  }
+}
+
 /**
- * Consulta el estado real de un vídeo
- * mediante YouTube Data API.
- *
- * Esta función SOLO debe utilizarse
- * en servidor.
+ * Consulta el estado real de un vídeo mediante YouTube Data API v3.
+ * Esta función solo debe ejecutarse en servidor.
  */
 export async function getYoutubeStatus(
   videoId: string,
 ): Promise<YoutubeStatusResult> {
   if (!YOUTUBE_ID_REGEX.test(videoId)) {
-    throw new Error("El ID de YouTube no es válido.");
-  }
-
-  const apiKey = process.env.YOUTUBE_DATA_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("Falta configurar YOUTUBE_DATA_API_KEY.");
-  }
-
-  const url = new URL("https://www.googleapis.com/youtube/v3/videos");
-
-  url.searchParams.set("part", "snippet,liveStreamingDetails");
-
-  url.searchParams.set("id", videoId);
-
-  url.searchParams.set("key", apiKey);
-
-  const response = await fetch(url.toString(), {
-    next: {
-      revalidate: 60,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      "No se ha podido consultar el estado del vídeo en YouTube.",
+    throw createYoutubeError(
+      "El ID de YouTube no es válido.",
+      "invalid_video_id",
+      400,
     );
   }
 
-  const payload = (await response.json()) as {
+  const apiKey = process.env.YOUTUBE_DATA_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw createYoutubeError(
+      "La integración con YouTube no está configurada. Falta YOUTUBE_DATA_API_KEY.",
+      "missing_api_key",
+      503,
+    );
+  }
+
+  const url = new URL("https://www.googleapis.com/youtube/v3/videos");
+  url.searchParams.set("part", "snippet,liveStreamingDetails");
+  url.searchParams.set("id", videoId);
+  url.searchParams.set("key", apiKey);
+
+  let response: Response;
+
+  try {
+    response = await fetch(url.toString(), {
+      cache: "no-store",
+    });
+  } catch {
+    throw createYoutubeError(
+      "No se ha podido conectar con YouTube para comprobar el estado del vídeo.",
+      "api_error",
+      503,
+    );
+  }
+
+  const payload = (await response.json().catch(() => null)) as {
+    error?: {
+      message?: string;
+      errors?: Array<{
+        reason?: string;
+      }>;
+    };
     items?: Array<{
       id?: string;
       snippet?: {
@@ -138,16 +171,38 @@ export async function getYoutubeStatus(
         actualEndTime?: string;
       };
     }>;
-  };
+  } | null;
 
-  const video = payload.items?.[0];
+  if (!response.ok) {
+    const reason = payload?.error?.errors?.[0]?.reason;
+
+    if (response.status === 403 && reason === "quotaExceeded") {
+      throw createYoutubeError(
+        "YouTube ha rechazado la consulta porque se ha agotado la cuota de la API.",
+        "api_error",
+        503,
+      );
+    }
+
+    throw createYoutubeError(
+      payload?.error?.message ??
+        "No se ha podido comprobar el estado del vídeo en YouTube.",
+      "api_error",
+      response.status,
+    );
+  }
+
+  const video = payload?.items?.[0];
 
   if (!video) {
-    throw new Error("El vídeo de YouTube no existe o no está disponible.");
+    throw createYoutubeError(
+      "El vídeo de YouTube no existe o no está disponible públicamente.",
+      "not_found",
+      404,
+    );
   }
 
   const broadcastStatus = video.snippet?.liveBroadcastContent;
-
   const details = video.liveStreamingDetails;
 
   if (broadcastStatus === "live") {

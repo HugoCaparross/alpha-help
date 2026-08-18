@@ -23,6 +23,11 @@ export interface AdminSessionInput {
   releaseDateLatam?: string;
 }
 
+export interface SaveAdminSessionResult {
+  readonly isLive: boolean;
+  readonly youtubeStatusSource: "youtube-api" | "url-fallback";
+}
+
 const ERROR_LIST = "No se han podido cargar las sesiones.";
 
 const ERROR_SAVE = "No se ha podido guardar la sesión.";
@@ -47,7 +52,7 @@ export async function listAdminSessions(): Promise<AdminSessionRow[]> {
 
 export async function saveAdminSession(
   input: AdminSessionInput,
-): Promise<void> {
+): Promise<SaveAdminSessionResult> {
   const response = await fetch("/api/admin/sessions", {
     method: "POST",
     headers: {
@@ -61,6 +66,19 @@ export async function saveAdminSession(
 
     throw new Error(data?.error ?? ERROR_SAVE);
   }
+
+  const data = (await response.json().catch(() => null)) as {
+    isLive?: boolean;
+    youtubeStatusSource?: "youtube-api" | "url-fallback";
+  } | null;
+
+  return {
+    isLive: Boolean(data?.isLive),
+    youtubeStatusSource:
+      data?.youtubeStatusSource === "youtube-api"
+        ? "youtube-api"
+        : "url-fallback",
+  };
 }
 
 export async function deleteAdminSession(id: string): Promise<void> {

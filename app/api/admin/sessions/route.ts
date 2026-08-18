@@ -6,6 +6,7 @@ import {
   extractYoutubeId,
   getYoutubeStatus,
   getYoutubeThumbnail,
+  isYoutubeLiveUrl,
 } from "@/lib/utils/youtube";
 
 const TABLE = "study_sessions";
@@ -13,7 +14,7 @@ const TABLE = "study_sessions";
 const REGIONS = ["España", "Latinoamérica"] as const;
 
 const MIN_SESSION_ORDER = 0;
-const MAX_SESSION_ORDER = 9;
+const MAX_SESSION_ORDER = 10;
 
 const SELECT_FIELDS = `
   id,
@@ -211,24 +212,29 @@ export async function POST(request: Request) {
 
   const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
-  let isLive = false;
+  let isLive = isYoutubeLiveUrl(youtubeUrl);
+  let youtubeStatusSource: "youtube-api" | "url-fallback" = "url-fallback";
 
   try {
     const youtubeStatus = await getYoutubeStatus(youtubeId);
-
     isLive = youtubeStatus.isLive;
+    youtubeStatusSource = "youtube-api";
   } catch (error) {
-    console.error("[admin/sessions][YOUTUBE_STATUS]", error);
+    const youtubeError = error as {
+      code?: string;
+      message?: string;
+    };
 
-    return NextResponse.json(
-      {
-        error:
-          "No se ha podido comprobar el estado del vídeo en YouTube. Inténtalo de nuevo.",
-      },
-      {
-        status: 400,
-      },
-    );
+    console.warn("[admin/sessions][YOUTUBE_STATUS]", {
+      videoId: youtubeId,
+      code: youtubeError.code,
+      message: youtubeError.message,
+    });
+
+    // Si la API no está disponible, no bloqueamos el guardado.
+    // /live/ se considera directo y cualquier otra URL se considera
+    // contenido en diferido. La API seguirá siendo la fuente de verdad
+    // cuando esté correctamente configurada.
   }
 
   const now = new Date().toISOString();
@@ -293,5 +299,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     isLive,
+    youtubeStatusSource,
   });
 }
