@@ -490,43 +490,6 @@
 }
 
 /* ==========================================
-   ADMIN — Selector directo / grabada
-========================================== */
-
-.admin-live-toggle {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.admin-live-toggle__option {
-  flex: 1;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--neutral-600);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    color 0.2s ease,
-    background 0.2s ease;
-}
-
-.admin-live-toggle__option--active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(14, 165, 233, 0.06);
-}
-
-.admin-live-toggle__option--live.admin-live-toggle__option--active {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: rgba(239, 68, 68, 0.06);
-}
-
-/* ==========================================
    ADMIN — Mensajes de contacto
 ========================================== */
 
@@ -624,268 +587,185 @@
   gap: 0.75rem;
   margin-top: 1.1rem;
 }
-/* UX/UI refinement — TANDA 2 */
+
+/* ==========================================
+   UX/UI refinement — TANDA 2
+========================================== */
+
 .admin-layout__main {
   padding: 2rem 2.5rem;
 }
+
 .admin-sidebar {
   width: 16.5rem;
   padding: 1.5rem 1rem;
 }
+
 .admin-sidebar__item {
   min-height: 2.75rem;
 }
+
 .admin-header {
   margin-bottom: 1.5rem;
 }
+
 .admin-quick-links {
   gap: 1rem;
 }
+
 .admin-message-card {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
+
 .admin-message-card:hover {
   transform: translateY(-1px);
 }
+
 .admin-form {
   gap: 1rem;
 }
+
 .admin-form__row {
   gap: 1rem;
 }
+
 .admin-export-grid {
   gap: 1rem;
 }
+
 @media (max-width: 900px) {
   .admin-layout__main {
     padding: 1.5rem;
   }
+
   .admin-sidebar {
     width: 15.5rem;
   }
 }
+
 @media (max-width: 700px) {
   .admin-layout__main {
     padding: 1rem;
   }
+
   .admin-sidebar {
     display: none;
   }
+
   .admin-form__row--split {
     grid-template-columns: 1fr;
   }
+
   .admin-export-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* TANDA 5 — navegación administrativa */
-.admin-sidebar__item {
-  min-height: 2.75rem;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+/* ==========================================================
+   UX/UI REFINEMENT — TANDA 4
+========================================================== */
+
+.admin-layout {
+  min-height: 100dvh;
 }
 
-.admin-sidebar__item:focus-visible,
-.admin-sidebar__logout:focus-visible {
-  outline: 2px solid var(--color-primary, #1f5f9f);
-  outline-offset: 3px;
+.admin-layout__main {
+  min-width: 0;
+  padding: clamp(1.25rem, 2.5vw, 2.5rem);
 }
 
-.admin-sidebar__item[data-active="true"] {
-  font-weight: 600;
+.admin-header {
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
 }
 
-.admin-sidebar__item:not([data-active="true"]):hover {
-  transform: translateX(2px);
-}
-
-@media (max-width: 700px) {
-  .admin-sidebar__item {
-    min-height: 3rem;
-  }
-}
-
-/* Configuración de evaluación final */
-.admin-questionnaire-settings {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--surface);
-  border: var(--border-light);
+.admin-stat-card,
+.admin-quick-link,
+.admin-export-card,
+.admin-message-card {
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
 }
 
-.admin-questionnaire-settings__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+.admin-stat-card {
+  min-height: 7.5rem;
 }
 
-.admin-section-title {
-  margin: 0;
-  color: var(--neutral-900);
-  font-size: 1.1rem;
-  font-weight: 700;
+.admin-quick-link {
+  min-height: 7rem;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
-.admin-muted {
-  margin: 0.35rem 0 0;
-  color: var(--neutral-600);
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.admin-status-pill {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.admin-status-pill--active {
-  color: var(--success);
-  background: rgba(16, 185, 129, 0.1);
-}
-
-.admin-status-pill--inactive {
-  color: var(--neutral-600);
-  background: var(--neutral-100);
-}
-
-.admin-questionnaire-settings__form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 620px;
-}
-
-.admin-checkbox-row {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  min-height: 2.75rem;
-  color: var(--neutral-800);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.admin-checkbox-row input {
-  width: 1.1rem;
-  height: 1.1rem;
-  accent-color: var(--accent);
-}
-
-.admin-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  color: var(--neutral-700);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.admin-field input {
-  width: 100%;
-  min-height: 2.9rem;
-  box-sizing: border-box;
-  padding: 0.7rem 0.85rem;
-  border: var(--border-input);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--neutral-900);
-  font: inherit;
-}
-
-.admin-field input:focus-visible,
-.admin-checkbox-row input:focus-visible {
+.admin-quick-link:focus-visible,
+.admin-slot:focus-visible,
+.admin-tab:focus-visible,
+.admin-delete-button:focus-visible,
+.admin-export-card__button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.admin-feedback {
-  margin: 0;
-  padding: 0.7rem 0.8rem;
+.admin-form {
+  width: 100%;
+  max-width: 720px;
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="url"],
+.admin-form input[type="number"],
+.admin-form input[type="datetime-local"],
+.admin-form input[type="password"],
+.admin-form input[type="file"],
+.admin-form textarea {
+  min-height: 3rem;
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.admin-feedback--error {
-  color: var(--danger);
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px solid rgba(239, 68, 68, 0.16);
+.admin-form input:focus-visible,
+.admin-form textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
 }
 
-.admin-feedback--success {
-  color: var(--success);
-  background: rgba(16, 185, 129, 0.06);
-  border: 1px solid rgba(16, 185, 129, 0.16);
+.admin-slot {
+  min-height: 6.5rem;
 }
 
-.admin-questionnaire-settings__actions {
-  display: flex;
-  justify-content: flex-start;
+.admin-message-card__summary {
+  min-height: 4.25rem;
+}
+
+@media (max-width: 900px) {
+  .admin-layout__main {
+    padding: 1.25rem;
+  }
 }
 
 @media (max-width: 600px) {
-  .admin-questionnaire-settings {
-    padding: 1.25rem;
+  .admin-layout__main {
+    padding: 1rem;
   }
 
-  .admin-questionnaire-settings__header {
+  .admin-form {
+    padding: 1.125rem;
+  }
+
+  .admin-form__actions {
     flex-direction: column;
   }
-}
 
-.admin-unlock-button {
-  align-self: flex-start;
-  min-height: 2.75rem;
-  padding: 0.7rem 1rem;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-sm);
-  background: var(--accent);
-  color: #fff;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    transform 160ms ease;
-}
-
-.admin-unlock-button:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-  transform: translateY(-1px);
-}
-
-.admin-unlock-button--active {
-  background: var(--surface);
-  color: var(--danger);
-  border-color: rgba(239, 68, 68, 0.35);
-}
-
-.admin-unlock-button--active:hover {
-  background: rgba(239, 68, 68, 0.05);
-  border-color: var(--danger);
-}
-
-.admin-unlock-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  .admin-form__actions > * {
+    width: 100%;
+  }
 }

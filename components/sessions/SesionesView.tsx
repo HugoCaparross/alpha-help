@@ -38,49 +38,42 @@ const ERROR_MESSAGE =
 const YOUTUBE_STATUS_INTERVAL =
   60_000;
 
-interface YoutubeSessionStatus {
-  id: string;
-  isLive: boolean;
-  status:
+type YoutubeStatus =
   | "live"
   | "upcoming"
   | "completed"
   | "video"
   | "unknown";
+
+interface YoutubeSessionStatus {
+  readonly id: string;
+  readonly isLive: boolean;
+  readonly status: YoutubeStatus;
+}
+
+interface YoutubeRefreshResult {
+  readonly sessions: SessionWithStatus[];
+  readonly statuses: Record<
+    string,
+    YoutubeStatus
+  >;
 }
 
 async function refreshYoutubeStatuses(
   sessions: SessionWithStatus[],
-): Promise<
-  SessionWithStatus[]
-> {
-  const liveCandidates =
-    sessions.filter(
-      (session) =>
-        session.isLive ||
-        session.youtubeUrl.includes(
-          "/live/",
-        ),
-    );
-
-  if (
-    liveCandidates.length ===
-    0
-  ) {
-    return sessions;
-  }
-
-  const response =
-    await fetch(
-      "/api/youtube/sessions-status",
-      {
-        cache:
-          "no-store",
-      },
-    );
+): Promise<YoutubeRefreshResult> {
+  const response = await fetch(
+    "/api/youtube/sessions-status",
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!response.ok) {
-    return sessions;
+    return {
+      sessions,
+      statuses: {},
+    };
   }
 
   const payload =
@@ -88,40 +81,52 @@ async function refreshYoutubeStatuses(
       sessions?: YoutubeSessionStatus[];
     };
 
-  if (
-    !payload.sessions
-  ) {
-    return sessions;
+  if (!payload.sessions) {
+    return {
+      sessions,
+      statuses: {},
+    };
   }
 
-  const statusMap =
-    new Map(
-      payload.sessions.map(
-        (item) => [
-          item.id,
-          item,
-        ],
-      ),
-    );
-
-  return sessions.map(
-    (session) => {
-      const status =
-        statusMap.get(
-          session.id,
-        );
-
-      if (!status) {
-        return session;
-      }
-
-      return {
-        ...session,
-        isLive:
-          status.isLive,
-      };
-    },
+  const statusMap = new Map(
+    payload.sessions.map(
+      (item) => [
+        item.id,
+        item,
+      ],
+    ),
   );
+
+  const statuses = Object.fromEntries(
+    payload.sessions.map(
+      (item) => [
+        item.id,
+        item.status,
+      ],
+    ),
+  );
+
+  return {
+    sessions: sessions.map(
+      (session) => {
+        const status =
+          statusMap.get(
+            session.id,
+          );
+
+        if (!status) {
+          return session;
+        }
+
+        return {
+          ...session,
+          isLive:
+            status.isLive,
+        };
+      },
+    ),
+    statuses,
+  };
 }
 
 export default function SesionesView() {
@@ -132,6 +137,17 @@ export default function SesionesView() {
     useState<
       SessionWithStatus[]
     >([]);
+
+  const [
+    youtubeStatuses,
+    setYoutubeStatuses,
+  ] =
+    useState<
+      Record<
+        string,
+        YoutubeStatus
+      >
+    >({});
 
   const [
     completedIds,
@@ -161,6 +177,7 @@ export default function SesionesView() {
         setLoading(
           true,
         );
+
         setError("");
 
         try {
@@ -179,7 +196,11 @@ export default function SesionesView() {
             );
 
           setSessions(
-            refreshed,
+            refreshed.sessions,
+          );
+
+          setYoutubeStatuses(
+            refreshed.statuses,
           );
 
           setCompletedIds(
@@ -204,6 +225,10 @@ export default function SesionesView() {
             [],
           );
 
+          setYoutubeStatuses(
+            {},
+          );
+
           setCompletedIds(
             new Set(),
           );
@@ -225,17 +250,25 @@ export default function SesionesView() {
   }, [loadSessions]);
 
   useEffect(() => {
-    const hasLiveSession =
+    const hasPendingYoutubeState =
       sessions.some(
-        (session) =>
-          session.isLive ||
-          session.youtubeUrl.includes(
-            "/live/",
-          ),
+        (session) => {
+          const status =
+            youtubeStatuses[
+            session.id
+            ];
+
+          return (
+            status ===
+            "live" ||
+            status ===
+            "upcoming"
+          );
+        },
       );
 
     if (
-      !hasLiveSession
+      !hasPendingYoutubeState
     ) {
       return;
     }
@@ -250,7 +283,14 @@ export default function SesionesView() {
               refreshed,
             ) => {
               setSessions(
-                refreshed,
+                refreshed.sessions,
+              );
+
+              setYoutubeStatuses(
+                (previous) => ({
+                  ...previous,
+                  ...refreshed.statuses,
+                }),
               );
             },
           );
@@ -262,7 +302,10 @@ export default function SesionesView() {
       window.clearInterval(
         interval,
       );
-  }, [sessions]);
+  }, [
+    sessions,
+    youtubeStatuses,
+  ]);
 
   if (loading) {
     return (

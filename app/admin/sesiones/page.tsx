@@ -7,7 +7,9 @@ import {
   useState,
 } from "react";
 
-import type { FormEvent } from "react";
+import type {
+  FormEvent,
+} from "react";
 
 import {
   LoaderCircle,
@@ -162,14 +164,19 @@ export default function AdminSessionsPage() {
         setLoading(
           true,
         );
+
         setError("");
 
         try {
           const data =
             await listAdminSessions();
 
-          setSessions(data);
-        } catch (err) {
+          setSessions(
+            data,
+          );
+        } catch (
+        err
+        ) {
           setError(
             err instanceof Error
               ? err.message
@@ -293,7 +300,10 @@ export default function AdminSessionsPage() {
   ) {
     event.preventDefault();
 
-    setSaving(true);
+    setSaving(
+      true,
+    );
+
     setError("");
     setSuccess("");
 
@@ -328,7 +338,9 @@ export default function AdminSessionsPage() {
       );
 
       await loadSessions();
-    } catch (err) {
+    } catch (
+    err
+    ) {
       setError(
         err instanceof Error
           ? err.message
@@ -359,7 +371,10 @@ export default function AdminSessionsPage() {
       return;
     }
 
-    setSaving(true);
+    setSaving(
+      true,
+    );
+
     setError("");
     setSuccess("");
 
@@ -377,7 +392,9 @@ export default function AdminSessionsPage() {
       );
 
       await loadSessions();
-    } catch (err) {
+    } catch (
+    err
+    ) {
       setError(
         err instanceof Error
           ? err.message
@@ -657,9 +674,9 @@ export default function AdminSessionsPage() {
           </div>
 
           <span className="admin-form__hint">
-            El estado "En directo" o "En diferido"
-            se determina automáticamente consultando
-            YouTube. No tienes que cambiarlo manualmente.
+            El estado del vídeo se determina
+            automáticamente consultando YouTube.
+            No tienes que cambiarlo manualmente.
           </span>
 
           {error && (

@@ -88,42 +88,11 @@ export function getYoutubeThumbnail(youtubeId: string): string {
 }
 
 /**
- * Determina si una URL representa inicialmente
- * una URL de retransmisión de YouTube.
- *
- * Esto NO sustituye a la consulta de YouTube.
- * Solo sirve como fallback cuando todavía
- * no hemos consultado el estado real.
- */
-export function isYoutubeLiveUrl(url: string): boolean {
-  if (typeof url !== "string") {
-    return false;
-  }
-
-  try {
-    const parsed = new URL(url.trim());
-
-    const hostname = normalizeHostname(parsed.hostname);
-
-    if (!YOUTUBE_HOSTS.has(hostname)) {
-      return false;
-    }
-
-    const parts = parsed.pathname.split("/").filter(Boolean);
-
-    return parts[0] === "live";
-  } catch {
-    return false;
-  }
-}
-
-/**
  * Consulta el estado real de un vídeo
  * mediante YouTube Data API.
  *
  * Esta función SOLO debe utilizarse
- * en servidor. Nunca expongas la API key
- * al navegador.
+ * en servidor.
  */
 export async function getYoutubeStatus(
   videoId: string,

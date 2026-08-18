@@ -6,7 +6,6 @@ import {
   extractYoutubeId,
   getYoutubeStatus,
   getYoutubeThumbnail,
-  isYoutubeLiveUrl,
 } from "@/lib/utils/youtube";
 
 const TABLE = "study_sessions";
@@ -14,7 +13,7 @@ const TABLE = "study_sessions";
 const REGIONS = ["España", "Latinoamérica"] as const;
 
 const MIN_SESSION_ORDER = 0;
-const MAX_SESSION_ORDER = 10;
+const MAX_SESSION_ORDER = 9;
 
 const SELECT_FIELDS = `
   id,
@@ -212,21 +211,24 @@ export async function POST(request: Request) {
 
   const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
-  let isLive = isYoutubeLiveUrl(youtubeUrl);
+  let isLive = false;
 
-  /*
-   * El estado real de YouTube tiene
-   * prioridad sobre el formato de URL.
-   *
-   * Si la API no está configurada todavía,
-   * utilizamos el formato /live/ como fallback.
-   */
   try {
     const youtubeStatus = await getYoutubeStatus(youtubeId);
 
     isLive = youtubeStatus.isLive;
   } catch (error) {
-    console.warn("[admin/sessions][YOUTUBE_STATUS]", error);
+    console.error("[admin/sessions][YOUTUBE_STATUS]", error);
+
+    return NextResponse.json(
+      {
+        error:
+          "No se ha podido comprobar el estado del vídeo en YouTube. Inténtalo de nuevo.",
+      },
+      {
+        status: 400,
+      },
+    );
   }
 
   const now = new Date().toISOString();
