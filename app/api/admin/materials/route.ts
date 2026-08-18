@@ -242,59 +242,52 @@ export async function POST(request: Request) {
 
   const now = new Date().toISOString();
 
-  const { data: existing, error: existingError } = await admin
+  const { data: existing } = await admin
     .from(TABLE)
-    .select(
-      "id, release_date_spain, release_date_latam, pdf_url, thumbnail_url",
-    )
+    .select("id")
     .eq("material_order", materialOrder)
     .eq("material_type", materialType)
     .eq("region", region)
     .maybeSingle();
 
-  if (existingError) {
-    console.error("Error comprobando el material existente:", existingError);
-
-    return NextResponse.json(
-      {
-        error: "No se ha podido comprobar el material existente.",
-      },
-      { status: 500 },
-    );
-  }
-
   const payload = {
     title,
     description,
     pdf_url: pdfUrl,
-    thumbnail_url:
-      generatedThumbnailUrl ||
-      thumbnailUrl ||
-      existing?.thumbnail_url ||
-      DEFAULT_THUMBNAIL,
+    thumbnail_url: generatedThumbnailUrl || thumbnailUrl || DEFAULT_THUMBNAIL,
     material_order: materialOrder,
     material_type: materialType,
     region,
-    release_date_spain: releaseDateSpain || existing?.release_date_spain || now,
-    release_date_latam: releaseDateLatam || existing?.release_date_latam || now,
+    release_date_spain: releaseDateSpain || now,
+    release_date_latam: releaseDateLatam || now,
     updated_at: now,
   };
 
-  const { error } = await admin.from(TABLE).upsert(payload, {
-    onConflict: "region,material_order,material_type",
-  });
+  const query = existing
+    ? admin.from(TABLE).update(payload).eq("id", existing.id)
+    : admin.from(TABLE).insert(payload);
+
+  const { error } = await query;
 
   if (error) {
-    console.error("Error guardando material:", error);
+    console.error("Error guardando material:", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
 
     return NextResponse.json(
       {
-        error: "No se ha podido guardar el material.",
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
       },
       { status: 500 },
     );
   }
-
+  
   return NextResponse.json({
     ok: true,
   });
