@@ -1,13 +1,18 @@
 import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
 
-import { isSpain, type Region } from "@/lib/utils/regions";
+import { getDatabaseRegion, isSpain, type Region } from "@/lib/utils/regions";
 
 import type { Session, SessionWithStatus } from "@/types/study-session";
 
 const STUDY_SESSIONS_TABLE = "study_sessions";
 
-/** Introducción + 9 sesiones. */
+/**
+ * El programa contiene 10 contenidos:
+ *
+ * 0 = Introducción
+ * 1-9 = nueve sesiones
+ */
 export const TOTAL_STUDY_SESSIONS = 10;
 
 const FIRST_SESSION_ORDER = 0;
@@ -32,26 +37,42 @@ const ERROR_PROFILE_NOT_FOUND =
 
 interface SessionRow {
   id: string;
+
   title: string;
+
   description: string;
+
   youtube_url: string;
+
   thumbnail_url: string;
+
   session_order: number;
+
   release_date_spain: string;
+
   release_date_latam: string;
+
   is_live: boolean;
 }
 
 function mapSession(row: SessionRow): Session {
   return {
     id: row.id,
+
     title: row.title,
+
     description: row.description,
+
     youtubeUrl: row.youtube_url,
+
     thumbnailUrl: row.thumbnail_url,
+
     sessionOrder: row.session_order,
+
     releaseDateSpain: row.release_date_spain,
+
     releaseDateLatam: row.release_date_latam,
+
     isLive: row.is_live,
   };
 }
@@ -96,23 +117,47 @@ function mapSessionWithStatus(
 ): SessionWithStatus {
   return {
     ...session,
+
     releaseDate: getReleaseDate(session, region),
+
     status: isSessionAvailable(session, region) ? "available" : "locked",
   };
 }
 
+/**
+ * Recupera únicamente las sesiones
+ * correspondientes a la región del
+ * participante autenticado.
+ *
+ * La aplicación utiliza:
+ *   spain
+ *   latam
+ *
+ * La base de datos utiliza:
+ *   España
+ *   Latinoamérica
+ *
+ * Por eso la región se convierte antes
+ * de realizar la consulta a Supabase.
+ */
 export async function getSessions(region?: Region): Promise<Session[]> {
   const currentRegion = region ?? (await getCurrentRegion());
+
+  const databaseRegion = getDatabaseRegion(currentRegion);
 
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
-    .eq("region", currentRegion)
+    .eq("region", databaseRegion)
     .gte("session_order", FIRST_SESSION_ORDER)
     .lte("session_order", LAST_SESSION_ORDER)
-    .order("session_order", { ascending: true });
+    .order("session_order", {
+      ascending: true,
+    });
 
   if (error) {
+    console.error("[study-session.service][getSessions]", error);
+
     throw new Error(ERROR_GET_SESSIONS);
   }
 
@@ -121,19 +166,28 @@ export async function getSessions(region?: Region): Promise<Session[]> {
   );
 }
 
+/**
+ * Recupera una sesión concreta,
+ * asegurándose de que pertenece a
+ * la región del participante.
+ */
 export async function getSessionById(
   sessionId: string,
 ): Promise<Session | null> {
   const region = await getCurrentRegion();
 
+  const databaseRegion = getDatabaseRegion(region);
+
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
     .eq("id", sessionId)
-    .eq("region", region)
+    .eq("region", databaseRegion)
     .maybeSingle();
 
   if (error) {
+    console.error("[study-session.service][getSessionById]", error);
+
     throw new Error(ERROR_GET_SESSIONS);
   }
 
@@ -153,19 +207,42 @@ export async function getSessionById(
   return session;
 }
 
+/**
+ * Devuelve todas las sesiones de la
+ * región del participante junto con
+ * su estado actual.
+ *
+ * La fecha utilizada depende de la
+ * región del participante:
+ *
+ * España
+ *   → release_date_spain
+ *
+ * Latinoamérica
+ *   → release_date_latam
+ */
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
   const region = await getCurrentRegion();
+
   const sessions = await getSessions(region);
 
   return sessions.map((session) => mapSessionWithStatus(session, region));
 }
 
+/**
+ * Devuelve únicamente las sesiones
+ * cuya fecha de publicación ya ha llegado.
+ */
 export async function getAvailableSessions(): Promise<SessionWithStatus[]> {
   const sessions = await getSessionsWithStatus();
 
   return sessions.filter(({ status }) => status === "available");
 }
 
+/**
+ * Devuelve la siguiente sesión
+ * todavía bloqueada por fecha.
+ */
 export async function getNextSession(): Promise<SessionWithStatus | null> {
   const sessions = await getSessionsWithStatus();
 
