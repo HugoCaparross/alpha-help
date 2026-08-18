@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
+
 import {
   extractYoutubeId,
   getYoutubeStatus,
@@ -14,7 +15,7 @@ const TABLE = "study_sessions";
 const REGIONS = ["España", "Latinoamérica"] as const;
 
 const MIN_SESSION_ORDER = 0;
-const MAX_SESSION_ORDER = 10;
+const MAX_SESSION_ORDER = 9;
 
 const SELECT_FIELDS = `
   id,
@@ -213,11 +214,14 @@ export async function POST(request: Request) {
   const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
   let isLive = isYoutubeLiveUrl(youtubeUrl);
+
   let youtubeStatusSource: "youtube-api" | "url-fallback" = "url-fallback";
 
   try {
     const youtubeStatus = await getYoutubeStatus(youtubeId);
+
     isLive = youtubeStatus.isLive;
+
     youtubeStatusSource = "youtube-api";
   } catch (error) {
     const youtubeError = error as {
@@ -231,10 +235,17 @@ export async function POST(request: Request) {
       message: youtubeError.message,
     });
 
-    // Si la API no está disponible, no bloqueamos el guardado.
-    // /live/ se considera directo y cualquier otra URL se considera
-    // contenido en diferido. La API seguirá siendo la fuente de verdad
-    // cuando esté correctamente configurada.
+    /*
+     * Si la API no está disponible,
+     * no bloqueamos el guardado.
+     *
+     * /live/ se considera directo.
+     * Cualquier otra URL se considera
+     * contenido en diferido.
+     *
+     * Cuando la API esté disponible,
+     * será la fuente de verdad.
+     */
   }
 
   const now = new Date().toISOString();

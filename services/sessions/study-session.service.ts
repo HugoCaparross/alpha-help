@@ -101,18 +101,16 @@ function mapSessionWithStatus(
   };
 }
 
-export async function getSessions(): Promise<Session[]> {
-  const region = await getCurrentRegion();
+export async function getSessions(region?: Region): Promise<Session[]> {
+  const currentRegion = region ?? (await getCurrentRegion());
 
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
-    .eq("region", region)
+    .eq("region", currentRegion)
     .gte("session_order", FIRST_SESSION_ORDER)
     .lte("session_order", LAST_SESSION_ORDER)
-    .order("session_order", {
-      ascending: true,
-    });
+    .order("session_order", { ascending: true });
 
   if (error) {
     throw new Error(ERROR_GET_SESSIONS);
@@ -156,10 +154,8 @@ export async function getSessionById(
 }
 
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
-  const [region, sessions] = await Promise.all([
-    getCurrentRegion(),
-    getSessions(),
-  ]);
+  const region = await getCurrentRegion();
+  const sessions = await getSessions(region);
 
   return sessions.map((session) => mapSessionWithStatus(session, region));
 }

@@ -1,18 +1,9 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
-import {
-  LoaderCircle,
-  Trash2,
-} from "lucide-react";
+import { LoaderCircle, Trash2 } from "lucide-react";
 
 import {
   deleteAdminSession,
@@ -22,31 +13,17 @@ import {
   type AdminSessionRow,
 } from "@/services/admin/admin-session.service";
 
-const REGIONS: {
-  id: AdminRegion;
-  label: string;
-}[] = [
-    {
-      id: "España",
-      label: "España",
-    },
-    {
-      id: "Latinoamérica",
-      label: "Latinoamérica",
-    },
-  ];
+const REGIONS: { id: AdminRegion; label: string }[] = [
+  { id: "España", label: "España" },
+  { id: "Latinoamérica", label: "Latinoamérica" },
+];
 
 const TOTAL_SLOTS = 10;
 
-const SLOTS =
-  Array.from(
-    {
-      length:
-        TOTAL_SLOTS,
-    },
-    (_, index) =>
-      index,
-  );
+const SLOTS = Array.from(
+  { length: TOTAL_SLOTS },
+  (_, index) => index,
+);
 
 interface FormState {
   title: string;
@@ -71,24 +48,14 @@ function toDatetimeLocal(
     return "";
   }
 
-  const date =
-    new Date(iso);
+  const date = new Date(iso);
 
-  if (
-    Number.isNaN(
-      date.getTime(),
-    )
-  ) {
+  if (Number.isNaN(date.getTime())) {
     return "";
   }
 
-  const pad = (
-    value: number,
-  ) =>
-    String(value).padStart(
-      2,
-      "0",
-    );
+  const pad = (value: number) =>
+    String(value).padStart(2, "0");
 
   return `${date.getFullYear()}-${pad(
     date.getMonth() + 1,
@@ -102,87 +69,50 @@ function toDatetimeLocal(
 }
 
 export default function AdminSessionsPage() {
-  const [
-    sessions,
-    setSessions,
-  ] =
-    useState<
-      AdminSessionRow[]
-    >([]);
+  const [sessions, setSessions] =
+    useState<AdminSessionRow[]>([]);
 
-  const [
-    activeRegion,
-    setActiveRegion,
-  ] =
-    useState<AdminRegion>(
-      "España",
-    );
+  const [activeRegion, setActiveRegion] =
+    useState<AdminRegion>("España");
 
-  const [
-    selectedOrder,
-    setSelectedOrder,
-  ] =
-    useState(0);
+  const [selectedOrder, setSelectedOrder] =
+    useState<number>(0);
 
-  const [
-    form,
-    setForm,
-  ] =
-    useState<FormState>(
-      EMPTY_FORM,
-    );
+  const [form, setForm] =
+    useState<FormState>(EMPTY_FORM);
 
-  const [
-    loading,
-    setLoading,
-  ] =
+  const [loading, setLoading] =
     useState(true);
 
-  const [
-    saving,
-    setSaving,
-  ] =
+  const [saving, setSaving] =
     useState(false);
 
-  const [
-    error,
-    setError,
-  ] =
+  const [error, setError] =
     useState("");
 
-  const [
-    success,
-    setSuccess,
-  ] =
+  const [success, setSuccess] =
     useState("");
 
   const loadSessions =
-    useCallback(
-      async () => {
-        setLoading(
-          true,
+    useCallback(async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data =
+          await listAdminSessions();
+
+        setSessions(data);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Error inesperado.",
         );
-        setError("");
-
-        try {
-          const data =
-            await listAdminSessions();
-
-          setSessions(data);
-        } catch (err) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Error inesperado.",
-          );
-        } finally {
-          setLoading(
-            false,
-          );
-        }
-      },
-      [],
-    );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     void loadSessions();
@@ -196,10 +126,7 @@ export default function AdminSessionsPage() {
             session.region ===
             activeRegion,
         ),
-      [
-        sessions,
-        activeRegion,
-      ],
+      [sessions, activeRegion],
     );
 
   const sessionByOrder =
@@ -220,31 +147,21 @@ export default function AdminSessionsPage() {
       );
 
       return map;
-    }, [
-      visibleSessions,
-    ]);
+    }, [visibleSessions]);
 
   const selectSlot =
     useCallback(
-      (
-        order: number,
-      ) => {
-        setSelectedOrder(
-          order,
-        );
-
+      (order: number) => {
+        setSelectedOrder(order);
         setError("");
         setSuccess("");
 
         const existing =
-          sessionByOrder.get(
-            order,
-          );
+          sessionByOrder.get(order);
 
         if (existing) {
           setForm({
-            title:
-              existing.title,
+            title: existing.title,
             description:
               existing.description,
             youtubeUrl:
@@ -259,31 +176,18 @@ export default function AdminSessionsPage() {
               ),
           });
         } else {
-          setForm(
-            EMPTY_FORM,
-          );
+          setForm(EMPTY_FORM);
         }
       },
-      [
-        sessionByOrder,
-      ],
+      [sessionByOrder],
     );
 
   function selectRegion(
     region: AdminRegion,
   ) {
-    setActiveRegion(
-      region,
-    );
-
-    setSelectedOrder(
-      0,
-    );
-
-    setForm(
-      EMPTY_FORM,
-    );
-
+    setActiveRegion(region);
+    setSelectedOrder(0);
+    setForm(EMPTY_FORM);
     setError("");
     setSuccess("");
   }
@@ -298,28 +202,38 @@ export default function AdminSessionsPage() {
     setSuccess("");
 
     try {
-      const result = await saveAdminSession({
-        title: form.title,
-        description: form.description,
-        youtubeUrl: form.youtubeUrl,
-        sessionOrder: selectedOrder,
-        region: activeRegion,
-        releaseDateSpain: form.releaseDateSpain
-          ? new Date(form.releaseDateSpain).toISOString()
-          : undefined,
-        releaseDateLatam: form.releaseDateLatam
-          ? new Date(form.releaseDateLatam).toISOString()
-          : undefined,
-      });
+      const result =
+        await saveAdminSession({
+          title: form.title,
+          description:
+            form.description,
+          youtubeUrl:
+            form.youtubeUrl,
+          sessionOrder:
+            selectedOrder,
+          region:
+            activeRegion,
+          releaseDateSpain:
+            form.releaseDateSpain
+              ? new Date(
+                form.releaseDateSpain,
+              ).toISOString()
+              : undefined,
+          releaseDateLatam:
+            form.releaseDateLatam
+              ? new Date(
+                form.releaseDateLatam,
+              ).toISOString()
+              : undefined,
+        });
+
+      const statusText =
+        result.isLive
+          ? "en directo"
+          : "en diferido";
 
       setSuccess(
-        result.youtubeStatusSource === "youtube-api"
-          ? result.isLive
-            ? "Sesión guardada correctamente. YouTube la ha identificado como contenido en directo."
-            : "Sesión guardada correctamente. YouTube la ha identificado como contenido en diferido."
-          : result.isLive
-            ? "Sesión guardada correctamente. El estado se ha inferido por la URL /live/ porque la consulta de YouTube no estaba disponible."
-            : "Sesión guardada correctamente. El estado se ha inferido por la URL porque la consulta de YouTube no estaba disponible.",
+        `Sesión guardada correctamente. YouTube la ha detectado como ${statusText}.`,
       );
 
       await loadSessions();
@@ -330,9 +244,7 @@ export default function AdminSessionsPage() {
           : "Error inesperado.",
       );
     } finally {
-      setSaving(
-        false,
-      );
+      setSaving(false);
     }
   }
 
@@ -363,10 +275,7 @@ export default function AdminSessionsPage() {
         existing.id,
       );
 
-      setForm(
-        EMPTY_FORM,
-      );
-
+      setForm(EMPTY_FORM);
       setSuccess(
         "Sesión eliminada.",
       );
@@ -379,9 +288,7 @@ export default function AdminSessionsPage() {
           : "Error inesperado.",
       );
     } finally {
-      setSaving(
-        false,
-      );
+      setSaving(false);
     }
   }
 
@@ -398,92 +305,78 @@ export default function AdminSessionsPage() {
         </h1>
 
         <p className="admin-header__description">
-          Configura de forma independiente
-          las sesiones de España y
-          Latinoamérica. El estado del vídeo
-          se determina automáticamente a partir
-          de YouTube.
+          Configura de forma independiente las sesiones de España y Latinoamérica. Cada región dispone de una introducción y diez sesiones, con fechas de publicación independientes.
         </p>
       </header>
 
       <div className="admin-tabs">
-        {REGIONS.map(
-          (region) => (
-            <button
-              key={region.id}
-              type="button"
-              className={`admin-tab ${activeRegion ===
-                region.id
+        {REGIONS.map((region) => (
+          <button
+            key={region.id}
+            type="button"
+            className={`admin-tab ${activeRegion === region.id
                 ? "admin-tab--active"
                 : ""
-                }`}
-              onClick={() =>
-                selectRegion(
-                  region.id,
-                )
-              }
-            >
-              {region.label}
-            </button>
-          ),
-        )}
+              }`}
+            onClick={() =>
+              selectRegion(
+                region.id,
+              )
+            }
+          >
+            {region.label}
+          </button>
+        ))}
       </div>
 
       <div className="admin-slots-grid">
-        {SLOTS.map(
-          (order) => {
-            const item =
-              sessionByOrder.get(
-                order,
-              );
+        {SLOTS.map((order) => {
+          const item =
+            sessionByOrder.get(
+              order,
+            );
 
-            return (
-              <button
-                key={order}
-                type="button"
-                onClick={() =>
-                  selectSlot(
-                    order,
-                  )
-                }
-                className={`admin-slot ${item
+          return (
+            <button
+              key={order}
+              type="button"
+              onClick={() =>
+                selectSlot(order)
+              }
+              className={`admin-slot ${item
                   ? "admin-slot--filled"
                   : ""
-                  } ${selectedOrder ===
-                    order
-                    ? "admin-slot--active"
-                    : ""
-                  }`}
-              >
-                <span className="admin-slot__number">
-                  {order === 0
-                    ? "Introducción"
-                    : `Sesión ${order}`}
-                </span>
+                } ${selectedOrder === order
+                  ? "admin-slot--active"
+                  : ""
+                }`}
+            >
+              <span className="admin-slot__number">
+                {order === 0
+                  ? "Introducción"
+                  : `Sesión ${order}`}
+              </span>
 
-                <span className="admin-slot__title">
-                  {item
-                    ? item.title
-                    : "Sin configurar"}
-                </span>
+              <span className="admin-slot__title">
+                {item
+                  ? item.title
+                  : "Sin configurar"}
+              </span>
 
-                {item?.is_live && (
-                  <span className="admin-slot__live-badge">
-                    EN DIRECTO
-                  </span>
-                )}
-
-                <span className="admin-slot__status">
-                  {item
-                    ? item.is_live
-                      ? "En directo"
-                      : "En diferido"
-                    : "Vacía"}
+              {item?.is_live && (
+                <span className="admin-slot__live-badge">
+                  EN DIRECTO
                 </span>
-              </button>
-            );
-          },
-        )}
+              )}
+
+              <span className="admin-slot__status">
+                {item
+                  ? "Publicada"
+                  : "Vacía"}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
@@ -493,9 +386,7 @@ export default function AdminSessionsPage() {
       ) : (
         <form
           className="admin-form"
-          onSubmit={
-            handleSubmit
-          }
+          onSubmit={handleSubmit}
         >
           <div className="admin-form__row">
             <label htmlFor="title">
@@ -509,22 +400,13 @@ export default function AdminSessionsPage() {
               id="title"
               type="text"
               required
-              value={
-                form.title
-              }
-              onChange={(
-                event,
-              ) =>
-                setForm(
-                  (
-                    previous,
-                  ) => ({
-                    ...previous,
-                    title:
-                      event.target
-                        .value,
-                  }),
-                )
+              value={form.title}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  title:
+                    event.target.value,
+                }))
               }
             />
           </div>
@@ -540,19 +422,12 @@ export default function AdminSessionsPage() {
               value={
                 form.description
               }
-              onChange={(
-                event,
-              ) =>
-                setForm(
-                  (
-                    previous,
-                  ) => ({
-                    ...previous,
-                    description:
-                      event.target
-                        .value,
-                  }),
-                )
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  description:
+                    event.target.value,
+                }))
               }
             />
           </div>
@@ -570,26 +445,17 @@ export default function AdminSessionsPage() {
               value={
                 form.youtubeUrl
               }
-              onChange={(
-                event,
-              ) =>
-                setForm(
-                  (
-                    previous,
-                  ) => ({
-                    ...previous,
-                    youtubeUrl:
-                      event.target
-                        .value,
-                  }),
-                )
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  youtubeUrl:
+                    event.target.value,
+                }))
               }
             />
 
             <span className="admin-form__hint">
-              Puedes utilizar una URL normal,
-              un enlace /live/, /embed/, /shorts/
-              o un enlace youtu.be.
+              El estado del vídeo se determina automáticamente a partir de YouTube.
             </span>
           </div>
 
@@ -605,19 +471,12 @@ export default function AdminSessionsPage() {
                 value={
                   form.releaseDateSpain
                 }
-                onChange={(
-                  event,
-                ) =>
-                  setForm(
-                    (
-                      previous,
-                    ) => ({
-                      ...previous,
-                      releaseDateSpain:
-                        event.target
-                          .value,
-                    }),
-                  )
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateSpain:
+                      event.target.value,
+                  }))
                 }
               />
             </div>
@@ -633,28 +492,19 @@ export default function AdminSessionsPage() {
                 value={
                   form.releaseDateLatam
                 }
-                onChange={(
-                  event,
-                ) =>
-                  setForm(
-                    (
-                      previous,
-                    ) => ({
-                      ...previous,
-                      releaseDateLatam:
-                        event.target
-                          .value,
-                    }),
-                  )
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateLatam:
+                      event.target.value,
+                  }))
                 }
               />
             </div>
           </div>
 
           <span className="admin-form__hint">
-            El estado "En directo" o "En diferido"
-            se determina automáticamente consultando
-            YouTube. No tienes que cambiarlo manualmente.
+            Si no indicas una fecha, la sesión queda disponible inmediatamente. Si indicas una fecha, queda programada hasta ese momento.
           </span>
 
           {error && (
@@ -698,14 +548,10 @@ export default function AdminSessionsPage() {
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={
-                  handleDelete
-                }
+                onClick={handleDelete}
                 disabled={saving}
               >
-                <Trash2
-                  size={16}
-                />
+                <Trash2 size={16} />
                 Eliminar
               </button>
             )}
