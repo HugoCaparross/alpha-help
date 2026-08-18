@@ -21,7 +21,6 @@ export interface AdminSessionInput {
   region: AdminRegion;
   releaseDateSpain?: string;
   releaseDateLatam?: string;
-  isLive: boolean;
 }
 
 const ERROR_LIST = "No se han podido cargar las sesiones.";

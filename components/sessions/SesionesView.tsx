@@ -35,6 +35,95 @@ const LOADING_MESSAGE =
 const ERROR_MESSAGE =
   "No se han podido cargar las sesiones. Inténtalo de nuevo.";
 
+const YOUTUBE_STATUS_INTERVAL =
+  60_000;
+
+interface YoutubeSessionStatus {
+  id: string;
+  isLive: boolean;
+  status:
+  | "live"
+  | "upcoming"
+  | "completed"
+  | "video"
+  | "unknown";
+}
+
+async function refreshYoutubeStatuses(
+  sessions: SessionWithStatus[],
+): Promise<
+  SessionWithStatus[]
+> {
+  const liveCandidates =
+    sessions.filter(
+      (session) =>
+        session.isLive ||
+        session.youtubeUrl.includes(
+          "/live/",
+        ),
+    );
+
+  if (
+    liveCandidates.length ===
+    0
+  ) {
+    return sessions;
+  }
+
+  const response =
+    await fetch(
+      "/api/youtube/sessions-status",
+      {
+        cache:
+          "no-store",
+      },
+    );
+
+  if (!response.ok) {
+    return sessions;
+  }
+
+  const payload =
+    (await response.json()) as {
+      sessions?: YoutubeSessionStatus[];
+    };
+
+  if (
+    !payload.sessions
+  ) {
+    return sessions;
+  }
+
+  const statusMap =
+    new Map(
+      payload.sessions.map(
+        (item) => [
+          item.id,
+          item,
+        ],
+      ),
+    );
+
+  return sessions.map(
+    (session) => {
+      const status =
+        statusMap.get(
+          session.id,
+        );
+
+      if (!status) {
+        return session;
+      }
+
+      return {
+        ...session,
+        isLive:
+          status.isLive,
+      };
+    },
+  );
+}
+
 export default function SesionesView() {
   const [
     sessions,
@@ -50,22 +139,28 @@ export default function SesionesView() {
   ] =
     useState<
       Set<string>
-    >(new Set());
+    >(
+      new Set(),
+    );
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(true);
 
   const [
     error,
     setError,
-  ] = useState("");
+  ] =
+    useState("");
 
   const loadSessions =
     useCallback(
       async () => {
-        setLoading(true);
+        setLoading(
+          true,
+        );
         setError("");
 
         try {
@@ -75,20 +170,29 @@ export default function SesionesView() {
           ] =
             await Promise.all([
               getSessionsWithStatus(),
-
               getCompletedSessionIds(),
             ]);
 
-          setSessions(data);
+          const refreshed =
+            await refreshYoutubeStatuses(
+              data,
+            );
+
+          setSessions(
+            refreshed,
+          );
 
           setCompletedIds(
             new Set(
               completed,
             ),
           );
-        } catch (loadError) {
+        } catch (
+        loadError
+        ) {
           if (
-            process.env.NODE_ENV ===
+            process.env
+              .NODE_ENV ===
             "development"
           ) {
             console.error(
@@ -96,7 +200,10 @@ export default function SesionesView() {
             );
           }
 
-          setSessions([]);
+          setSessions(
+            [],
+          );
+
           setCompletedIds(
             new Set(),
           );
@@ -105,7 +212,9 @@ export default function SesionesView() {
             ERROR_MESSAGE,
           );
         } finally {
-          setLoading(false);
+          setLoading(
+            false,
+          );
         }
       },
       [],
@@ -115,12 +224,67 @@ export default function SesionesView() {
     void loadSessions();
   }, [loadSessions]);
 
+  useEffect(() => {
+    const hasLiveSession =
+      sessions.some(
+        (session) =>
+          session.isLive ||
+          session.youtubeUrl.includes(
+            "/live/",
+          ),
+      );
+
+    if (
+      !hasLiveSession
+    ) {
+      return;
+    }
+
+    const interval =
+      window.setInterval(
+        () => {
+          void refreshYoutubeStatuses(
+            sessions,
+          ).then(
+            (
+              refreshed,
+            ) => {
+              setSessions(
+                refreshed,
+              );
+            },
+          );
+        },
+        YOUTUBE_STATUS_INTERVAL,
+      );
+
+    return () =>
+      window.clearInterval(
+        interval,
+      );
+  }, [sessions]);
+
   if (loading) {
     return (
-      <section className="sesiones-page" aria-busy="true">
-        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
+      <section
+        className="sesiones-page"
+        aria-busy="true"
+      >
+        <PageHeader
+          title={
+            PAGE_TITLE
+          }
+          description={
+            PAGE_DESCRIPTION
+          }
+        />
+
         <div className="sesiones-loading">
-          <p>{LOADING_MESSAGE}</p>
+          <p>
+            {
+              LOADING_MESSAGE
+            }
+          </p>
         </div>
       </section>
     );
@@ -129,10 +293,31 @@ export default function SesionesView() {
   if (error) {
     return (
       <section className="sesiones-page">
-        <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
-        <div className="sesiones-error" role="alert" aria-live="polite">
-          <p>{error}</p>
-          <button type="button" className="btn-primary" onClick={() => void loadSessions()}>
+        <PageHeader
+          title={
+            PAGE_TITLE
+          }
+          description={
+            PAGE_DESCRIPTION
+          }
+        />
+
+        <div
+          className="sesiones-error"
+          role="alert"
+          aria-live="polite"
+        >
+          <p>
+            {error}
+          </p>
+
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() =>
+              void loadSessions()
+            }
+          >
             Reintentar
           </button>
         </div>
@@ -141,12 +326,15 @@ export default function SesionesView() {
   }
 
   if (
-    sessions.length === 0
+    sessions.length ===
+    0
   ) {
     return (
       <section className="sesiones-page">
         <PageHeader
-          title={PAGE_TITLE}
+          title={
+            PAGE_TITLE
+          }
           description={
             PAGE_DESCRIPTION
           }
@@ -160,14 +348,18 @@ export default function SesionesView() {
   return (
     <section className="sesiones-page">
       <PageHeader
-        title={PAGE_TITLE}
+        title={
+          PAGE_TITLE
+        }
         description={
           PAGE_DESCRIPTION
         }
       />
 
       <SessionsGrid
-        sessions={sessions}
+        sessions={
+          sessions
+        }
         completedIds={
           completedIds
         }

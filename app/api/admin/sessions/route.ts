@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
-import { extractYoutubeId, getYoutubeThumbnail } from "@/lib/utils/youtube";
+import {
+  extractYoutubeId,
+  getYoutubeStatus,
+  getYoutubeThumbnail,
+  isYoutubeLiveUrl,
+} from "@/lib/utils/youtube";
 
 const TABLE = "study_sessions";
 
 const REGIONS = ["España", "Latinoamérica"] as const;
-
-type AdminRegion = (typeof REGIONS)[number];
 
 const MIN_SESSION_ORDER = 0;
 const MAX_SESSION_ORDER = 10;
@@ -27,24 +30,6 @@ const SELECT_FIELDS = `
   created_at,
   updated_at
 `;
-
-function normalizeString(value: unknown): string {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function normalizeRegion(value: unknown): AdminRegion | null {
-  const region = normalizeString(value);
-
-  if (region === "España" || region === "ES") {
-    return "España";
-  }
-
-  if (region === "Latinoamérica" || region === "LATAM") {
-    return "Latinoamérica";
-  }
-
-  return null;
-}
 
 export async function GET() {
   const auth = await requireAdmin();
@@ -132,23 +117,26 @@ export async function POST(request: Request) {
 
   const data = body as Record<string, unknown>;
 
-  const title = normalizeString(data.title);
+  const title = typeof data.title === "string" ? data.title.trim() : "";
 
-  const description = normalizeString(data.description);
+  const description =
+    typeof data.description === "string" ? data.description.trim() : "";
 
-  const youtubeUrl = normalizeString(data.youtubeUrl);
+  const youtubeUrl =
+    typeof data.youtubeUrl === "string" ? data.youtubeUrl.trim() : "";
 
-  const thumbnailUrl = normalizeString(data.thumbnailUrl);
+  const thumbnailUrl =
+    typeof data.thumbnailUrl === "string" ? data.thumbnailUrl.trim() : "";
 
-  const region = normalizeRegion(data.region);
+  const region = data.region;
 
   const sessionOrder = Number(data.sessionOrder);
 
-  const releaseDateSpain = normalizeString(data.releaseDateSpain);
+  const releaseDateSpain =
+    typeof data.releaseDateSpain === "string" ? data.releaseDateSpain : "";
 
-  const releaseDateLatam = normalizeString(data.releaseDateLatam);
-
-  const isLive = Boolean(data.isLive);
+  const releaseDateLatam =
+    typeof data.releaseDateLatam === "string" ? data.releaseDateLatam : "";
 
   if (!title) {
     return NextResponse.json(
@@ -183,7 +171,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!region) {
+  if (!REGIONS.includes(region as "España" | "Latinoamérica")) {
     return NextResponse.json(
       {
         error: "La región de la sesión no es válida.",
@@ -224,6 +212,23 @@ export async function POST(request: Request) {
 
   const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
+  let isLive = isYoutubeLiveUrl(youtubeUrl);
+
+  /*
+   * El estado real de YouTube tiene
+   * prioridad sobre el formato de URL.
+   *
+   * Si la API no está configurada todavía,
+   * utilizamos el formato /live/ como fallback.
+   */
+  try {
+    const youtubeStatus = await getYoutubeStatus(youtubeId);
+
+    isLive = youtubeStatus.isLive;
+  } catch (error) {
+    console.warn("[admin/sessions][YOUTUBE_STATUS]", error);
+  }
+
   const now = new Date().toISOString();
 
   const admin = createAdminClient();
@@ -261,20 +266,11 @@ export async function POST(request: Request) {
     updated_at: now,
   };
 
-  let error;
+  const query = existing
+    ? admin.from(TABLE).update(payload).eq("id", existing.id)
+    : admin.from(TABLE).insert(payload);
 
-  if (existing) {
-    const result = await admin
-      .from(TABLE)
-      .update(payload)
-      .eq("id", existing.id);
-
-    error = result.error;
-  } else {
-    const result = await admin.from(TABLE).insert(payload);
-
-    error = result.error;
-  }
+  const { error } = await query;
 
   if (error) {
     console.error("[admin/sessions][SAVE]", {
@@ -294,5 +290,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
+    isLive,
   });
 }
