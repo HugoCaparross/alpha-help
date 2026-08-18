@@ -1,27 +1,24 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
-import {
-  LoaderCircle,
-  Trash2,
-} from "lucide-react";
+import { LoaderCircle, Trash2 } from "lucide-react";
 
 import {
   deleteAdminSession,
   listAdminSessions,
   saveAdminSession,
+  type AdminRegion,
   type AdminSessionRow,
 } from "@/services/admin/admin-session.service";
 
-const TOTAL_SLOTS = 10;
+const REGIONS: { id: AdminRegion; label: string }[] = [
+  { id: "España", label: "España" },
+  { id: "Latinoamérica", label: "Latinoamérica" },
+];
+
+const TOTAL_SLOTS = 11;
 
 const SLOTS = Array.from(
   { length: TOTAL_SLOTS },
@@ -46,9 +43,7 @@ const EMPTY_FORM: FormState = {
   isLive: false,
 };
 
-function toDatetimeLocal(
-  iso: string | undefined,
-): string {
+function toDatetimeLocal(iso: string | undefined): string {
   if (!iso) {
     return "";
   }
@@ -77,6 +72,9 @@ export default function AdminSessionsPage() {
   const [sessions, setSessions] =
     useState<AdminSessionRow[]>([]);
 
+  const [activeRegion, setActiveRegion] =
+    useState<AdminRegion>("España");
+
   const [selectedOrder, setSelectedOrder] =
     useState<number>(0);
 
@@ -95,83 +93,94 @@ export default function AdminSessionsPage() {
   const [success, setSuccess] =
     useState("");
 
-  const loadSessions =
-    useCallback(async () => {
-      setLoading(true);
+  const loadSessions = useCallback(async () => {
+    setLoading(true);
+    setError("");
 
-      try {
-        const data =
-          await listAdminSessions();
+    try {
+      const data = await listAdminSessions();
 
-        setSessions(data);
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Error inesperado.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }, []);
+      setSessions(data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error inesperado.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     void loadSessions();
   }, [loadSessions]);
 
-  const sessionByOrder =
-    useMemo(() => {
-      const map =
-        new Map<
-          number,
-          AdminSessionRow
-        >();
-
-      sessions.forEach(
+  const visibleSessions = useMemo(
+    () =>
+      sessions.filter(
         (session) =>
-          map.set(
-            session.session_order,
-            session,
-          ),
+          session.region === activeRegion,
+      ),
+    [sessions, activeRegion],
+  );
+
+  const sessionByOrder = useMemo(() => {
+    const map = new Map<
+      number,
+      AdminSessionRow
+    >();
+
+    visibleSessions.forEach((session) => {
+      map.set(
+        session.session_order,
+        session,
       );
+    });
 
-      return map;
-    }, [sessions]);
+    return map;
+  }, [visibleSessions]);
 
-  const selectSlot =
-    useCallback(
-      (order: number) => {
-        setSelectedOrder(order);
-        setError("");
-        setSuccess("");
+  const selectSlot = useCallback(
+    (order: number) => {
+      setSelectedOrder(order);
+      setError("");
+      setSuccess("");
 
-        const existing =
-          sessionByOrder.get(order);
+      const existing =
+        sessionByOrder.get(order);
 
-        if (existing) {
-          setForm({
-            title: existing.title,
-            description:
-              existing.description,
-            youtubeUrl:
-              existing.youtube_url,
-            releaseDateSpain:
-              toDatetimeLocal(
-                existing.release_date_spain,
-              ),
-            releaseDateLatam:
-              toDatetimeLocal(
-                existing.release_date_latam,
-              ),
-            isLive:
-              existing.is_live,
-          });
-        } else {
-          setForm(EMPTY_FORM);
-        }
-      },
-      [sessionByOrder],
-    );
+      if (existing) {
+        setForm({
+          title: existing.title,
+          description: existing.description,
+          youtubeUrl: existing.youtube_url,
+          releaseDateSpain:
+            toDatetimeLocal(
+              existing.release_date_spain,
+            ),
+          releaseDateLatam:
+            toDatetimeLocal(
+              existing.release_date_latam,
+            ),
+          isLive: existing.is_live,
+        });
+      } else {
+        setForm(EMPTY_FORM);
+      }
+    },
+    [sessionByOrder],
+  );
+
+  function selectRegion(
+    region: AdminRegion,
+  ) {
+    setActiveRegion(region);
+    setSelectedOrder(0);
+    setForm(EMPTY_FORM);
+    setError("");
+    setSuccess("");
+  }
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
@@ -188,6 +197,7 @@ export default function AdminSessionsPage() {
         description: form.description,
         youtubeUrl: form.youtubeUrl,
         sessionOrder: selectedOrder,
+        region: activeRegion,
         isLive: form.isLive,
         releaseDateSpain:
           form.releaseDateSpain
@@ -204,7 +214,7 @@ export default function AdminSessionsPage() {
       });
 
       setSuccess(
-        "Contenido guardado. Ya está disponible para los participantes.",
+        "Sesión guardada correctamente.",
       );
 
       await loadSessions();
@@ -231,13 +241,15 @@ export default function AdminSessionsPage() {
 
     if (
       !window.confirm(
-        "¿Eliminar este contenido?",
+        "¿Eliminar esta sesión?",
       )
     ) {
       return;
     }
 
     setSaving(true);
+    setError("");
+    setSuccess("");
 
     try {
       await deleteAdminSession(
@@ -245,8 +257,9 @@ export default function AdminSessionsPage() {
       );
 
       setForm(EMPTY_FORM);
+
       setSuccess(
-        "Contenido eliminado.",
+        "Sesión eliminada.",
       );
 
       await loadSessions();
@@ -267,20 +280,39 @@ export default function AdminSessionsPage() {
     );
 
   return (
-    <section className="admin-page admin-page--sessions">
+    <section>
       <header className="admin-header">
         <h1 className="admin-header__title">
           Sesiones (vídeos)
         </h1>
 
         <p className="admin-header__description">
-          Configura la introducción y las
-          nueve sesiones del programa. Cada
-          contenido puede publicarse de
-          inmediato o programarse mediante
-          una fecha de publicación.
+          Configura de forma independiente
+          las sesiones de España y
+          Latinoamérica. Cada región dispone
+          de una introducción y diez sesiones,
+          con fechas de publicación
+          independientes.
         </p>
       </header>
+
+      <div className="admin-tabs">
+        {REGIONS.map((region) => (
+          <button
+            key={region.id}
+            type="button"
+            className={`admin-tab ${activeRegion === region.id
+                ? "admin-tab--active"
+                : ""
+              }`}
+            onClick={() =>
+              selectRegion(region.id)
+            }
+          >
+            {region.label}
+          </button>
+        ))}
+      </div>
 
       <div className="admin-slots-grid">
         {SLOTS.map((order) => {
@@ -295,8 +327,8 @@ export default function AdminSessionsPage() {
                 selectSlot(order)
               }
               className={`admin-slot ${item
-                ? "admin-slot--filled"
-                : ""
+                  ? "admin-slot--filled"
+                  : ""
                 } ${selectedOrder === order
                   ? "admin-slot--active"
                   : ""
@@ -314,10 +346,16 @@ export default function AdminSessionsPage() {
                   : "Sin configurar"}
               </span>
 
+              {item?.is_live && (
+                <span className="admin-slot__live-badge">
+                  EN DIRECTO
+                </span>
+              )}
+
               <span className="admin-slot__status">
                 {item
-                  ? "Publicado"
-                  : "Vacío"}
+                  ? "Publicada"
+                  : "Vacía"}
               </span>
             </button>
           );
@@ -325,7 +363,9 @@ export default function AdminSessionsPage() {
       </div>
 
       {loading ? (
-        <p>Cargando sesiones...</p>
+        <p>
+          Cargando sesiones...
+        </p>
       ) : (
         <form
           className="admin-form"
@@ -333,11 +373,10 @@ export default function AdminSessionsPage() {
         >
           <div className="admin-form__row">
             <label htmlFor="title">
-              Título (
+              Título de{" "}
               {selectedOrder === 0
-                ? "Introducción"
-                : `Sesión ${selectedOrder}`}
-              )
+                ? "la introducción"
+                : `la sesión ${selectedOrder}`}
             </label>
 
             <input
@@ -397,7 +436,8 @@ export default function AdminSessionsPage() {
             <span className="admin-form__hint">
               Admite enlaces normales,
               retransmisiones en directo,
-              youtu.be y shorts.
+              enlaces youtu.be, shorts y
+              enlaces /live/.
             </span>
           </div>
 
@@ -410,8 +450,8 @@ export default function AdminSessionsPage() {
               <button
                 type="button"
                 className={`admin-live-toggle__option ${!form.isLive
-                  ? "admin-live-toggle__option--active"
-                  : ""
+                    ? "admin-live-toggle__option--active"
+                    : ""
                   }`}
                 onClick={() =>
                   setForm((prev) => ({
@@ -426,8 +466,8 @@ export default function AdminSessionsPage() {
               <button
                 type="button"
                 className={`admin-live-toggle__option admin-live-toggle__option--live ${form.isLive
-                  ? "admin-live-toggle__option--active"
-                  : ""
+                    ? "admin-live-toggle__option--active"
+                    : ""
                   }`}
                 onClick={() =>
                   setForm((prev) => ({
@@ -436,84 +476,60 @@ export default function AdminSessionsPage() {
                   }))
                 }
               >
-                En directo
+                En directo ahora
               </button>
             </div>
           </div>
 
-          <div className="admin-form__row">
-            <label htmlFor="releaseDateSpain">
-              Publicación España
-            </label>
+          <div className="admin-form__row admin-form__row--split">
+            <div>
+              <label htmlFor="releaseDateSpain">
+                Publicación España
+              </label>
 
-            <input
-              id="releaseDateSpain"
-              type="datetime-local"
-              value={
-                form.releaseDateSpain
-              }
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  releaseDateSpain:
-                    event.target.value,
-                }))
-              }
-            />
+              <input
+                id="releaseDateSpain"
+                type="datetime-local"
+                value={
+                  form.releaseDateSpain
+                }
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateSpain:
+                      event.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="releaseDateLatam">
+                Publicación Latinoamérica
+              </label>
+
+              <input
+                id="releaseDateLatam"
+                type="datetime-local"
+                value={
+                  form.releaseDateLatam
+                }
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    releaseDateLatam:
+                      event.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
 
-          <div className="admin-form__row">
-            <label htmlFor="releaseDateLatam">
-              Publicación Latinoamérica
-            </label>
-
-            <input
-              id="releaseDateLatam"
-              type="datetime-local"
-              value={
-                form.releaseDateLatam
-              }
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  releaseDateLatam:
-                    event.target.value,
-                }))
-              }
-            />
-          </div>
-
-          <div className="admin-form__actions">
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={saving}
-            >
-              {saving ? (
-                <>
-                  <LoaderCircle
-                    size={16}
-                    className="spin"
-                  />
-                  Guardando...
-                </>
-              ) : (
-                "Guardar contenido"
-              )}
-            </button>
-
-            {existing && (
-              <button
-                type="button"
-                className="btn-danger"
-                onClick={handleDelete}
-                disabled={saving}
-              >
-                <Trash2 size={16} />
-                Eliminar
-              </button>
-            )}
-          </div>
+          <span className="admin-form__hint">
+            Las fechas se guardan para ambas
+            regiones aunque estés editando el
+            programa de {activeRegion}.
+          </span>
 
           {error && (
             <p
@@ -532,6 +548,38 @@ export default function AdminSessionsPage() {
               {success}
             </p>
           )}
+
+          <div className="admin-form__actions">
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <LoaderCircle
+                    size={16}
+                    className="animate-spin"
+                  />
+                  Guardando...
+                </>
+              ) : (
+                "Guardar sesión"
+              )}
+            </button>
+
+            {existing && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={handleDelete}
+                disabled={saving}
+              >
+                <Trash2 size={16} />
+                Eliminar
+              </button>
+            )}
+          </div>
         </form>
       )}
     </section>

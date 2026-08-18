@@ -9,6 +9,7 @@ const STUDY_SESSIONS_TABLE = "study_sessions";
 
 /** Introducción + 9 sesiones. */
 export const TOTAL_STUDY_SESSIONS = 10;
+
 const FIRST_SESSION_ORDER = 0;
 const LAST_SESSION_ORDER = 9;
 
@@ -25,6 +26,7 @@ const SESSION_FIELDS = `
 `;
 
 const ERROR_GET_SESSIONS = "No se han podido recuperar las sesiones.";
+
 const ERROR_PROFILE_NOT_FOUND =
   "No se ha podido recuperar el perfil del participante.";
 
@@ -80,6 +82,7 @@ function getReleaseDate(session: Session, region: Region): string {
 
 function isReleased(releaseDate: string): boolean {
   const timestamp = Date.parse(releaseDate);
+
   return Number.isFinite(timestamp) && timestamp <= Date.now();
 }
 
@@ -99,12 +102,17 @@ function mapSessionWithStatus(
 }
 
 export async function getSessions(): Promise<Session[]> {
+  const region = await getCurrentRegion();
+
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
+    .eq("region", region)
     .gte("session_order", FIRST_SESSION_ORDER)
     .lte("session_order", LAST_SESSION_ORDER)
-    .order("session_order", { ascending: true });
+    .order("session_order", {
+      ascending: true,
+    });
 
   if (error) {
     throw new Error(ERROR_GET_SESSIONS);
@@ -118,10 +126,13 @@ export async function getSessions(): Promise<Session[]> {
 export async function getSessionById(
   sessionId: string,
 ): Promise<Session | null> {
+  const region = await getCurrentRegion();
+
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
     .eq("id", sessionId)
+    .eq("region", region)
     .maybeSingle();
 
   if (error) {
@@ -155,10 +166,12 @@ export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
 
 export async function getAvailableSessions(): Promise<SessionWithStatus[]> {
   const sessions = await getSessionsWithStatus();
+
   return sessions.filter(({ status }) => status === "available");
 }
 
 export async function getNextSession(): Promise<SessionWithStatus | null> {
   const sessions = await getSessionsWithStatus();
+
   return sessions.find(({ status }) => status === "locked") ?? null;
 }

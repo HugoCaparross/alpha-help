@@ -1,86 +1,95 @@
-/**
- * Expresión regular utilizada
- * para extraer el identificador
- * de un vídeo de YouTube.
- */
-const YOUTUBE_ID_REGEX =
-  /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/;
+const YOUTUBE_HOSTS = new Set([
+  "youtube.com",
+  "www.youtube.com",
+  "m.youtube.com",
+  "youtu.be",
+]);
 
-/**
- * Longitud oficial del identificador
- * de un vídeo de YouTube.
- */
-const YOUTUBE_ID_LENGTH = 11;
+const YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 
-/**
- * Comprueba si un identificador
- * de YouTube tiene un formato válido.
- */
-export function isYoutubeId(
-  value: string,
-): boolean {
-  return (
-    value.length ===
-      YOUTUBE_ID_LENGTH &&
-    /^[A-Za-z0-9_-]+$/.test(
-      value,
-    )
-  );
+function normalizeHostname(hostname: string): string {
+  return hostname.toLowerCase().replace(/^www\./, "");
 }
 
 /**
- * Extrae el identificador de un vídeo
- * a partir de una URL de YouTube.
+ * Extrae el ID de un vídeo de YouTube a partir de una URL.
  *
- * Soporta:
+ * Formatos admitidos:
  *
- * - youtube.com/watch?v=
- * - youtu.be/
- * - youtube.com/embed/
- * - youtube.com/shorts/
- *
- * Devuelve null cuando la URL
- * no es válida.
+ * - https://www.youtube.com/watch?v=XXXXXXXXXXX
+ * - https://youtu.be/XXXXXXXXXXX
+ * - https://www.youtube.com/embed/XXXXXXXXXXX
+ * - https://www.youtube.com/shorts/XXXXXXXXXXX
+ * - https://www.youtube.com/live/XXXXXXXXXXX
  */
-export function extractYoutubeId(
-  url: string,
-): string | null {
-  if (!url) {
+export function extractYoutubeId(url: string): string | null {
+  if (!url || typeof url !== "string") {
     return null;
   }
 
-  const match =
-    url.match(
-      YOUTUBE_ID_REGEX,
-    );
+  const value = url.trim();
 
-  if (!match) {
+  if (!value) {
     return null;
   }
 
-  const id = match[1];
+  let parsedUrl: URL;
 
-  return isYoutubeId(id)
-    ? id
-    : null;
+  try {
+    parsedUrl = new URL(value);
+  } catch {
+    return null;
+  }
+
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    return null;
+  }
+
+  const hostname = normalizeHostname(parsedUrl.hostname);
+
+  if (!YOUTUBE_HOSTS.has(hostname)) {
+    return null;
+  }
+
+  /*
+   * youtu.be/XXXXXXXXXXX
+   */
+  if (hostname === "youtu.be") {
+    const id = parsedUrl.pathname.split("/").filter(Boolean)[0];
+
+    return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
+  }
+
+  /*
+   * youtube.com/watch?v=XXXXXXXXXXX
+   */
+  if (parsedUrl.pathname === "/watch") {
+    const id = parsedUrl.searchParams.get("v");
+
+    return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
+  }
+
+  /*
+   * youtube.com/embed/XXXXXXXXXXX
+   * youtube.com/shorts/XXXXXXXXXXX
+   * youtube.com/live/XXXXXXXXXXX
+   */
+  const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
+
+  const supportedPrefixes = new Set(["embed", "shorts", "live"]);
+
+  if (pathParts.length >= 2 && supportedPrefixes.has(pathParts[0])) {
+    const id = pathParts[1];
+
+    return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
+  }
+
+  return null;
 }
 
 /**
- * Genera la URL de incrustación
- * utilizada por el reproductor.
+ * Genera la miniatura estándar de YouTube.
  */
-export function getYoutubeEmbedUrl(
-  youtubeId: string,
-): string {
-  return `https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&rel=0&playsinline=1`;
-}
-
-/**
- * Genera la miniatura oficial
- * de un vídeo de YouTube.
- */
-export function getYoutubeThumbnail(
-  youtubeId: string,
-): string {
+export function getYoutubeThumbnail(youtubeId: string): string {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
 }
