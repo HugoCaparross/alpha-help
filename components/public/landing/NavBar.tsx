@@ -7,8 +7,13 @@ import { usePathname } from "next/navigation";
 export default function NavBar() {
   const pathname = usePathname();
 
+  const isHomePage = pathname === "/";
+
   return (
-    <header className="navbar">
+    <header
+      className={`navbar ${isHomePage ? "navbar--hero" : ""
+        }`}
+    >
       <div className="container-custom">
         <div className="navbar-inner">
           <Link
@@ -26,7 +31,9 @@ export default function NavBar() {
             />
 
             <div className="navbar-brand-content">
-              <span className="navbar-title">ALPHA-HELP</span>
+              <span className="navbar-title">
+                ALPHA-HELP
+              </span>
 
               <span className="navbar-subtitle">
                 Ayudando a las familias en la adolescencia
@@ -35,22 +42,33 @@ export default function NavBar() {
           </Link>
 
           <div className="navbar-right">
-            <nav className="navbar-nav" aria-label="Navegación principal">
+            <nav
+              className="navbar-nav"
+              aria-label="Navegación principal"
+            >
               <Link
                 href="/"
-                className={`navbar-link ${pathname === "/" ? "active" : ""}`}
-                aria-current={pathname === "/" ? "page" : undefined}
+                className={`navbar-link ${pathname === "/" ? "active" : ""
+                  }`}
+                aria-current={
+                  pathname === "/"
+                    ? "page"
+                    : undefined
+                }
               >
                 Inicio
               </Link>
 
               <Link
                 href="/quienes-somos"
-                className={`navbar-link ${
-                  pathname === "/quienes-somos" ? "active" : ""
-                }`}
+                className={`navbar-link ${pathname === "/quienes-somos"
+                    ? "active"
+                    : ""
+                  }`}
                 aria-current={
-                  pathname === "/quienes-somos" ? "page" : undefined
+                  pathname === "/quienes-somos"
+                    ? "page"
+                    : undefined
                 }
               >
                 Quiénes somos
@@ -58,31 +76,50 @@ export default function NavBar() {
 
               <Link
                 href="/faq"
-                className={`navbar-link ${pathname === "/faq" ? "active" : ""}`}
-                aria-current={pathname === "/faq" ? "page" : undefined}
+                className={`navbar-link ${pathname === "/faq" ? "active" : ""
+                  }`}
+                aria-current={
+                  pathname === "/faq"
+                    ? "page"
+                    : undefined
+                }
               >
                 FAQ
               </Link>
 
               <Link
                 href="/contacto"
-                className={`navbar-link ${
-                  pathname === "/contacto" ? "active" : ""
-                }`}
-                aria-current={pathname === "/contacto" ? "page" : undefined}
+                className={`navbar-link ${pathname === "/contacto"
+                    ? "active"
+                    : ""
+                  }`}
+                aria-current={
+                  pathname === "/contacto"
+                    ? "page"
+                    : undefined
+                }
               >
                 Contacto
               </Link>
             </nav>
 
-            <div className="navbar-divider" aria-hidden="true" />
+            <div
+              className="navbar-divider"
+              aria-hidden="true"
+            />
 
             <div className="navbar-actions">
-              <Link href="/login" className="btn-outline">
+              <Link
+                href="/login"
+                className="btn-outline"
+              >
                 Iniciar sesión
               </Link>
 
-              <Link href="/register" className="btn-primary">
+              <Link
+                href="/register"
+                className="btn-primary"
+              >
                 Crear cuenta
               </Link>
             </div>
