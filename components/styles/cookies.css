@@ -215,3 +215,111 @@
     flex: 1 1 0;
   }
 }
+
+/* ==========================================================
+   RESPONSIVE MASTER — BATCH 2
+========================================================== */
+.cookie-banner,
+.cookie-banner-container,
+.cookie-banner-card,
+.cookie-banner-content,
+.cookie-banner-actions {
+  min-width: 0;
+}
+
+.cookie-banner-text,
+.cookie-banner-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 769px) {
+  .cookie-banner {
+    padding: 1rem;
+  }
+  .cookie-banner-card {
+    align-items: center;
+  }
+  .cookie-banner-actions {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .cookie-banner {
+    padding: 0.875rem;
+  }
+  .cookie-banner-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.125rem;
+  }
+  .cookie-banner-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .cookie-banner-actions > * {
+    flex: 1 1 10rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .cookie-banner {
+    padding: 0.625rem;
+  }
+  .cookie-banner-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.875rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+  .cookie-banner-header {
+    align-items: flex-start;
+  }
+  .cookie-banner-title {
+    font-size: 0.95rem;
+  }
+  .cookie-banner-text {
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .cookie-banner-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .cookie-banner-actions > * {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+  .cookie-banner-link {
+    width: 100%;
+  }
+}
+
+@media (max-width: 375px) {
+  .cookie-banner {
+    padding: 0.5rem;
+  }
+  .cookie-banner-card {
+    padding: 0.875rem;
+  }
+  .cookie-banner-text {
+    font-size: 0.78rem;
+  }
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .cookie-banner {
+    padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner-card,
+  .cookie-banner-link {
+    transition: none;
+  }
+}

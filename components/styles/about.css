@@ -552,3 +552,128 @@
     width: min(100% - 1.5rem, 72rem);
   }
 }
+
+/* ==========================================================
+   RESPONSIVE MASTER — BATCH 2
+========================================================== */
+.about-page,
+.about-container,
+.about-header,
+.about-hero,
+.about-hero-content,
+.about-team,
+.about-team-list,
+.about-member,
+.about-member-content,
+.about-lead-card {
+  min-width: 0;
+}
+
+.about-title,
+.about-description,
+.about-hero-title,
+.about-lead-name,
+.about-lead-role,
+.about-member-name,
+.about-member-role,
+.about-member-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 1024px) {
+  .about-container {
+    width: min(100% - 2rem, 72rem);
+  }
+  .about-team-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .about-container {
+    width: min(100% - 2rem, 60rem);
+  }
+  .about-team-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .about-header {
+    margin-bottom: 3rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .about-container {
+    width: min(100% - 2rem, 48rem);
+  }
+  .about-team-list {
+    grid-template-columns: 1fr;
+  }
+  .about-header {
+    margin-bottom: 2.25rem;
+  }
+  .about-hero {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-container {
+    width: min(100% - 1.5rem, 72rem);
+  }
+  .about-page {
+    padding-bottom: 2.5rem;
+  }
+  .about-header {
+    margin-bottom: 2rem;
+  }
+  .about-title {
+    font-size: clamp(1.6rem, 8vw, 2rem);
+    line-height: 1.18;
+  }
+  .about-description {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .about-hero {
+    padding: 1.125rem;
+  }
+  .about-team-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .about-team-list {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+  .about-member {
+    padding: 1rem;
+  }
+  .about-member-avatar,
+  .about-member-avatar-image {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+  .about-member-description {
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+}
+
+@media (max-width: 375px) {
+  .about-container {
+    width: min(100% - 1.25rem, 72rem);
+  }
+  .about-title {
+    font-size: 1.5rem;
+  }
+  .about-member {
+    padding: 0.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-member {
+    transition: none;
+  }
+}

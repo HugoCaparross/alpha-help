@@ -630,3 +630,266 @@
     transition: none;
   }
 }
+
+/* =========================================================
+   PROJECT — RESPONSIVE MASTER OVERRIDE
+========================================================= */
+
+.project-page,
+.project-hero-grid,
+.project-hero-content,
+.project-hero-image,
+.project-content,
+.project-image-wrapper,
+.project-benefit-content,
+.project-partner-card {
+  min-width: 0;
+}
+
+.project-hero-title,
+.project-hero-description,
+.project-benefit h2,
+.project-benefit p,
+.project-section-heading,
+.project-section-heading .section-title,
+.project-section-heading .section-description,
+.project-process-item h3,
+.project-process-item p,
+.project-topic-card h3,
+.project-trust-card h3,
+.project-trust-card p,
+.project-study-card strong,
+.project-study-card p,
+.project-team-card h3,
+.project-team-card p,
+.project-partner-card h3,
+.project-partner-card p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 1440px) {
+  .project-hero {
+    padding: 3rem 0 5rem;
+  }
+
+  .project-hero-grid {
+    gap: 4.5rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .project-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+    gap: 3rem;
+  }
+
+  .project-benefits,
+  .project-trust-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-topics,
+  .project-team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-study-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .project-hero {
+    padding: 2rem 0 4rem;
+  }
+
+  .project-hero-grid,
+  .project-split {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .project-hero-content {
+    max-width: 760px;
+  }
+
+  .project-hero-image {
+    order: 2;
+  }
+
+  .project-benefits,
+  .project-trust-grid,
+  .project-topics,
+  .project-team-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-study-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-process {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .project-hero {
+    padding: 1.5rem 0 3.5rem;
+  }
+
+  .project-hero-grid,
+  .project-split {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .project-hero-title {
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+  }
+
+  .project-hero-description {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .project-benefits,
+  .project-topics,
+  .project-trust-grid,
+  .project-team-grid,
+  .project-study-card,
+  .project-process {
+    grid-template-columns: 1fr;
+  }
+
+  .project-actions {
+    width: 100%;
+  }
+
+  .project-actions .btn-primary,
+  .project-actions .btn-secondary {
+    flex: 1 1 220px;
+  }
+
+  .project-section {
+    padding: 4rem 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .project-hero {
+    padding: 1.25rem 0 3rem;
+  }
+
+  .project-hero-grid,
+  .project-split {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .project-hero-title {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 10vw, 2.9rem);
+    line-height: 1.06;
+  }
+
+  .project-hero-description {
+    margin-bottom: 1.5rem;
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .project-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .project-actions .btn-primary,
+  .project-actions .btn-secondary {
+    width: 100%;
+  }
+
+  .project-benefits,
+  .project-topics,
+  .project-trust-grid,
+  .project-team-grid,
+  .project-study-card,
+  .project-process {
+    grid-template-columns: 1fr;
+  }
+
+  .project-benefit,
+  .project-process-item,
+  .project-topic-card,
+  .project-trust-card,
+  .project-study-card,
+  .project-team-card,
+  .project-partner-card {
+    padding: 1.125rem;
+  }
+
+  .project-benefit {
+    min-height: auto;
+  }
+
+  .project-section {
+    padding: 3.25rem 0;
+  }
+
+  .project-section-heading {
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .project-section-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-basis: 2.5rem;
+  }
+
+  .project-page .section-title {
+    font-size: 1.8rem;
+  }
+
+  .project-page .section-description {
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .project-image-card,
+  .project-hero-image img {
+    border-radius: var(--radius-md);
+  }
+}
+
+@media (max-width: 375px) {
+  .project-hero-title {
+    font-size: 1.95rem;
+  }
+
+  .project-hero-description,
+  .project-page .section-description {
+    font-size: 0.88rem;
+  }
+
+  .project-benefit,
+  .project-process-item,
+  .project-topic-card,
+  .project-trust-card,
+  .project-study-card,
+  .project-team-card,
+  .project-partner-card {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-benefit,
+  .project-process-item,
+  .project-topic-card,
+  .project-trust-card,
+  .project-team-card {
+    transition: none;
+  }
+}

@@ -1356,3 +1356,180 @@
     padding-top: 1.25rem;
   }
 }
+
+/* ==========================================================
+   RESPONSIVE MASTER — BATCH 2
+========================================================== */
+.questionnaires-page,
+.questionnaires-list,
+.evaluation-card,
+.evaluation-card__content,
+.question-block,
+.question-card,
+.questionnaire-introduction,
+.questionnaire-completion,
+.questionnaire-progress {
+  min-width: 0;
+}
+
+.evaluation-card__title,
+.evaluation-card__description,
+.evaluation-card__helper,
+.question-card__title,
+.question-card__label,
+.question-card__option,
+.questionnaire-introduction__title,
+.questionnaire-introduction__description,
+.questionnaire-completion__title,
+.questionnaire-completion__description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.question-card__options,
+.question-card__navigation,
+.questionnaire-introduction__grid,
+.questionnaire-completion__actions {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .questionnaires-page {
+    gap: 2rem;
+  }
+  .questionnaires-list {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .questionnaires-page {
+    gap: 1.75rem;
+  }
+  .questionnaires-list {
+    gap: 1.25rem;
+  }
+  .evaluation-card__content {
+    gap: 1.5rem;
+  }
+  .evaluation-card__footer {
+    gap: 0.875rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .questionnaires-page {
+    gap: 1.5rem;
+  }
+  .questionnaires-list {
+    gap: 1rem;
+  }
+  .evaluation-card__content {
+    gap: 1.25rem;
+  }
+  .evaluation-card__header {
+    gap: 0.625rem;
+  }
+  .evaluation-card__title {
+    font-size: 1.25rem;
+  }
+  .evaluation-card__description {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  .evaluation-card__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .evaluation-card__footer > * {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .questionnaires-page {
+    gap: 1.25rem;
+  }
+  .questionnaires-list {
+    gap: 0.875rem;
+  }
+  .questionnaires-loading {
+    min-height: 16rem;
+  }
+  .questionnaires-error {
+    min-height: 16rem;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .evaluation-card__content {
+    gap: 1rem;
+  }
+  .evaluation-card__header {
+    gap: 0.5rem;
+  }
+  .evaluation-card__title {
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+  .evaluation-card__description,
+  .evaluation-card__helper {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+  .evaluation-card__meta {
+    gap: 0.5rem;
+    font-size: 0.82rem;
+  }
+  .evaluation-card__footer {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 1rem;
+  }
+  .evaluation-card__footer > *,
+  .evaluation-card__footer a,
+  .evaluation-card__footer button {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+  .evaluation-status-badge {
+    min-height: 2rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+  }
+  .question-card__navigation {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .question-card__previous,
+  .question-card__navigation button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .questionnaires-page {
+    gap: 1rem;
+  }
+  .questionnaires-error {
+    padding: 0.875rem;
+  }
+  .evaluation-card__title {
+    font-size: 1.05rem;
+  }
+  .evaluation-card__description,
+  .evaluation-card__helper {
+    font-size: 0.86rem;
+  }
+  .question-card__option {
+    padding: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evaluation-card,
+  .evaluation-status-badge,
+  .questionnaire-progress__fill,
+  .question-block__questions {
+    transition: none;
+  }
+}

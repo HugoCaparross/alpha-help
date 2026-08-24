@@ -1874,3 +1874,406 @@
     padding: 1.5rem;
   }
 }
+
+/* =========================================================
+   LANDING — RESPONSIVE MASTER OVERRIDE
+========================================================= */
+
+.navbar-inner,
+.navbar-brand,
+.navbar-right,
+.navbar-nav,
+.navbar-actions,
+.hero-content-container,
+.hero-content,
+.hero-actions,
+.final-cta-actions,
+.landing-footer-grid,
+.participation-card,
+.research-wrapper,
+.research-content,
+.research-grid,
+.benefit-card,
+.feature-card,
+.concern-card,
+.research-card {
+  min-width: 0;
+}
+
+.navbar-title,
+.navbar-subtitle,
+.hero-title,
+.hero-description,
+.section-title,
+.section-description,
+.benefit-title,
+.benefit-description,
+.feature-card-title,
+.feature-card-description,
+.concern-title,
+.research-card-title,
+.research-card-description,
+.participation-title,
+.participation-description,
+.landing-footer-description,
+.landing-footer-title,
+.landing-footer-mail {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.navbar-link,
+.btn-outline,
+.hero-btn,
+.btn-primary,
+.btn-secondary,
+.final-cta-button {
+  min-height: 2.75rem;
+}
+
+@media (min-width: 1440px) {
+  .navbar-inner {
+    min-height: 88px;
+  }
+
+  .hero {
+    min-height: 700px;
+  }
+
+  .hero-content-container {
+    min-height: 700px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .navbar-inner {
+    min-height: 80px;
+    gap: 1.5rem;
+  }
+
+  .navbar-nav {
+    gap: 1.25rem;
+  }
+
+  .navbar-right {
+    gap: 1rem;
+  }
+
+  .hero-content-container {
+    min-height: 640px;
+  }
+
+  .hero-content {
+    max-width: 700px;
+    padding-top: 7.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 5vw, 4.5rem);
+  }
+
+  .benefits-grid,
+  .features-grid,
+  .concerns-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .participation-timeline,
+  .project-process {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .navbar-inner {
+    min-height: 76px;
+    gap: 1rem;
+  }
+
+  .navbar-nav,
+  .navbar-divider {
+    display: none;
+  }
+
+  .navbar-actions {
+    gap: 0.5rem;
+  }
+
+  .navbar-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hero {
+    min-height: 620px;
+  }
+
+  .hero-content-container {
+    min-height: 620px;
+  }
+
+  .hero-content {
+    max-width: 680px;
+    padding: 6.5rem 0 4rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 6vw, 4rem);
+  }
+
+  .benefits-grid,
+  .features-grid,
+  .concerns-grid,
+  .participation-timeline,
+  .research-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .research-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .research-content {
+    position: static;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .navbar-inner {
+    min-height: 68px;
+    gap: 0.75rem;
+  }
+
+  .navbar-nav,
+  .navbar-divider,
+  .navbar-subtitle,
+  .btn-outline {
+    display: none;
+  }
+
+  .navbar-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .navbar-title {
+    font-size: 1.15rem;
+  }
+
+  .hero {
+    min-height: 650px;
+  }
+
+  .hero-content-container {
+    min-height: 650px;
+    align-items: flex-end;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    padding: 3rem 0 3.25rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.25rem, 7vw, 3.25rem);
+  }
+
+  .hero-actions {
+    width: 100%;
+  }
+
+  .hero-btn {
+    flex: 1 1 220px;
+  }
+
+  .benefits-grid,
+  .features-grid,
+  .concerns-grid,
+  .participation-timeline,
+  .research-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .research-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .research-content {
+    position: static;
+  }
+
+  .landing-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar-inner {
+    min-height: 64px;
+    gap: 0.5rem;
+  }
+
+  .navbar-nav,
+  .navbar-divider,
+  .navbar-subtitle,
+  .btn-outline {
+    display: none;
+  }
+
+  .navbar-logo {
+    width: 46px;
+    height: 46px;
+  }
+
+  .navbar-brand {
+    gap: 0.65rem;
+  }
+
+  .navbar-title {
+    font-size: 1.05rem;
+  }
+
+  .hero {
+    min-height: 680px;
+  }
+
+  .hero-content-container {
+    min-height: 680px;
+    align-items: flex-end;
+  }
+
+  .hero-content {
+    padding: 2.5rem 0 2.75rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 10vw, 2.9rem);
+    line-height: 1.05;
+  }
+
+  .hero-description {
+    margin-top: 1rem;
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .hero-actions,
+  .final-cta-actions,
+  .project-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-btn,
+  .final-cta-button,
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary,
+  .final-cta-actions .btn-primary,
+  .final-cta-actions .btn-secondary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .benefits-grid,
+  .features-grid,
+  .concerns-grid,
+  .participation-timeline,
+  .research-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .research-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .research-content {
+    position: static;
+  }
+
+  .benefit-card,
+  .feature-card,
+  .concern-card,
+  .research-card,
+  .participation-card {
+    padding: 1.25rem;
+  }
+
+  .landing-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .landing-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .navbar-inner {
+    min-height: 60px;
+  }
+
+  .navbar-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .navbar-title {
+    font-size: 0.98rem;
+  }
+
+  .hero {
+    min-height: 660px;
+  }
+
+  .hero-content-container {
+    min-height: 660px;
+  }
+
+  .hero-content {
+    padding-bottom: 2.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-description {
+    font-size: 0.88rem;
+  }
+
+  .benefit-card,
+  .feature-card,
+  .concern-card,
+  .research-card,
+  .participation-card {
+    padding: 1rem;
+  }
+}
+
+@supports (padding: env(safe-area-inset-left)) {
+  @media (max-width: 1023px) {
+    .navbar-inner {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-link,
+  .btn-outline,
+  .hero-btn,
+  .benefit-card,
+  .feature-card,
+  .concern-card,
+  .research-card,
+  .participation-card {
+    transition: none;
+  }
+}

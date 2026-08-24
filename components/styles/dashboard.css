@@ -1,22 +1,39 @@
-/* ==========================================================
+/* =========================================================
    DASHBOARD
-   ========================================================== */
+   Área privada del participante
+========================================================= */
 
 .dashboard {
   display: flex;
   flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
   gap: 2.5rem;
 }
 
-/* ==========================================================
+/* =========================================================
    HEADER
-   ========================================================== */
+========================================================= */
 
 .dashboard-header {
   display: flex;
   flex-direction: column;
 
+  width: 100%;
+  min-width: 0;
+
   margin-bottom: 0.5rem;
+}
+
+.dashboard-header__content {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  max-width: 860px;
 }
 
 .dashboard-header__eyebrow {
@@ -24,8 +41,9 @@
   align-items: center;
   align-self: flex-start;
 
-  margin-bottom: 1rem;
+  max-width: 100%;
 
+  margin-bottom: 1rem;
   padding: 0.45rem 0.9rem;
 
   border-radius: 999px;
@@ -36,43 +54,110 @@
 
   font-size: 0.8rem;
   font-weight: 700;
+  line-height: 1.25;
+
   letter-spacing: 0.04em;
+
   text-transform: uppercase;
+
+  overflow-wrap: anywhere;
 }
 
 .dashboard-header__title {
+  min-width: 0;
+
   margin: 0;
 
   color: var(--neutral-900);
 
-  font-size: clamp(2rem, 4vw, 2.75rem);
+  /*
+   * Se mantiene fluido, pero con límites claros.
+   * No depende exclusivamente del viewport porque
+   * el contenido puede tener anchos muy diferentes
+   * según Sidebar/RightPanel.
+   */
+  font-size: clamp(2rem, 3vw, 2.75rem);
+
   font-weight: 800;
   line-height: 1.15;
+
   letter-spacing: -0.02em;
+
+  overflow-wrap: anywhere;
+}
+
+.dashboard-header__meta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+
+  width: fit-content;
+  max-width: 100%;
+
+  min-height: 2rem;
+
+  margin-top: 1rem;
+  padding: 0.375rem 0.75rem;
+
+  border: 1px solid var(--color-border, #d9e0e8);
+
+  border-radius: 0.5rem;
+
+  background: var(--color-surface-subtle, #f7f9fb);
+}
+
+.dashboard-header__participant-code {
+  min-width: 0;
+
+  margin: 0;
+
+  color: var(--neutral-600);
+
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.dashboard-header__participant-code strong {
+  color: var(--neutral-900);
+
+  font-weight: 700;
 }
 
 .dashboard-header__description {
+  width: 100%;
   max-width: 760px;
 
-  margin-top: 1rem;
+  margin: 1rem 0 0;
 
   color: var(--neutral-600);
 
   font-size: 1rem;
   line-height: 1.8;
+
+  overflow-wrap: anywhere;
 }
 
-/* ==========================================================
+/* =========================================================
    SECTIONS
-   ========================================================== */
+========================================================= */
 
 .dashboard-section {
   display: flex;
   flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
   gap: 1.5rem;
 }
 
-.dashboard-section-title {
+.dashboard-section-title,
+.dashboard-card-title {
+  min-width: 0;
+
   margin: 0;
 
   color: var(--neutral-900);
@@ -80,11 +165,23 @@
   font-size: 1.15rem;
   font-weight: 700;
   line-height: 1.4;
+
+  overflow-wrap: anywhere;
 }
 
-/* ==========================================================
-   CARDS (BASE)
-   ========================================================== */
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 1.5rem;
+}
+
+/* =========================================================
+   GENERIC CARDS
+========================================================= */
 
 .dashboard-action-card,
 .dashboard-next-card,
@@ -92,6 +189,9 @@
   position: relative;
 
   display: flex;
+
+  width: 100%;
+  min-width: 0;
 
   overflow: hidden;
 
@@ -105,21 +205,9 @@
   box-shadow: var(--shadow-card);
 
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
-}
-
-@media (hover: hover) {
-  .dashboard-action-card:hover,
-  .dashboard-next-card:hover,
-  .dashboard-info-card:hover {
-    transform: translateY(-3px);
-
-    border-color: rgba(59, 130, 246, 0.15);
-
-    box-shadow: var(--shadow-hover);
-  }
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .dashboard-action-card:focus-visible,
@@ -129,39 +217,46 @@
   outline-offset: 3px;
 }
 
-/* ==========================================================
+@media (hover: hover) {
+  .dashboard-action-card:hover,
+  .dashboard-next-card:hover,
+  .dashboard-info-card:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(59, 130, 246, 0.15);
+
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/* =========================================================
    PROGRESS
-   ========================================================== */
-
-.dashboard-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.dashboard-card-title {
-  margin: 0;
-
-  color: var(--neutral-900);
-
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1.4;
-}
+========================================================= */
 
 .dashboard-progress {
   display: grid;
+
+  width: 100%;
+  min-width: 0;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
   gap: 1rem;
 }
 
 .dashboard-progress-item {
   display: flex;
   align-items: center;
+
+  min-width: 0;
+  min-height: 76px;
+
   gap: 1rem;
 
   padding: 1rem 1.1rem;
 
   border: 1px solid var(--neutral-200);
+
   border-radius: var(--radius-md);
 
   background: var(--surface);
@@ -170,6 +265,14 @@
     background-color 0.2s ease,
     border-color 0.2s ease,
     transform 0.2s ease;
+}
+
+.dashboard-progress-item--completed {
+  border-color: rgba(47, 125, 91, 0.18);
+}
+
+.dashboard-progress-item--pending {
+  border-color: var(--neutral-200);
 }
 
 @media (hover: hover) {
@@ -187,7 +290,7 @@
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
   width: 3.5rem;
   height: 3.5rem;
@@ -199,44 +302,99 @@
   color: var(--accent);
 
   transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dashboard-progress-item--completed .dashboard-progress-icon {
+  background: rgba(47, 125, 91, 0.08);
+
+  color: var(--color-success, #2f7d5b);
+}
+
+.dashboard-progress-item--pending .dashboard-progress-icon {
+  color: var(--color-text-muted, #7a8795);
 }
 
 @media (hover: hover) {
   .dashboard-progress-item:hover .dashboard-progress-icon {
-    transform: scale(1.05);
+    transform: scale(1.04);
 
     background: rgba(59, 130, 246, 0.12);
   }
+
+  .dashboard-progress-item--completed:hover .dashboard-progress-icon {
+    background: rgba(47, 125, 91, 0.12);
+  }
+}
+
+.dashboard-progress-content {
+  flex: 1 1 auto;
+
+  min-width: 0;
 }
 
 .dashboard-progress-label {
-  flex: 1;
+  display: block;
+
+  min-width: 0;
 
   color: var(--neutral-700);
 
   font-size: 0.95rem;
   font-weight: 600;
-  line-height: 1.6;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================================
+.dashboard-progress-description {
+  display: block;
+
+  margin-top: 0.25rem;
+
+  color: var(--neutral-500);
+
+  font-size: 0.8rem;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* =========================================================
    QUICK ACTIONS
-   ========================================================== */
+========================================================= */
 
 .dashboard-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+  width: 100%;
+  min-width: 0;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
   gap: 1.5rem;
 }
 
 .dashboard-action-card {
   flex-direction: column;
   align-items: flex-start;
+
   gap: 1.25rem;
 
   min-height: 240px;
+
+  color: inherit;
+
+  text-decoration: none;
+}
+
+.dashboard-action-card--refined {
+  min-height: 172px;
+
+  text-decoration: none;
 }
 
 .dashboard-action-icon {
@@ -244,7 +402,7 @@
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
   width: 3.5rem;
   height: 3.5rem;
@@ -256,19 +414,21 @@
   color: var(--accent);
 
   transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 @media (hover: hover) {
   .dashboard-action-card:hover .dashboard-action-icon {
-    transform: scale(1.05);
+    transform: scale(1.04);
 
     background: rgba(59, 130, 246, 0.12);
   }
 }
 
 .dashboard-action-title {
+  min-width: 0;
+
   margin: 0;
 
   color: var(--neutral-900);
@@ -276,10 +436,15 @@
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.45;
+
+  overflow-wrap: anywhere;
 }
 
 .dashboard-action-description {
-  flex: 1;
+  flex: 1 1 auto;
+
+  width: 100%;
+  min-width: 0;
 
   margin: 0;
 
@@ -287,23 +452,72 @@
 
   font-size: 0.95rem;
   line-height: 1.7;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================================
+.dashboard-action-card--refined::after {
+  content: "";
+
+  position: absolute;
+
+  right: 1.5rem;
+  bottom: 1.5rem;
+
+  width: 1.75rem;
+  height: 1px;
+
+  background: var(--neutral-200);
+
+  transition:
+    width 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .dashboard-action-card--refined:hover {
+    transform: translateY(-2px);
+  }
+
+  .dashboard-action-card--refined:hover::after {
+    width: 2.5rem;
+
+    background: var(--accent);
+  }
+}
+
+/* =========================================================
    NEXT UNLOCKS
-   ========================================================== */
+========================================================= */
 
 .dashboard-next-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+
+  width: 100%;
+  min-width: 0;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 1.5rem;
 }
 
 .dashboard-next-card {
   align-items: flex-start;
+
   gap: 1.25rem;
 
   min-height: 170px;
+}
+
+.dashboard-next-card--has-content {
+  border-color: var(--color-border, #d9e0e8);
+}
+
+.dashboard-next-card--empty {
+  background: var(--color-surface-subtle, #f8fafc);
+
+  box-shadow: none;
 }
 
 .dashboard-next-icon {
@@ -311,7 +525,7 @@
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
   width: 3.5rem;
   height: 3.5rem;
@@ -323,19 +537,27 @@
   color: var(--accent);
 
   transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 @media (hover: hover) {
   .dashboard-next-card:hover .dashboard-next-icon {
-    transform: scale(1.05);
+    transform: scale(1.04);
 
     background: rgba(59, 130, 246, 0.12);
   }
 }
 
+.dashboard-next-content {
+  flex: 1 1 auto;
+
+  min-width: 0;
+}
+
 .dashboard-next-card-title {
+  min-width: 0;
+
   margin: 0 0 0.5rem;
 
   color: var(--neutral-900);
@@ -343,38 +565,67 @@
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.45;
+
+  overflow-wrap: anywhere;
 }
 
 .dashboard-next-card-name {
+  min-width: 0;
+
+  margin: 0;
+
   color: var(--neutral-700);
 
   font-size: 0.96rem;
   font-weight: 600;
   line-height: 1.6;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .dashboard-next-card-date {
-  margin-top: 0.5rem;
+  min-width: 0;
+
+  margin: 0.5rem 0 0;
 
   color: var(--neutral-600);
 
   font-size: 0.92rem;
   line-height: 1.6;
+
+  overflow-wrap: anywhere;
 }
 
 .dashboard-next-card-empty {
+  min-width: 0;
+
+  margin: 0;
+
   color: var(--neutral-600);
 
   line-height: 1.7;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================================
-   INFO
-   ========================================================== */
+/* =========================================================
+   INFORMATION
+========================================================= */
 
 .dashboard-info-card {
   align-items: flex-start;
+
   gap: 1.25rem;
+
+  box-shadow: none;
+
+  background: var(--neutral-50);
+}
+
+.dashboard-info-card--refined {
+  align-items: flex-start;
 }
 
 .dashboard-info-icon {
@@ -382,7 +633,7 @@
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
   width: 3.5rem;
   height: 3.5rem;
@@ -394,19 +645,31 @@
   color: var(--success);
 
   transition:
-    transform 0.25s ease,
-    background-color 0.25s ease;
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 @media (hover: hover) {
   .dashboard-info-card:hover .dashboard-info-icon {
-    transform: scale(1.05);
+    transform: scale(1.04);
 
     background: rgba(34, 197, 94, 0.14);
   }
 }
 
+.dashboard-info-content {
+  flex: 1 1 auto;
+
+  min-width: 0;
+}
+
+.dashboard-info-content--refined {
+  min-width: 0;
+}
+
 .dashboard-info-title {
+  min-width: 0;
+
   margin: 0 0 0.5rem;
 
   color: var(--neutral-900);
@@ -414,20 +677,27 @@
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.45;
+
+  overflow-wrap: anywhere;
 }
 
 .dashboard-info-description {
+  min-width: 0;
+
   margin: 0;
 
   color: var(--neutral-600);
 
   font-size: 0.95rem;
   line-height: 1.8;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================================
-   STATES
-   ========================================================== */
+/* =========================================================
+   LOADING / ERROR
+========================================================= */
 
 .dashboard-loading,
 .dashboard-error {
@@ -435,7 +705,10 @@
   align-items: center;
   justify-content: center;
 
-  min-height: 320px;
+  width: 100%;
+  min-width: 0;
+
+  min-height: min(320px, 50vh);
 
   padding: 2rem;
 
@@ -444,24 +717,176 @@
   text-align: center;
 }
 
+.dashboard-loading p,
+.dashboard-error p {
+  max-width: 32rem;
+
+  margin: 0;
+
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
+}
+
 .dashboard-error {
   color: var(--danger);
 }
 
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
+/* =========================================================
+   LARGE DESKTOP
+   ≥ 1600px
 
-@media (max-width: 1024px) {
-  .dashboard-actions-grid,
+   Aquí existe suficiente ancho real para que
+   los cuatro quick actions se distribuyan en
+   tres columnas sin crear tarjetas estrechas.
+========================================================= */
+
+@media (min-width: 1600px) {
+  .dashboard {
+    gap: 2.75rem;
+  }
+
+  .dashboard-actions-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-progress {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   DESKTOP
+   1280px – 1599px
+========================================================= */
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .dashboard {
+    gap: 2.5rem;
+  }
+
+  /*
+   * Con Sidebar + RightPanel el contenido central
+   * puede quedar demasiado estrecho para tres
+   * tarjetas de acción.
+   */
+  .dashboard-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /*
+   * A 1280px el área central tampoco garantiza
+   * 2 tarjetas de desbloqueo de 320px.
+   * El cambio a una columna se produce solo
+   * cuando el espacio central realmente es reducido.
+   */
   .dashboard-next-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-progress {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 768px) {
+/* =========================================================
+   DESKTOP COMPACTO
+   1024px – 1279px
+
+   Sidebar visible.
+   RightPanel oculto.
+   El contenido gana suficiente ancho para
+   mantener dos columnas en acciones y progreso.
+========================================================= */
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .dashboard {
+    gap: 2.25rem;
+  }
+
+  .dashboard-header__title {
+    font-size: clamp(2rem, 3.2vw, 2.5rem);
+  }
+
+  .dashboard-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 1.25rem;
+  }
+
+  .dashboard-next-grid {
+    grid-template-columns: 1fr;
+
+    gap: 1.25rem;
+  }
+
+  .dashboard-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 0.875rem;
+  }
+
+  .dashboard-action-card,
+  .dashboard-next-card,
+  .dashboard-info-card {
+    padding: 1.375rem;
+  }
+}
+
+/* =========================================================
+   TABLET
+   769px – 1023px
+
+   MobileNav visible.
+   Sin Sidebar ni RightPanel.
+========================================================= */
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .dashboard {
+    gap: 2.25rem;
+  }
+
+  .dashboard-header__content {
+    max-width: 760px;
+  }
+
+  .dashboard-header__title {
+    font-size: clamp(2rem, 4vw, 2.6rem);
+  }
+
+  .dashboard-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 1.25rem;
+  }
+
+  .dashboard-next-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 1.25rem;
+  }
+
+  .dashboard-action-card {
+    min-height: 180px;
+  }
+}
+
+/* =========================================================
+   TABLET PEQUEÑA / MÓVIL GRANDE
+   601px – 768px
+========================================================= */
+
+@media (min-width: 601px) and (max-width: 768px) {
   .dashboard {
     gap: 2rem;
+  }
+
+  .dashboard-header__eyebrow {
+    margin-bottom: 0.875rem;
   }
 
   .dashboard-header__title {
@@ -469,12 +894,23 @@
   }
 
   .dashboard-header__description {
+    margin-top: 0.875rem;
+
     font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .dashboard-progress {
+    grid-template-columns: 1fr;
+
+    gap: 0.875rem;
   }
 
   .dashboard-actions-grid,
   .dashboard-next-grid {
     grid-template-columns: 1fr;
+
+    gap: 1rem;
   }
 
   .dashboard-action-card,
@@ -483,9 +919,13 @@
     padding: 1.25rem;
   }
 
+  .dashboard-action-card--refined {
+    min-height: 0;
+  }
+
   .dashboard-next-card,
   .dashboard-info-card {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .dashboard-action-icon,
@@ -497,208 +937,394 @@
   }
 }
 
+/* =========================================================
+   MÓVIL
+   481px – 600px
+========================================================= */
+
+@media (min-width: 481px) and (max-width: 600px) {
+  .dashboard {
+    gap: 1.875rem;
+  }
+
+  .dashboard-header__eyebrow {
+    margin-bottom: 0.75rem;
+
+    padding: 0.4rem 0.75rem;
+
+    font-size: 0.72rem;
+  }
+
+  .dashboard-header__title {
+    font-size: 1.875rem;
+  }
+
+  .dashboard-header__meta {
+    margin-top: 0.875rem;
+  }
+
+  .dashboard-header__description {
+    margin-top: 0.875rem;
+
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .dashboard-section {
+    gap: 1.125rem;
+  }
+
+  .dashboard-section-title,
+  .dashboard-card-title {
+    font-size: 1.05rem;
+  }
+
+  .dashboard-progress {
+    grid-template-columns: 1fr;
+
+    gap: 0.75rem;
+  }
+
+  .dashboard-progress-item {
+    min-height: 68px;
+
+    gap: 0.875rem;
+
+    padding: 0.875rem;
+  }
+
+  .dashboard-progress-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .dashboard-progress-label {
+    font-size: 0.9rem;
+  }
+
+  .dashboard-progress-description {
+    font-size: 0.78rem;
+  }
+
+  .dashboard-actions-grid,
+  .dashboard-next-grid {
+    grid-template-columns: 1fr;
+
+    gap: 1rem;
+  }
+
+  .dashboard-action-card,
+  .dashboard-next-card,
+  .dashboard-info-card {
+    padding: 1.125rem;
+  }
+
+  .dashboard-action-card--refined {
+    min-height: 0;
+  }
+
+  .dashboard-next-card,
+  .dashboard-info-card {
+    flex-direction: row;
+  }
+
+  .dashboard-action-icon,
+  .dashboard-next-icon,
+  .dashboard-info-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .dashboard-action-title {
+    font-size: 1rem;
+  }
+
+  .dashboard-action-description,
+  .dashboard-info-description {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .dashboard-next-card-name {
+    font-size: 0.92rem;
+  }
+
+  .dashboard-next-card-date {
+    font-size: 0.88rem;
+  }
+
+  .dashboard-action-card--refined::after {
+    right: 1.125rem;
+    bottom: 1.125rem;
+  }
+}
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+   ≤ 480px
+========================================================= */
+
 @media (max-width: 480px) {
   .dashboard {
     gap: 1.75rem;
   }
 
   .dashboard-header__eyebrow {
-    font-size: 0.72rem;
+    margin-bottom: 0.75rem;
+
+    padding: 0.375rem 0.7rem;
+
+    font-size: 0.7rem;
   }
 
   .dashboard-header__title {
-    font-size: 1.8rem;
+    font-size: clamp(1.7rem, 8vw, 1.875rem);
+
+    line-height: 1.18;
+  }
+
+  .dashboard-header__meta {
+    width: auto;
+    max-width: 100%;
+
+    margin-top: 0.75rem;
+
+    padding: 0.375rem 0.625rem;
+  }
+
+  .dashboard-header__participant-code {
+    font-size: 0.8rem;
   }
 
   .dashboard-header__description {
+    margin-top: 0.75rem;
+
+    font-size: 0.9rem;
     line-height: 1.7;
+  }
+
+  .dashboard-section {
+    gap: 1rem;
+  }
+
+  .dashboard-section-title,
+  .dashboard-card-title {
+    font-size: 1rem;
+  }
+
+  .dashboard-progress {
+    grid-template-columns: 1fr;
+
+    gap: 0.625rem;
+  }
+
+  .dashboard-progress-item {
+    min-height: 64px;
+
+    gap: 0.75rem;
+
+    padding: 0.75rem;
+  }
+
+  .dashboard-progress-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .dashboard-progress-label {
+    font-size: 0.86rem;
+    line-height: 1.4;
+  }
+
+  .dashboard-progress-description {
+    font-size: 0.74rem;
+    line-height: 1.4;
+  }
+
+  .dashboard-actions-grid,
+  .dashboard-next-grid {
+    grid-template-columns: 1fr;
+
+    gap: 0.875rem;
   }
 
   .dashboard-action-card,
   .dashboard-next-card,
   .dashboard-info-card {
     padding: 1rem;
-  }
 
-  .dashboard-progress-item {
-    padding: 0.9rem;
-  }
-}
-
-/* TANDA 3 — refinamiento visual */
-.dashboard-header__content--refined {
-  max-width: 860px;
-}
-
-.dashboard-header__meta {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  margin-top: 16px;
-  padding: 6px 12px;
-  border: 1px solid var(--color-border, #d9e0e8);
-  border-radius: 8px;
-  background: var(--color-surface-subtle, #f7f9fb);
-}
-
-.dashboard-header__participant-code {
-  margin: 0;
-}
-
-.dashboard-info-card--refined {
-  align-items: flex-start;
-}
-
-.dashboard-action-card--refined {
-  min-height: 172px;
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.dashboard-action-card--refined:hover {
-  transform: translateY(-2px);
-}
-
-.dashboard-action-card--refined:focus-visible {
-  outline: 2px solid var(--color-primary, #1f5f9f);
-  outline-offset: 3px;
-}
-
-.dashboard-progress-item--completed .dashboard-progress-icon {
-  color: var(--color-success, #2f7d5b);
-}
-
-.dashboard-progress-item--pending .dashboard-progress-icon {
-  color: var(--color-text-muted, #7a8795);
-}
-
-.dashboard-next-card--has-content {
-  border-color: var(--color-border, #d9e0e8);
-}
-
-.dashboard-next-card--empty {
-  background: var(--color-surface-subtle, #f8fafc);
-}
-
-@media (max-width: 767px) {
-  .dashboard-header__content--refined {
-    max-width: none;
-  }
-
-  .dashboard-header__meta {
-    width: fit-content;
-    max-width: 100%;
+    border-radius: var(--radius-md);
   }
 
   .dashboard-action-card--refined {
     min-height: 0;
+
+    gap: 1rem;
   }
-}
 
-/* TANDA 6 — refinamiento UX/UI */
-.dashboard-header__content--refined {
-  display: flex;
-  flex-direction: column;
-}
+  .dashboard-next-card,
+  .dashboard-info-card {
+    flex-direction: column;
+  }
 
-.dashboard-header__participant-code {
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
+  .dashboard-action-icon,
+  .dashboard-next-icon,
+  .dashboard-info-icon {
+    width: 2.875rem;
+    height: 2.875rem;
+  }
 
-.dashboard-header__participant-code strong {
-  color: var(--neutral-900);
-  font-weight: 700;
-}
+  .dashboard-action-title {
+    font-size: 0.98rem;
+  }
 
-.dashboard-progress-item {
-  min-height: 76px;
-}
+  .dashboard-action-description {
+    font-size: 0.87rem;
+    line-height: 1.65;
+  }
 
-.dashboard-progress-content {
-  min-width: 0;
-}
+  .dashboard-next-card {
+    min-height: 0;
 
-.dashboard-progress-label,
-.dashboard-progress-description,
-.dashboard-next-card-name,
-.dashboard-next-card-date,
-.dashboard-next-card-empty {
-  overflow-wrap: anywhere;
-}
+    gap: 1rem;
+  }
 
-.dashboard-action-card--refined {
-  text-decoration: none;
-}
+  .dashboard-next-card-title {
+    font-size: 0.95rem;
+  }
 
-.dashboard-action-card--refined::after {
-  content: "";
-  position: absolute;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  width: 1.75rem;
-  height: 1px;
-  background: var(--neutral-200);
-  transition:
-    width 0.2s ease,
-    background-color 0.2s ease;
-}
+  .dashboard-next-card-name {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
 
-.dashboard-action-card--refined:hover::after {
-  width: 2.5rem;
-  background: var(--accent);
-}
+  .dashboard-next-card-date {
+    margin-top: 0.375rem;
 
-.dashboard-next-card--empty {
-  background: var(--neutral-50);
-  box-shadow: none;
-}
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
 
-.dashboard-info-card--refined {
-  box-shadow: none;
-  background: var(--neutral-50);
-}
+  .dashboard-next-card-empty {
+    font-size: 0.88rem;
+  }
 
-@media (max-width: 768px) {
-  .dashboard-header__meta {
-    align-self: flex-start;
-    max-width: 100%;
+  .dashboard-info-card {
+    gap: 1rem;
+  }
+
+  .dashboard-info-title {
+    font-size: 0.98rem;
+  }
+
+  .dashboard-info-description {
+    font-size: 0.87rem;
+    line-height: 1.65;
   }
 
   .dashboard-action-card--refined::after {
-    right: 1.25rem;
-    bottom: 1.25rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .dashboard-loading,
+  .dashboard-error {
+    min-height: 240px;
+
+    padding: 1.25rem;
   }
 }
+
+/* =========================================================
+   MÓVIL MUY PEQUEÑO
+   ≤ 375px
+========================================================= */
+
+@media (max-width: 375px) {
+  .dashboard {
+    gap: 1.5rem;
+  }
+
+  .dashboard-header__title {
+    font-size: 1.65rem;
+  }
+
+  .dashboard-header__description {
+    font-size: 0.875rem;
+  }
+
+  .dashboard-progress-item {
+    gap: 0.625rem;
+
+    padding: 0.7rem;
+  }
+
+  .dashboard-progress-icon {
+    width: 2.625rem;
+    height: 2.625rem;
+  }
+
+  .dashboard-progress-label {
+    font-size: 0.83rem;
+  }
+
+  .dashboard-progress-description {
+    font-size: 0.72rem;
+  }
+
+  .dashboard-action-card,
+  .dashboard-next-card,
+  .dashboard-info-card {
+    padding: 0.875rem;
+  }
+
+  .dashboard-action-icon,
+  .dashboard-next-icon,
+  .dashboard-info-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .dashboard-action-description,
+  .dashboard-info-description {
+    font-size: 0.84rem;
+  }
+
+  .dashboard-next-card-name {
+    font-size: 0.86rem;
+  }
+
+  .dashboard-next-card-date {
+    font-size: 0.8rem;
+  }
+}
+
+/* =========================================================
+   SAFE AREA
+========================================================= */
+
+@supports (padding: env(safe-area-inset-left)) {
+  @media (max-width: 1023px) {
+    .dashboard {
+      min-width: 0;
+    }
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-action-card,
   .dashboard-next-card,
   .dashboard-info-card,
   .dashboard-progress-item,
+  .dashboard-progress-icon,
   .dashboard-action-icon,
   .dashboard-next-icon,
   .dashboard-info-icon,
   .dashboard-action-card--refined::after {
     transition: none;
   }
-}
-
-.dashboard-header__meta--refined {
-  align-self: flex-start;
-}
-
-.dashboard-progress--refined {
-  min-width: 0;
-}
-
-.dashboard-actions-grid--refined,
-.dashboard-next-grid--refined {
-  min-width: 0;
-}
-
-.dashboard-info-content--refined {
-  min-width: 0;
 }

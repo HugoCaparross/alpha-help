@@ -1227,3 +1227,199 @@ select.auth-input,
     left: calc(50% + 18px);
   }
 }
+
+/* ==========================================================
+   RESPONSIVE MASTER — BATCH 2
+========================================================== */
+.auth-layout,
+.auth-form-section,
+.register-card,
+.login-card,
+.register-step-content,
+.register-summary,
+.summary-layout,
+.family-grid,
+.region-selector,
+.child-card,
+.legal-modal-content {
+  min-width: 0;
+}
+
+.auth-hero-title,
+.auth-hero-description,
+.register-title,
+.register-description,
+.step-title,
+.step-description,
+.summary-item,
+.summary-notice-text,
+.child-title,
+.region-card-title,
+.region-card-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.auth-input,
+select.auth-input,
+.auth-toggle,
+.btn-full,
+.step-actions button {
+  min-height: 2.875rem;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+  .auth-layout {
+    min-height: 100dvh;
+  }
+  .auth-form-section {
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .auth-layout {
+    min-height: 100dvh;
+  }
+  .auth-form-section {
+    min-height: 100dvh;
+    padding: 2rem 1.5rem;
+  }
+  .register-card,
+  .login-card {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+  }
+  .family-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .auth-form-section {
+    min-height: 100dvh;
+    padding: 1.5rem 1.25rem;
+  }
+  .register-card,
+  .login-card {
+    width: min(100%, 40rem);
+    margin-inline: auto;
+  }
+  .family-grid {
+    grid-template-columns: 1fr;
+  }
+  .register-stepper {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  .step-item {
+    flex: 0 0 5.5rem;
+    min-width: 5.5rem;
+  }
+  .region-selector {
+    grid-template-columns: 1fr 1fr;
+  }
+  .summary-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .auth-form-section {
+    min-height: 100dvh;
+    padding: 1rem;
+  }
+  .register-card,
+  .login-card {
+    width: 100%;
+    max-width: none;
+  }
+  .register-header {
+    gap: 0.5rem;
+  }
+  .register-title {
+    font-size: clamp(1.5rem, 7vw, 1.9rem);
+  }
+  .register-description {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+  .region-selector,
+  .family-grid,
+  .summary-layout {
+    grid-template-columns: 1fr;
+  }
+  .register-stepper {
+    width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+  .step-item {
+    flex: 0 0 5.25rem;
+    min-width: 5.25rem;
+  }
+  .step-title {
+    font-size: 0.8rem;
+  }
+  .step-description {
+    font-size: 0.76rem;
+  }
+  .step-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .step-actions > * {
+    width: 100%;
+  }
+  .auth-form-section .btn-full {
+    width: 100%;
+  }
+  .child-card {
+    padding: 1rem;
+  }
+  .summary-item {
+    padding: 0.875rem;
+  }
+  .legal-modal {
+    padding: 0;
+  }
+  .legal-modal-content {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}
+
+@media (max-width: 375px) {
+  .auth-form-section {
+    padding: 0.75rem;
+  }
+  .register-title {
+    font-size: 1.45rem;
+  }
+  .register-description {
+    font-size: 0.86rem;
+  }
+  .step-item {
+    flex-basis: 4.75rem;
+    min-width: 4.75rem;
+  }
+  .auth-input,
+  select.auth-input,
+  .btn-full,
+  .step-actions button {
+    min-height: 2.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-layout *,
+  .register-stepper * {
+    scroll-behavior: auto;
+  }
+}

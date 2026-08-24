@@ -213,3 +213,140 @@
     line-height: 1.7;
   }
 }
+
+/* =========================================================
+   LEGAL — RESPONSIVE MASTER OVERRIDE
+========================================================= */
+
+.legal-page,
+.legal-container,
+.legal-card,
+.legal-content {
+  min-width: 0;
+}
+
+.legal-title,
+.legal-subtitle,
+.legal-content,
+.legal-content h2,
+.legal-content h3,
+.legal-note {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 1024px) {
+  .legal-page {
+    padding: 4.5rem 1.5rem;
+  }
+
+  .legal-card {
+    padding: 2.75rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .legal-page {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .legal-card {
+    padding: 2.25rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .legal-page {
+    padding: 3rem 1rem;
+  }
+
+  .legal-card {
+    padding: 1.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .legal-header {
+    margin-bottom: 2rem;
+  }
+
+  .legal-content h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .legal-page {
+    padding: 2rem 0.875rem;
+  }
+
+  .legal-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .legal-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .legal-badge {
+    max-width: 100%;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .legal-title {
+    font-size: clamp(1.7rem, 8vw, 2.15rem);
+  }
+
+  .legal-subtitle,
+  .legal-content {
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .legal-content h2 {
+    margin-top: 2rem;
+    font-size: 1.2rem;
+  }
+
+  .legal-content h3 {
+    font-size: 1.05rem;
+  }
+
+  .legal-content ul {
+    padding-left: 1.1rem;
+  }
+
+  .legal-note {
+    margin-top: 1.25rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .legal-page {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .legal-card {
+    padding: 1rem;
+  }
+
+  .legal-title {
+    font-size: 1.6rem;
+  }
+
+  .legal-subtitle,
+  .legal-content {
+    font-size: 0.88rem;
+  }
+}
+
+@supports (padding: env(safe-area-inset-left)) {
+  @media (max-width: 600px) {
+    .legal-page {
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+    }
+  }
+}

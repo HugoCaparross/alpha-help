@@ -705,3 +705,167 @@
     gap: 1rem;
   }
 }
+
+/* ==========================================================
+   RESPONSIVE MASTER — BATCH 2
+========================================================== */
+.estudio-page,
+.estudio-content,
+.estudio-card,
+.estudio-card-header,
+.estudio-highlights,
+.estudio-objectives,
+.estudio-method-grid,
+.estudio-timeline,
+.estudio-privacy {
+  min-width: 0;
+}
+
+.estudio-title,
+.estudio-description,
+.estudio-card-title,
+.estudio-card-description,
+.estudio-objective span,
+.estudio-method-description,
+.estudio-step-description,
+.estudio-privacy-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 1024px) {
+  .estudio-page {
+    gap: 2rem;
+  }
+  .estudio-highlights {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .estudio-method-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .estudio-page {
+    gap: 1.75rem;
+  }
+  .estudio-highlights,
+  .estudio-method-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .estudio-card {
+    padding: 1.375rem;
+  }
+  .estudio-card-header {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .estudio-page {
+    gap: 1.5rem;
+  }
+  .estudio-content {
+    gap: 1.25rem;
+  }
+  .estudio-title {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  .estudio-card {
+    padding: 1.25rem;
+  }
+  .estudio-highlights,
+  .estudio-method-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .estudio-card-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .estudio-objectives,
+  .estudio-timeline {
+    gap: 0.875rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .estudio-page {
+    gap: 1.25rem;
+  }
+  .estudio-content {
+    gap: 1rem;
+  }
+  .estudio-title {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+  .estudio-description {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+  .estudio-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+  .estudio-card-header {
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+  }
+  .estudio-card-title {
+    font-size: 1rem;
+  }
+  .estudio-card-description {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+  .estudio-highlights,
+  .estudio-objectives,
+  .estudio-method-grid,
+  .estudio-timeline {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .estudio-highlight,
+  .estudio-objective {
+    padding: 0.875rem;
+    gap: 0.75rem;
+  }
+  .estudio-topic {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.82rem;
+  }
+  .estudio-privacy {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .estudio-title {
+    font-size: 1.6rem;
+  }
+  .estudio-card {
+    padding: 0.875rem;
+  }
+  .estudio-highlight,
+  .estudio-objective {
+    padding: 0.75rem;
+  }
+  .estudio-topic {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estudio-card,
+  .estudio-highlight,
+  .estudio-objective,
+  .estudio-topic,
+  .estudio-method-card {
+    transition: none;
+  }
+}
