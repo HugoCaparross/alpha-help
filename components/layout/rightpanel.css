@@ -268,7 +268,7 @@
 ========================================== */
 
 .right-panel {
-  width: 18.5rem;
+  width: 20rem;
 }
 
 .right-panel-content {
@@ -304,7 +304,7 @@
 ========================================================== */
 
 .right-panel {
-  width: 18rem;
+  width: 20rem;
 }
 
 .right-panel-content {
@@ -328,6 +328,6 @@
 
 @media (max-width: 1200px) {
   .right-panel {
-    width: 17rem;
+    width: 20rem;
   }
 }
