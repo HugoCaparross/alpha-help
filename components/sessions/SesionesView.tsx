@@ -47,12 +47,15 @@ type YoutubeStatus =
 
 interface YoutubeSessionStatus {
   readonly id: string;
+
   readonly isLive: boolean;
+
   readonly status: YoutubeStatus;
 }
 
 interface YoutubeRefreshResult {
   readonly sessions: SessionWithStatus[];
+
   readonly statuses: Record<
     string,
     YoutubeStatus
@@ -125,6 +128,7 @@ async function refreshYoutubeStatuses(
         };
       },
     ),
+
     statuses,
   };
 }
@@ -249,6 +253,16 @@ export default function SesionesView() {
     void loadSessions();
   }, [loadSessions]);
 
+  /**
+   * Mientras YouTube pueda cambiar
+   * el estado de una sesión, volvemos
+   * a comprobarlo cada minuto.
+   *
+   * También reintentamos cuando la
+   * sesión sigue marcada como live
+   * pero la API no ha podido confirmar
+   * todavía su estado.
+   */
   useEffect(() => {
     const hasPendingYoutubeState =
       sessions.some(
@@ -262,7 +276,14 @@ export default function SesionesView() {
             status ===
             "live" ||
             status ===
-            "upcoming"
+            "upcoming" ||
+            (
+              session.isLive &&
+              status !==
+              "completed" &&
+              status !==
+              "video"
+            )
           );
         },
       );
@@ -287,7 +308,9 @@ export default function SesionesView() {
               );
 
               setYoutubeStatuses(
-                (previous) => ({
+                (
+                  previous,
+                ) => ({
                   ...previous,
                   ...refreshed.statuses,
                 }),

@@ -1,18 +1,19 @@
-/* ==========================================
+/* =========================================================
    RIGHT PANEL
-========================================== */
+========================================================= */
 
-/* ==========================================
+/* =========================================================
    CONTAINER
-========================================== */
+========================================================= */
 
 .right-panel {
   display: none;
 
+  flex: 0 0 20rem;
+
   width: 20rem;
   height: 100vh;
-
-  flex-shrink: 0;
+  min-height: 0;
 
   overflow: hidden;
 
@@ -21,15 +22,20 @@
   border-left: var(--border-light);
 }
 
+/* =========================================================
+   DESKTOP
+   ≥ 1280px
+========================================================= */
+
 @media (min-width: 1280px) {
   .right-panel {
     display: flex;
   }
 }
 
-/* ==========================================
+/* =========================================================
    CONTENT
-========================================== */
+========================================================= */
 
 .right-panel-content {
   display: flex;
@@ -37,17 +43,25 @@
 
   width: 100%;
   height: 100%;
+  min-height: 0;
 
-  gap: 1.5rem;
-  padding: 1.5rem;
+  gap: 1rem;
 
+  padding: 1rem;
+
+  overflow-x: hidden;
   overflow-y: auto;
 
   scrollbar-width: thin;
+  scrollbar-color: var(--neutral-300) transparent;
 }
 
 .right-panel-content::-webkit-scrollbar {
   width: 6px;
+}
+
+.right-panel-content::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .right-panel-content::-webkit-scrollbar-thumb {
@@ -60,165 +74,188 @@
   background: var(--neutral-400);
 }
 
-/* ==========================================
+/* =========================================================
    CARD
-========================================== */
+========================================================= */
 
 .right-panel-card {
   box-sizing: border-box;
 
-  padding: 1.5rem;
+  width: 100%;
+  min-width: 0;
+
+  padding: 1.125rem;
 
   background: var(--surface);
 
   border: var(--border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
 
   box-shadow: var(--shadow-card);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
-.right-panel-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow: var(--shadow-hover);
-}
-
-/* ==========================================
-   PROFILE
-========================================== */
+/* =========================================================
+   PROFILE ROW
+========================================================= */
 
 .right-panel-flex-row {
   display: flex;
   align-items: center;
 
+  min-width: 0;
+
   gap: 0.75rem;
 }
+
+/* =========================================================
+   AVATAR
+========================================================= */
 
 .right-panel-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
-  width: 3rem;
-  height: 3rem;
+  width: 2.75rem;
+  height: 2.75rem;
 
-  min-width: 3rem;
-  min-height: 3rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
 
   border-radius: 50%;
 
   background: var(--accent);
+
   color: #fff;
 
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1;
 }
 
+/* =========================================================
+   NAME
+========================================================= */
+
 .right-panel-name {
+  margin: 0;
+
   color: var(--neutral-900);
 
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.35;
 
   overflow-wrap: anywhere;
 }
 
+/* =========================================================
+   SECONDARY TEXT
+========================================================= */
+
 .right-panel-secondary-text {
-  margin-top: 0.125rem;
+  margin: 0.125rem 0 0;
 
   color: var(--neutral-500);
 
-  font-size: 0.75rem;
-  line-height: 1.5;
+  font-size: 0.72rem;
+  line-height: 1.45;
 
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================
+/* =========================================================
    PROFILE LINK
-========================================== */
+========================================================= */
 
 .right-panel-link-wrapper {
-  margin-top: 1rem;
+  margin-top: 0.875rem;
 }
 
 .right-panel-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 2.75rem;
 
   color: var(--accent);
 
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
+  line-height: 1.35;
 
   text-decoration: none;
 
   transition:
-    color 0.2s ease,
-    opacity 0.2s ease;
+    color 0.18s ease,
+    opacity 0.18s ease;
 }
 
 .right-panel-link:hover {
   color: var(--accent-hover);
-
-  text-decoration: underline;
 }
 
 .right-panel-link:focus-visible {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 
   border-radius: var(--radius-sm);
-
-  box-shadow: var(--focus-shadow);
 }
 
-/* ==========================================
+/* =========================================================
    INFORMATION
-========================================== */
+========================================================= */
 
 .right-panel-subtitle {
+  margin: 0;
+
   color: var(--neutral-900);
 
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 600;
   line-height: 1.35;
 }
 
 .right-panel-info-text {
-  margin-top: 0.5rem;
+  margin: 0.5rem 0 0;
 
   color: var(--neutral-500);
 
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.6;
 
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-/* ==========================================
+/* =========================================================
    ACTIONS
-========================================== */
+========================================================= */
 
 .right-panel-actions {
+  width: 100%;
+
   margin-top: auto;
 }
+
+/* =========================================================
+   LOGOUT
+========================================================= */
 
 .right-panel-logout {
   display: flex;
   align-items: center;
   justify-content: center;
 
+  width: 100%;
+  min-height: 2.75rem;
+
   gap: 0.6rem;
 
-  width: 100%;
-
-  padding: 0.85rem 1rem;
+  padding: 0.7rem 0.875rem;
 
   background: transparent;
 
@@ -227,16 +264,18 @@
 
   color: var(--neutral-700);
 
-  font-size: 0.875rem;
+  font: inherit;
+  font-size: 0.82rem;
   font-weight: 500;
+  line-height: 1.35;
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .right-panel-logout:hover:not(:disabled) {
@@ -252,9 +291,8 @@
 }
 
 .right-panel-logout:focus-visible {
-  outline: none;
-
-  box-shadow: var(--focus-shadow);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .right-panel-logout:disabled {
@@ -263,71 +301,47 @@
   cursor: not-allowed;
 }
 
-/* ==========================================
-   UX/UI REFINEMENT — RIGHT PANEL
-========================================== */
+/* =========================================================
+   DESKTOP ESTÁNDAR
+   1280px – 1439px
+========================================================= */
 
-.right-panel {
-  width: 20rem;
-}
-
-.right-panel-content {
-  gap: 1.25rem;
-  padding: 1.25rem;
-}
-
-.right-panel-card {
-  padding: 1.25rem;
-  border-radius: var(--radius-lg);
-}
-
-.right-panel-card:hover {
-  transform: none;
-}
-
-.right-panel-avatar {
-  width: 2.75rem;
-  height: 2.75rem;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-}
-
-.right-panel-link:focus-visible,
-.right-panel-logout:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: none;
-}
-
-/* ==========================================================
-   UX/UI REFINEMENT — TANDA 4
-========================================================== */
-
-.right-panel {
-  width: 20rem;
-}
-
-.right-panel-content {
-  padding: 1rem;
-  gap: 1rem;
-}
-
-.right-panel-card {
-  padding: 1.125rem;
-  border-radius: var(--radius-md);
-}
-
-.right-panel-link,
-.right-panel-logout {
-  min-height: 2.75rem;
-}
-
-.right-panel-link:hover {
-  text-decoration: none;
-}
-
-@media (max-width: 1200px) {
+@media (min-width: 1280px) and (max-width: 1439px) {
   .right-panel {
+    flex-basis: 20rem;
     width: 20rem;
+  }
+}
+
+/* =========================================================
+   DESKTOP GRANDE
+   ≥ 1440px
+========================================================= */
+
+@media (min-width: 1440px) {
+  .right-panel-content {
+    padding: 1.125rem;
+  }
+}
+
+/* =========================================================
+   TABLET / DESKTOP COMPACTO
+   ≤ 1279px
+========================================================= */
+
+@media (max-width: 1279px) {
+  .right-panel {
+    display: none;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .right-panel-link,
+  .right-panel-logout {
+    transition: none;
   }
 }

@@ -1,18 +1,19 @@
-/* ==========================================
+/* =========================================================
    SIDEBAR — Navegación privada
-========================================== */
+========================================================= */
 
-/* ==========================================
+/* =========================================================
    CONTAINER
-========================================== */
+========================================================= */
 
 .sidebar {
   display: none;
 
-  width: 17rem;
-  height: 100vh;
+  flex: 0 0 16rem;
 
-  flex-shrink: 0;
+  width: 16rem;
+  height: 100vh;
+  min-height: 0;
 
   flex-direction: column;
 
@@ -23,18 +24,25 @@
   border-right: var(--border-light);
 }
 
+/* =========================================================
+   DESKTOP
+   ≥ 1024px
+========================================================= */
+
 @media (min-width: 1024px) {
   .sidebar {
     display: flex;
   }
 }
 
-/* ==========================================
+/* =========================================================
    HEADER
-========================================== */
+========================================================= */
 
 .sidebar-header {
-  padding: 1.75rem 1.5rem;
+  flex: 0 0 auto;
+
+  padding: 1.25rem 1rem 1rem;
 
   border-bottom: var(--border-light);
 }
@@ -43,23 +51,36 @@
   display: flex;
   align-items: flex-start;
 
-  gap: 1rem;
+  min-width: 0;
+
+  gap: 0.875rem;
+
+  color: inherit;
+
+  text-decoration: none;
+}
+
+.sidebar-brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+
+  border-radius: var(--radius-sm);
 }
 
 .sidebar-brand-mark {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 0.875rem;
+  height: 0.875rem;
 
-  margin-top: 0.35rem;
+  margin-top: 0.3rem;
 
   border-radius: 999px;
 
   background: var(--accent);
 
   box-shadow:
-    0 0 0 6px rgba(14, 165, 233, 0.08),
+    0 0 0 5px rgba(14, 165, 233, 0.08),
     0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
@@ -72,37 +93,52 @@
 
   color: var(--neutral-900);
 
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   line-height: 1.3;
+
   letter-spacing: 0.08em;
+
+  overflow-wrap: anywhere;
 }
 
 .sidebar-subtitle {
-  margin-top: 0.5rem;
+  margin: 0.45rem 0 0;
+
+  max-width: 12rem;
 
   color: var(--neutral-500);
 
-  font-size: 0.85rem;
-  line-height: 1.55;
+  font-size: 0.8rem;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
-/* ==========================================
+/* =========================================================
    NAVIGATION
-========================================== */
+========================================================= */
 
 .sidebar-nav {
-  flex: 1;
+  flex: 1 1 auto;
 
+  min-height: 0;
+
+  overflow-x: hidden;
   overflow-y: auto;
 
-  padding: 1.5rem 1rem;
+  padding: 1.25rem 0.75rem;
 
   scrollbar-width: thin;
+  scrollbar-color: var(--neutral-300) transparent;
 }
 
 .sidebar-nav::-webkit-scrollbar {
   width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
@@ -115,69 +151,90 @@
   background: var(--neutral-400);
 }
 
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.sidebar-section {
+  min-width: 0;
+}
+
 .sidebar-section:not(:last-child) {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .sidebar-section-title {
   display: block;
 
-  margin-bottom: 0.85rem;
-  padding: 0 0.75rem;
+  margin: 0 0 0.45rem;
+  padding: 0 0.625rem;
 
   color: var(--neutral-500);
 
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
+  line-height: 1.35;
+
   letter-spacing: 0.14em;
+
   text-transform: uppercase;
+
+  overflow-wrap: anywhere;
 }
 
 .sidebar-items {
   display: flex;
   flex-direction: column;
 
-  gap: 0.35rem;
+  gap: 0.25rem;
+
+  min-width: 0;
 }
 
-/* ==========================================
-   ITEM
-========================================== */
+/* =========================================================
+   NAVIGATION ITEM
+========================================================= */
 
 .sidebar-item {
   display: flex;
   align-items: center;
 
-  gap: 0.9rem;
+  min-width: 0;
+  min-height: 2.75rem;
 
-  min-height: 3rem;
+  gap: 0.75rem;
 
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem;
 
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
 
   color: var(--neutral-700);
 
+  text-decoration: none;
+
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.12s ease;
 }
 
 .sidebar-item:hover {
   background: var(--neutral-100);
 
-  transform: translateX(2px);
+  color: var(--neutral-900);
+}
+
+.sidebar-item:active {
+  transform: translateY(1px);
 }
 
 .sidebar-item:focus-visible {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 
   background: rgba(14, 165, 233, 0.08);
 
   color: var(--neutral-900);
-
-  box-shadow: var(--focus-shadow);
 }
 
 .sidebar-item--active {
@@ -186,17 +243,21 @@
   color: var(--neutral-900);
 }
 
+/* =========================================================
+   ITEM ICON
+========================================================= */
+
 .sidebar-item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
-  width: 2rem;
-  height: 2rem;
+  width: 1.875rem;
+  height: 1.875rem;
 
-  border-radius: 0.75rem;
+  border-radius: 0.625rem;
 
   background: rgba(15, 23, 42, 0.04);
 
@@ -209,70 +270,86 @@
   color: var(--accent);
 }
 
+/* =========================================================
+   ITEM LABEL
+========================================================= */
+
 .sidebar-item-label {
+  display: block;
+
+  min-width: 0;
+
   color: inherit;
 
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   line-height: 1.35;
 
   overflow-wrap: anywhere;
 }
 
-/* ==========================================
+/* =========================================================
    FOOTER
-========================================== */
+========================================================= */
 
 .sidebar-footer {
-  padding: 1rem;
+  flex: 0 0 auto;
+
+  padding: 0.75rem;
 
   border-top: var(--border-light);
 }
 
-/* ==========================================
+/* =========================================================
    PROFILE
-========================================== */
+========================================================= */
 
 .sidebar-profile {
   display: flex;
   align-items: center;
 
-  gap: 0.9rem;
+  min-width: 0;
+
+  gap: 0.75rem;
 
   padding: 0.75rem;
 
   border-radius: var(--radius-md);
 
+  color: inherit;
+
+  text-decoration: none;
+
   transition:
-    background-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .sidebar-profile:hover {
   background: var(--neutral-100);
-
-  transform: translateY(-1px);
 }
 
 .sidebar-profile:focus-visible {
-  outline: none;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 
   background: rgba(14, 165, 233, 0.08);
-
-  box-shadow: var(--focus-shadow);
 }
 
 .sidebar-profile--active {
   background: rgba(14, 165, 233, 0.08);
 }
 
+/* =========================================================
+   PROFILE AVATAR
+========================================================= */
+
 .sidebar-profile-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
   width: 2.25rem;
   height: 2.25rem;
@@ -282,10 +359,6 @@
   background: rgba(15, 23, 42, 0.04);
 
   color: var(--neutral-600);
-
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
 }
 
 .sidebar-profile--active .sidebar-profile-avatar {
@@ -293,6 +366,10 @@
 
   color: var(--accent);
 }
+
+/* =========================================================
+   PROFILE CONTENT
+========================================================= */
 
 .sidebar-profile-content {
   display: flex;
@@ -302,9 +379,11 @@
 }
 
 .sidebar-profile-title {
+  display: block;
+
   color: var(--neutral-900);
 
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   line-height: 1.35;
 
@@ -312,116 +391,83 @@
 }
 
 .sidebar-profile-subtitle {
-  margin-top: 0.2rem;
+  display: block;
+
+  margin-top: 0.15rem;
 
   color: var(--neutral-500);
 
-  font-size: 0.78rem;
-  line-height: 1.45;
+  font-size: 0.75rem;
+  line-height: 1.4;
 
   overflow-wrap: anywhere;
 }
 
-/* ==========================================
-   UX/UI REFINEMENT — SIDEBAR
-========================================== */
+/* =========================================================
+   DESKTOP COMPACTO
+   1024px – 1279px
 
-.sidebar {
-  width: 15.5rem;
+   El sidebar mantiene la misma anchura porque
+   16rem permite conservar una navegación estable
+   sin robar demasiado espacio al contenido.
+========================================================= */
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .sidebar {
+    flex-basis: 16rem;
+    width: 16rem;
+  }
+
+  .sidebar-header {
+    padding-inline: 0.875rem;
+  }
+
+  .sidebar-nav {
+    padding-inline: 0.625rem;
+  }
+
+  .sidebar-footer {
+    padding-inline: 0.625rem;
+  }
 }
 
-.sidebar-header {
-  padding: 1.5rem 1.25rem;
+/* =========================================================
+   DESKTOP GRANDE
+   ≥ 1440px
+========================================================= */
+
+@media (min-width: 1440px) {
+  .sidebar-header {
+    padding: 1.5rem 1.125rem 1.125rem;
+  }
+
+  .sidebar-nav {
+    padding: 1.375rem 0.875rem;
+  }
+
+  .sidebar-footer {
+    padding: 0.875rem;
+  }
 }
 
-.sidebar-nav {
-  padding: 1.25rem 0.75rem;
-}
-
-.sidebar-section:not(:last-child) {
-  margin-bottom: 1.5rem;
-}
-
-.sidebar-items {
-  gap: 0.25rem;
-}
-
-.sidebar-item {
-  min-height: 2.875rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: var(--radius-sm);
-}
-
-.sidebar-item:hover {
-  transform: none;
-}
-
-.sidebar-item-icon {
-  width: 1.875rem;
-  height: 1.875rem;
-  border-radius: 0.625rem;
-}
-
-.sidebar-profile {
-  padding: 0.625rem 0.75rem;
-  border-radius: var(--radius-sm);
-}
-
-.sidebar-profile:hover {
-  transform: none;
-}
-
-/* ==========================================================
-   UX/UI REFINEMENT — TANDA 4
-========================================================== */
-
-.sidebar {
-  width: 16rem;
-  flex-shrink: 0;
-}
-
-.sidebar-header {
-  padding: 1.25rem 1rem 1rem;
-}
-
-.sidebar-nav {
-  padding-inline: 0.75rem;
-}
-
-.sidebar-section:not(:last-child) {
-  margin-bottom: 1.25rem;
-}
-
-.sidebar-section-title {
-  padding-inline: 0.625rem;
-  margin-bottom: 0.45rem;
-}
-
-.sidebar-item {
-  min-height: 2.75rem;
-  padding: 0.625rem 0.75rem;
-  border-radius: var(--radius-sm);
-}
-
-.sidebar-item:active {
-  transform: translateY(1px);
-}
-
-.sidebar-profile {
-  margin: 0.75rem;
-  padding: 0.75rem;
-  border-radius: var(--radius-md);
-}
-
-.sidebar-item:focus-visible,
-.sidebar-profile:focus-visible,
-.sidebar-brand:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+/* =========================================================
+   TABLET / MÓVIL
+   ≤ 1023px
+========================================================= */
 
 @media (max-width: 1023px) {
   .sidebar {
     display: none;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-item,
+  .sidebar-profile {
+    transition: none;
   }
 }
