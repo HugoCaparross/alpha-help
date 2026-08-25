@@ -3,22 +3,25 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 
-import { getDatabaseRegion } from "@/lib/utils/regions";
-
-import { extractYoutubeId, getYoutubeStatus } from "@/lib/utils/youtube";
+import { getDatabaseRegion, type DatabaseRegion } from "@/lib/utils/regions";
 
 const TABLE = "study_sessions";
+const PROFILE_TABLE = "profiles";
 
-/**
- * Comprueba y sincroniza el estado real
- * de las sesiones de YouTube del
- * participante autenticado.
- *
- * Esta ruta NO puede ser exclusiva de
- * administradores porque la página de
- * sesiones la utiliza el participante
- * para refrescar el estado de YouTube.
- */
+const SESSION_FIELDS = `
+  id,
+  is_live,
+  youtube_status,
+  youtube_checked_at
+`;
+
+interface SessionStatusRow {
+  readonly id: string;
+  readonly is_live: boolean;
+  readonly youtube_status: string | null;
+  readonly youtube_checked_at: string | null;
+}
+
 export async function GET() {
   const supabase = await createServerClient();
 
@@ -37,12 +40,8 @@ export async function GET() {
     );
   }
 
-  /**
-   * Recuperamos únicamente la región
-   * del participante autenticado.
-   */
   const { data: profile, error: profileError } = await supabase
-    .from("profiles")
+    .from(PROFILE_TABLE)
     .select("region")
     .eq("id", user.id)
     .maybeSingle();
@@ -60,34 +59,26 @@ export async function GET() {
     );
   }
 
-  const databaseRegion = getDatabaseRegion(profile.region);
+  const applicationRegion = profile.region === "España" ? "spain" : "latam";
 
-  /**
-   * Utilizamos Service Role únicamente
-   * en servidor para sincronizar is_live.
-   *
-   * La consulta queda limitada a la
-   * región del participante.
-   */
+  const databaseRegion = getDatabaseRegion(applicationRegion);
+
   const admin = createAdminClient();
 
-  const { data: sessions, error: sessionsError } = await admin
+  const { data, error } = await admin
     .from(TABLE)
-    .select(
-      `
-        id,
-        youtube_url,
-        is_live
-      `,
-    )
-    .eq("region", databaseRegion);
+    .select(SESSION_FIELDS)
+    .eq("region", databaseRegion)
+    .order("session_order", {
+      ascending: true,
+    });
 
-  if (sessionsError) {
-    console.error("[youtube/sessions-status][SESSIONS]", sessionsError);
+  if (error) {
+    console.error("[youtube/sessions-status][CACHE]", error);
 
     return NextResponse.json(
       {
-        error: "No se han podido recuperar las sesiones.",
+        error: "No se ha podido recuperar el estado de las sesiones.",
       },
       {
         status: 500,
@@ -95,104 +86,24 @@ export async function GET() {
     );
   }
 
-  const updates = await Promise.all(
-    (sessions ?? []).map(async (session) => {
-      const youtubeId = extractYoutubeId(session.youtube_url);
+  const sessions = ((data ?? []) as SessionStatusRow[]).map((session) => ({
+    id: session.id,
 
-      if (!youtubeId) {
-        return null;
-      }
+    isLive: session.is_live,
 
-      try {
-        /**
-         * YouTube es la fuente de verdad.
-         *
-         * Aquí obtenemos:
-         * - live
-         * - upcoming
-         * - completed
-         * - video
-         */
-        const status = await getYoutubeStatus(youtubeId);
+    status: session.youtube_status ?? "unknown",
 
-        const isLive = status.isLive;
+    checkedAt: session.youtube_checked_at,
+  }));
 
-        /**
-         * Sincronizamos la base de datos
-         * únicamente si ha cambiado.
-         */
-        if (session.is_live !== isLive) {
-          await admin
-            .from(TABLE)
-            .update({
-              is_live: isLive,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", session.id)
-            .eq("region", databaseRegion);
-        }
-
-        return {
-          id: session.id,
-          isLive,
-          status: status.status,
-        };
-      } catch (error) {
-        const youtubeError = error as {
-          code?: string;
-          message?: string;
-        };
-
-        console.warn("[youtube/sessions-status][YOUTUBE]", {
-          sessionId: session.id,
-          videoId: youtubeId,
-          code: youtubeError.code,
-          message: youtubeError.message,
-        });
-
-        /**
-         * MUY IMPORTANTE:
-         *
-         * NO utilizamos /live/ de la URL
-         * para determinar si actualmente
-         * está en directo.
-         *
-         * Una emisión terminada puede
-         * seguir teniendo una URL /live/.
-         *
-         * Si YouTube ya no encuentra el
-         * vídeo, dejamos de considerarlo
-         * directo.
-         */
-        const isLive =
-          youtubeError.code === "not_found" ? false : session.is_live;
-
-        if (session.is_live !== isLive) {
-          await admin
-            .from(TABLE)
-            .update({
-              is_live: isLive,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", session.id)
-            .eq("region", databaseRegion);
-        }
-
-        return {
-          id: session.id,
-          isLive,
-          status:
-            youtubeError.code === "not_found"
-              ? ("completed" as const)
-              : ("unknown" as const),
-        };
-      }
-    }),
+  return NextResponse.json(
+    {
+      sessions,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    },
   );
-
-  return NextResponse.json({
-    sessions: updates.filter(
-      (item): item is NonNullable<typeof item> => item !== null,
-    ),
-  });
 }

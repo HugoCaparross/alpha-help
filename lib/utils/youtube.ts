@@ -16,14 +16,19 @@ export type YoutubeBroadcastStatus =
 
 export interface YoutubeStatusResult {
   readonly videoId: string;
+
   readonly status: YoutubeBroadcastStatus;
+
   readonly isLive: boolean;
+
   readonly actualStartTime: string | null;
+
   readonly actualEndTime: string | null;
 }
 
 export interface YoutubeStatusError extends Error {
   code: "missing_api_key" | "api_error" | "not_found" | "invalid_video_id";
+
   httpStatus?: number;
 }
 
@@ -33,9 +38,13 @@ function createYoutubeError(
   httpStatus?: number,
 ): YoutubeStatusError {
   const error = new Error(message) as YoutubeStatusError;
+
   error.name = "YoutubeStatusError";
+
   error.code = code;
+
   error.httpStatus = httpStatus;
+
   return error;
 }
 
@@ -68,11 +77,13 @@ export function extractYoutubeId(url: string): string | null {
 
   if (hostname === "youtu.be") {
     const id = parsedUrl.pathname.split("/").filter(Boolean)[0];
+
     return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
   if (parsedUrl.pathname === "/watch") {
     const id = parsedUrl.searchParams.get("v");
+
     return id && YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
@@ -80,6 +91,7 @@ export function extractYoutubeId(url: string): string | null {
 
   if (parts.length >= 2 && ["embed", "shorts", "live"].includes(parts[0])) {
     const id = parts[1];
+
     return YOUTUBE_ID_REGEX.test(id) ? id : null;
   }
 
@@ -88,26 +100,6 @@ export function extractYoutubeId(url: string): string | null {
 
 export function getYoutubeThumbnail(youtubeId: string): string {
   return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
-}
-
-export function isYoutubeLiveUrl(url: string): boolean {
-  if (typeof url !== "string") {
-    return false;
-  }
-
-  try {
-    const parsed = new URL(url.trim());
-    const hostname = normalizeHostname(parsed.hostname);
-
-    if (!YOUTUBE_HOSTS.has(hostname)) {
-      return false;
-    }
-
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    return parts[0] === "live";
-  } catch {
-    return false;
-  }
 }
 
 /**
@@ -136,8 +128,11 @@ export async function getYoutubeStatus(
   }
 
   const url = new URL("https://www.googleapis.com/youtube/v3/videos");
+
   url.searchParams.set("part", "snippet,liveStreamingDetails");
+
   url.searchParams.set("id", videoId);
+
   url.searchParams.set("key", apiKey);
 
   let response: Response;
@@ -157,17 +152,22 @@ export async function getYoutubeStatus(
   const payload = (await response.json().catch(() => null)) as {
     error?: {
       message?: string;
+
       errors?: Array<{
         reason?: string;
       }>;
     };
+
     items?: Array<{
       id?: string;
+
       snippet?: {
         liveBroadcastContent?: "live" | "upcoming" | "none";
       };
+
       liveStreamingDetails?: {
         actualStartTime?: string;
+
         actualEndTime?: string;
       };
     }>;
@@ -203,14 +203,19 @@ export async function getYoutubeStatus(
   }
 
   const broadcastStatus = video.snippet?.liveBroadcastContent;
+
   const details = video.liveStreamingDetails;
 
   if (broadcastStatus === "live") {
     return {
       videoId,
+
       status: "live",
+
       isLive: true,
+
       actualStartTime: details?.actualStartTime ?? null,
+
       actualEndTime: null,
     };
   }
@@ -218,9 +223,13 @@ export async function getYoutubeStatus(
   if (broadcastStatus === "upcoming") {
     return {
       videoId,
+
       status: "upcoming",
+
       isLive: false,
+
       actualStartTime: details?.actualStartTime ?? null,
+
       actualEndTime: null,
     };
   }
@@ -228,18 +237,26 @@ export async function getYoutubeStatus(
   if (details?.actualEndTime) {
     return {
       videoId,
+
       status: "completed",
+
       isLive: false,
+
       actualStartTime: details.actualStartTime ?? null,
+
       actualEndTime: details.actualEndTime,
     };
   }
 
   return {
     videoId,
+
     status: "video",
+
     isLive: false,
+
     actualStartTime: details?.actualStartTime ?? null,
+
     actualEndTime: null,
   };
 }

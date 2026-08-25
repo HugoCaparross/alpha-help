@@ -1,8 +1,6 @@
-import type { Region } from "@/lib/utils/regions";
+import type { YoutubeBroadcastStatus } from "@/lib/utils/youtube";
 
-export type SessionStatus =
-  | "available"
-  | "locked";
+export type SessionStatus = "available" | "locked";
 
 export interface Session {
   readonly id: string;
@@ -22,10 +20,13 @@ export interface Session {
   readonly releaseDateLatam: string;
 
   readonly isLive: boolean;
+
+  readonly youtubeStatus: YoutubeBroadcastStatus | null;
+
+  readonly youtubeCheckedAt: string | null;
 }
 
-export interface SessionWithStatus
-  extends Session {
+export interface SessionWithStatus extends Session {
   readonly releaseDate: string;
 
   readonly status: SessionStatus;

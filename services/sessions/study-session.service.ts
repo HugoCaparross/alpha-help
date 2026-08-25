@@ -3,6 +3,8 @@ import { getProfile } from "@/lib/supabase/getProfile";
 
 import { getDatabaseRegion, isSpain, type Region } from "@/lib/utils/regions";
 
+import type { YoutubeBroadcastStatus } from "@/lib/utils/youtube";
+
 import type { Session, SessionWithStatus } from "@/types/study-session";
 
 const STUDY_SESSIONS_TABLE = "study_sessions";
@@ -16,6 +18,7 @@ const STUDY_SESSIONS_TABLE = "study_sessions";
 export const TOTAL_STUDY_SESSIONS = 10;
 
 const FIRST_SESSION_ORDER = 0;
+
 const LAST_SESSION_ORDER = 9;
 
 const SESSION_FIELDS = `
@@ -27,7 +30,9 @@ const SESSION_FIELDS = `
   session_order,
   release_date_spain,
   release_date_latam,
-  is_live
+  is_live,
+  youtube_status,
+  youtube_checked_at
 `;
 
 const ERROR_GET_SESSIONS = "No se han podido recuperar las sesiones.";
@@ -53,9 +58,17 @@ interface SessionRow {
   release_date_latam: string;
 
   is_live: boolean;
+
+  youtube_status: YoutubeBroadcastStatus | null;
+
+  youtube_checked_at: string | null;
 }
 
 function mapSession(row: SessionRow): Session {
+  const isLive =
+    row.youtube_status === "live" ||
+    (row.youtube_status === "unknown" && row.is_live);
+
   return {
     id: row.id,
 
@@ -73,7 +86,11 @@ function mapSession(row: SessionRow): Session {
 
     releaseDateLatam: row.release_date_latam,
 
-    isLive: row.is_live,
+    isLive,
+
+    youtubeStatus: row.youtube_status,
+
+    youtubeCheckedAt: row.youtube_checked_at,
   };
 }
 
@@ -136,9 +153,6 @@ function mapSessionWithStatus(
  * La base de datos utiliza:
  *   España
  *   Latinoamérica
- *
- * Por eso la región se convierte antes
- * de realizar la consulta a Supabase.
  */
 export async function getSessions(region?: Region): Promise<Session[]> {
   const currentRegion = region ?? (await getCurrentRegion());
@@ -210,16 +224,12 @@ export async function getSessionById(
 /**
  * Devuelve todas las sesiones de la
  * región del participante junto con
- * su estado actual.
+ * su estado de publicación.
  *
- * La fecha utilizada depende de la
- * región del participante:
- *
- * España
- *   → release_date_spain
- *
- * Latinoamérica
- *   → release_date_latam
+ * El estado de YouTube procede del
+ * último valor confirmado por el
+ * sincronizador automático y cacheado
+ * en study_sessions.
  */
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
   const region = await getCurrentRegion();

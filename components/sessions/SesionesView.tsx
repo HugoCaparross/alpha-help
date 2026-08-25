@@ -35,7 +35,7 @@ const LOADING_MESSAGE =
 const ERROR_MESSAGE =
   "No se han podido cargar las sesiones. Inténtalo de nuevo.";
 
-const YOUTUBE_STATUS_INTERVAL =
+const YOUTUBE_CACHE_INTERVAL =
   60_000;
 
 type YoutubeStatus =
@@ -45,92 +45,119 @@ type YoutubeStatus =
   | "video"
   | "unknown";
 
-interface YoutubeSessionStatus {
+interface YoutubeSessionCacheStatus {
   readonly id: string;
 
   readonly isLive: boolean;
 
   readonly status: YoutubeStatus;
+
+  readonly checkedAt:
+  | string
+  | null;
 }
 
-interface YoutubeRefreshResult {
-  readonly sessions: SessionWithStatus[];
-
-  readonly statuses: Record<
-    string,
-    YoutubeStatus
-  >;
+interface YoutubeCacheResponse {
+  readonly sessions?:
+  YoutubeSessionCacheStatus[];
 }
 
-async function refreshYoutubeStatuses(
+/**
+ * Recupera únicamente el estado cacheado de YouTube.
+ *
+ * IMPORTANTE:
+ * Esta llamada NO consulta YouTube.
+ *
+ * El sincronizador automático actualiza Supabase en segundo plano
+ * y esta ruta solamente devuelve el último estado confirmado.
+ */
+async function refreshYoutubeCache(
   sessions: SessionWithStatus[],
-): Promise<YoutubeRefreshResult> {
-  const response = await fetch(
-    "/api/youtube/sessions-status",
-    {
-      cache: "no-store",
-    },
-  );
+): Promise<SessionWithStatus[]> {
+  try {
+    const response =
+      await fetch(
+        "/api/youtube/sessions-status",
+        {
+          cache:
+            "no-store",
+        },
+      );
 
-  if (!response.ok) {
-    return {
-      sessions,
-      statuses: {},
-    };
-  }
+    if (!response.ok) {
+      return sessions;
+    }
 
-  const payload =
-    (await response.json()) as {
-      sessions?: YoutubeSessionStatus[];
-    };
+    const payload =
+      (await response.json()) as YoutubeCacheResponse;
 
-  if (!payload.sessions) {
-    return {
-      sessions,
-      statuses: {},
-    };
-  }
+    if (
+      !payload.sessions
+    ) {
+      return sessions;
+    }
 
-  const statusMap = new Map(
-    payload.sessions.map(
-      (item) => [
-        item.id,
-        item,
-      ],
-    ),
-  );
+    const statusMap =
+      new Map(
+        payload.sessions.map(
+          (item) => [
+            item.id,
+            item,
+          ],
+        ),
+      );
 
-  const statuses = Object.fromEntries(
-    payload.sessions.map(
-      (item) => [
-        item.id,
-        item.status,
-      ],
-    ),
-  );
-
-  return {
-    sessions: sessions.map(
+    return sessions.map(
       (session) => {
-        const status =
+        const cachedStatus =
           statusMap.get(
             session.id,
           );
 
-        if (!status) {
+        if (
+          !cachedStatus
+        ) {
           return session;
         }
 
         return {
           ...session,
+
           isLive:
-            status.isLive,
+            cachedStatus.isLive,
+
+          youtubeStatus:
+            cachedStatus.status,
+
+          youtubeCheckedAt:
+            cachedStatus.checkedAt,
         };
       },
-    ),
+    );
+  } catch {
+    /**
+     * La página ya dispone de los datos
+     * cacheados de study_sessions.
+     * Si esta actualización ligera falla,
+     * no hacemos fallar toda la pantalla.
+     */
+    return sessions;
+  }
+}
 
-    statuses,
-  };
+function hasPendingYoutubeState(
+  sessions: SessionWithStatus[],
+): boolean {
+  return sessions.some(
+    (session) =>
+      session.youtubeStatus ===
+      "live" ||
+      session.youtubeStatus ===
+      "upcoming" ||
+      session.youtubeStatus ===
+      "unknown" ||
+      session.isLive,
+  );
 }
 
 export default function SesionesView() {
@@ -141,17 +168,6 @@ export default function SesionesView() {
     useState<
       SessionWithStatus[]
     >([]);
-
-  const [
-    youtubeStatuses,
-    setYoutubeStatuses,
-  ] =
-    useState<
-      Record<
-        string,
-        YoutubeStatus
-      >
-    >({});
 
   const [
     completedIds,
@@ -195,16 +211,12 @@ export default function SesionesView() {
             ]);
 
           const refreshed =
-            await refreshYoutubeStatuses(
+            await refreshYoutubeCache(
               data,
             );
 
           setSessions(
-            refreshed.sessions,
-          );
-
-          setYoutubeStatuses(
-            refreshed.statuses,
+            refreshed,
           );
 
           setCompletedIds(
@@ -229,10 +241,6 @@ export default function SesionesView() {
             [],
           );
 
-          setYoutubeStatuses(
-            {},
-          );
-
           setCompletedIds(
             new Set(),
           );
@@ -254,42 +262,17 @@ export default function SesionesView() {
   }, [loadSessions]);
 
   /**
-   * Mientras YouTube pueda cambiar
-   * el estado de una sesión, volvemos
-   * a comprobarlo cada minuto.
+   * Mientras exista alguna sesión cuyo estado pueda cambiar,
+   * refrescamos el CACHE de Supabase cada minuto.
    *
-   * También reintentamos cuando la
-   * sesión sigue marcada como live
-   * pero la API no ha podido confirmar
-   * todavía su estado.
+   * Esto NO genera llamadas adicionales a YouTube.
+   * El cron automático es el que consulta YouTube.
    */
   useEffect(() => {
-    const hasPendingYoutubeState =
-      sessions.some(
-        (session) => {
-          const status =
-            youtubeStatuses[
-            session.id
-            ];
-
-          return (
-            status ===
-            "live" ||
-            status ===
-            "upcoming" ||
-            (
-              session.isLive &&
-              status !==
-              "completed" &&
-              status !==
-              "video"
-            )
-          );
-        },
-      );
-
     if (
-      !hasPendingYoutubeState
+      !hasPendingYoutubeState(
+        sessions,
+      )
     ) {
       return;
     }
@@ -297,38 +280,26 @@ export default function SesionesView() {
     const interval =
       window.setInterval(
         () => {
-          void refreshYoutubeStatuses(
+          void refreshYoutubeCache(
             sessions,
           ).then(
             (
               refreshed,
             ) => {
               setSessions(
-                refreshed.sessions,
-              );
-
-              setYoutubeStatuses(
-                (
-                  previous,
-                ) => ({
-                  ...previous,
-                  ...refreshed.statuses,
-                }),
+                refreshed,
               );
             },
           );
         },
-        YOUTUBE_STATUS_INTERVAL,
+        YOUTUBE_CACHE_INTERVAL,
       );
 
     return () =>
       window.clearInterval(
         interval,
       );
-  }, [
-    sessions,
-    youtubeStatuses,
-  ]);
+  }, [sessions]);
 
   if (loading) {
     return (

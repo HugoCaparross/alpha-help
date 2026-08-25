@@ -7,7 +7,7 @@ import {
   extractYoutubeId,
   getYoutubeStatus,
   getYoutubeThumbnail,
-  isYoutubeLiveUrl,
+  type YoutubeBroadcastStatus,
 } from "@/lib/utils/youtube";
 
 const TABLE = "study_sessions";
@@ -28,6 +28,8 @@ const SELECT_FIELDS = `
   release_date_spain,
   release_date_latam,
   is_live,
+  youtube_status,
+  youtube_checked_at,
   created_at,
   updated_at
 `;
@@ -213,48 +215,20 @@ export async function POST(request: Request) {
 
   const resolvedThumbnail = thumbnailUrl || getYoutubeThumbnail(youtubeId);
 
-  let isLive = isYoutubeLiveUrl(youtubeUrl);
-
-  let youtubeStatusSource: "youtube-api" | "url-fallback" = "url-fallback";
-
-  try {
-    const youtubeStatus = await getYoutubeStatus(youtubeId);
-
-    isLive = youtubeStatus.isLive;
-
-    youtubeStatusSource = "youtube-api";
-  } catch (error) {
-    const youtubeError = error as {
-      code?: string;
-      message?: string;
-    };
-
-    console.warn("[admin/sessions][YOUTUBE_STATUS]", {
-      videoId: youtubeId,
-      code: youtubeError.code,
-      message: youtubeError.message,
-    });
-
-    /*
-     * Si la API no está disponible,
-     * no bloqueamos el guardado.
-     *
-     * /live/ se considera directo.
-     * Cualquier otra URL se considera
-     * contenido en diferido.
-     *
-     * Cuando la API esté disponible,
-     * será la fuente de verdad.
-     */
-  }
-
   const now = new Date().toISOString();
 
   const admin = createAdminClient();
 
   const { data: existing, error: existingError } = await admin
     .from(TABLE)
-    .select("id")
+    .select(
+      `
+          id,
+          youtube_url,
+          is_live,
+          youtube_status
+        `,
+    )
     .eq("region", region)
     .eq("session_order", sessionOrder)
     .maybeSingle();
@@ -272,6 +246,57 @@ export async function POST(request: Request) {
     );
   }
 
+  let isLive = false;
+
+  let youtubeStatus: YoutubeBroadcastStatus = "unknown";
+
+  let youtubeCheckedAt: string | null = null;
+
+  let youtubeStatusSource: "youtube-api" | "pending-sync" = "pending-sync";
+
+  try {
+    const status = await getYoutubeStatus(youtubeId);
+
+    isLive = status.isLive;
+
+    youtubeStatus = status.status;
+
+    youtubeCheckedAt = now;
+
+    youtubeStatusSource = "youtube-api";
+  } catch (error) {
+    const youtubeError = error as {
+      code?: string;
+      message?: string;
+    };
+
+    console.warn("[admin/sessions][YOUTUBE_STATUS]", {
+      videoId: youtubeId,
+      code: youtubeError.code,
+      message: youtubeError.message,
+    });
+
+    /**
+     * No usamos /live/ como fuente de verdad.
+     *
+     * Si estamos editando el mismo vídeo y ya existe
+     * un estado cacheado, conservamos ese último estado
+     * confirmado hasta que el sincronizador vuelva a consultar.
+     *
+     * Si es un vídeo nuevo, queda como unknown y el cron
+     * lo comprobará automáticamente en el siguiente ciclo.
+     */
+    const existingYoutubeUrl = existing?.youtube_url;
+
+    const isSameYoutubeVideo = existingYoutubeUrl === youtubeUrl;
+
+    if (isSameYoutubeVideo && existing?.youtube_status) {
+      youtubeStatus = existing.youtube_status as YoutubeBroadcastStatus;
+
+      isLive = Boolean(existing.is_live);
+    }
+  }
+
   const payload = {
     title,
     description,
@@ -282,6 +307,8 @@ export async function POST(request: Request) {
     release_date_spain: releaseDateSpain || now,
     release_date_latam: releaseDateLatam || now,
     is_live: isLive,
+    youtube_status: youtubeStatus,
+    youtube_checked_at: youtubeCheckedAt,
     updated_at: now,
   };
 
@@ -309,7 +336,13 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
+
     isLive,
+
+    youtubeStatus,
+
     youtubeStatusSource,
+
+    youtubeCheckedAt,
   });
 }
