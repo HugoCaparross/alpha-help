@@ -20,6 +20,8 @@ const STATUS_TO_CHECK = new Set<YoutubeBroadcastStatus | null>([
 interface YoutubeSessionCacheRow {
   readonly id: string;
 
+  readonly title?: string | null;
+
   readonly youtube_url: string;
 
   readonly is_live: boolean;
@@ -27,6 +29,22 @@ interface YoutubeSessionCacheRow {
   readonly youtube_status: YoutubeBroadcastStatus | null;
 
   readonly youtube_checked_at: string | null;
+}
+
+export interface YoutubeSessionSyncError {
+  readonly sessionId: string;
+
+  readonly title: string | null;
+
+  readonly youtubeUrl: string;
+
+  readonly stage: "extract_id" | "youtube_api" | "database_update";
+
+  readonly code?: string;
+
+  readonly httpStatus?: number;
+
+  readonly message: string;
 }
 
 export interface YoutubeSessionSyncSummary {
@@ -39,6 +57,8 @@ export interface YoutubeSessionSyncSummary {
   readonly skipped: number;
 
   readonly failed: number;
+
+  readonly errors: readonly YoutubeSessionSyncError[];
 }
 
 /**
@@ -56,12 +76,13 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
     .from(TABLE)
     .select(
       `
-          id,
-          youtube_url,
-          is_live,
-          youtube_status,
-          youtube_checked_at
-        `,
+        id,
+        title,
+        youtube_url,
+        is_live,
+        youtube_status,
+        youtube_checked_at
+      `,
     )
     .order("region", {
       ascending: true,
@@ -86,12 +107,29 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
   let updated = 0;
   let failed = 0;
 
+  const errors: YoutubeSessionSyncError[] = [];
+
   await Promise.all(
     candidates.map(async (session) => {
       const youtubeId = extractYoutubeId(session.youtube_url);
 
       if (!youtubeId) {
         failed += 1;
+
+        const syncError: YoutubeSessionSyncError = {
+          sessionId: session.id,
+          title: session.title ?? null,
+          youtubeUrl: session.youtube_url,
+          stage: "extract_id",
+          code: "invalid_video_id",
+          message:
+            "No se ha podido extraer un ID de vídeo válido de la URL de YouTube.",
+        };
+
+        errors.push(syncError);
+
+        console.error("[youtube-sync][EXTRACT_ID]", syncError);
+
         return;
       }
 
@@ -104,11 +142,8 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
           .from(TABLE)
           .update({
             is_live: youtubeStatus.isLive,
-
             youtube_status: youtubeStatus.status,
-
             youtube_checked_at: checkedAt,
-
             updated_at: checkedAt,
           })
           .eq("id", session.id);
@@ -116,9 +151,22 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
         if (updateError) {
           failed += 1;
 
-          console.error("[youtube-sync][UPDATE]", {
+          const syncError: YoutubeSessionSyncError = {
             sessionId: session.id,
-            error: updateError,
+            title: session.title ?? null,
+            youtubeUrl: session.youtube_url,
+            stage: "database_update",
+            code: "supabase_update_error",
+            message: updateError.message,
+          };
+
+          errors.push(syncError);
+
+          console.error("[youtube-sync][UPDATE]", {
+            ...syncError,
+            details: updateError.details,
+            hint: updateError.hint,
+            errorCode: updateError.code,
           });
 
           return;
@@ -126,13 +174,23 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
 
         checked += 1;
 
-        if (
+        const stateChanged =
           session.is_live !== youtubeStatus.isLive ||
-          session.youtube_status !== youtubeStatus.status ||
-          session.youtube_checked_at !== checkedAt
-        ) {
+          session.youtube_status !== youtubeStatus.status;
+
+        if (stateChanged) {
           updated += 1;
         }
+
+        console.info("[youtube-sync][SUCCESS]", {
+          sessionId: session.id,
+          title: session.title ?? null,
+          youtubeId,
+          previousStatus: session.youtube_status,
+          newStatus: youtubeStatus.status,
+          previousIsLive: session.is_live,
+          newIsLive: youtubeStatus.isLive,
+        });
       } catch (error) {
         failed += 1;
 
@@ -142,15 +200,21 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
           httpStatus?: number;
         };
 
-        console.warn("[youtube-sync][YOUTUBE]", {
+        const syncError: YoutubeSessionSyncError = {
           sessionId: session.id,
-
+          title: session.title ?? null,
+          youtubeUrl: session.youtube_url,
+          stage: "youtube_api",
           code: youtubeError.code,
-
           httpStatus: youtubeError.httpStatus,
+          message:
+            youtubeError.message ??
+            "Se ha producido un error desconocido al consultar YouTube.",
+        };
 
-          message: youtubeError.message,
-        });
+        errors.push(syncError);
+
+        console.error("[youtube-sync][YOUTUBE]", syncError);
 
         /**
          * No modificamos el estado cacheado cuando YouTube
@@ -165,13 +229,10 @@ export async function syncYoutubeSessionStatuses(): Promise<YoutubeSessionSyncSu
 
   return {
     scanned: sessions.length,
-
     checked,
-
     updated,
-
     skipped: sessions.length - candidates.length,
-
     failed,
+    errors,
   };
 }
