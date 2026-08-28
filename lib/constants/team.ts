@@ -80,6 +80,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     role: "Colaboradora",
     description: "",
     initials: "MB",
+    photoUrl: "/images/team/Arantxa-Basterra.jpeg",
   },
   {
     name: "María Clara Villa Orozco",
