@@ -78,7 +78,8 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     name: "María Aranzazu Basterra González",
     studies: "Dra. en Ciencias de la Educación",
     role: "Colaboradora",
-    description: "",
+    description: 
+    "Profesora e investigadora (UNIR) especializada en prevención de riesgos y bienestar digital en niños, niñas y adolescentes. Su labor se centra en el estudio de las conductas de riesgo en entornos digitales y su relación con el bienestar emocional y la salud mental infanto-juvenil. Participa en el diseño y desarrollo de contenidos y estrategias preventivas dirigidas a familias, desde una perspectiva basada en la evidencia científica.",
     initials: "MB",
     photoUrl: "/images/team/Arantxa-Basterra.jpeg",
   },
