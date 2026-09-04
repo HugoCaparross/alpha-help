@@ -21,6 +21,11 @@ import {
   type AdminMaterialRow,
 } from "@/services/admin/admin-material.service";
 
+import {
+  listAdminSessions,
+  type AdminSessionRow,
+} from "@/services/admin/admin-session.service";
+
 type MaterialType =
   | "support"
   | "extended";
@@ -104,6 +109,9 @@ export default function AdminMaterialsPage() {
   const [materials, setMaterials] =
     useState<AdminMaterialRow[]>([]);
 
+  const [sessions, setSessions] =
+    useState<AdminSessionRow[]>([]);
+
   const [activeType, setActiveType] =
     useState<MaterialType>(
       "support",
@@ -151,10 +159,16 @@ export default function AdminMaterialsPage() {
       setLoading(true);
 
       try {
-        const data =
-          await listAdminMaterials();
+        const [
+          materialsData,
+          sessionsData,
+        ] = await Promise.all([
+          listAdminMaterials(),
+          listAdminSessions(),
+        ]);
 
-        setMaterials(data);
+        setMaterials(materialsData);
+        setSessions(sessionsData);
       } catch (err) {
         setError(
           err instanceof Error
@@ -201,6 +215,86 @@ export default function AdminMaterialsPage() {
       activeRegion,
     ]);
 
+  const sessionByOrder =
+    useMemo(() => {
+      const map =
+        new Map<
+          number,
+          AdminSessionRow
+        >();
+
+      sessions
+        .filter(
+          (session) =>
+            session.region ===
+            activeRegion,
+        )
+        .forEach(
+          (session) =>
+            map.set(
+              session.session_order,
+              session,
+            ),
+        );
+
+      return map;
+    }, [
+      sessions,
+      activeRegion,
+    ]);
+
+  const getExpectedReleaseDate =
+    useCallback(
+      (
+        order: number,
+      ): string => {
+        const session =
+          sessionByOrder.get(
+            order,
+          );
+
+        if (!session) {
+          return "";
+        }
+
+        const sessionDate =
+          activeRegion ===
+            "España"
+            ? session.release_date_spain
+            : session.release_date_latam;
+
+        if (!sessionDate) {
+          return "";
+        }
+
+        const releaseDate =
+          new Date(
+            sessionDate,
+          );
+
+        if (
+          Number.isNaN(
+            releaseDate.getTime(),
+          )
+        ) {
+          return "";
+        }
+
+        releaseDate.setDate(
+          releaseDate.getDate() +
+          1,
+        );
+
+        return toDatetimeLocal(
+          releaseDate.toISOString(),
+        );
+      },
+      [
+        activeRegion,
+        sessionByOrder,
+      ],
+    );
+
   const selectSlot =
     useCallback(
       (order: number) => {
@@ -216,24 +310,24 @@ export default function AdminMaterialsPage() {
 
         if (existing) {
           setForm({
-            title: existing.title,
+            title:
+              existing.title,
             description:
               existing.description,
             releaseDate:
-              toDatetimeLocal(
-                activeRegion ===
-                  "España"
-                  ? existing.release_date_spain
-                  : existing.release_date_latam,
+              getExpectedReleaseDate(
+                order,
               ),
           });
         } else {
-          setForm(EMPTY_FORM);
+          setForm(
+            EMPTY_FORM,
+          );
         }
       },
       [
         materialByOrder,
-        activeRegion,
+        getExpectedReleaseDate,
       ],
     );
 
@@ -269,7 +363,10 @@ export default function AdminMaterialsPage() {
   ) {
     event.preventDefault();
 
-    if (!existing && !file) {
+    if (
+      !existing &&
+      !file
+    ) {
       setError(
         "Debes adjuntar un archivo PDF para este material.",
       );
@@ -281,15 +378,9 @@ export default function AdminMaterialsPage() {
     setSuccess("");
 
     try {
-      const releaseIso =
-        form.releaseDate
-          ? new Date(
-            form.releaseDate,
-          ).toISOString()
-          : undefined;
-
       await saveAdminMaterial({
-        title: form.title,
+        title:
+          form.title,
         description:
           form.description,
         materialType:
@@ -298,22 +389,13 @@ export default function AdminMaterialsPage() {
           selectedOrder,
         region:
           activeRegion,
-        releaseDateSpain:
-          activeRegion === "España"
-            ? releaseIso
-            : existing?.release_date_spain,
-        releaseDateLatam:
-          activeRegion ===
-            "Latinoamérica"
-            ? releaseIso
-            : existing?.release_date_latam,
         pdfUrl:
           existing?.pdf_url,
         file,
       });
 
       setSuccess(
-        "Material guardado. Ya está disponible para los participantes.",
+        "Material guardado correctamente.",
       );
 
       setFile(null);
@@ -350,7 +432,10 @@ export default function AdminMaterialsPage() {
         existing.id,
       );
 
-      setForm(EMPTY_FORM);
+      setForm(
+        EMPTY_FORM,
+      );
+
       setSuccess(
         "Material eliminado.",
       );
@@ -375,15 +460,38 @@ export default function AdminMaterialsPage() {
         </h1>
 
         <p className="admin-header__description">
-          España y Latinoamérica son
-          programas independientes.
-          Tanto los materiales cortos
-          como los materiales largos
-          disponen de un recurso para
-          la Introducción y de un
-          recurso para cada una de
-          las nueve sesiones del
-          programa.
+          España y Latinoamérica
+          son programas
+          independientes.
+          Las fechas de
+          liberación se
+          calculan
+          automáticamente
+          según el calendario
+          de cada región.
+        </p>
+
+        <p className="admin-header__description">
+          El material se abre
+          al día siguiente de
+          la sesión
+          correspondiente y
+          solo después de que
+          el participante haya
+          completado la
+          evaluación inicial.
+        </p>
+
+        <p className="admin-header__description">
+          Tanto los materiales
+          cortos como los
+          materiales largos
+          disponen de un
+          recurso para la
+          introducción y de un
+          recurso para cada
+          una de las nueve
+          sesiones del programa.
         </p>
       </header>
 
@@ -394,9 +502,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeRegion ===
-                tab.id
-                ? "admin-tab--active"
-                : ""
+                  tab.id
+                  ? "admin-tab--active"
+                  : ""
                 }`}
               onClick={() =>
                 selectRegion(
@@ -417,9 +525,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeType ===
-                tab.id
-                ? "admin-tab--active"
-                : ""
+                  tab.id
+                  ? "admin-tab--active"
+                  : ""
                 }`}
               onClick={() =>
                 selectType(
@@ -451,8 +559,8 @@ export default function AdminMaterialsPage() {
                   )
                 }
                 className={`admin-slot ${item
-                  ? "admin-slot--filled"
-                  : ""
+                    ? "admin-slot--filled"
+                    : ""
                   } ${selectedOrder ===
                     order
                     ? "admin-slot--active"
@@ -473,7 +581,7 @@ export default function AdminMaterialsPage() {
 
                 <span className="admin-slot__status">
                   {item
-                    ? "Publicado"
+                    ? "Configurado"
                     : "Vacío"}
                 </span>
               </button>
@@ -484,7 +592,8 @@ export default function AdminMaterialsPage() {
 
       {loading ? (
         <p>
-          Cargando materiales...
+          Cargando
+          materiales...
         </p>
       ) : (
         <form
@@ -498,16 +607,16 @@ export default function AdminMaterialsPage() {
               Título (
               {
                 REGION_TABS.find(
-                  (t) =>
-                    t.id ===
+                  (tab) =>
+                    tab.id ===
                     activeRegion,
                 )?.label
               }{" "}
               ·{" "}
               {
                 TYPE_TABS.find(
-                  (t) =>
-                    t.id ===
+                  (tab) =>
+                    tab.id ===
                     activeType,
                 )?.label
               }
@@ -522,7 +631,9 @@ export default function AdminMaterialsPage() {
               id="title"
               type="text"
               required
-              value={form.title}
+              value={
+                form.title
+              }
               onChange={(
                 event,
               ) =>
@@ -586,8 +697,9 @@ export default function AdminMaterialsPage() {
 
             {existing && (
               <span className="admin-form__hint">
-                Si no seleccionas
-                otro archivo se
+                Si no
+                seleccionas otro
+                archivo se
                 conservará el PDF
                 actual.
               </span>
@@ -596,7 +708,8 @@ export default function AdminMaterialsPage() {
 
           <div className="admin-form__row">
             <label htmlFor="releaseDate">
-              Fecha de publicación
+              Fecha de
+              publicación
             </label>
 
             <input
@@ -605,19 +718,23 @@ export default function AdminMaterialsPage() {
               value={
                 form.releaseDate
               }
-              onChange={(
-                event,
-              ) =>
-                setForm(
-                  (prev) => ({
-                    ...prev,
-                    releaseDate:
-                      event.target
-                        .value,
-                  }),
-                )
-              }
+              readOnly
+              aria-describedby="releaseDateHint"
             />
+
+            <span
+              id="releaseDateHint"
+              className="admin-form__hint"
+            >
+              Se calcula
+              automáticamente:
+              día siguiente a la
+              sesión de{" "}
+              {activeRegion}.
+              Configura primero
+              la fecha de esa
+              sesión.
+            </span>
           </div>
 
           <div className="admin-form__actions">
