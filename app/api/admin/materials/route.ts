@@ -307,7 +307,7 @@ export async function POST(
     const path =
       `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
         file.name ||
-          "material.pdf",
+        "material.pdf",
       )}`;
 
     const arrayBuffer =
@@ -470,7 +470,7 @@ export async function POST(
 
     release_date_latam:
       region ===
-      "Latinoamérica"
+        "Latinoamérica"
         ? calculatedReleaseDate
         : null,
 
@@ -480,15 +480,15 @@ export async function POST(
   const query =
     existing
       ? admin
-          .from(TABLE)
-          .update(payload)
-          .eq(
-            "id",
-            existing.id,
-          )
+        .from(TABLE)
+        .update(payload)
+        .eq(
+          "id",
+          existing.id,
+        )
       : admin
-          .from(TABLE)
-          .insert(payload);
+        .from(TABLE)
+        .insert(payload);
 
   const {
     error,

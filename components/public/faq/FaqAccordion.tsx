@@ -10,6 +10,33 @@ import { FAQ_SECTIONS } from "./faq.data";
 /**
  * Convierte un texto en un id HTML válido.
  */
+
+function renderAnswer(answer: string) {
+  const blocks = answer.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+  const result = blocks.length > 0 ? blocks : [answer];
+
+  return result.map((block, index) => {
+    const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+    const bullets = lines.length > 0 && lines.every((line) => line.startsWith("•"));
+
+    if (bullets) {
+      return (
+        <ul key={`answer-block-${index}`} className="faq-answer__list">
+          {lines.map((line) => <li key={line}>{line.replace(/^•\s*/, "")}</li>)}
+        </ul>
+      );
+    }
+
+    const sentences = block.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÜÑ¿])/u);
+    const chunks: string[] = [];
+    for (let i = 0; i < sentences.length; i += 2) chunks.push(sentences.slice(i, i + 2).join(" "));
+
+    return chunks.map((chunk, chunkIndex) => (
+      <p key={`answer-block-${index}-${chunkIndex}`}>{chunk}</p>
+    ));
+  });
+}
+
 function createSlug(value: string): string {
   return value
     .normalize("NFD")
@@ -125,7 +152,7 @@ export default function FaqAccordion() {
                       hidden={!isOpen}
                       aria-hidden={!isOpen}
                     >
-                      <div className="faq-answer">{item.answer}</div>
+                      <div className="faq-answer">{renderAnswer(item.answer)}</div>
                     </div>
                   </article>
                 );

@@ -33,13 +33,13 @@ async function fetchMaterials(): Promise<
     (await response
       .json()
       .catch(() => null)) as
-      | MaterialsResponse
-      | null;
+    | MaterialsResponse
+    | null;
 
   if (!response.ok) {
     throw new Error(
       payload?.error ??
-        "No se han podido recuperar los materiales.",
+      "No se han podido recuperar los materiales.",
     );
   }
 
@@ -56,21 +56,21 @@ async function fetchMaterials(): Promise<
     (material) =>
       material &&
       typeof material.id ===
-        "string" &&
+      "string" &&
       typeof material.title ===
-        "string" &&
+      "string" &&
       Number.isInteger(
         material.materialOrder,
       ) &&
       material.materialOrder >=
-        0 &&
+      0 &&
       material.materialOrder <
-        TOTAL_STUDY_MATERIALS &&
+      TOTAL_STUDY_MATERIALS &&
       (
         material.materialType ===
-          "support" ||
+        "support" ||
         material.materialType ===
-          "extended"
+        "extended"
       ),
   );
 }

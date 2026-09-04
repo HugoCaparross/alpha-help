@@ -1,4 +1,4 @@
-"use client";
+
 
 import {
   useCallback,
@@ -65,45 +65,12 @@ const REGION_TABS: {
 interface FormState {
   title: string;
   description: string;
-  releaseDate: string;
 }
 
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
-  releaseDate: "",
 };
-
-function toDatetimeLocal(
-  iso: string | undefined,
-): string {
-  if (!iso) {
-    return "";
-  }
-
-  const date = new Date(iso);
-
-  if (
-    Number.isNaN(
-      date.getTime(),
-    )
-  ) {
-    return "";
-  }
-
-  const pad = (value: number) =>
-    String(value).padStart(2, "0");
-
-  return `${date.getFullYear()}-${pad(
-    date.getMonth() + 1,
-  )}-${pad(
-    date.getDate(),
-  )}T${pad(
-    date.getHours(),
-  )}:${pad(
-    date.getMinutes(),
-  )}`;
-}
 
 export default function AdminMaterialsPage() {
   const [materials, setMaterials] =
@@ -243,58 +210,6 @@ export default function AdminMaterialsPage() {
       activeRegion,
     ]);
 
-  const getExpectedReleaseDate =
-    useCallback(
-      (
-        order: number,
-      ): string => {
-        const session =
-          sessionByOrder.get(
-            order,
-          );
-
-        if (!session) {
-          return "";
-        }
-
-        const sessionDate =
-          activeRegion ===
-            "España"
-            ? session.release_date_spain
-            : session.release_date_latam;
-
-        if (!sessionDate) {
-          return "";
-        }
-
-        const releaseDate =
-          new Date(
-            sessionDate,
-          );
-
-        if (
-          Number.isNaN(
-            releaseDate.getTime(),
-          )
-        ) {
-          return "";
-        }
-
-        releaseDate.setDate(
-          releaseDate.getDate() +
-          1,
-        );
-
-        return toDatetimeLocal(
-          releaseDate.toISOString(),
-        );
-      },
-      [
-        activeRegion,
-        sessionByOrder,
-      ],
-    );
-
   const selectSlot =
     useCallback(
       (order: number) => {
@@ -313,11 +228,7 @@ export default function AdminMaterialsPage() {
             title:
               existing.title,
             description:
-              existing.description,
-            releaseDate:
-              getExpectedReleaseDate(
-                order,
-              ),
+              existing.description
           });
         } else {
           setForm(
@@ -327,7 +238,6 @@ export default function AdminMaterialsPage() {
       },
       [
         materialByOrder,
-        getExpectedReleaseDate,
       ],
     );
 
@@ -495,6 +405,10 @@ export default function AdminMaterialsPage() {
         </p>
       </header>
 
+      <div className="admin-form__hint" style={{ marginBottom: "1.5rem" }}>
+        La fecha de apertura no se puede editar desde este panel. Se calcula automáticamente a partir de la fecha de la sesión correspondiente y queda fijada para cada región: España o Latinoamérica.
+      </div>
+
       <div className="admin-tabs">
         {REGION_TABS.map(
           (tab) => (
@@ -502,9 +416,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeRegion ===
-                  tab.id
-                  ? "admin-tab--active"
-                  : ""
+                tab.id
+                ? "admin-tab--active"
+                : ""
                 }`}
               onClick={() =>
                 selectRegion(
@@ -525,9 +439,9 @@ export default function AdminMaterialsPage() {
               key={tab.id}
               type="button"
               className={`admin-tab ${activeType ===
-                  tab.id
-                  ? "admin-tab--active"
-                  : ""
+                tab.id
+                ? "admin-tab--active"
+                : ""
                 }`}
               onClick={() =>
                 selectType(
@@ -559,8 +473,8 @@ export default function AdminMaterialsPage() {
                   )
                 }
                 className={`admin-slot ${item
-                    ? "admin-slot--filled"
-                    : ""
+                  ? "admin-slot--filled"
+                  : ""
                   } ${selectedOrder ===
                     order
                     ? "admin-slot--active"
@@ -706,36 +620,6 @@ export default function AdminMaterialsPage() {
             )}
           </div>
 
-          <div className="admin-form__row">
-            <label htmlFor="releaseDate">
-              Fecha de
-              publicación
-            </label>
-
-            <input
-              id="releaseDate"
-              type="datetime-local"
-              value={
-                form.releaseDate
-              }
-              readOnly
-              aria-describedby="releaseDateHint"
-            />
-
-            <span
-              id="releaseDateHint"
-              className="admin-form__hint"
-            >
-              Se calcula
-              automáticamente:
-              día siguiente a la
-              sesión de{" "}
-              {activeRegion}.
-              Configura primero
-              la fecha de esa
-              sesión.
-            </span>
-          </div>
 
           <div className="admin-form__actions">
             <button

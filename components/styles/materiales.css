@@ -789,11 +789,9 @@
 }
 
 .material-card[data-status="locked"] .material-card__body {
-  background: color-mix(
-    in srgb,
-    var(--surface, #ffffff) 94%,
-    var(--neutral-200, #e5e7eb)
-  );
+  background: color-mix(in srgb,
+      var(--surface, #ffffff) 94%,
+      var(--neutral-200, #e5e7eb));
 }
 
 .material-card__cta:focus-visible {
@@ -821,10 +819,12 @@
 .materiales-page {
   gap: clamp(1.75rem, 3vw, 2.5rem);
 }
+
 .materiales-page__header {
   width: 100%;
   max-width: 760px;
 }
+
 .materiales-page__title,
 .materiales-page__description,
 .material-card__title,
@@ -840,30 +840,38 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(1rem, 1.5vw, 1.5rem);
 }
+
 .material-categories-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(1rem, 1.5vw, 1.5rem);
 }
+
 .material-card__body {
   padding: clamp(1rem, 1.5vw, 1.5rem);
 }
+
 .material-card__cta,
 .material-card__locked-cta {
   min-height: 44px;
   height: auto;
 }
+
 .material-card__date {
   min-width: 0;
 }
+
 .material-card__date span {
   min-width: 0;
 }
+
 .material-category-card {
   min-height: 156px;
 }
+
 .material-category-card__count {
   overflow-wrap: anywhere;
 }
+
 .materials-grid--cover {
   grid-template-columns: minmax(0, 340px);
 }
@@ -871,12 +879,15 @@
 .pdf-viewer {
   height: min(78dvh, 900px);
 }
+
 .pdf-viewer__toolbar {
   min-width: 0;
 }
+
 .pdf-viewer__title {
   min-width: 0;
 }
+
 .pdf-viewer__actions {
   flex: 0 0 auto;
 }
@@ -898,9 +909,11 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
+
   .material-categories-grid {
     gap: 1.25rem;
   }
+
   .material-card__body {
     padding: 1.25rem;
   }
@@ -911,6 +924,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.125rem;
   }
+
   .material-categories-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.125rem;
@@ -922,20 +936,25 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+
   .material-categories-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
+
   .materiales-page__description {
     font-size: 0.95rem;
     line-height: 1.7;
   }
+
   .material-card__body {
     padding: 1.25rem;
   }
+
   .pdf-viewer {
     height: min(74dvh, 720px);
   }
+
   .pdf-viewer__toolbar {
     padding: 1rem 1.25rem;
   }
@@ -945,64 +964,80 @@
   .materiales-page {
     gap: 1.75rem;
   }
+
   .materiales-page__eyebrow {
     margin-bottom: 0.75rem;
     padding: 0.4rem 0.75rem;
     font-size: 0.72rem;
   }
+
   .materiales-page__title {
     font-size: 1.9rem;
   }
+
   .materiales-page__description {
     margin-top: 0.75rem;
     font-size: 0.92rem;
     line-height: 1.7;
   }
+
   .materials-grid,
   .material-categories-grid {
     grid-template-columns: 1fr;
     gap: 0.875rem;
   }
+
   .material-card__body {
     padding: 1rem;
     gap: 0.875rem;
   }
+
   .material-card__title {
     font-size: 1rem;
   }
+
   .material-card__desc {
     font-size: 0.9rem;
     line-height: 1.65;
   }
+
   .material-category-card {
     min-height: 140px;
     padding: 1rem;
   }
+
   .material-category-card__title {
     font-size: 1.08rem;
   }
+
   .material-category-card__desc {
     font-size: 0.86rem;
   }
+
   .materiales-back {
     margin-bottom: 0.5rem;
   }
+
   .pdf-viewer {
     height: min(70dvh, 640px);
     border-radius: var(--radius-md);
   }
+
   .pdf-viewer__toolbar {
     align-items: flex-start;
     padding: 0.875rem 1rem;
   }
+
   .pdf-viewer__title {
     font-size: 0.88rem;
     white-space: normal;
     line-height: 1.4;
   }
+
   .pdf-viewer__actions {
     width: auto;
   }
+
   .pdf-viewer__button {
     height: 40px;
     padding: 0 0.75rem;
@@ -1014,94 +1049,117 @@
   .materiales-page {
     gap: 1.5rem;
   }
+
   .materiales-page__title {
     font-size: clamp(1.7rem, 8vw, 1.9rem);
   }
+
   .materiales-page__description {
     font-size: 0.88rem;
     line-height: 1.65;
   }
+
   .materials-grid,
   .material-categories-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
+
   .material-card {
     border-radius: var(--radius-md);
   }
+
   .material-card__body {
     padding: 0.875rem;
     gap: 0.75rem;
   }
+
   .material-card__title {
     font-size: 0.95rem;
   }
+
   .material-card__desc {
     font-size: 0.84rem;
     line-height: 1.6;
   }
+
   .material-card__date {
     align-items: flex-start;
     font-size: 0.79rem;
     line-height: 1.45;
   }
+
   .material-card__cta,
   .material-card__locked-cta {
     min-height: 46px;
     font-size: 0.84rem;
   }
+
   .material-card__order {
     top: 0.625rem;
     left: 0.625rem;
     font-size: 0.65rem;
   }
+
   .material-category-card {
     min-height: 0;
     padding: 0.875rem;
     border-radius: var(--radius-md);
   }
+
   .material-category-card__icon {
     width: 2.75rem;
     height: 2.75rem;
   }
+
   .material-category-card__title {
     font-size: 0.98rem;
   }
+
   .material-category-card__desc {
     font-size: 0.83rem;
     line-height: 1.55;
   }
+
   .material-category-card__count {
     font-size: 0.76rem;
   }
+
   .materials-grid--cover {
     grid-template-columns: minmax(0, 1fr);
   }
+
   .materials-empty {
     min-height: 260px;
     padding: 2rem 1rem;
   }
+
   .materials-empty__text {
     font-size: 0.88rem;
     line-height: 1.65;
   }
+
   .pdf-viewer {
     height: min(68dvh, 560px);
     border-radius: var(--radius-md);
   }
+
   .pdf-viewer__toolbar {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
     padding: 0.75rem;
   }
+
   .pdf-viewer__title {
     font-size: 0.84rem;
     white-space: normal;
   }
+
   .pdf-viewer__actions {
     width: 100%;
   }
+
   .pdf-viewer__button {
     width: 100%;
     height: 42px;
@@ -1112,12 +1170,15 @@
   .material-card__body {
     padding: 0.75rem;
   }
+
   .material-card__title {
     font-size: 0.91rem;
   }
+
   .material-card__desc {
     font-size: 0.8rem;
   }
+
   .material-card__cta,
   .material-card__locked-cta {
     min-height: 44px;
@@ -1126,6 +1187,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .material-card,
   .material-card__thumb-img,
   .material-card__cta,
@@ -1134,8 +1196,166 @@
   .pdf-viewer__button {
     transition: none;
   }
+
   .materiales-page__spinner,
   .pdf-viewer-spinner {
     animation: none;
+  }
+}
+
+/* ==========================================================
+   RECONSTRUCCIÓN — CONTROL DE ACCESO A MATERIALES
+   La disponibilidad real se controla en servidor. Estas reglas
+   refuerzan visualmente el estado bloqueado en la interfaz.
+========================================================== */
+
+.material-card[data-status="locked"] {
+  cursor: default;
+}
+
+.material-card[data-status="locked"] button,
+.material-card[data-status="locked"] a {
+  pointer-events: none;
+}
+
+.material-card--locked .material-card__thumb-img {
+  filter: grayscale(0.2);
+  opacity: 0.72;
+}
+
+.material-card--locked .material-card__lock-overlay {
+  pointer-events: none;
+}
+
+.material-card--locked .material-card__locked-cta {
+  user-select: none;
+}
+
+.material-card--locked:hover {
+  transform: none;
+}
+
+.material-card--locked:hover .material-card__thumb-img {
+  transform: none;
+}
+
+.material-card__locked-cta {
+  cursor: default;
+}
+
+/* ==========================================================
+   CALENDARIO DE LIBERACIÓN
+========================================================== */
+
+.materiales-release-calendar {
+  width: 100%;
+  margin-top: 2rem;
+  overflow: hidden;
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.materiales-release-calendar__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-bottom: var(--border-light);
+}
+
+.materiales-release-calendar__title {
+  margin: 0;
+  color: var(--neutral-900);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.materiales-release-calendar__description {
+  max-width: 680px;
+  margin: 0.4rem 0 0;
+  color: var(--neutral-600);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.materiales-release-calendar__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.materiales-release-calendar__table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.materiales-release-calendar__table th,
+.materiales-release-calendar__table td {
+  padding: 0.9rem 1.1rem;
+  border-bottom: var(--border-light);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.materiales-release-calendar__table th {
+  background: var(--neutral-50);
+  color: var(--neutral-600);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.materiales-release-calendar__table td {
+  color: var(--neutral-800);
+  font-size: 0.88rem;
+}
+
+.materiales-release-calendar__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.materiales-release-calendar__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 30px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.materiales-release-calendar__status--available {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.materiales-release-calendar__status--locked {
+  background: var(--neutral-100);
+  color: var(--neutral-600);
+}
+
+.materiales-release-calendar__release-date {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ==========================================================
+   RESPONSIVE — CALENDARIO
+========================================================== */
+
+@media (max-width: 768px) {
+  .materiales-release-calendar__header {
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+
+  .materiales-release-calendar__table th,
+  .materiales-release-calendar__table td {
+    padding: 0.8rem;
   }
 }

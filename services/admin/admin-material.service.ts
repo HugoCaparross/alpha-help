@@ -21,8 +21,6 @@ export interface AdminMaterialInput {
 
   region: "España" | "Latinoamérica";
 
-  releaseDateSpain?: string;
-  releaseDateLatam?: string;
 
   thumbnailUrl?: string;
   pdfUrl?: string;
@@ -59,13 +57,6 @@ export async function saveAdminMaterial(
 
   form.set("region", input.region);
 
-  if (input.releaseDateSpain) {
-    form.set("releaseDateSpain", input.releaseDateSpain);
-  }
-
-  if (input.releaseDateLatam) {
-    form.set("releaseDateLatam", input.releaseDateLatam);
-  }
 
   if (input.thumbnailUrl) {
     form.set("thumbnailUrl", input.thumbnailUrl);
