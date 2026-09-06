@@ -10,33 +10,6 @@ import { FAQ_SECTIONS } from "./faq.data";
 /**
  * Convierte un texto en un id HTML válido.
  */
-
-function renderAnswer(answer: string) {
-  const blocks = answer.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
-  const result = blocks.length > 0 ? blocks : [answer];
-
-  return result.map((block, index) => {
-    const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
-    const bullets = lines.length > 0 && lines.every((line) => line.startsWith("•"));
-
-    if (bullets) {
-      return (
-        <ul key={`answer-block-${index}`} className="faq-answer__list">
-          {lines.map((line) => <li key={line}>{line.replace(/^•\s*/, "")}</li>)}
-        </ul>
-      );
-    }
-
-    const sentences = block.split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÜÑ¿])/u);
-    const chunks: string[] = [];
-    for (let i = 0; i < sentences.length; i += 2) chunks.push(sentences.slice(i, i + 2).join(" "));
-
-    return chunks.map((chunk, chunkIndex) => (
-      <p key={`answer-block-${index}-${chunkIndex}`}>{chunk}</p>
-    ));
-  });
-}
-
 function createSlug(value: string): string {
   return value
     .normalize("NFD")
@@ -44,6 +17,52 @@ function createSlug(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+/**
+ * Renderiza las respuestas respetando los saltos de párrafo y los listados
+ * presentes en los contenidos originales. El texto no se modifica: solo se
+ * transforma su estructura visual para facilitar la lectura.
+ */
+function FaqAnswer({ answer }: { answer: string }) {
+  const blocks = answer
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="faq-answer">
+      {blocks.map((block, index) => {
+        const lines = block
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+        const isList = lines.length > 1 && lines.every((line) => line.startsWith("•"));
+
+        if (isList) {
+          return (
+            <ul key={`${index}-${block.slice(0, 20)}`} className="faq-answer-list">
+              {lines.map((line) => (
+                <li key={line}>{line.replace(/^•\s*/, "")}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={`${index}-${block.slice(0, 20)}`} className="faq-answer-paragraph">
+            {lines.map((line, lineIndex) => (
+              <span key={`${lineIndex}-${line.slice(0, 20)}`}>
+                {line}
+                {lineIndex < lines.length - 1 ? <br /> : null}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
 
 /**
@@ -152,7 +171,7 @@ export default function FaqAccordion() {
                       hidden={!isOpen}
                       aria-hidden={!isOpen}
                     >
-                      <div className="faq-answer">{renderAnswer(item.answer)}</div>
+                      <FaqAnswer answer={item.answer} />
                     </div>
                   </article>
                 );
