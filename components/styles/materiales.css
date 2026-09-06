@@ -1346,3 +1346,329 @@
     transition: none;
   }
 }
+
+/* ==========================================================
+   CALENDARIO DE APERTURA — ACCESO COMPACTO + MODAL
+========================================================== */
+
+.materiales-calendar-trigger {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+
+  padding: 1.25rem 1.5rem;
+
+  border: var(--border-light);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+
+  box-shadow: var(--shadow-card);
+}
+
+.materiales-calendar-trigger__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 3rem;
+  height: 3rem;
+
+  flex-shrink: 0;
+
+  border-radius: var(--radius-md);
+
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--accent);
+}
+
+.materiales-calendar-trigger__content {
+  min-width: 0;
+}
+
+.materiales-calendar-trigger__eyebrow {
+  margin: 0 0 0.2rem;
+
+  color: var(--accent);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.materiales-calendar-trigger__title {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.materiales-calendar-trigger__description {
+  margin: 0.3rem 0 0;
+
+  color: var(--neutral-600);
+
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.materiales-calendar-trigger__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  min-height: 44px;
+
+  padding: 0 1rem;
+
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+
+  background: var(--accent);
+  color: #fff;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.materiales-calendar-trigger__button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+.materiales-calendar-trigger__button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.materiales-calendar-trigger__button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ==========================================================
+   CALENDARIO DENTRO DEL MODAL
+========================================================== */
+
+.materiales-calendar-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.materiales-calendar-modal__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+
+  padding: 1rem 1.1rem;
+
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+
+  background: var(--neutral-50);
+}
+
+.materiales-calendar-modal__intro-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 2.4rem;
+  height: 2.4rem;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--accent);
+}
+
+.materiales-calendar-modal__intro h3 {
+  margin: 0;
+
+  color: var(--neutral-900);
+
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.materiales-calendar-modal__intro p {
+  margin: 0.3rem 0 0;
+
+  color: var(--neutral-600);
+
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.materiales-calendar__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+
+  scrollbar-width: thin;
+}
+
+.materiales-calendar__table {
+  width: 100%;
+  min-width: 760px;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  background: var(--surface);
+}
+
+.materiales-calendar__table th {
+  padding: 0.8rem 1rem;
+
+  border-bottom: 1px solid var(--neutral-200);
+
+  background: var(--neutral-50);
+
+  color: var(--neutral-700);
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.materiales-calendar__table td {
+  padding: 0.85rem 1rem;
+
+  border-bottom: 1px solid var(--neutral-100);
+
+  color: var(--neutral-600);
+
+  font-size: 0.88rem;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.materiales-calendar__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.materiales-calendar__table tbody tr:hover td {
+  background: var(--neutral-50);
+}
+
+.materiales-calendar__session {
+  color: var(--neutral-800) !important;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.materiales-calendar__release {
+  color: var(--neutral-700) !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.materiales-calendar__status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 28px;
+
+  padding: 0.3rem 0.65rem;
+
+  border-radius: 999px;
+
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.materiales-calendar__status--available {
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+}
+
+.materiales-calendar__status--locked {
+  background: var(--neutral-100);
+  color: var(--neutral-500);
+}
+
+.materiales-calendar-modal .materiales-access-notice {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .materiales-calendar-trigger {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .materiales-calendar-trigger__button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .materiales-calendar-modal__intro {
+    padding: 0.9rem;
+  }
+
+  .materiales-calendar__table th,
+  .materiales-calendar__table td {
+    padding: 0.75rem 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .materiales-calendar-trigger {
+    padding: 1rem;
+  }
+
+  .materiales-calendar-trigger__icon {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
+  .materiales-calendar-trigger__title {
+    font-size: 1rem;
+  }
+
+  .materiales-calendar-trigger__description {
+    font-size: 0.84rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .materiales-calendar-trigger__button {
+    transition: none;
+  }
+
+  .materiales-calendar-trigger__button:hover,
+  .materiales-calendar-trigger__button:active {
+    transform: none;
+  }
+}

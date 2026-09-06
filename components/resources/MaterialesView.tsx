@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import Modal from "@/components/ui/Modal";
 import MaterialEmptyState from "./MaterialEmptyState";
 import MaterialsGrid from "./MaterialsGrid";
 import MaterialCategoryCard from "./MaterialCategoryCard";
@@ -49,6 +50,7 @@ export default function MaterialesView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState<MaterialType | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const loadMaterials = useCallback(async () => {
     setLoading(true);
@@ -81,40 +83,86 @@ export default function MaterialesView() {
       <section className="materiales-page">
         <PageHeader title={PAGE_TITLE} description={PAGE_DESCRIPTION} />
 
-        <section className="materiales-calendar" aria-labelledby="materiales-calendar-title">
-          <div className="materiales-calendar__header">
-            <div>
-              <p className="materiales-calendar__eyebrow">Calendario de apertura</p>
-              <h2 id="materiales-calendar-title" className="materiales-calendar__title">Cuándo se abre cada material</h2>
-              <p className="materiales-calendar__description">La fecha se calcula automáticamente como el día siguiente a la sesión correspondiente. La fecha mostrada es la que determina el acceso en tu programa.</p>
-            </div>
+        <section className="materiales-calendar-trigger" aria-labelledby="materiales-calendar-trigger-title">
+          <div className="materiales-calendar-trigger__icon" aria-hidden="true">
+            <CalendarDays size={22} />
           </div>
-          <div className="materiales-calendar__table-wrap">
-            <table className="materiales-calendar__table">
-              <thead><tr><th>Sesión</th><th>Recurso</th><th>Tipo</th><th>Se abre</th><th>Estado</th></tr></thead>
-              <tbody>
-                {calendarItems.map((material) => {
-                  const available = material.status === "available";
-                  return <tr key={material.id}>
-                    <td className="materiales-calendar__session">{material.materialOrder === 0 ? "Introducción" : `Sesión ${material.materialOrder}`}</td>
-                    <td>{material.title}</td>
-                    <td>{material.materialType === "support" ? "Versión reducida" : "Versión extendida"}</td>
-                    <td className="materiales-calendar__release">{formatCalendarDate(material.releaseDate)}</td>
-                    <td><span className={`materiales-calendar__status materiales-calendar__status--${available ? "available" : "locked"}`}>{available ? "Disponible" : "Bloqueado"}</span></td>
-                  </tr>;
-                })}
-              </tbody>
-            </table>
+          <div className="materiales-calendar-trigger__content">
+            <p className="materiales-calendar-trigger__eyebrow">Calendario de apertura</p>
+            <h2 id="materiales-calendar-trigger-title" className="materiales-calendar-trigger__title">Consulta cuándo se abre cada material</h2>
+            <p className="materiales-calendar-trigger__description">Los materiales se liberan automáticamente el día siguiente a la sesión correspondiente.</p>
           </div>
+          <button
+            type="button"
+            className="materiales-calendar-trigger__button"
+            onClick={() => setCalendarOpen(true)}
+            aria-haspopup="dialog"
+          >
+            <CalendarDays size={17} aria-hidden="true" />
+            <span>Ver calendario</span>
+          </button>
         </section>
 
-        <div className="materiales-access-notice">
-          <div className="materiales-access-notice__icon" aria-hidden="true"><CalendarDays size={20} /></div>
-          <div className="materiales-access-notice__content">
-            <p className="materiales-access-notice__title">Acceso condicionado</p>
-            <p className="materiales-access-notice__text">Para consultar cualquier material debes haber completado la evaluación inicial y haber alcanzado la fecha de apertura indicada en el calendario. La misma regla se aplica a las versiones extendidas.</p>
+        <Modal
+          open={calendarOpen}
+          title="Calendario de apertura"
+          onClose={() => setCalendarOpen(false)}
+          maxWidth={1050}
+        >
+          <div className="materiales-calendar-modal">
+            <div className="materiales-calendar-modal__intro">
+              <div className="materiales-calendar-modal__intro-icon" aria-hidden="true">
+                <CalendarDays size={20} />
+              </div>
+              <div>
+                <h3>Cuándo se abre cada material</h3>
+                <p>La fecha se calcula automáticamente como el día siguiente a la sesión correspondiente. La fecha mostrada es la que determina el acceso en tu programa.</p>
+              </div>
+            </div>
+
+            <div className="materiales-calendar__table-wrap">
+              <table className="materiales-calendar__table">
+                <thead>
+                  <tr>
+                    <th>Sesión</th>
+                    <th>Recurso</th>
+                    <th>Tipo</th>
+                    <th>Se abre</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendarItems.map((material) => {
+                    const available = material.status === "available";
+                    return (
+                      <tr key={material.id}>
+                        <td className="materiales-calendar__session">
+                          {material.materialOrder === 0 ? "Introducción" : `Sesión ${material.materialOrder}`}
+                        </td>
+                        <td>{material.title}</td>
+                        <td>{material.materialType === "support" ? "Versión reducida" : "Versión extendida"}</td>
+                        <td className="materiales-calendar__release">{formatCalendarDate(material.releaseDate)}</td>
+                        <td>
+                          <span className={`materiales-calendar__status materiales-calendar__status--${available ? "available" : "locked"}`}>
+                            {available ? "Disponible" : "Bloqueado"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="materiales-access-notice">
+              <div className="materiales-access-notice__icon" aria-hidden="true"><CalendarDays size={20} /></div>
+              <div className="materiales-access-notice__content">
+                <p className="materiales-access-notice__title">Acceso condicionado</p>
+                <p className="materiales-access-notice__text">Para consultar cualquier material debes haber completado la evaluación inicial y haber alcanzado la fecha de apertura indicada en el calendario. La misma regla se aplica a las versiones extendidas.</p>
+              </div>
+            </div>
           </div>
-        </div>
+        </Modal>
 
         <div className="material-categories-grid">
           <MaterialCategoryCard type="support" title={CATEGORY_COPY.support.title} description={CATEGORY_COPY.support.description} total={materials.support.length} available={availableSupport} onOpen={setActiveCategory} />
