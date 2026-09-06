@@ -20,44 +20,92 @@ function createSlug(value: string): string {
 }
 
 /**
- * Renderiza las respuestas respetando los saltos de párrafo y los listados
- * presentes en los contenidos originales. El texto no se modifica: solo se
- * transforma su estructura visual para facilitar la lectura.
+ * Renderiza las respuestas del FAQ respetando:
+ *
+ * - Párrafos separados mediante saltos de línea.
+ * - Listas marcadas con "•", incluso cuando todos los elementos
+ *   están escritos en una misma línea.
+ * - Negrita en la etiqueta inicial de los elementos con formato:
+ *   "Septiembre: contenido..."
+ *
+ * El texto original no se modifica.
  */
 function FaqAnswer({ answer }: { answer: string }) {
-  const blocks = answer
+  const normalizedAnswer = answer.replace(/\r\n/g, "\n").trim();
+
+  const blocks = normalizedAnswer
     .split(/\n\s*\n/)
     .map((block) => block.trim())
     .filter(Boolean);
 
   return (
-    <div className="faq-answer">
+    <div className="faq-answer-content">
       {blocks.map((block, index) => {
-        const lines = block
-          .split("\n")
-          .map((line) => line.trim())
-          .filter(Boolean);
+        /*
+         * Detectamos si el bloque contiene viñetas.
+         *
+         * Esto permite transformar tanto:
+         *
+         * • Septiembre: ...
+         * • Octubre: ...
+         *
+         * como:
+         *
+         * Los temas serán: • Septiembre: ... • Octubre: ...
+         *
+         * en una lista visual real.
+         */
+        const firstBulletIndex = block.indexOf("•");
 
-        const isList = lines.length > 1 && lines.every((line) => line.startsWith("•"));
+        if (firstBulletIndex !== -1) {
+          const introduction = block.slice(0, firstBulletIndex).trim();
 
-        if (isList) {
-          return (
-            <ul key={`${index}-${block.slice(0, 20)}`} className="faq-answer-list">
-              {lines.map((line) => (
-                <li key={line}>{line.replace(/^•\s*/, "")}</li>
-              ))}
-            </ul>
-          );
+          const listItems = block
+            .slice(firstBulletIndex)
+            .split("•")
+            .map((item) => item.replace(/\s+/g, " ").trim())
+            .filter(Boolean);
+
+          if (listItems.length > 0) {
+            return (
+              <div
+                className="faq-answer-block"
+                key={`${index}-${block.slice(0, 24)}`}
+              >
+                {introduction && <p>{introduction}</p>}
+
+                <ul className="faq-answer-list">
+                  {listItems.map((item, itemIndex) => {
+                    const separator = item.indexOf(":");
+
+                    if (separator > 0) {
+                      const label = item.slice(0, separator + 1);
+                      const content = item.slice(separator + 1).trim();
+
+                      return (
+                        <li key={`${itemIndex}-${item}`}>
+                          <strong>{label}</strong>
+                          {content && <> {content}</>}
+                        </li>
+                      );
+                    }
+
+                    return <li key={`${itemIndex}-${item}`}>{item}</li>;
+                  })}
+                </ul>
+              </div>
+            );
+          }
         }
 
+        /*
+         * Un bloque sin viñetas se trata como un párrafo.
+         * Los saltos de línea simples dentro del mismo bloque
+         * se convierten en espacios para evitar cortes artificiales.
+         */
         return (
-          <p key={`${index}-${block.slice(0, 20)}`} className="faq-answer-paragraph">
-            {lines.map((line, lineIndex) => (
-              <span key={`${lineIndex}-${line.slice(0, 20)}`}>
-                {line}
-                {lineIndex < lines.length - 1 ? <br /> : null}
-              </span>
-            ))}
+          <p key={`${index}-${block.slice(0, 24)}`}>
+            {block.replace(/\s*\n\s*/g, " ")}
           </p>
         );
       })}
@@ -167,11 +215,14 @@ export default function FaqAccordion() {
 
                     <div
                       id={answerId}
-                      className={`faq-answer-wrapper ${isOpen ? "open" : ""}`}
+                      className={`faq-answer-wrapper ${isOpen ? "open" : ""
+                        }`}
                       hidden={!isOpen}
                       aria-hidden={!isOpen}
                     >
-                      <FaqAnswer answer={item.answer} />
+                      <div className="faq-answer">
+                        <FaqAnswer answer={item.answer} />
+                      </div>
                     </div>
                   </article>
                 );
@@ -185,8 +236,8 @@ export default function FaqAccordion() {
             <h3>No hemos encontrado resultados</h3>
 
             <p>
-              Intenta utilizar otras palabras o contacta con nuestro equipo para
-              resolver tu duda.
+              Intenta utilizar otras palabras o contacta con nuestro equipo
+              para resolver tu duda.
             </p>
 
             <Link href="/contacto" className="btn-primary">

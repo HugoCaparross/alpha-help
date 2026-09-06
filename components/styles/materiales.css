@@ -1204,158 +1204,145 @@
 }
 
 /* ==========================================================
-   RECONSTRUCCIÓN — CONTROL DE ACCESO A MATERIALES
-   La disponibilidad real se controla en servidor. Estas reglas
-   refuerzan visualmente el estado bloqueado en la interfaz.
+   ACTUALIZACIÓN — ESTADOS DE DISPONIBILIDAD Y PDF
 ========================================================== */
 
-.material-card[data-status="locked"] {
+.material-card--locked {
   cursor: default;
-}
-
-.material-card[data-status="locked"] button,
-.material-card[data-status="locked"] a {
-  pointer-events: none;
-}
-
-.material-card--locked .material-card__thumb-img {
-  filter: grayscale(0.2);
-  opacity: 0.72;
-}
-
-.material-card--locked .material-card__lock-overlay {
-  pointer-events: none;
-}
-
-.material-card--locked .material-card__locked-cta {
-  user-select: none;
+  opacity: 0.92;
 }
 
 .material-card--locked:hover {
   transform: none;
-}
-
-.material-card--locked:hover .material-card__thumb-img {
-  transform: none;
-}
-
-.material-card__locked-cta {
-  cursor: default;
-}
-
-/* ==========================================================
-   CALENDARIO DE LIBERACIÓN
-========================================================== */
-
-.materiales-release-calendar {
-  width: 100%;
-  margin-top: 2rem;
-  overflow: hidden;
-  border: var(--border-light);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
+  border-color: var(--neutral-200);
   box-shadow: var(--shadow-card);
 }
 
-.materiales-release-calendar__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  border-bottom: var(--border-light);
+.material-card--locked .material-card__thumb-img {
+  filter: grayscale(0.45) brightness(0.72);
 }
 
-.materiales-release-calendar__title {
-  margin: 0;
-  color: var(--neutral-900);
-  font-size: 1.15rem;
+.material-card__lock-overlay {
+  pointer-events: none;
+  z-index: 2;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.material-card__lock-overlay svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  opacity: 0.96;
+}
+
+.material-card__lock-overlay span {
+  font-size: 0.76rem;
   font-weight: 700;
-}
-
-.materiales-release-calendar__description {
-  max-width: 680px;
-  margin: 0.4rem 0 0;
-  color: var(--neutral-600);
-  font-size: 0.9rem;
-  line-height: 1.65;
-}
-
-.materiales-release-calendar__table-wrap {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.materiales-release-calendar__table {
-  width: 100%;
-  min-width: 680px;
-  border-collapse: collapse;
-}
-
-.materiales-release-calendar__table th,
-.materiales-release-calendar__table td {
-  padding: 0.9rem 1.1rem;
-  border-bottom: var(--border-light);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.materiales-release-calendar__table th {
-  background: var(--neutral-50);
-  color: var(--neutral-600);
-  font-size: 0.75rem;
-  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.025em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
-.materiales-release-calendar__table td {
-  color: var(--neutral-800);
-  font-size: 0.88rem;
+.material-card--locked .material-card__thumb,
+.material-card--locked .material-card__thumb-img,
+.material-card--locked .material-card__lock-overlay,
+.material-card--locked .material-card__locked-cta {
+  pointer-events: none;
 }
 
-.materiales-release-calendar__table tbody tr:last-child td {
-  border-bottom: 0;
+.material-card__locked-cta {
+  min-height: 44px;
+  height: auto;
+  padding: 0.7rem 1rem;
+  line-height: 1.45;
+  user-select: none;
 }
 
-.materiales-release-calendar__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 30px;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
+.material-card__locked-cta svg {
+  flex-shrink: 0;
 }
 
-.materiales-release-calendar__status--available {
-  background: rgba(34, 197, 94, 0.1);
-  color: #15803d;
+.material-card__cta:disabled,
+.pdf-viewer__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-.materiales-release-calendar__status--locked {
-  background: var(--neutral-100);
-  color: var(--neutral-600);
+.pdf-viewer__button:hover:not(:disabled) {
+  background: var(--neutral-50);
+  border-color: var(--neutral-300);
+  color: var(--neutral-900);
 }
 
-.materiales-release-calendar__release-date {
-  color: var(--accent);
-  font-weight: 700;
+.pdf-viewer__button:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
-/* ==========================================================
-   RESPONSIVE — CALENDARIO
-========================================================== */
+.pdf-viewer-loading p,
+.pdf-viewer-error p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.pdf-viewer-error {
+  background: var(--surface);
+}
 
 @media (max-width: 768px) {
-  .materiales-release-calendar__header {
-    flex-direction: column;
-    padding: 1.25rem;
+  .material-card__lock-overlay {
+    gap: 0.55rem;
+    padding: 1rem;
   }
 
-  .materiales-release-calendar__table th,
-  .materiales-release-calendar__table td {
-    padding: 0.8rem;
+  .material-card__lock-overlay svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .material-card__lock-overlay span {
+    font-size: 0.7rem;
+  }
+
+  .material-card__locked-cta {
+    min-height: 46px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .material-card__lock-overlay {
+    gap: 0.45rem;
+  }
+
+  .material-card__lock-overlay svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .material-card__lock-overlay span {
+    font-size: 0.64rem;
+  }
+
+  .material-card__locked-cta {
+    min-height: 46px;
+    font-size: 0.79rem;
+  }
+
+  .pdf-viewer__button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .material-card__cta,
+  .pdf-viewer__button {
+    transition: none;
   }
 }

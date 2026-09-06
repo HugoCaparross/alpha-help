@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import {
     createServerClient as createAdminClient,
 } from "@/lib/supabase/admin";
+
 import { getMaterialReleaseDate } from "@/lib/utils/material-release";
 import { extractStoragePath } from "@/lib/utils/storage";
 
@@ -78,6 +79,10 @@ interface SessionRow {
     | null;
 }
 
+/**
+ * Obtiene la ruta real dentro de Supabase Storage
+ * a partir de una URL o referencia de almacenamiento.
+ */
 function getStoragePath(
     value:
         | string
@@ -95,6 +100,12 @@ function getStoragePath(
     );
 }
 
+/**
+ * Genera una URL firmada temporal.
+ *
+ * Esta función solo debe ejecutarse para recursos
+ * cuyo acceso ya haya sido validado.
+ */
 async function createSignedUrl(
     admin: ReturnType<
         typeof createAdminClient
@@ -117,12 +128,13 @@ async function createSignedUrl(
     const {
         data,
         error,
-    } = await admin.storage
-        .from(bucket)
-        .createSignedUrl(
-            path,
-            SIGNED_URL_EXPIRATION_SECONDS,
-        );
+    } =
+        await admin.storage
+            .from(bucket)
+            .createSignedUrl(
+                path,
+                SIGNED_URL_EXPIRATION_SECONDS,
+            );
 
     if (
         error ||
@@ -136,6 +148,9 @@ async function createSignedUrl(
     return data.signedUrl;
 }
 
+/**
+ * Garantiza que los buckets de recursos permanezcan privados.
+ */
 async function ensurePrivateBucket(
     admin: ReturnType<
         typeof createAdminClient
@@ -145,17 +160,15 @@ async function ensurePrivateBucket(
     const {
         data,
         error,
-    } = await admin.storage.getBucket(
-        bucket,
-    );
+    } =
+        await admin.storage.getBucket(
+            bucket,
+        );
 
     /*
-     * Si el bucket todavía no existe,
-     * no intentamos crearlo desde esta
-     * ruta de usuario.
-     *
-     * La creación/configuración se
-     * realiza desde administración.
+     * Si el bucket no existe,
+     * la creación debe realizarse
+     * desde administración.
      */
     if (
         error ||
@@ -183,6 +196,10 @@ async function ensurePrivateBucket(
     }
 }
 
+/**
+ * Comprueba si una fecha de liberación
+ * ya ha llegado.
+ */
 function isReleased(
     releaseDate:
         | string
@@ -208,11 +225,14 @@ function isReleased(
 
 export async function GET() {
     /*
-     * El usuario se comprueba siempre
-     * mediante Supabase en servidor.
+     * ============================================================
+     * 1. AUTENTICACIÓN
+     * ============================================================
      *
-     * No confiamos en información enviada
-     * desde el cliente.
+     * La identidad del participante se obtiene exclusivamente
+     * desde la sesión de Supabase.
+     *
+     * Nunca confiamos en un user_id enviado por el navegador.
      */
     const userClient =
         await createServerClient();
@@ -240,15 +260,19 @@ export async function GET() {
         createAdminClient();
 
     /*
-     * Los dos buckets utilizados por
-     * los materiales deben permanecer
-     * privados.
+     * ============================================================
+     * 2. PROTECCIÓN DE STORAGE
+     * ============================================================
+     *
+     * Los PDFs y miniaturas deben estar almacenados
+     * en buckets privados.
      */
     await Promise.all([
         ensurePrivateBucket(
             admin,
             PDF_BUCKET,
         ),
+
         ensurePrivateBucket(
             admin,
             THUMBNAIL_BUCKET,
@@ -256,17 +280,21 @@ export async function GET() {
     ]);
 
     /*
-     * Recuperamos simultáneamente:
+     * ============================================================
+     * 3. PERFIL + EVALUACIÓN INICIAL
+     * ============================================================
      *
-     * 1. La región del usuario.
-     * 2. Si ha completado la evaluación
-     *    inicial.
+     * Necesitamos conocer:
+     *
+     * - Región del participante.
+     * - Si ha completado la evaluación inicial.
      */
     const [
         {
             data: profile,
             error: profileError,
         },
+
         {
             data: preSubmission,
             error: preError,
@@ -326,7 +354,7 @@ export async function GET() {
     }
 
     /*
-     * Solo existen dos programas válidos.
+     * Solo se admiten las dos regiones del estudio.
      */
     if (
         profile.region !==
@@ -349,25 +377,32 @@ export async function GET() {
         profile.region;
 
     /*
-     * Tener una submission de tipo
-     * "pre" significa que la evaluación
-     * inicial ha sido completada.
+     * Tener una submission de tipo "pre"
+     * significa que la evaluación inicial
+     * ha sido completada.
      */
     const initialEvaluationCompleted =
         preSubmission !== null;
 
     /*
-     * Recuperamos materiales y sesiones
-     * de la región correspondiente.
+     * ============================================================
+     * 4. MATERIAL + CALENDARIO
+     * ============================================================
      *
-     * Nunca mezclamos España y
-     * Latinoamérica.
+     * Recuperamos:
+     *
+     * - materiales de la región del usuario;
+     * - sesiones de la región del usuario.
+     *
+     * El calendario de sesiones es la fuente de verdad
+     * para determinar cuándo se libera cada material.
      */
     const [
         {
             data: materials,
             error: materialsError,
         },
+
         {
             data: sessions,
             error: sessionsError,
@@ -449,17 +484,24 @@ export async function GET() {
     }
 
     /*
-     * Calculamos la fecha de apertura
-     * desde el calendario de sesiones.
+     * ============================================================
+     * 5. CALENDARIO DE LIBERACIÓN
+     * ============================================================
      *
      * Regla:
      *
-     * sesión → +1 día → material disponible
+     *        SESIÓN
+     *           ↓
+     *       + 1 DÍA
+     *           ↓
+     *      MATERIAL ABIERTO
      *
-     * No confiamos únicamente en la
-     * fecha almacenada en el material,
-     * porque el calendario es la fuente
-     * de verdad.
+     * Esto se calcula de forma independiente para:
+     *
+     * - España
+     * - Latinoamérica
+     *
+     * según la región del participante.
      */
     const sessionDates =
         new Map<
@@ -502,9 +544,8 @@ export async function GET() {
                         material,
                     ) => {
                         /*
-                         * La fecha efectiva de
-                         * liberación se obtiene del
-                         * calendario de sesiones.
+                         * La fecha efectiva de liberación
+                         * procede del calendario de sesiones.
                          */
                         const releaseDate =
                             sessionDates.get(
@@ -517,27 +558,34 @@ export async function GET() {
                             );
 
                         /*
-                         * Para que un material esté
-                         * disponible deben cumplirse
-                         * AMBAS condiciones:
+                         * ==================================================
+                         * CONDICIONES DE ACCESO
+                         * ==================================================
                          *
-                         * 1. Evaluación inicial
-                         *    completada.
+                         * Para acceder al material deben cumplirse
+                         * LAS DOS condiciones:
                          *
-                         * 2. Fecha de liberación
-                         *    alcanzada.
+                         * 1. Evaluación inicial completada.
+                         * 2. Día de liberación alcanzado.
+                         *
+                         * Esto se aplica tanto a:
+                         *
+                         * - material reducido;
+                         * - material extendido.
                          */
                         const available =
                             initialEvaluationCompleted &&
                             released;
 
                         /*
-                         * La miniatura sí puede
-                         * mostrarse aunque el material
-                         * esté bloqueado.
+                         * ==================================================
+                         * MINIATURA
+                         * ==================================================
                          *
-                         * Si está en Storage privado,
-                         * se genera una URL temporal.
+                         * La miniatura puede mostrarse mientras el material
+                         * está bloqueado.
+                         *
+                         * La miniatura no permite acceder al PDF.
                          */
                         let thumbnailUrl =
                             material.thumbnail_url ||
@@ -564,15 +612,23 @@ export async function GET() {
                         }
 
                         /*
+                         * ==================================================
                          * MATERIAL BLOQUEADO
+                         * ==================================================
                          *
                          * MUY IMPORTANTE:
                          *
-                         * pdfUrl se devuelve como
-                         * string vacío.
+                         * NO se genera una signed URL para el PDF.
                          *
-                         * Por tanto, el cliente nunca
-                         * recibe la URL firmada del PDF.
+                         * pdfUrl = ""
+                         *
+                         * Por tanto:
+                         *
+                         * - no se puede abrir;
+                         * - no se puede visualizar;
+                         * - no se puede descargar;
+                         * - no se entrega ninguna URL funcional;
+                         * - manipular el frontend no desbloquea el PDF.
                          */
                         if (!available) {
                             return {
@@ -619,10 +675,12 @@ export async function GET() {
                         }
 
                         /*
+                         * ==================================================
                          * MATERIAL DISPONIBLE
+                         * ==================================================
                          *
-                         * Solo aquí se genera la URL
-                         * firmada del PDF.
+                         * Solo después de superar TODAS las comprobaciones
+                         * se genera la URL firmada del PDF.
                          */
                         const pdfUrl =
                             await createSignedUrl(

@@ -18,6 +18,20 @@ interface MaterialsResponse {
   error?: string;
 }
 
+/**
+ * Recupera los materiales desde el endpoint del servidor.
+ *
+ * La disponibilidad NO se calcula aquí.
+ * El servidor es la única fuente de verdad para:
+ *
+ * - evaluación inicial completada;
+ * - fecha de liberación;
+ * - región del participante;
+ * - estado del material.
+ *
+ * De esta forma el cliente nunca puede desbloquear
+ * un material modificando una fecha localmente.
+ */
 async function fetchMaterials(): Promise<
   StudyMaterialWithStatus[]
 > {
@@ -59,6 +73,10 @@ async function fetchMaterials(): Promise<
       "string" &&
       typeof material.title ===
       "string" &&
+      typeof material.description ===
+      "string" &&
+      typeof material.materialOrder ===
+      "number" &&
       Number.isInteger(
         material.materialOrder,
       ) &&
@@ -71,19 +89,37 @@ async function fetchMaterials(): Promise<
         "support" ||
         material.materialType ===
         "extended"
+      ) &&
+      (
+        material.status ===
+        "available" ||
+        material.status ===
+        "locked"
       ),
   );
 }
 
+/**
+ * Devuelve todos los materiales.
+ *
+ * El estado ya viene determinado
+ * por el servidor.
+ */
 export async function getStudyMaterials(): Promise<
-  StudyMaterial[]
+  StudyMaterialWithStatus[]
 > {
-  const materials =
-    await fetchMaterials();
-
-  return materials;
+  return fetchMaterials();
 }
 
+/**
+ * Obtiene un material concreto por id.
+ *
+ * Si está bloqueado, devuelve el objeto
+ * con su estado bloqueado.
+ *
+ * La URL real del PDF debe ser controlada
+ * exclusivamente por el endpoint del servidor.
+ */
 export async function getStudyMaterialById(
   materialId: string,
 ): Promise<
@@ -105,12 +141,22 @@ export async function getStudyMaterialById(
   );
 }
 
+/**
+ * Devuelve todos los materiales junto
+ * con su estado de disponibilidad.
+ */
 export async function getStudyMaterialsWithStatus(): Promise<
   StudyMaterialWithStatus[]
 > {
   return fetchMaterials();
 }
 
+/**
+ * Agrupa los materiales entre:
+ *
+ * - versión reducida / material de apoyo;
+ * - versión extendida.
+ */
 export async function getGroupedStudyMaterials(): Promise<
   GroupedStudyMaterials
 > {
@@ -122,20 +168,20 @@ export async function getGroupedStudyMaterials(): Promise<
   );
 }
 
+/**
+ * Devuelve únicamente los materiales
+ * que el servidor ha marcado como disponibles.
+ *
+ * IMPORTANTE:
+ * Esta función NO desbloquea materiales.
+ * Solo filtra el resultado recibido.
+ */
 export async function getAvailableStudyMaterials(): Promise<
   StudyMaterialWithStatus[]
 > {
   const materials =
     await fetchMaterials();
 
-  /*
-   * El servidor es quien determina
-   * realmente si el material está
-   * disponible.
-   *
-   * El cliente no calcula fechas ni
-   * puede desbloquear materiales.
-   */
   return materials.filter(
     ({
       status,
@@ -145,16 +191,21 @@ export async function getAvailableStudyMaterials(): Promise<
   );
 }
 
+/**
+ * Devuelve el siguiente material pendiente
+ * según el orden de las sesiones.
+ *
+ * El material puede estar bloqueado por:
+ *
+ * - evaluación inicial pendiente;
+ * - fecha de liberación todavía no alcanzada.
+ */
 export async function getNextStudyMaterial(): Promise<
   StudyMaterialWithStatus | null
 > {
   const materials =
     await fetchMaterials();
 
-  /*
-   * Buscamos el primer material
-   * bloqueado por orden de sesión.
-   */
   return (
     [...materials]
       .filter(
@@ -175,6 +226,13 @@ export async function getNextStudyMaterial(): Promise<
   );
 }
 
+/**
+ * Separa los materiales por tipo.
+ *
+ * Tanto los materiales reducidos como los
+ * extendidos mantienen exactamente las mismas
+ * reglas de disponibilidad.
+ */
 export function groupStudyMaterials(
   materials: readonly StudyMaterialWithStatus[],
 ): GroupedStudyMaterials {
