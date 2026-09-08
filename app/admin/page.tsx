@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { Download, FileText, Video } from "lucide-react";
@@ -10,19 +10,83 @@ import QuestionnaireUnlockPanel from "@/components/admin/QuestionnaireUnlockPane
 import { listAdminSessions } from "@/services/admin/admin-session.service";
 import { listAdminMaterials } from "@/services/admin/admin-material.service";
 
+const REGION_LIMIT = 10;
+const TOTAL_SESSION_LIMIT = 20;
+const TOTAL_MATERIAL_LIMIT = 40;
+
+type RegionValue = "España" | "Latinoamérica";
+
+const REGIONS: RegionValue[] = ["España", "Latinoamérica"];
+
 export default function AdminHomePage() {
-  const [sessionsCount, setSessionsCount] = useState<number | null>(null);
-  const [materialsCount, setMaterialsCount] = useState<number | null>(null);
+  const [sessions, setSessions] = useState<Awaited<ReturnType<typeof listAdminSessions>>>([]);
+  const [materials, setMaterials] = useState<Awaited<ReturnType<typeof listAdminMaterials>>>([]);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    void listAdminSessions()
-      .then((data) => setSessionsCount(data.length))
-      .catch(() => setSessionsCount(0));
+    let cancelled = false;
 
-    void listAdminMaterials()
-      .then((data) => setMaterialsCount(data.length))
-      .catch(() => setMaterialsCount(0));
+    async function loadOverview() {
+      setLoading(true);
+
+      const [sessionsResult, materialsResult] = await Promise.allSettled([
+        listAdminSessions(),
+        listAdminMaterials(),
+      ]);
+
+      if (cancelled) return;
+
+      if (sessionsResult.status === "fulfilled") {
+        setSessions(sessionsResult.value);
+      }
+
+      if (materialsResult.status === "fulfilled") {
+        setMaterials(materialsResult.value);
+      }
+
+      setLoading(false);
+    }
+
+    void loadOverview();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const sessionCounts = useMemo(() => {
+    return REGIONS.reduce<Record<RegionValue, number>>(
+      (counts, region) => {
+        counts[region] = sessions.filter(
+          (session) => session.region === region,
+        ).length;
+        return counts;
+      },
+      {
+        España: 0,
+        Latinoamérica: 0,
+      },
+    );
+  }, [sessions]);
+
+  const materialCounts = useMemo(() => {
+    return REGIONS.reduce<Record<RegionValue, number>>(
+      (counts, region) => {
+        counts[region] = materials.filter(
+          (material) => material.region === region,
+        ).length;
+        return counts;
+      },
+      {
+        España: 0,
+        Latinoamérica: 0,
+      },
+    );
+  }, [materials]);
+
+  const sessionsCount = sessionCounts.España + sessionCounts.Latinoamérica;
+  const materialsCount = materialCounts.España + materialCounts.Latinoamérica;
 
   return (
     <section className="admin-page admin-page--overview">
@@ -38,16 +102,22 @@ export default function AdminHomePage() {
       <div className="admin-stats">
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {sessionsCount ?? "—"} / 10
+            {loading ? "—" : `${sessionsCount} / ${TOTAL_SESSION_LIMIT}`}
           </div>
-          <div className="admin-stat-card__label">Contenidos configurados</div>
+          <div className="admin-stat-card__label">Sesiones configuradas</div>
+          <div className="admin-stat-card__detail">
+            España {loading ? "—" : `${sessionCounts.España}/${REGION_LIMIT}`} · Latinoamérica {loading ? "—" : `${sessionCounts.Latinoamérica}/${REGION_LIMIT}`}
+          </div>
         </div>
 
         <div className="admin-stat-card">
           <div className="admin-stat-card__value">
-            {materialsCount ?? "—"} / 20
+            {loading ? "—" : `${materialsCount} / ${TOTAL_MATERIAL_LIMIT}`}
           </div>
           <div className="admin-stat-card__label">Materiales configurados</div>
+          <div className="admin-stat-card__detail">
+            España {loading ? "—" : `${materialCounts.España}/20`} · Latinoamérica {loading ? "—" : `${materialCounts.Latinoamérica}/20`}
+          </div>
         </div>
       </div>
 
