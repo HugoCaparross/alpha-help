@@ -9,8 +9,8 @@ export interface AdminMaterialRow {
 
   region: "España" | "Latinoamérica";
 
-  release_date_spain: string;
-  release_date_latam: string;
+  release_date_spain: string | null;
+  release_date_latam: string | null;
 }
 
 export interface AdminMaterialInput {

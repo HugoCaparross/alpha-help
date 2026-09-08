@@ -135,11 +135,8 @@ export async function POST(request: Request) {
 
   const sessionOrder = Number(data.sessionOrder);
 
-  const releaseDateSpain =
-    typeof data.releaseDateSpain === "string" ? data.releaseDateSpain : "";
-
-  const releaseDateLatam =
-    typeof data.releaseDateLatam === "string" ? data.releaseDateLatam : "";
+  const sessionDate =
+    typeof data.sessionDate === "string" ? data.sessionDate.trim() : "";
 
   if (!title) {
     return NextResponse.json(
@@ -173,6 +170,32 @@ export async function POST(request: Request) {
       },
     );
   }
+
+  if (!sessionDate) {
+    return NextResponse.json(
+      {
+        error: "La fecha de la sesión es obligatoria.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const sessionTimestamp = Date.parse(sessionDate);
+
+  if (!Number.isFinite(sessionTimestamp)) {
+    return NextResponse.json(
+      {
+        error: "La fecha de la sesión no es válida.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const normalizedSessionDate = new Date(sessionTimestamp).toISOString();
 
   if (!REGIONS.includes(region as "España" | "Latinoamérica")) {
     return NextResponse.json(
@@ -225,6 +248,8 @@ export async function POST(request: Request) {
       `
           id,
           youtube_url,
+          release_date_spain,
+          release_date_latam,
           is_live,
           youtube_status
         `,
@@ -297,6 +322,12 @@ export async function POST(request: Request) {
     }
   }
 
+  const preservedSpainDate =
+    existing?.release_date_spain ?? null;
+
+  const preservedLatamDate =
+    existing?.release_date_latam ?? null;
+
   const payload = {
     title,
     description,
@@ -304,8 +335,14 @@ export async function POST(request: Request) {
     thumbnail_url: resolvedThumbnail,
     session_order: sessionOrder,
     region,
-    release_date_spain: releaseDateSpain || now,
-    release_date_latam: releaseDateLatam || now,
+    release_date_spain:
+      region === "España"
+        ? normalizedSessionDate
+        : preservedSpainDate,
+    release_date_latam:
+      region === "Latinoamérica"
+        ? normalizedSessionDate
+        : preservedLatamDate,
     is_live: isLive,
     youtube_status: youtubeStatus,
     youtube_checked_at: youtubeCheckedAt,

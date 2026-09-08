@@ -171,15 +171,13 @@ select {
   min-width: 0;
 }
 
-:where(
-  a,
+:where(a,
   button,
   input,
   textarea,
   select,
   [role="button"],
-  [tabindex]:not([tabindex="-1"])
-):focus-visible {
+  [tabindex]:not([tabindex="-1"])):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -410,6 +408,7 @@ select {
 ========================================================= */
 
 @import "../components/styles/ui.css";
+@import "../components/ui/modal.css";
 @import "../components/styles/about.css";
 @import "../components/styles/auth.css";
 @import "../components/styles/contact.css";

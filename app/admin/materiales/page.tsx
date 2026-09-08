@@ -14,6 +14,8 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { getMaterialReleaseDate } from "@/lib/utils/material-release";
+
 import {
   deleteAdminMaterial,
   listAdminMaterials,
@@ -71,6 +73,22 @@ const EMPTY_FORM: FormState = {
   title: "",
   description: "",
 };
+
+const adminDateFormatter = new Intl.DateTimeFormat("es-ES", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function formatAdminDate(value: string | null | undefined): string {
+  if (!value) return "Pendiente";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp)
+    ? adminDateFormatter.format(timestamp)
+    : "Pendiente";
+}
 
 export default function AdminMaterialsPage() {
   const [materials, setMaterials] =
@@ -620,6 +638,43 @@ export default function AdminMaterialsPage() {
             )}
           </div>
 
+
+          {(() => {
+            const session = sessionByOrder.get(selectedOrder);
+            const sessionDate = activeRegion === "España"
+              ? session?.release_date_spain
+              : session?.release_date_latam;
+            const materialReleaseDate = getMaterialReleaseDate(sessionDate);
+
+            return (
+              <section className="admin-material-calendar" aria-label="Calendario de apertura del material">
+                <div className="admin-material-calendar__header">
+                  <div>
+                    <p className="admin-material-calendar__eyebrow">Calendario de apertura</p>
+                    <h2>Cuándo podrá consultarse este material</h2>
+                  </div>
+                  <span className={`admin-material-calendar__status ${materialReleaseDate ? "admin-material-calendar__status--scheduled" : "admin-material-calendar__status--pending"}`}>
+                    {materialReleaseDate ? "Programado" : "Pendiente"}
+                  </span>
+                </div>
+
+                <div className="admin-material-calendar__grid">
+                  <div>
+                    <span>Fecha de la sesión</span>
+                    <strong>{formatAdminDate(sessionDate)}</strong>
+                  </div>
+                  <div>
+                    <span>Fecha de apertura del material</span>
+                    <strong>{formatAdminDate(materialReleaseDate)}</strong>
+                  </div>
+                </div>
+
+                <p className="admin-material-calendar__hint">
+                  La fecha de apertura se calcula automáticamente como el día siguiente a la sesión. No se puede editar desde este panel.
+                </p>
+              </section>
+            );
+          })()}
 
           <div className="admin-form__actions">
             <button

@@ -22,9 +22,9 @@ export interface AdminSessionRow {
 
   region: AdminRegion;
 
-  release_date_spain: string;
+  release_date_spain: string | null;
 
-  release_date_latam: string;
+  release_date_latam: string | null;
 
   is_live: boolean;
 
@@ -44,9 +44,7 @@ export interface AdminSessionInput {
 
   region: AdminRegion;
 
-  releaseDateSpain?: string;
-
-  releaseDateLatam?: string;
+  sessionDate?: string;
 }
 
 export interface SaveAdminSessionResult {
@@ -115,10 +113,10 @@ export async function saveAdminSession(
 
     youtubeStatus:
       data?.youtubeStatus === "live" ||
-      data?.youtubeStatus === "upcoming" ||
-      data?.youtubeStatus === "completed" ||
-      data?.youtubeStatus === "video" ||
-      data?.youtubeStatus === "unknown"
+        data?.youtubeStatus === "upcoming" ||
+        data?.youtubeStatus === "completed" ||
+        data?.youtubeStatus === "video" ||
+        data?.youtubeStatus === "unknown"
         ? data.youtubeStatus
         : "unknown",
 

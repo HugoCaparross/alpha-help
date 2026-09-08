@@ -29,20 +29,18 @@ interface FormState {
   title: string;
   description: string;
   youtubeUrl: string;
-  releaseDateSpain: string;
-  releaseDateLatam: string;
+  sessionDate: string;
 }
 
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
   youtubeUrl: "",
-  releaseDateSpain: "",
-  releaseDateLatam: "",
+  sessionDate: "",
 };
 
 function toDatetimeLocal(
-  iso: string | undefined,
+  iso: string | null | undefined,
 ): string {
   if (!iso) {
     return "";
@@ -166,20 +164,17 @@ export default function AdminSessionsPage() {
               existing.description,
             youtubeUrl:
               existing.youtube_url,
-            releaseDateSpain:
-              toDatetimeLocal(
-                existing.release_date_spain,
-              ),
-            releaseDateLatam:
-              toDatetimeLocal(
-                existing.release_date_latam,
-              ),
+            sessionDate: toDatetimeLocal(
+              activeRegion === "España"
+                ? existing.release_date_spain
+                : existing.release_date_latam,
+            ),
           });
         } else {
           setForm(EMPTY_FORM);
         }
       },
-      [sessionByOrder],
+      [activeRegion, sessionByOrder],
     );
 
   function selectRegion(
@@ -213,18 +208,9 @@ export default function AdminSessionsPage() {
             selectedOrder,
           region:
             activeRegion,
-          releaseDateSpain:
-            form.releaseDateSpain
-              ? new Date(
-                form.releaseDateSpain,
-              ).toISOString()
-              : undefined,
-          releaseDateLatam:
-            form.releaseDateLatam
-              ? new Date(
-                form.releaseDateLatam,
-              ).toISOString()
-              : undefined,
+          sessionDate: form.sessionDate
+            ? new Date(form.sessionDate).toISOString()
+            : undefined,
         });
 
       const statusText =
@@ -305,7 +291,11 @@ export default function AdminSessionsPage() {
         </h1>
 
         <p className="admin-header__description">
-          Configura de forma independiente las sesiones de España y Latinoamérica. Cada región dispone de una introducción y diez sesiones, con fechas de publicación independientes.
+          Configura de forma independiente las sesiones de España y Latinoamérica. Cada región dispone de una introducción y nueve sesiones.
+        </p>
+
+        <p className="admin-header__description">
+          La fecha que indiques aquí es la fecha de la sesión. Los materiales asociados se abrirán automáticamente al día siguiente, después de completar la evaluación inicial.
         </p>
       </header>
 
@@ -315,8 +305,8 @@ export default function AdminSessionsPage() {
             key={region.id}
             type="button"
             className={`admin-tab ${activeRegion === region.id
-                ? "admin-tab--active"
-                : ""
+              ? "admin-tab--active"
+              : ""
               }`}
             onClick={() =>
               selectRegion(
@@ -336,6 +326,11 @@ export default function AdminSessionsPage() {
               order,
             );
 
+          const releaseDate =
+            activeRegion === "España"
+              ? item?.release_date_spain
+              : item?.release_date_latam;
+
           return (
             <button
               key={order}
@@ -344,8 +339,8 @@ export default function AdminSessionsPage() {
                 selectSlot(order)
               }
               className={`admin-slot ${item
-                  ? "admin-slot--filled"
-                  : ""
+                ? "admin-slot--filled"
+                : ""
                 } ${selectedOrder === order
                   ? "admin-slot--active"
                   : ""
@@ -371,9 +366,23 @@ export default function AdminSessionsPage() {
 
               <span className="admin-slot__status">
                 {item
-                  ? "Publicada"
+                  ? "Configurada"
                   : "Vacía"}
               </span>
+
+              {item && releaseDate && (
+                <span className="admin-slot__date">
+                  {new Intl.DateTimeFormat("es-ES", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }).format(
+                    new Date(releaseDate),
+                  )}
+                </span>
+              )}
             </button>
           );
         })}
@@ -459,53 +468,28 @@ export default function AdminSessionsPage() {
             </span>
           </div>
 
-          <div className="admin-form__row admin-form__row--split">
-            <div>
-              <label htmlFor="releaseDateSpain">
-                Publicación España
-              </label>
+          <div className="admin-form__row">
+            <label htmlFor="sessionDate">
+              Fecha de la sesión — {activeRegion}
+            </label>
 
-              <input
-                id="releaseDateSpain"
-                type="datetime-local"
-                value={
-                  form.releaseDateSpain
-                }
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateSpain:
-                      event.target.value,
-                  }))
-                }
-              />
-            </div>
+            <input
+              id="sessionDate"
+              type="datetime-local"
+              required
+              value={form.sessionDate}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  sessionDate: event.target.value,
+                }))
+              }
+            />
 
-            <div>
-              <label htmlFor="releaseDateLatam">
-                Publicación Latinoamérica
-              </label>
-
-              <input
-                id="releaseDateLatam"
-                type="datetime-local"
-                value={
-                  form.releaseDateLatam
-                }
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    releaseDateLatam:
-                      event.target.value,
-                  }))
-                }
-              />
-            </div>
+            <span className="admin-form__hint">
+              Esta es la fecha real de la sesión en {activeRegion}. El material correspondiente se abrirá automáticamente al día siguiente.
+            </span>
           </div>
-
-          <span className="admin-form__hint">
-            Si no indicas una fecha, la sesión queda disponible inmediatamente. Si indicas una fecha, queda programada hasta ese momento.
-          </span>
 
           {error && (
             <p
