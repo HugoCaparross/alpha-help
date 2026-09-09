@@ -162,8 +162,8 @@ export default function RegisterStepAccount({
               formData.region === "spain"
             }
             className={`region-card ${formData.region === "spain"
-                ? "active"
-                : ""
+              ? "active"
+              : ""
               }`}
             onClick={() =>
               updateField("region", "spain")
@@ -185,8 +185,8 @@ export default function RegisterStepAccount({
               formData.region === "latam"
             }
             className={`region-card ${formData.region === "latam"
-                ? "active"
-                : ""
+              ? "active"
+              : ""
               }`}
             onClick={() =>
               updateField("region", "latam")
@@ -394,6 +394,25 @@ export default function RegisterStepAccount({
             para participar en el estudio.
           </span>
         </label>
+
+        <div className="informed-consent-actions" aria-label="Documento de consentimiento informado">
+          <a
+            href="/documentos/Consentimiento-informado-Alpha-Help-2026.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="informed-consent-link"
+          >
+            Leer consentimiento en PDF
+          </a>
+
+          <a
+            href="/documentos/Consentimiento-informado-Alpha-Help-2026.pdf"
+            download
+            className="informed-consent-link"
+          >
+            Descargar consentimiento en PDF
+          </a>
+        </div>
 
         {error && (
           <p

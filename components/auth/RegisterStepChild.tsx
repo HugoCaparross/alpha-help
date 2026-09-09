@@ -224,11 +224,6 @@ export default function RegisterStepChild({
                         "",
                       );
 
-                    if (
-                      value.length > 2
-                    ) {
-                      return;
-                    }
 
                     updateChild(
                       index,

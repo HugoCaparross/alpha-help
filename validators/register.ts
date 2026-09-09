@@ -12,9 +12,6 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
 const MIN_PARENT_AGE = 18;
 const MAX_PARENT_AGE = 99;
 
-const MIN_CHILD_AGE = 10;
-const MAX_CHILD_AGE = 16;
-
 const MIN_CHILDREN = 1;
 const MAX_CHILDREN = 5;
 
@@ -126,9 +123,13 @@ export const childSchema = z.object({
       z.object({
         age: z.coerce
           .number()
-          .int("La edad del menor debe ser un número entero")
-          .min(MIN_CHILD_AGE, `La edad mínima es ${MIN_CHILD_AGE} años`)
-          .max(MAX_CHILD_AGE, `La edad máxima es ${MAX_CHILD_AGE} años`),
+          .refine(
+            (value) => Number.isInteger(value),
+            {
+              message: "La edad del menor debe ser un número entero",
+            },
+          )
+          .min(0, "La edad del menor no puede ser negativa"),
 
         gender: requiredString("Selecciona el sexo del menor"),
 
@@ -198,9 +199,13 @@ export const registerSchema = z
         z.object({
           age: z.coerce
             .number()
-            .int("La edad del menor debe ser un número entero")
-            .min(MIN_CHILD_AGE, `La edad mínima es ${MIN_CHILD_AGE} años`)
-            .max(MAX_CHILD_AGE, `La edad máxima es ${MAX_CHILD_AGE} años`),
+            .refine(
+              (value) => Number.isInteger(value),
+              {
+                message: "La edad del menor debe ser un número entero",
+              },
+            )
+            .min(0, "La edad del menor no puede ser negativa"),
 
           gender: requiredString("Selecciona el sexo del menor"),
 
