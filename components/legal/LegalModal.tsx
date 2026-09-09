@@ -7,6 +7,7 @@ interface LegalModalProps {
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  className?: string;
 }
 
 export default function LegalModal({
@@ -14,6 +15,7 @@ export default function LegalModal({
   title,
   children,
   onClose,
+  className,
 }: LegalModalProps) {
   if (!open) return null;
 
@@ -23,7 +25,7 @@ export default function LegalModal({
       onClick={onClose}
     >
       <div
-        className="legal-modal"
+        className={`legal-modal${className ? ` ${className}` : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="legal-modal-header">

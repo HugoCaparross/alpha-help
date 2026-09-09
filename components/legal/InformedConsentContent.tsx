@@ -22,7 +22,7 @@ export default function InformedConsentContent() {
           className="informed-consent-action"
         >
           <ExternalLink size={17} aria-hidden="true" />
-          <span>Leer en una pestaña nueva</span>
+          <span>Leer consentimiento en PDF</span>
         </a>
 
         <a
@@ -31,7 +31,7 @@ export default function InformedConsentContent() {
           className="informed-consent-action informed-consent-action-primary"
         >
           <Download size={17} aria-hidden="true" />
-          <span>Descargar PDF</span>
+          <span>Descargar consentimiento en PDF</span>
         </a>
       </div>
     </div>

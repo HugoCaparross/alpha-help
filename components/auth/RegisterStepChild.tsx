@@ -224,7 +224,6 @@ export default function RegisterStepChild({
                         "",
                       );
 
-
                     updateChild(
                       index,
                       "age",

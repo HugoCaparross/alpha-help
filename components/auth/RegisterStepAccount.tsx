@@ -395,25 +395,6 @@ export default function RegisterStepAccount({
           </span>
         </label>
 
-        <div className="informed-consent-actions" aria-label="Documento de consentimiento informado">
-          <a
-            href="/documentos/Consentimiento-informado-Alpha-Help-2026.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="informed-consent-link"
-          >
-            Leer consentimiento en PDF
-          </a>
-
-          <a
-            href="/documentos/Consentimiento-informado-Alpha-Help-2026.pdf"
-            download
-            className="informed-consent-link"
-          >
-            Descargar consentimiento en PDF
-          </a>
-        </div>
-
         {error && (
           <p
             id="register-account-error"
@@ -479,6 +460,7 @@ export default function RegisterStepAccount({
       <LegalModal
         open={openInformedConsent}
         title="Registro Informado"
+        className="informed-consent-modal"
         onClose={() =>
           setOpenInformedConsent(false)
         }
