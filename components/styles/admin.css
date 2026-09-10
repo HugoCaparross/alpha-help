@@ -1310,3 +1310,300 @@
     transition: none;
   }
 }
+
+/* ==========================================
+   ADMIN — Crear / editar contenido
+========================================== */
+
+.admin-content-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  max-width: 760px;
+  margin-bottom: 0.65rem;
+}
+
+.admin-content-mode__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--neutral-700);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+}
+
+.admin-content-mode__button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-content-mode__button--active {
+  border-color: var(--accent);
+  background: rgba(14, 165, 233, 0.07);
+  color: var(--accent);
+}
+
+.admin-content-mode__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.admin-content-mode__hint {
+  max-width: 760px;
+  margin-bottom: 1rem;
+  color: var(--neutral-500);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.admin-form__context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(14, 165, 233, 0.18);
+  border-radius: var(--radius-sm);
+  background: rgba(14, 165, 233, 0.045);
+}
+
+.admin-form__context>div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-form__context-label {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-form__context strong {
+  color: var(--neutral-900);
+  font-size: 0.92rem;
+}
+
+.admin-material-calendar {
+  margin-top: 0.5rem;
+  padding: 1.15rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--surface), var(--neutral-50));
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.admin-material-calendar__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-material-calendar__eyebrow {
+  margin: 0 0 0.2rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-material-calendar__header h2 {
+  margin: 0;
+  color: var(--neutral-900);
+  font-size: 1rem;
+}
+
+.admin-material-calendar__status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.admin-material-calendar__status--scheduled {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.admin-material-calendar__status--pending {
+  color: var(--neutral-600);
+  background: var(--neutral-100);
+}
+
+.admin-material-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-material-calendar__grid>div {
+  padding: 0.85rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.admin-material-calendar__grid span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--neutral-500);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.admin-material-calendar__grid strong {
+  color: var(--neutral-900);
+  font-size: 0.88rem;
+}
+
+.admin-material-calendar__hint {
+  margin: 0.85rem 0 0;
+  color: var(--neutral-500);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+
+  .admin-content-mode,
+  .admin-material-calendar__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   ADMIN — Evaluación final por región
+========================================================= */
+
+.admin-questionnaire-settings {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 2rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.admin-questionnaire-settings__header {
+  margin-bottom: 1rem;
+}
+
+.admin-questionnaire-settings__header .admin-muted {
+  max-width: 760px;
+}
+
+.admin-questionnaire-region-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.admin-questionnaire-region-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+  padding: 1.15rem;
+  background: var(--surface);
+  border: var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.admin-questionnaire-region-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-questionnaire-region-card__header>div {
+  min-width: 0;
+}
+
+.admin-questionnaire-region-card__eyebrow {
+  display: block;
+  margin-bottom: 0.15rem;
+  color: var(--neutral-500);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.admin-questionnaire-region-card h3 {
+  margin: 0;
+  color: var(--neutral-900);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.admin-questionnaire-region-card .admin-status-pill {
+  flex: 0 0 auto;
+  min-height: 1.8rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+}
+
+.admin-questionnaire-region-card .admin-unlock-button {
+  width: 100%;
+  align-self: stretch;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.82rem;
+}
+
+.admin-questionnaire-region-card .admin-field {
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.admin-questionnaire-region-card .admin-field>span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.admin-questionnaire-region-card .admin-field input {
+  min-height: 2.7rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.84rem;
+}
+
+.admin-questionnaire-region-card>.admin-muted {
+  margin-top: -0.15rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.admin-questionnaire-region-card>.btn-primary {
+  align-self: flex-start;
+  min-height: 2.55rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 760px) {
+  .admin-questionnaire-region-grid {
+    grid-template-columns: 1fr;
+  }
+}

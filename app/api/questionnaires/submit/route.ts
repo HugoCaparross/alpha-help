@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createServerClient } from "@/lib/supabase/server";
+import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 
 import {
   CAPSM_QUESTIONS,
@@ -161,9 +162,23 @@ export async function POST(request: Request) {
         );
       }
 
-      const { data: settings, error: settingsError } = await supabase
+      const admin = createAdminClient();
+      const { data: profile, error: profileError } = await admin
+        .from("profiles")
+        .select("region")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError || !profile?.region) {
+        return NextResponse.json(
+          { ok: false, error: "No se ha podido determinar la región del participante." },
+          { status: 500 },
+        );
+      }
+
+      const { data: settings, error: settingsError } = await admin
         .from("questionnaire_settings")
-        .select("post_enabled, post_release_at")
+        .select("post_enabled_spain, post_release_at_spain, post_enabled_latam, post_release_at_latam")
         .eq("id", 1)
         .maybeSingle();
 
@@ -178,11 +193,10 @@ export async function POST(request: Request) {
         );
       }
 
-      const releaseAt = settings?.post_release_at ?? null;
-      const available = Boolean(
-        settings?.post_enabled &&
-        (!releaseAt || new Date(releaseAt).getTime() <= Date.now()),
-      );
+      const isSpain = profile.region === "España";
+      const enabled = isSpain ? Boolean(settings?.post_enabled_spain) : Boolean(settings?.post_enabled_latam);
+      const releaseAt = isSpain ? settings?.post_release_at_spain ?? null : settings?.post_release_at_latam ?? null;
+      const available = Boolean(enabled && (!releaseAt || new Date(releaseAt).getTime() <= Date.now()));
 
       if (!available) {
         return NextResponse.json(
@@ -223,12 +237,24 @@ export async function POST(request: Request) {
       answer,
     }));
 
-    const { error: responsesError } = await supabase
+    const admin = createAdminClient();
+    const { error: responsesError } = await admin
       .from("questionnaire_responses")
       .insert(responses);
 
     if (responsesError) {
       console.error("Questionnaire responses error:", responsesError);
+
+      const { error: rollbackError } = await admin
+        .from("questionnaire_submissions")
+        .delete()
+        .eq("id", submission.id)
+        .eq("user_id", user.id);
+
+      if (rollbackError) {
+        console.error("Questionnaire submission rollback error:", rollbackError);
+      }
+
       return NextResponse.json(
         {
           ok: false,

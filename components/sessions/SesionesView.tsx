@@ -7,9 +7,12 @@ import {
 } from "react";
 
 import PageHeader from "@/components/ui/PageHeader";
+import { getProfile } from "@/lib/supabase/getProfile";
+import type { Region } from "@/lib/utils/regions";
 
 import SessionEmptyState from "./SessionEmptyState";
 import SessionsGrid from "./SessionsGrid";
+import SessionCalendar from "./SessionCalendar";
 
 import {
   getSessionsWithStatus,
@@ -27,7 +30,7 @@ const PAGE_TITLE =
   "Sesiones del programa";
 
 const PAGE_DESCRIPTION =
-  "El programa está formado por una introducción y nueve sesiones. Los contenidos aparecen automáticamente cuando llega su fecha de publicación.";
+  "El programa está formado por una introducción, nueve sesiones y una sesión adicional de cierre sin contenidos.";
 
 const LOADING_MESSAGE =
   "Preparando las sesiones...";
@@ -191,6 +194,12 @@ export default function SesionesView() {
   ] =
     useState("");
 
+  const [
+    region,
+    setRegion,
+  ] =
+    useState<Region | null>(null);
+
   const loadSessions =
     useCallback(
       async () => {
@@ -202,13 +211,21 @@ export default function SesionesView() {
 
         try {
           const [
+            profile,
             data,
             completed,
           ] =
             await Promise.all([
+              getProfile(),
               getSessionsWithStatus(),
               getCompletedSessionIds(),
             ]);
+
+          if (!profile) {
+            throw new Error("No se ha podido recuperar el perfil del participante.");
+          }
+
+          setRegion(profile.region);
 
           const refreshed =
             await refreshYoutubeCache(
@@ -240,6 +257,8 @@ export default function SesionesView() {
           setSessions(
             [],
           );
+
+          setRegion(null);
 
           setCompletedIds(
             new Set(),
@@ -377,6 +396,8 @@ export default function SesionesView() {
           }
         />
 
+        <SessionCalendar region={region ?? "spain"} />
+
         <SessionEmptyState />
       </section>
     );
@@ -392,6 +413,8 @@ export default function SesionesView() {
           PAGE_DESCRIPTION
         }
       />
+
+      <SessionCalendar region={region ?? "spain"} />
 
       <SessionsGrid
         sessions={

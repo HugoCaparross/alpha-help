@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { Edit3, LoaderCircle, Plus, Trash2 } from "lucide-react";
+
+import { SPAIN_SESSION_DATES } from "@/lib/constants/study-calendar";
 
 import {
   deleteAdminSession,
@@ -75,6 +77,9 @@ export default function AdminSessionsPage() {
 
   const [selectedOrder, setSelectedOrder] =
     useState<number>(0);
+
+  const [mode, setMode] =
+    useState<"create" | "edit">("create");
 
   const [form, setForm] =
     useState<FormState>(EMPTY_FORM);
@@ -158,12 +163,11 @@ export default function AdminSessionsPage() {
           sessionByOrder.get(order);
 
         if (existing) {
+          setMode("edit");
           setForm({
             title: existing.title,
-            description:
-              existing.description,
-            youtubeUrl:
-              existing.youtube_url,
+            description: existing.description,
+            youtubeUrl: existing.youtube_url,
             sessionDate: toDatetimeLocal(
               activeRegion === "España"
                 ? existing.release_date_spain
@@ -171,7 +175,15 @@ export default function AdminSessionsPage() {
             ),
           });
         } else {
-          setForm(EMPTY_FORM);
+          setMode("create");
+          const suggestedDate =
+            activeRegion === "España"
+              ? SPAIN_SESSION_DATES[order]
+              : undefined;
+          setForm({
+            ...EMPTY_FORM,
+            sessionDate: suggestedDate ? `${suggestedDate}T19:00` : "",
+          });
         }
       },
       [activeRegion, sessionByOrder],
@@ -182,6 +194,7 @@ export default function AdminSessionsPage() {
   ) {
     setActiveRegion(region);
     setSelectedOrder(0);
+    setMode("create");
     setForm(EMPTY_FORM);
     setError("");
     setSuccess("");
@@ -319,6 +332,44 @@ export default function AdminSessionsPage() {
         ))}
       </div>
 
+      <div className="admin-content-mode" role="tablist" aria-label="Modo de gestión de sesiones">
+        <button
+          type="button"
+          className={`admin-content-mode__button ${mode === "create" ? "admin-content-mode__button--active" : ""}`}
+          onClick={() => {
+            const firstEmpty = SLOTS.find((slot) => !sessionByOrder.has(slot)) ?? 0;
+            setMode("create");
+            selectSlot(firstEmpty);
+            setError("");
+            setSuccess("");
+          }}
+        >
+          <Plus size={17} />
+          Crear desde cero
+        </button>
+        <button
+          type="button"
+          className={`admin-content-mode__button ${mode === "edit" ? "admin-content-mode__button--active" : ""}`}
+          onClick={() => {
+            const firstExisting = visibleSessions[0]?.session_order ?? 0;
+            setMode("edit");
+            selectSlot(firstExisting);
+            setError("");
+            setSuccess("");
+          }}
+          disabled={!visibleSessions.length}
+        >
+          <Edit3 size={17} />
+          Editar existente
+        </button>
+      </div>
+
+      <div className="admin-content-mode__hint">
+        {mode === "create"
+          ? "Selecciona un hueco todavía sin configurar para crear una nueva sesión."
+          : "Selecciona una sesión ya configurada para modificar sus datos."}
+      </div>
+
       <div className="admin-slots-grid">
         {SLOTS.map((order) => {
           const item =
@@ -335,9 +386,8 @@ export default function AdminSessionsPage() {
             <button
               key={order}
               type="button"
-              onClick={() =>
-                selectSlot(order)
-              }
+              onClick={() => selectSlot(order)}
+              disabled={mode === "create" ? Boolean(item) : !item}
               className={`admin-slot ${item
                 ? "admin-slot--filled"
                 : ""
@@ -366,8 +416,8 @@ export default function AdminSessionsPage() {
 
               <span className="admin-slot__status">
                 {item
-                  ? "Configurada"
-                  : "Vacía"}
+                  ? mode === "edit" ? "Editar" : "Ya configurada"
+                  : mode === "create" ? "Disponible para crear" : "Sin configurar"}
               </span>
 
               {item && releaseDate && (
@@ -397,6 +447,13 @@ export default function AdminSessionsPage() {
           className="admin-form"
           onSubmit={handleSubmit}
         >
+          <div className="admin-form__context">
+            <div>
+              <span className="admin-form__context-label">{mode === "create" ? "Nueva sesión" : "Editando sesión existente"}</span>
+              <strong>{selectedOrder === 0 ? "Introducción" : `Sesión ${selectedOrder}`} · {activeRegion}</strong>
+            </div>
+          </div>
+
           <div className="admin-form__row">
             <label htmlFor="title">
               Título de{" "}
@@ -524,7 +581,7 @@ export default function AdminSessionsPage() {
                   Guardando...
                 </>
               ) : (
-                "Guardar sesión"
+                mode === "create" ? "Crear sesión" : "Guardar cambios"
               )}
             </button>
 

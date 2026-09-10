@@ -28,7 +28,7 @@ export default function AdminSidebar() {
     try {
       await authService.logout();
     } finally {
-      router.replace("/login");
+      router.replace("/");
       router.refresh();
     }
   }

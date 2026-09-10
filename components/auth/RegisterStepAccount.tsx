@@ -389,7 +389,7 @@ export default function RegisterStepAccount({
                 setOpenInformedConsent(true)
               }
             >
-              Registro Informado
+              Consentimiento Informado
             </button>{" "}
             para participar en el estudio.
           </span>
@@ -459,7 +459,7 @@ export default function RegisterStepAccount({
 
       <LegalModal
         open={openInformedConsent}
-        title="Registro Informado"
+        title="Consentimiento Informado"
         className="informed-consent-modal"
         onClose={() =>
           setOpenInformedConsent(false)

@@ -10,6 +10,8 @@ import {
 import type { FormEvent } from "react";
 
 import {
+  Edit3,
+  FilePlus2,
   LoaderCircle,
   Trash2,
 } from "lucide-react";
@@ -109,6 +111,9 @@ export default function AdminMaterialsPage() {
 
   const [selectedOrder, setSelectedOrder] =
     useState<number>(0);
+
+  const [mode, setMode] =
+    useState<"create" | "edit">("create");
 
   const [form, setForm] =
     useState<FormState>(
@@ -275,6 +280,7 @@ export default function AdminMaterialsPage() {
   ) {
     setActiveRegion(region);
     setSelectedOrder(0);
+    setMode("create");
     setForm(EMPTY_FORM);
     setFile(null);
     setError("");
@@ -473,6 +479,44 @@ export default function AdminMaterialsPage() {
         )}
       </div>
 
+      <div className="admin-content-mode" role="tablist" aria-label="Modo de gestión de materiales">
+        <button
+          type="button"
+          className={`admin-content-mode__button ${mode === "create" ? "admin-content-mode__button--active" : ""}`}
+          onClick={() => {
+            const firstEmpty = slots.find((slot) => !materialByOrder.has(slot)) ?? 0;
+            setMode("create");
+            selectSlot(firstEmpty);
+            setError("");
+            setSuccess("");
+          }}
+        >
+          <FilePlus2 size={17} />
+          Subir desde cero
+        </button>
+        <button
+          type="button"
+          className={`admin-content-mode__button ${mode === "edit" ? "admin-content-mode__button--active" : ""}`}
+          onClick={() => {
+            const firstExisting = materialByOrder.keys().next().value ?? 0;
+            setMode("edit");
+            selectSlot(firstExisting);
+            setError("");
+            setSuccess("");
+          }}
+          disabled={!materialByOrder.size}
+        >
+          <Edit3 size={17} />
+          Editar existente
+        </button>
+      </div>
+
+      <div className="admin-content-mode__hint">
+        {mode === "create"
+          ? "Selecciona un hueco vacío para subir un material nuevo."
+          : "Selecciona un material ya configurado para modificarlo."}
+      </div>
+
       <div className="admin-slots-grid">
         {slots.map(
           (order) => {
@@ -485,11 +529,8 @@ export default function AdminMaterialsPage() {
               <button
                 key={order}
                 type="button"
-                onClick={() =>
-                  selectSlot(
-                    order,
-                  )
-                }
+                onClick={() => selectSlot(order)}
+                disabled={mode === "create" ? Boolean(item) : !item}
                 className={`admin-slot ${item
                   ? "admin-slot--filled"
                   : ""
@@ -513,8 +554,8 @@ export default function AdminMaterialsPage() {
 
                 <span className="admin-slot__status">
                   {item
-                    ? "Configurado"
-                    : "Vacío"}
+                    ? mode === "edit" ? "Editar" : "Ya configurado"
+                    : mode === "create" ? "Disponible para subir" : "Sin configurar"}
                 </span>
               </button>
             );
@@ -534,6 +575,13 @@ export default function AdminMaterialsPage() {
             handleSubmit
           }
         >
+          <div className="admin-form__context">
+            <div>
+              <span className="admin-form__context-label">{mode === "create" ? "Nuevo material" : "Editando material existente"}</span>
+              <strong>{activeType === "support" ? "Versión reducida" : "Versión extendida"} · {activeRegion} · {selectedOrder === 0 ? "Introducción" : `Sesión ${selectedOrder}`}</strong>
+            </div>
+          </div>
+
           <div className="admin-form__row">
             <label htmlFor="title">
               Título (
@@ -691,7 +739,7 @@ export default function AdminMaterialsPage() {
                   Guardando...
                 </>
               ) : (
-                "Guardar material"
+                mode === "create" ? "Subir material" : "Guardar cambios"
               )}
             </button>
 

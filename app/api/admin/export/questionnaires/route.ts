@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 import { buildCsv, csvResponse } from "@/lib/utils/csv";
+import {
+  CAPSM_QUESTIONS,
+  ECPP_QUESTIONS,
+  KIDSCREEN_QUESTIONS,
+  PSOC_QUESTIONS,
+  PSS_QUESTIONS,
+} from "@/lib/constants/questionnaires";
 
 import { getClientIp, isAllowedByRateLimit } from "@/lib/utils/rateLimit";
 
@@ -95,21 +102,26 @@ export async function GET(request: Request) {
   const submissions = (submissionsResult.data ?? []) as SubmissionRow[];
   const responses = (responsesResult.data ?? []) as ResponseRow[];
 
-  const preKeys = Array.from(
-    new Set(
-      responses
-        .filter((response) => response.questionnaire_type === "pre")
-        .map((response) => response.question_key),
-    ),
-  ).sort();
+  const allQuestionKeys = [
+    ...CAPSM_QUESTIONS,
+    ...PSOC_QUESTIONS,
+    ...ECPP_QUESTIONS,
+    ...PSS_QUESTIONS,
+    ...KIDSCREEN_QUESTIONS,
+  ].map((question) => question.id);
 
-  const postKeys = Array.from(
-    new Set(
-      responses
-        .filter((response) => response.questionnaire_type === "post")
-        .map((response) => response.question_key),
-    ),
-  ).sort();
+  // Las columnas se construyen a partir del cuestionario, no de las filas
+  // existentes en questionnaire_responses. Así el CSV mantiene siempre la
+  // misma estructura aunque todavía no haya respuestas almacenadas.
+  const preKeys = allQuestionKeys;
+  const postKeys = allQuestionKeys;
+
+  const responseMap = new Map(
+    responses.map((response) => [
+      `${response.user_id}:${response.questionnaire_type}:${response.question_key}`,
+      response.answer,
+    ]),
+  );
 
   const columns = [
     "user_id",
@@ -144,25 +156,13 @@ export async function GET(request: Request) {
     row.post_submitted_at = postSubmission?.submitted_at ?? "";
 
     for (const key of preKeys) {
-      const answer = responses.find(
-        (response) =>
-          response.user_id === profile.id &&
-          response.questionnaire_type === "pre" &&
-          response.question_key === key,
-      );
-
-      row[`pre_${key}`] = answer?.answer ?? "";
+      row[`pre_${key}`] =
+        responseMap.get(`${profile.id}:pre:${key}`) ?? "";
     }
 
     for (const key of postKeys) {
-      const answer = responses.find(
-        (response) =>
-          response.user_id === profile.id &&
-          response.questionnaire_type === "post" &&
-          response.question_key === key,
-      );
-
-      row[`post_${key}`] = answer?.answer ?? "";
+      row[`post_${key}`] =
+        responseMap.get(`${profile.id}:post:${key}`) ?? "";
     }
 
     return row;

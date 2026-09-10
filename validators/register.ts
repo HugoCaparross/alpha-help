@@ -58,7 +58,7 @@ export const accountSchema = z
     }),
 
     acceptedInformedConsent: z.boolean().refine((value) => value === true, {
-      message: "Debes aceptar el Registro Informado",
+      message: "Debes aceptar el Consentimiento Informado",
     }),
   })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
@@ -159,7 +159,7 @@ export const registerSchema = z
     }),
 
     acceptedInformedConsent: z.boolean().refine((value) => value === true, {
-      message: "Debes aceptar el Registro Informado",
+      message: "Debes aceptar el Consentimiento Informado",
     }),
 
     gender: requiredString("Selecciona tu sexo"),

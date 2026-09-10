@@ -20,6 +20,7 @@ const NAVIGATION = [
 ] as const;
 
 const CONTACT_EMAIL = "alpha-help@unir.net";
+const INSTAGRAM_URL = "https://www.instagram.com/proyecto.alphahelp/";
 
 /**
  * Pie de página de la Landing.
@@ -49,6 +50,43 @@ export default function Footer() {
               <Mail size={16} />
 
               {CONTACT_EMAIL}
+            </a>
+
+            <a
+              href={INSTAGRAM_URL}
+              className="landing-footer-social"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Instagram de Alpha-Help"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <rect
+                  x="3"
+                  y="3"
+                  width="18"
+                  height="18"
+                  rx="5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="4"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <circle cx="17.5" cy="6.5" r="1.25" fill="currentColor" />
+              </svg>
+
+              <span>@proyecto.alphahelp</span>
             </a>
           </section>
 
