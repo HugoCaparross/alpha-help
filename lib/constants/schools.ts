@@ -7,15 +7,15 @@ export const SCHOOLS: Readonly<
     "Nuestra Señora del Pilar",
     "Jesús María El Cuco",
     "Las Colinas",
-    "Colegio Santa María del Puig",
+    "Palma Puig",
     "Marni. Grupo Colegios Siglo XXI",
     "Colegio Educrea el Mirador",
     "Colegio Montesión Palma",
-    "Base International School",
     "Otros",
   ],
 
   latam: [
+    "Colegio Colombo Gales",
     "Innovación Educativa Montessori",
     'Escuela Telesecundaria "5 de mayo"',
     'Escuela Telesecundaria "Guadalupe Victoria"',

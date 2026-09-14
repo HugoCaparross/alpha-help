@@ -3,8 +3,6 @@ import { getProfile } from "@/lib/supabase/getProfile";
 
 import { getDatabaseRegion, isSpain, type Region } from "@/lib/utils/regions";
 
-import type { YoutubeBroadcastStatus } from "@/lib/utils/youtube";
-
 import type { Session, SessionWithStatus } from "@/types/study-session";
 
 const STUDY_SESSIONS_TABLE = "study_sessions";
@@ -25,14 +23,12 @@ const SESSION_FIELDS = `
   id,
   title,
   description,
-  youtube_url,
+  zoom_url,
+  zoom_recording_url,
   thumbnail_url,
   session_order,
   release_date_spain,
-  release_date_latam,
-  is_live,
-  youtube_status,
-  youtube_checked_at
+  release_date_latam
 `;
 
 const ERROR_GET_SESSIONS = "No se han podido recuperar las sesiones.";
@@ -47,7 +43,8 @@ interface SessionRow {
 
   description: string;
 
-  youtube_url: string;
+  zoom_url: string;
+  zoom_recording_url: string | null;
 
   thumbnail_url: string;
 
@@ -57,40 +54,19 @@ interface SessionRow {
 
   release_date_latam: string;
 
-  is_live: boolean;
-
-  youtube_status: YoutubeBroadcastStatus | null;
-
-  youtube_checked_at: string | null;
 }
 
 function mapSession(row: SessionRow): Session {
-  const isLive =
-    row.youtube_status === "live" ||
-    (row.youtube_status === "unknown" && row.is_live);
-
   return {
     id: row.id,
-
     title: row.title,
-
     description: row.description,
-
-    youtubeUrl: row.youtube_url,
-
+    zoomUrl: row.zoom_url,
+    zoomRecordingUrl: row.zoom_recording_url,
     thumbnailUrl: row.thumbnail_url,
-
     sessionOrder: row.session_order,
-
     releaseDateSpain: row.release_date_spain,
-
     releaseDateLatam: row.release_date_latam,
-
-    isLive,
-
-    youtubeStatus: row.youtube_status,
-
-    youtubeCheckedAt: row.youtube_checked_at,
   };
 }
 
@@ -222,14 +198,8 @@ export async function getSessionById(
 }
 
 /**
- * Devuelve todas las sesiones de la
- * región del participante junto con
- * su estado de publicación.
- *
- * El estado de YouTube procede del
- * último valor confirmado por el
- * sincronizador automático y cacheado
- * en study_sessions.
+ * Devuelve todas las sesiones de la región del participante junto con
+ * su estado de publicación por fecha.
  */
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
   const region = await getCurrentRegion();

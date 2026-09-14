@@ -73,6 +73,7 @@ export const TEAM_MEMBERS: readonly TeamMember[] = [
     description:
       "Docente universitaria (Fundación UNIR Colombia). Su labor se centra en la adaptación de los contenidos del programa Alpha-Help al contexto latinoamericano.",
     initials: "LJ",
+    photoUrl: "/images/team/Victoria.jpeg",
   },
   {
     name: "María Aranzazu Basterra González",

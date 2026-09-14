@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Calendar, CheckCircle2, Lock, PlayCircle } from "lucide-react";
+import { Calendar, CheckCircle2, Lock, PlayCircle, Video } from "lucide-react";
 
 import type { SessionWithStatus } from "@/types/study-session";
 
@@ -85,10 +85,10 @@ export default function SessionCard({
             : `Sesión ${session.sessionOrder}`}
         </span>
 
-        {isAvailable && session.isLive && (
-          <span className="session-card__live-badge">
-            <span className="session-card__live-dot" aria-hidden="true" />
-            EN DIRECTO
+        {isAvailable && (
+          <span className="session-card__live-badge session-card__zoom-badge">
+            <Video size={13} aria-hidden="true" />
+            Zoom
           </span>
         )}
 
@@ -121,9 +121,7 @@ export default function SessionCard({
               <Calendar size={14} aria-hidden="true" />
 
               <span>
-                {session.isLive
-                  ? "Retransmisión en directo"
-                  : `${AVAILABLE_TEXT} ${formattedDate}`}
+                {`${AVAILABLE_TEXT} ${formattedDate}`}
               </span>
             </div>
 

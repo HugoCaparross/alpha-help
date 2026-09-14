@@ -128,7 +128,7 @@ export default function AdminHomePage() {
           <Video size={22} />
           <span className="admin-quick-link__title">Sesiones (vídeos)</span>
           <span className="admin-quick-link__description">
-            Sube las URL de YouTube (en directo o grabadas) de cada sesión.
+            Gestiona los enlaces de Zoom de cada sesión y, cuando esté disponible, añade la grabación.
           </span>
         </Link>
 

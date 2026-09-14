@@ -30,14 +30,18 @@ const SLOTS = Array.from(
 interface FormState {
   title: string;
   description: string;
-  youtubeUrl: string;
+  zoomUrl: string;
+  zoomRecordingUrl: string;
+  thumbnailUrl: string;
   sessionDate: string;
 }
 
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
-  youtubeUrl: "",
+  zoomUrl: "",
+  zoomRecordingUrl: "",
+  thumbnailUrl: "",
   sessionDate: "",
 };
 
@@ -167,7 +171,9 @@ export default function AdminSessionsPage() {
           setForm({
             title: existing.title,
             description: existing.description,
-            youtubeUrl: existing.youtube_url,
+            zoomUrl: existing.zoom_url,
+            zoomRecordingUrl: existing.zoom_recording_url ?? "",
+            thumbnailUrl: existing.thumbnail_url ?? "",
             sessionDate: toDatetimeLocal(
               activeRegion === "España"
                 ? existing.release_date_spain
@@ -215,8 +221,12 @@ export default function AdminSessionsPage() {
           title: form.title,
           description:
             form.description,
-          youtubeUrl:
-            form.youtubeUrl,
+          zoomUrl:
+            form.zoomUrl,
+          zoomRecordingUrl:
+            form.zoomRecordingUrl,
+          thumbnailUrl:
+            form.thumbnailUrl,
           sessionOrder:
             selectedOrder,
           region:
@@ -226,13 +236,8 @@ export default function AdminSessionsPage() {
             : undefined,
         });
 
-      const statusText =
-        result.isLive
-          ? "en directo"
-          : "en diferido";
-
       setSuccess(
-        `Sesión guardada correctamente. YouTube la ha detectado como ${statusText}.`,
+        "Sesión guardada correctamente.",
       );
 
       await loadSessions();
@@ -300,7 +305,7 @@ export default function AdminSessionsPage() {
     <section>
       <header className="admin-header">
         <h1 className="admin-header__title">
-          Sesiones (vídeos)
+          Sesiones por Zoom
         </h1>
 
         <p className="admin-header__description">
@@ -408,9 +413,9 @@ export default function AdminSessionsPage() {
                   : "Sin configurar"}
               </span>
 
-              {item?.is_live && (
+              {item?.zoom_url && (
                 <span className="admin-slot__live-badge">
-                  EN DIRECTO
+                  ZOOM
                 </span>
               )}
 
@@ -499,29 +504,72 @@ export default function AdminSessionsPage() {
           </div>
 
           <div className="admin-form__row">
-            <label htmlFor="youtubeUrl">
-              URL de YouTube
+            <label htmlFor="zoomUrl">
+              Enlace de la reunión de Zoom
             </label>
 
             <input
-              id="youtubeUrl"
+              id="zoomUrl"
               type="url"
               required
-              placeholder="https://www.youtube.com/watch?v=..."
-              value={
-                form.youtubeUrl
-              }
+              placeholder="https://zoom.us/j/..."
+              value={form.zoomUrl}
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
-                  youtubeUrl:
-                    event.target.value,
+                  zoomUrl: event.target.value,
                 }))
               }
             />
 
             <span className="admin-form__hint">
-              El estado del vídeo se determina automáticamente a partir de YouTube.
+              Enlace que utilizarán los participantes para entrar a la sesión en directo.
+            </span>
+          </div>
+
+          <div className="admin-form__row">
+            <label htmlFor="zoomRecordingUrl">
+              Enlace de la grabación de Zoom
+            </label>
+
+            <input
+              id="zoomRecordingUrl"
+              type="url"
+              placeholder="https://zoom.us/rec/..."
+              value={form.zoomRecordingUrl}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  zoomRecordingUrl: event.target.value,
+                }))
+              }
+            />
+
+            <span className="admin-form__hint">
+              Opcional. Puedes añadirlo después de celebrar la sesión.
+            </span>
+          </div>
+
+          <div className="admin-form__row">
+            <label htmlFor="thumbnailUrl">
+              Imagen de portada
+            </label>
+
+            <input
+              id="thumbnailUrl"
+              type="url"
+              placeholder="https://..."
+              value={form.thumbnailUrl}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  thumbnailUrl: event.target.value,
+                }))
+              }
+            />
+
+            <span className="admin-form__hint">
+              Opcional. Si no se indica, la tarjeta mostrará su diseño de portada sin imagen.
             </span>
           </div>
 

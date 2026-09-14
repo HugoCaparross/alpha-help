@@ -1,0 +1,430 @@
+/* =========================================================
+   ALPHA-HELP — RESPONSIVE SAFETY LAYER
+   Última capa de adaptación para garantizar que ningún
+   componente fuerce el viewport en pantallas estrechas.
+========================================================= */
+
+/* Ningún hijo de una composición flex/grid debe imponer un
+   ancho mínimo al contenedor. */
+:where(.container-custom,
+    .private-layout-main,
+    .private-layout-shell,
+    .admin-layout__main,
+    .page-header,
+    .page-header__content,
+    .page-header__text,
+    .section-header,
+    .auth-form-section,
+    .register-card,
+    .register-step-content,
+    .dashboard-section,
+    .sesiones-page,
+    .materiales-page,
+    .contact-page,
+    .contact-content,
+    .project-page,
+    .about-page,
+    .perfil-page,
+    .estudio-page,
+    .faq-page) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+:where(.container-custom,
+    .private-layout-main,
+    .admin-layout__main) {
+    width: 100%;
+}
+
+:where(.navbar-inner,
+    .navbar-brand,
+    .navbar-right,
+    .navbar-actions,
+    .page-header__content,
+    .page-header__actions,
+    .admin-header,
+    .admin-form__actions,
+    .admin-content-mode,
+    .step-actions,
+    .question-card__navigation,
+    .questionnaire-introduction__actions,
+    .questionnaire-completion__actions,
+    .login-links,
+    .login-footer,
+    .register-login-link,
+    .contact-email,
+    .contact-category-selector) {
+    min-width: 0;
+}
+
+:where(h1, h2, h3, h4, h5, h6, p, a, button, label, span, strong, td, th) {
+    overflow-wrap: anywhere;
+}
+
+:where(input, textarea, select, button) {
+    max-width: 100%;
+}
+
+:where(input, textarea, select) {
+    width: 100%;
+}
+
+/* Tablas: nunca deben ensanchar la página. */
+:where(.sesiones-calendar__table-wrap,
+    .materiales-calendar__table-wrap,
+    .admin-table-wrapper,
+    .admin-table-wrap,
+    .table-responsive,
+    .pdf-viewer__content) {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* =========================================================
+   TABLET / MÓVIL — 1023px o menos
+========================================================= */
+
+@media (max-width: 1023px) {
+    .container-custom {
+        padding-inline: clamp(0.875rem, 3vw, 1.5rem);
+    }
+
+    .section {
+        padding-block: clamp(3rem, 7vw, 5rem);
+    }
+
+    .section-small {
+        padding-block: clamp(2.25rem, 5vw, 3.5rem);
+    }
+
+    /* Privado: el contenido nunca puede quedar más ancho que el viewport. */
+    .private-layout-main,
+    .admin-layout__main {
+        max-width: 100vw;
+    }
+
+    /* Composiciones de dos columnas pasan a una sola cuando el ancho ya
+     no permite mantener una lectura cómoda. */
+    :where(.project-hero-grid,
+        .project-split,
+        .project-hero,
+        .contact-layout,
+        .about-hero,
+        .summary-layout,
+        .auth-layout) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    :where(.project-hero-content,
+        .project-hero-image,
+        .contact-info,
+        .contact-form-wrapper,
+        .about-hero-content,
+        .about-hero,
+        .auth-hero,
+        .auth-form-section) {
+        min-width: 0;
+        width: 100%;
+    }
+
+    :where(.admin-form__row--split,
+        .admin-form__row,
+        .family-grid,
+        .region-selector,
+        .summary-layout) {
+        min-width: 0;
+    }
+}
+
+/* =========================================================
+   MÓVIL — 767px o menos
+========================================================= */
+
+@media (max-width: 767px) {
+    .container-custom {
+        padding-inline: clamp(0.75rem, 4vw, 1rem);
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+    }
+
+    :where(.page-header__content,
+        .page-header__actions,
+        .admin-header,
+        .admin-form__actions,
+        .step-actions,
+        .question-card__navigation,
+        .questionnaire-introduction__actions,
+        .questionnaire-completion__actions) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    :where(.page-header__actions > *,
+        .admin-form__actions > *,
+        .step-actions > *,
+        .question-card__navigation > *,
+        .questionnaire-introduction__actions > *,
+        .questionnaire-completion__actions > *) {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Grids de contenido: una columna evita tarjetas comprimidas. */
+    :where(.sessions-grid,
+        .materials-grid,
+        .questionnaires-list,
+        .project-trust-grid,
+        .project-team-grid,
+        .project-topics,
+        .project-process,
+        .about-team-list,
+        .estudio-topics-grid,
+        .estudio-objectives-grid,
+        .estudio-method-grid,
+        .dashboard-next-grid,
+        .dashboard-actions-grid--refined) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    /* El selector de región y las tarjetas de opciones pueden conservar
+     dos columnas solo cuando hay espacio suficiente. */
+    .region-selector {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    :where(.admin-stats,
+        .admin-quick-links,
+        .admin-export-grid) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    :where(.admin-content-mode,
+        .admin-questionnaire-settings__form,
+        .admin-questionnaire-settings__actions) {
+        min-width: 0;
+    }
+
+    /* Formularios: filas partidas siempre pasan a una columna. */
+    :where(.admin-form__row--split,
+        .family-grid,
+        .summary-layout,
+        .contact-category-selector) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    /* El texto nunca debe producir una barra horizontal. */
+    :where(.admin-header__title,
+        .admin-header__description,
+        .sesiones-page__title,
+        .sesiones-page__description,
+        .materiales-page__title,
+        .materiales-page__description,
+        .project-hero-title,
+        .project-hero-description,
+        .about-title,
+        .about-description,
+        .auth-hero-title,
+        .auth-hero-description) {
+        max-width: 100%;
+    }
+
+    /* Modales y visores */
+    :where(.modal,
+        .modal-content,
+        .legal-modal,
+        .pdf-viewer,
+        .sesiones-calendar-modal,
+        .materiales-calendar-modal) {
+        width: min(100%, calc(100vw - 1rem));
+        max-width: calc(100vw - 1rem);
+    }
+
+    :where(.modal-body,
+        .modal-content,
+        .legal-modal-content,
+        .pdf-viewer__content) {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    /* Imágenes y media dentro de tarjetas. */
+    :where(.session-card__thumb,
+        .session-card__thumb-img,
+        .material-card__thumb,
+        .material-card__image,
+        .project-hero-image,
+        .project-image-wrapper,
+        .about-member-avatar,
+        .about-lead-avatar) {
+        max-width: 100%;
+    }
+}
+
+/* =========================================================
+   MÓVIL PEQUEÑO — 480px o menos
+========================================================= */
+
+@media (max-width: 480px) {
+
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .section {
+        padding-block: 2.5rem;
+    }
+
+    .section-small {
+        padding-block: 2rem;
+    }
+
+    .section-header {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Botones que tenían mínimos horizontales pasan a ocupar el ancho útil. */
+    :where(.hero-btn,
+        .btn-primary,
+        .btn-secondary,
+        .btn-outline,
+        .admin-export-card__button,
+        .admin-unlock-button,
+        .contact-submit-button,
+        .contact-success-button) {
+        min-width: 0 !important;
+        width: 100%;
+    }
+
+    :where(.navbar-actions) {
+        flex-wrap: wrap;
+    }
+
+    /* Cabeceras con icono + texto: el texto puede encogerse. */
+    :where(.sesiones-calendar-trigger,
+        .materiales-calendar-trigger,
+        .admin-content-mode__option,
+        .right-panel-flex-row,
+        .sidebar-brand,
+        .navbar-brand) {
+        min-width: 0;
+    }
+
+    :where(.sesiones-calendar-trigger__content,
+        .materiales-calendar-trigger__content,
+        .navbar-brand-content,
+        .sidebar-brand-content,
+        .admin-content-mode__content) {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* Calendarios: conservamos la tabla completa dentro de su scroll,
+     pero reducimos el chrome exterior para que el modal respire. */
+    :where(.sesiones-calendar,
+        .materiales-calendar) {
+        padding: 0.9rem;
+    }
+
+    :where(.sesiones-calendar__table-wrap,
+        .materiales-calendar__table-wrap) {
+        max-width: 100%;
+    }
+
+    /* Las tarjetas no deben generar scroll por su contenido interno. */
+    :where(.card,
+        .session-card,
+        .material-card,
+        .question-card,
+        .perfil-card,
+        .estudio-card,
+        .project-topic-card,
+        .project-trust-card,
+        .project-team-card,
+        .project-partner-card,
+        .contact-form-card,
+        .contact-info-card,
+        .register-card,
+        .login-card) {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+/* =========================================================
+   MÓVIL MUY PEQUEÑO — 360px o menos
+========================================================= */
+
+@media (max-width: 360px) {
+    .container-custom {
+        padding-inline: 0.625rem;
+    }
+
+    .private-layout-main {
+        padding-inline: 0.625rem;
+    }
+
+    :where(.register-card,
+        .login-card,
+        .card,
+        .question-card,
+        .session-card,
+        .material-card,
+        .contact-form-card,
+        .contact-info-card,
+        .perfil-card,
+        .estudio-card) {
+        border-radius: 12px;
+    }
+
+    :where(.navbar-title,
+        .sidebar-title) {
+        font-size: 0.82rem;
+    }
+
+    :where(.navbar-subtitle,
+        .sidebar-subtitle) {
+        font-size: 0.68rem;
+    }
+
+    :where(.page-header__title,
+        .sesiones-page__title,
+        .materiales-page__title,
+        .project-hero-title,
+        .about-title,
+        .auth-hero-title) {
+        font-size: clamp(1.45rem, 8vw, 2rem);
+        line-height: 1.12;
+    }
+}
+
+/* =========================================================
+   SAFE AREA — dispositivos con notch / barras del sistema
+========================================================= */
+
+@supports (padding: env(safe-area-inset-left)) {
+    @media (max-width: 767px) {
+
+        .private-layout-main,
+        .container-custom {
+            padding-left: max(0.75rem, env(safe-area-inset-left));
+            padding-right: max(0.75rem, env(safe-area-inset-right));
+        }
+    }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
