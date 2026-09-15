@@ -28,8 +28,6 @@ const VALID_QUESTIONNAIRE_TYPES = ["pre", "post"] as const;
 
 const MIN_ANSWER = 1;
 
-const MAX_ANSWER = 6;
-
 const SUBMISSIONS_TABLE = "questionnaire_submissions";
 
 const ALL_QUESTIONS: readonly Question[] = [
@@ -87,7 +85,7 @@ function validateAnswers(answers: QuestionnaireAnswers): void {
 
     const scale = SCALES[question.scaleType];
 
-    if (value < MIN_ANSWER || value > MAX_ANSWER || value > scale.length) {
+    if (value < MIN_ANSWER || value > scale.length) {
       throw new Error(`La respuesta de "${questionId}" está fuera de rango.`);
     }
   }

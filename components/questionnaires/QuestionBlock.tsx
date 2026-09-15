@@ -143,8 +143,12 @@ export default function QuestionBlock({
    * Envía el cuestionario
    * al servidor.
    */
-  async function finishQuestionnaire() {
-    if (!questionnaireCompleted) {
+  async function finishQuestionnaire(answersToSubmit = answers) {
+    const isComplete = REQUIRED_QUESTION_IDS.every(
+      (questionId) => answersToSubmit[questionId] !== undefined,
+    );
+
+    if (!isComplete) {
       setError(ERROR_MESSAGES.incomplete);
 
       setIsTransitioning(false);
@@ -155,7 +159,7 @@ export default function QuestionBlock({
     try {
       setIsSubmitting(true);
 
-      await submitQuestionnaire(questionnaireId, answers);
+      await submitQuestionnaire(questionnaireId, answersToSubmit);
 
       onComplete();
     } catch (error) {
@@ -176,7 +180,7 @@ export default function QuestionBlock({
    * a la siguiente pregunta
    * o bloque.
    */
-  async function goToNextQuestion() {
+  async function goToNextQuestion(answersToSubmit = answers) {
     if (!currentQuestion || isSubmitting) {
       return;
     }
@@ -199,7 +203,7 @@ export default function QuestionBlock({
       return;
     }
 
-    await finishQuestionnaire();
+    await finishQuestionnaire(answersToSubmit);
   }
 
   /**
@@ -211,10 +215,12 @@ export default function QuestionBlock({
       return;
     }
 
-    setAnswers((previous) => ({
-      ...previous,
+    const nextAnswers = {
+      ...answers,
       [questionId]: value,
-    }));
+    };
+
+    setAnswers(nextAnswers);
 
     setError(null);
 
@@ -223,7 +229,7 @@ export default function QuestionBlock({
     clearAutoAdvanceTimeout();
 
     autoAdvanceTimeout.current = window.setTimeout(() => {
-      void goToNextQuestion();
+      void goToNextQuestion(nextAnswers);
     }, AUTO_ADVANCE_DELAY);
   }
   /**
@@ -294,9 +300,8 @@ export default function QuestionBlock({
 
       <div className="question-block__body">
         <div
-          className={`question-block__questions ${
-            isTransitioning ? "question-block__questions--transition" : ""
-          }`}
+          className={`question-block__questions ${isTransitioning ? "question-block__questions--transition" : ""
+            }`}
         >
           {currentQuestion && (
             <QuestionCard
