@@ -87,6 +87,10 @@ export default function QuestionBlock({
 
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
 
+  // Ref sincronizada para evitar que los avances automáticos trabajen
+  // con una versión anterior del estado de respuestas.
+  const answersRef = useRef<QuestionnaireAnswers>({});
+
   const [error, setError] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -143,7 +147,7 @@ export default function QuestionBlock({
    * Envía el cuestionario
    * al servidor.
    */
-  async function finishQuestionnaire(answersToSubmit = answers) {
+  async function finishQuestionnaire(answersToSubmit = answersRef.current) {
     const isComplete = REQUIRED_QUESTION_IDS.every(
       (questionId) => answersToSubmit[questionId] !== undefined,
     );
@@ -180,7 +184,7 @@ export default function QuestionBlock({
    * a la siguiente pregunta
    * o bloque.
    */
-  async function goToNextQuestion(answersToSubmit = answers) {
+  async function goToNextQuestion(answersToSubmit = answersRef.current) {
     if (!currentQuestion || isSubmitting) {
       return;
     }
@@ -216,10 +220,11 @@ export default function QuestionBlock({
     }
 
     const nextAnswers = {
-      ...answers,
+      ...answersRef.current,
       [questionId]: value,
     };
 
+    answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
 
     setError(null);
