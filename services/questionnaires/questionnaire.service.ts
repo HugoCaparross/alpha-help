@@ -11,6 +11,8 @@ import {
   type Question,
 } from "@/lib/constants/questionnaires";
 
+import type { User } from "@supabase/supabase-js";
+
 import type {
   QuestionnaireProgress,
   QuestionnaireType,
@@ -59,6 +61,22 @@ function validateQuestionnaireType(questionnaireType: QuestionnaireType): void {
   if (!VALID_QUESTIONNAIRE_TYPES.includes(questionnaireType)) {
     throw new Error(ERROR_INVALID_TYPE);
   }
+}
+
+async function getAuthenticatedUserWithRefresh(): Promise<User | null> {
+  const user = await getUser();
+
+  if (user) {
+    return user;
+  }
+
+  const { data, error } = await supabase.auth.refreshSession();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  return data.user;
 }
 
 function validateAnswers(answers: QuestionnaireAnswers): void {
@@ -138,7 +156,7 @@ export async function submitQuestionnaire(
 
   validateAnswers(answers);
 
-  const user = await getUser();
+  const user = await getAuthenticatedUserWithRefresh();
 
   if (!user) {
     throw new Error(ERROR_UNAUTHENTICATED);
@@ -164,18 +182,33 @@ export async function submitQuestionnaire(
     }
   }
 
-  const response = await fetch("/api/questionnaires/submit", {
-    method: "POST",
-
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    body: JSON.stringify({
-      questionnaireType,
-      answers,
-    }),
+  const requestBody = JSON.stringify({
+    questionnaireType,
+    answers,
   });
+
+  async function sendSubmissionRequest() {
+    return fetch("/api/questionnaires/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: requestBody,
+    });
+  }
+
+  let response = await sendSubmissionRequest();
+
+  // Si la sesión ha quedado obsoleta mientras el participante
+  // estaba respondiendo, renovamos la sesión y repetimos el envío
+  // una única vez.
+  if (response.status === 401) {
+    const { data, error } = await supabase.auth.refreshSession();
+
+    if (!error && data.session) {
+      response = await sendSubmissionRequest();
+    }
+  }
 
   const payload = (await response.json().catch(() => null)) as {
     ok?: boolean;

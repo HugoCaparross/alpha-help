@@ -62,10 +62,6 @@ const QUESTION_INDEX = new Map(
   ALL_QUESTIONS.map((question, index) => [question.id, index + 1]),
 );
 
-const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
-  (question) => question.required,
-).map((question) => question.id);
-
 const ERROR_MESSAGES = {
   submit: "Ha ocurrido un error al guardar tus respuestas. Inténtalo de nuevo.",
 } as const;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { supabase } from "@/lib/supabase/client";
 import { authService } from "@/services/auth/auth.service";
@@ -65,6 +65,10 @@ const ACTIVITY_EVENTS: readonly (keyof WindowEventMap)[] = [
  */
 export default function SessionTimeout() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isQuestionnaireRoute =
+    pathname === "/cuestionarios" || pathname?.startsWith("/cuestionarios/") === true;
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -307,7 +311,15 @@ export default function SessionTimeout() {
     };
 
     const startMonitoring = () => {
-      if (!mounted || isLoggingOutRef.current) {
+      if (
+        !mounted ||
+        isLoggingOutRef.current ||
+        isQuestionnaireRoute
+      ) {
+        if (isQuestionnaireRoute && timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
         return;
       }
 
@@ -372,6 +384,12 @@ export default function SessionTimeout() {
     };
 
     const initialize = async () => {
+      if (isQuestionnaireRoute) {
+        stopMonitoring();
+
+        return;
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -408,6 +426,11 @@ export default function SessionTimeout() {
         }
 
         stopMonitoring();
+
+        if (isQuestionnaireRoute) {
+          return;
+        }
+
         startMonitoring();
       },
     );
@@ -417,6 +440,13 @@ export default function SessionTimeout() {
 
       stopMonitoring();
       subscription.unsubscribe();
+
+      // Al salir del cuestionario, consideramos que el usuario acaba
+      // de tener actividad para que el control global no lo cierre
+      // inmediatamente por el tiempo empleado en responderlo.
+      if (isQuestionnaireRoute) {
+        saveActivityTimestamp();
+      }
     };
   }, [
     clearActivityTimestamp,
@@ -427,6 +457,7 @@ export default function SessionTimeout() {
     registerActivity,
     saveActivityTimestamp,
     scheduleTimeout,
+    isQuestionnaireRoute,
   ]);
 
   return null;
