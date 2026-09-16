@@ -64,8 +64,8 @@ description:
 
 export const SCALES = {
   agreement_7: [
-    "Totalmente de acuerdo",
-    "Bastante de acuerdo",
+    "Muy de acuerdo",
+    "De acuerdo",
     "Algo de acuerdo",
     "Ni de acuerdo ni en desacuerdo",
     "Algo en desacuerdo",
