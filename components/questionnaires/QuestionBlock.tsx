@@ -67,9 +67,6 @@ const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
 ).map((question) => question.id);
 
 const ERROR_MESSAGES = {
-  incomplete:
-    "Debes responder todas las preguntas antes de finalizar el cuestionario.",
-
   submit: "Ha ocurrido un error al guardar tus respuestas. Inténtalo de nuevo.",
 } as const;
 
@@ -88,6 +85,8 @@ export default function QuestionBlock({
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
 
   const answersRef = useRef<QuestionnaireAnswers>({});
+
+  const isSubmittingRef = useRef(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -115,9 +114,6 @@ export default function QuestionBlock({
   const isLastQuestionInStep =
     currentQuestionIndex === currentStepQuestions.length - 1;
 
-  const questionnaireCompleted = REQUIRED_QUESTION_IDS.every(
-    (questionId) => answers[questionId] !== undefined,
-  );
 
   const currentQuestionPosition = currentQuestion
     ? (QUESTION_INDEX.get(currentQuestion.id) ?? 1)
@@ -146,20 +142,14 @@ export default function QuestionBlock({
    * al servidor.
    */
   async function finishQuestionnaire(answersToSubmit = answersRef.current) {
-    const isComplete = REQUIRED_QUESTION_IDS.every(
-      (questionId) => answersToSubmit[questionId] !== undefined,
-    );
-
-    if (!isComplete) {
-      setError(ERROR_MESSAGES.incomplete);
-
-      setIsTransitioning(false);
-
+    if (isSubmittingRef.current) {
       return;
     }
 
     try {
+      isSubmittingRef.current = true;
       setIsSubmitting(true);
+      setIsTransitioning(false);
 
       await submitQuestionnaire(questionnaireId, answersToSubmit);
 
@@ -172,6 +162,7 @@ export default function QuestionBlock({
       setError(ERROR_MESSAGES.submit);
 
       setIsSubmitting(false);
+      isSubmittingRef.current = false;
 
       setIsTransitioning(false);
     }
@@ -213,7 +204,7 @@ export default function QuestionBlock({
    * programa el avance automático.
    */
   function handleAnswerChange(questionId: string, value: number) {
-    if (isSubmitting || isTransitioning) {
+    if (isSubmitting || isTransitioning || isSubmittingRef.current) {
       return;
     }
 
@@ -246,7 +237,7 @@ export default function QuestionBlock({
    * anterior.
    */
   function handlePrevious() {
-    if (isSubmitting || isTransitioning) {
+    if (isSubmitting || isTransitioning || isSubmittingRef.current) {
       return;
     }
 

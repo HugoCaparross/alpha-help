@@ -135,6 +135,10 @@ export async function POST(request: Request) {
 
     const admin = createAdminClient();
 
+    const requiredQuestionIds = ALL_QUESTIONS.filter(
+      (question) => question.required,
+    ).map((question) => question.id);
+
     const { data: existingSubmission, error: existingError } = await admin
       .from("questionnaire_submissions")
       .select("id")
@@ -153,10 +157,74 @@ export async function POST(request: Request) {
     }
 
     if (existingSubmission) {
-      return NextResponse.json(
-        { ok: false, error: "Este cuestionario ya ha sido completado." },
-        { status: 409 },
+      const { data: existingResponses, error: existingResponsesError } =
+        await admin
+          .from("questionnaire_responses")
+          .select("question_key")
+          .eq("submission_id", existingSubmission.id)
+          .eq("user_id", user.id);
+
+      if (existingResponsesError) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "No se ha podido comprobar el estado de las respuestas.",
+          },
+          { status: 500 },
+        );
+      }
+
+      const existingQuestionKeys = new Set(
+        (existingResponses ?? []).map((response) => response.question_key),
       );
+
+      const existingSubmissionIsComplete =
+        existingQuestionKeys.size === requiredQuestionIds.length &&
+        requiredQuestionIds.every((questionId) =>
+          existingQuestionKeys.has(questionId),
+        );
+
+      if (existingSubmissionIsComplete) {
+        return NextResponse.json(
+          { ok: false, error: "Este cuestionario ya ha sido completado." },
+          { status: 409 },
+        );
+      }
+
+      // Las versiones anteriores podían dejar una submission incompleta.
+      // En ese caso limpiamos únicamente ese registro y sus respuestas para
+      // permitir que el participante complete el cuestionario de nuevo.
+      const { error: deleteResponsesError } = await admin
+        .from("questionnaire_responses")
+        .delete()
+        .eq("submission_id", existingSubmission.id)
+        .eq("user_id", user.id);
+
+      if (deleteResponsesError) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "No se ha podido preparar el cuestionario para volver a intentarlo.",
+          },
+          { status: 500 },
+        );
+      }
+
+      const { error: deleteSubmissionError } = await admin
+        .from("questionnaire_submissions")
+        .delete()
+        .eq("id", existingSubmission.id)
+        .eq("user_id", user.id);
+
+      if (deleteSubmissionError) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "No se ha podido preparar el cuestionario para volver a intentarlo.",
+          },
+          { status: 500 },
+        );
+      }
     }
 
     if (questionnaireType === "post") {
@@ -253,12 +321,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const responses = Object.entries(answers).map(([questionKey, answer]) => ({
+    const responses = requiredQuestionIds.map((questionKey) => ({
       submission_id: submission.id,
       user_id: user.id,
       questionnaire_type: questionnaireType,
       question_key: questionKey,
-      answer,
+      answer: answers[questionKey],
     }));
 
     const { error: responsesError } = await admin
@@ -267,6 +335,12 @@ export async function POST(request: Request) {
 
     if (responsesError) {
       console.error("Questionnaire responses error:", responsesError);
+
+      await admin
+        .from("questionnaire_responses")
+        .delete()
+        .eq("submission_id", submission.id)
+        .eq("user_id", user.id);
 
       const { error: rollbackError } = await admin
         .from("questionnaire_submissions")

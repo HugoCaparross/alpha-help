@@ -20,10 +20,6 @@ export interface QuestionnaireAnswers {
   [questionId: string]: number;
 }
 
-interface CompletedQuestionnaireRow {
-  questionnaire_type: QuestionnaireType;
-}
-
 const VALID_QUESTIONNAIRE_TYPES = ["pre", "post"] as const;
 
 const MIN_ANSWER = 1;
@@ -95,18 +91,43 @@ async function hasCompletedQuestionnaireByUser(
   userId: string,
   questionnaireType: QuestionnaireType,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { data: submission, error: submissionError } = await supabase
     .from(SUBMISSIONS_TABLE)
     .select("id")
     .eq("user_id", userId)
     .eq("questionnaire_type", questionnaireType)
     .maybeSingle();
 
-  if (error) {
+  if (submissionError) {
     throw new Error(ERROR_CHECK);
   }
 
-  return data !== null;
+  if (!submission) {
+    return false;
+  }
+
+  const requiredQuestionIds = ALL_QUESTIONS.filter(
+    (question) => question.required,
+  ).map((question) => question.id);
+
+  const { data: responses, error: responsesError } = await supabase
+    .from("questionnaire_responses")
+    .select("question_key")
+    .eq("submission_id", submission.id)
+    .eq("user_id", userId);
+
+  if (responsesError) {
+    throw new Error(ERROR_CHECK);
+  }
+
+  const responseKeys = new Set(
+    (responses ?? []).map((response) => response.question_key),
+  );
+
+  return (
+    responseKeys.size === requiredQuestionIds.length &&
+    requiredQuestionIds.every((questionId) => responseKeys.has(questionId))
+  );
 }
 
 export async function submitQuestionnaire(
@@ -194,17 +215,47 @@ export async function getCompletedQuestionnaires(): Promise<
     return [];
   }
 
-  const { data, error } = await supabase
+  const { data: submissions, error } = await supabase
     .from(SUBMISSIONS_TABLE)
-    .select("questionnaire_type")
+    .select("id, questionnaire_type")
     .eq("user_id", user.id);
 
   if (error) {
     throw new Error(ERROR_GET_COMPLETED);
   }
 
-  return ((data as CompletedQuestionnaireRow[] | null) ?? []).map(
-    ({ questionnaire_type }) => questionnaire_type,
+  const completed = await Promise.all(
+    ((submissions as Array<{ id: string; questionnaire_type: QuestionnaireType }> | null) ?? []).map(
+      async ({ id, questionnaire_type }) => {
+        const { data: responses, error: responsesError } = await supabase
+          .from("questionnaire_responses")
+          .select("question_key")
+          .eq("submission_id", id)
+          .eq("user_id", user.id);
+
+        if (responsesError) {
+          throw new Error(ERROR_GET_COMPLETED);
+        }
+
+        const responseKeys = new Set(
+          (responses ?? []).map((response) => response.question_key),
+        );
+
+        const requiredQuestionIds = ALL_QUESTIONS.filter(
+          (question) => question.required,
+        ).map((question) => question.id);
+
+        return responseKeys.size === requiredQuestionIds.length &&
+          requiredQuestionIds.every((questionId) => responseKeys.has(questionId))
+          ? questionnaire_type
+          : null;
+      },
+    ),
+  );
+
+  return completed.filter(
+    (questionnaireType): questionnaireType is QuestionnaireType =>
+      questionnaireType !== null,
   );
 }
 
