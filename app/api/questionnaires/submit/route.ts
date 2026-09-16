@@ -67,7 +67,30 @@ function validateBody(body: unknown): SubmitBody {
     throw new Error("No se han proporcionado respuestas.");
   }
 
-  for (const [questionId, value] of entries) {
+  const requiredQuestionIds = ALL_QUESTIONS.filter(
+    (question) => question.required,
+  ).map((question) => question.id);
+
+  const missingQuestions = requiredQuestionIds.filter(
+    (questionId) => answers[questionId] === undefined,
+  );
+
+  const unknownQuestions = entries.filter(
+    ([questionId]) => !QUESTION_MAP.has(questionId),
+  );
+
+  if (missingQuestions.length > 0) {
+    throw new Error(
+      `Faltan ${missingQuestions.length} respuestas por completar.`,
+    );
+  }
+
+  if (entries.length !== requiredQuestionIds.length || unknownQuestions.length > 0) {
+    throw new Error("El número de respuestas enviadas no es válido.");
+  }
+
+  for (const questionId of requiredQuestionIds) {
+    const value = answers[questionId];
     const question = QUESTION_MAP.get(questionId);
 
     if (!question) {
@@ -110,7 +133,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: existingSubmission, error: existingError } = await supabase
+    const admin = createAdminClient();
+
+    const { data: existingSubmission, error: existingError } = await admin
       .from("questionnaire_submissions")
       .select("id")
       .eq("user_id", user.id)
@@ -135,7 +160,7 @@ export async function POST(request: Request) {
     }
 
     if (questionnaireType === "post") {
-      const { data: preSubmission, error: preError } = await supabase
+      const { data: preSubmission, error: preError } = await admin
         .from("questionnaire_submissions")
         .select("id")
         .eq("user_id", user.id)
@@ -162,7 +187,6 @@ export async function POST(request: Request) {
         );
       }
 
-      const admin = createAdminClient();
       const { data: profile, error: profileError } = await admin
         .from("profiles")
         .select("region")
@@ -206,7 +230,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const { data: submission, error: submissionError } = await supabase
+    const { data: submission, error: submissionError } = await admin
       .from("questionnaire_submissions")
       .insert({ user_id: user.id, questionnaire_type: questionnaireType })
       .select("id")
@@ -237,7 +261,6 @@ export async function POST(request: Request) {
       answer,
     }));
 
-    const admin = createAdminClient();
     const { error: responsesError } = await admin
       .from("questionnaire_responses")
       .insert(responses);

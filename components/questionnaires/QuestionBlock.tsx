@@ -87,8 +87,6 @@ export default function QuestionBlock({
 
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
 
-  // Ref sincronizada para evitar que los avances automáticos trabajen
-  // con una versión anterior del estado de respuestas.
   const answersRef = useRef<QuestionnaireAnswers>({});
 
   const [error, setError] = useState<string | null>(null);
@@ -226,15 +224,21 @@ export default function QuestionBlock({
 
     answersRef.current = nextAnswers;
     setAnswers(nextAnswers);
-
     setError(null);
+    clearAutoAdvanceTimeout();
+
+    // La última respuesta se guarda inmediatamente.
+    // No esperamos al avance automático para evitar cualquier
+    // posible desfase entre el estado de React y el envío final.
+    if (isLastStep && isLastQuestionInStep) {
+      void finishQuestionnaire(nextAnswers);
+      return;
+    }
 
     setIsTransitioning(true);
 
-    clearAutoAdvanceTimeout();
-
     autoAdvanceTimeout.current = window.setTimeout(() => {
-      void goToNextQuestion(nextAnswers);
+      void goToNextQuestion(answersRef.current);
     }, AUTO_ADVANCE_DELAY);
   }
   /**
@@ -279,14 +283,14 @@ export default function QuestionBlock({
       !currentQuestion ||
       isSubmitting ||
       isTransitioning ||
-      answers[currentQuestion.id] === undefined
+      answersRef.current[currentQuestion.id] === undefined
     ) {
       return;
     }
 
     clearAutoAdvanceTimeout();
 
-    void goToNextQuestion();
+    void goToNextQuestion(answersRef.current);
   }
 
   const canGoNext =
