@@ -8,43 +8,59 @@ export interface Question {
   question: string;
 
   scaleType:
-    | "agreement_7"
-    | "help_confidence_5"
-    | "help_probability_5"
-    | "psoc_6"
-    | "ecpp_4"
-    | "pss_5"
-    | "kidscreen_5";
+  | "agreement_7"
+  | "help_confidence_5"
+  | "help_probability_5"
+  | "psoc_6"
+  | "ecpp_4"
+  | "pss_5"
+  | "kidscreen_5";
 
   required?: boolean;
 
   reverse?: boolean;
 
   dimension?: string;
+
+  intro?: QuestionIntro;
+}
+
+export interface QuestionIntroSegment {
+  text: string;
+  bold?: boolean;
+}
+
+export interface QuestionIntroParagraph {
+  segments: readonly QuestionIntroSegment[];
+  required?: boolean;
+}
+
+export interface QuestionIntro {
+  paragraphs: readonly QuestionIntroParagraph[];
 }
 
 export const QUESTIONNAIRE_STEPS = [
   {
     id: "capsm",
     title:
-  "Cuestionario de Alfabetización Parental en Salud Mental Infanto-Juvenil (CAPSM-IJ)",
+      "Cuestionario de Alfabetización Parental en Salud Mental Infanto-Juvenil (CAPSM-IJ)",
 
-description:
-  "Evalúa el conocimiento de los padres y madres sobre la salud mental infanto-juvenil, la identificación de problemas emocionales y las actitudes hacia la búsqueda de ayuda profesional.",
+    description:
+      "Evalúa el conocimiento de los padres y madres sobre la salud mental infanto-juvenil, la identificación de problemas emocionales y las actitudes hacia la búsqueda de ayuda profesional.",
   },
 
   {
     id: "psoc",
     title: "Escala de Sentido de Competencia Parental (PSOC)",
     description:
-       "Evalúa la percepción que tienen los padres y madres sobre su competencia y eficacia en el ejercicio de la parentalidad.",
+      "Evalúa la percepción que tienen los padres y madres sobre su competencia y eficacia en el ejercicio de la parentalidad.",
   },
 
   {
     id: "ecpp",
     title: "Escala de Competencia Parental Percibida (ECPP-P)",
     description:
-       "Evalúa las competencias parentales percibidas en aspectos relacionados con la educación, el acompañamiento y el cuidado de los hijos.",
+      "Evalúa las competencias parentales percibidas en aspectos relacionados con la educación, el acompañamiento y el cuidado de los hijos.",
   },
 
   {
@@ -70,13 +86,13 @@ export const SCALES = {
     "Ni de acuerdo ni en desacuerdo",
     "Algo en desacuerdo",
     "En desacuerdo",
-    "Totalmente en desacuerdo",
+    "Muy en desacuerdo",
   ],
 
   help_confidence_5: [
     "Mucha confianza",
     "Bastante confianza",
-    "No estoy seguro",
+    "No estoy seguro/a",
     "Poca confianza",
     "No acudiría a ellos",
   ],
@@ -121,6 +137,109 @@ export const SCALES = {
     "Siempre",
   ],
 };
+
+const CAPSM_15_17_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "A continuación, se describen distintas situaciones. Indica hasta qué punto considerarías que cada una de ellas " },
+        { text: "pudiera ser una señal de un problema de salud mental", bold: true },
+        { text: " si se mantuviera durante 3 meses." },
+      ],
+    },
+  ],
+} as const;
+
+const CAPSM_18_21_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "A continuación, aparecen diferentes formas de buscar apoyo en salud mental, como obtener ayuda o asesoramiento." },
+      ],
+    },
+    {
+      segments: [
+        { text: "Para cada una de ellas, indica " },
+        { text: "cuánta confianza", bold: true },
+        { text: " tendrías para " },
+        { text: "acudir a ellas", bold: true },
+        { text: " en busca de ayuda para mejorar la salud mental de tu hijo/a." },
+      ],
+    },
+  ],
+} as const;
+
+const PSOC_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "A continuación, aparecen 16 frases que se refieren a tus " },
+        { text: "sentimientos sobre ser madre/padre", bold: true },
+        { text: "." },
+      ],
+    },
+    {
+      segments: [
+        { text: "Por favor, lee atentamente cada frase y señala la opción que consideras que mejor te refleja." },
+      ],
+    },
+  ],
+} as const;
+
+const ECPP_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "Las siguientes preguntas buscan detectar factores que influyen de forma positiva en la " },
+        { text: "satisfacción parental", bold: true },
+        { text: "." },
+      ],
+    },
+    {
+      segments: [
+        { text: "Por favor, lee atentamente cada frase y señala en qué medida crees que te reflejan a ti, eligiendo entre las opciones." },
+      ],
+    },
+  ],
+} as const;
+
+const PSS_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "Las siguientes preguntas hacen referencia a tus " },
+        { text: "sentimientos como padre/madre hacia su hijo de 10-16 años", bold: true },
+        { text: "." },
+      ],
+    },
+    {
+      segments: [
+        { text: "Por favor, lee atentamente cada frase y señala en qué medida crees que te reflejan a ti, eligiendo entre las opciones." },
+      ],
+    },
+  ],
+} as const;
+
+const KIDSCREEN_INTRO = {
+  paragraphs: [
+    {
+      required: true,
+      segments: [
+        { text: "¿Cómo está tu hijo/a o adolescente? ¿Cómo se siente él/ella? Esto es lo que queremos saber sobre él/ella." },
+      ],
+    },
+    {
+      segments: [
+        { text: "Por favor, contesta las preguntas como mejor puedas, intentando que tus respuestas reflejen la perspectiva del niño/a o adolescente. Cuando pienses en la respuesta, por favor intenta recordar la última semana, es decir, los últimos siete días." },
+      ],
+    },
+  ],
+} as const;
 
 export const CAPSM_QUESTIONS: Question[] = [
   {
@@ -192,7 +311,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "agreement_7",
     required: true,
     question:
-      "Me preocuparía que otras personas de mi entorno pudieran pensar si mi hijo/a tuviera un problema de salud mental.",
+      "Me preocuparía que pudieran pensar otras personas de mi entorno si mi hijo/a tuviera un problema de salud mental.",
   },
 
   {
@@ -238,6 +357,7 @@ export const CAPSM_QUESTIONS: Question[] = [
   {
     id: "capsm_15",
     scaleType: "agreement_7",
+    intro: CAPSM_15_17_INTRO,
     required: true,
     question:
       "Un menor se siente muy asustado/a en situaciones como hablar delante de la clase o acudir a fiestas.",
@@ -262,6 +382,7 @@ export const CAPSM_QUESTIONS: Question[] = [
   {
     id: "capsm_18",
     scaleType: "help_confidence_5",
+    intro: CAPSM_18_21_INTRO,
     required: true,
     question:
       "Profesionales sanitarios, como el médico de familia, pediatra o médico de atención primaria.",
@@ -312,6 +433,7 @@ export const PSOC_QUESTIONS: Question[] = [
   {
     id: "psoc_1",
     scaleType: "psoc_6",
+    intro: PSOC_INTRO,
     required: true,
     question:
       "Es difícil, pero yo ya he aprendido a influir en mis hijos.",
@@ -451,6 +573,7 @@ export const ECPP_QUESTIONS: Question[] = [
   {
     id: "ecpp_1",
     scaleType: "ecpp_4",
+    intro: ECPP_INTRO,
     required: true,
     question:
       "Felicito a mis hijos/as cada vez que hacen algo bien.",
@@ -589,6 +712,7 @@ export const PSS_QUESTIONS: Question[] = [
   {
     id: "pss_1",
     scaleType: "pss_5",
+    intro: PSS_INTRO,
     required: true,
     reverse: true,
     question:
@@ -735,6 +859,7 @@ export const KIDSCREEN_QUESTIONS: Question[] = [
   {
     id: "kidscreen_1",
     scaleType: "kidscreen_5",
+    intro: KIDSCREEN_INTRO,
     required: true,
     question:
       "¿El niño/a o adolescente se ha sentido lleno/a de energía?",

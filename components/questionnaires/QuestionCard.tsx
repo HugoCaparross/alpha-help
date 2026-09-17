@@ -52,10 +52,35 @@ export default function QuestionCard({
 
   return (
     <Card
-      className={`question-card card-padding ${
-        showError ? "question-card--error" : ""
-      }`}
+      className={`question-card card-padding ${showError ? "question-card--error" : ""
+        }`}
     >
+      {question.intro && (
+        <div className="question-card__intro">
+          {question.intro.paragraphs.map((paragraph, paragraphIndex) => (
+            <p key={`${question.id}-intro-${paragraphIndex}`} className="question-card__intro-paragraph">
+              {paragraph.segments.map((segment, segmentIndex) =>
+                segment.bold ? (
+                  <strong key={`${question.id}-intro-${paragraphIndex}-${segmentIndex}`}>
+                    {segment.text}
+                  </strong>
+                ) : (
+                  <span key={`${question.id}-intro-${paragraphIndex}-${segmentIndex}`}>
+                    {segment.text}
+                  </span>
+                ),
+              )}
+
+              {paragraph.required && (
+                <span className="question-card__intro-required" aria-hidden="true">
+                  *
+                </span>
+              )}
+            </p>
+          ))}
+        </div>
+      )}
+
       <header className="question-card__header">
         <p className="question-card__number">Pregunta {questionNumber}</p>
 
@@ -88,9 +113,8 @@ export default function QuestionCard({
           return (
             <label
               key={`${question.id}-${optionValue}`}
-              className={`question-card__option ${
-                isSelected ? "question-card__option--selected" : ""
-              }`}
+              className={`question-card__option ${isSelected ? "question-card__option--selected" : ""
+                }`}
             >
               <input
                 type="radio"

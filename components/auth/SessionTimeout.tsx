@@ -66,9 +66,8 @@ const ACTIVITY_EVENTS: readonly (keyof WindowEventMap)[] = [
 export default function SessionTimeout() {
   const router = useRouter();
   const pathname = usePathname();
-
   const isQuestionnaireRoute =
-    pathname === "/cuestionarios" || pathname?.startsWith("/cuestionarios/") === true;
+    pathname?.startsWith("/cuestionarios") ?? false;
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -279,6 +278,20 @@ export default function SessionTimeout() {
   );
 
   useEffect(() => {
+    if (isQuestionnaireRoute) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+
+      // El cuestionario no está sujeto al cierre automático por inactividad.
+      // Reiniciamos la marca para que, al salir del cuestionario, el límite
+      // global de inactividad empiece a contar desde ese momento.
+      saveActivityTimestamp();
+
+      return;
+    }
+
     let mounted = true;
 
     const stopMonitoring = () => {
@@ -311,15 +324,7 @@ export default function SessionTimeout() {
     };
 
     const startMonitoring = () => {
-      if (
-        !mounted ||
-        isLoggingOutRef.current ||
-        isQuestionnaireRoute
-      ) {
-        if (isQuestionnaireRoute && timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
+      if (!mounted || isLoggingOutRef.current) {
         return;
       }
 
@@ -384,12 +389,6 @@ export default function SessionTimeout() {
     };
 
     const initialize = async () => {
-      if (isQuestionnaireRoute) {
-        stopMonitoring();
-
-        return;
-      }
-
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -426,11 +425,6 @@ export default function SessionTimeout() {
         }
 
         stopMonitoring();
-
-        if (isQuestionnaireRoute) {
-          return;
-        }
-
         startMonitoring();
       },
     );
@@ -440,13 +434,6 @@ export default function SessionTimeout() {
 
       stopMonitoring();
       subscription.unsubscribe();
-
-      // Al salir del cuestionario, consideramos que el usuario acaba
-      // de tener actividad para que el control global no lo cierre
-      // inmediatamente por el tiempo empleado en responderlo.
-      if (isQuestionnaireRoute) {
-        saveActivityTimestamp();
-      }
     };
   }, [
     clearActivityTimestamp,

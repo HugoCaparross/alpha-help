@@ -58,7 +58,7 @@ export default function QuestionnaireInstructions({
             </p>
 
             <p>
-              No existen respuestas correctas o incorrectas. Te pedimos que
+              <strong>No existen respuestas correctas o incorrectas.</strong> Te pedimos que
               respondas con la mayor sinceridad posible.
             </p>
 
@@ -69,9 +69,7 @@ export default function QuestionnaireInstructions({
             </p>
 
             <p>
-              Si tienes más de un hijo o hija con edades comprendidas entre los
-              10 y los 16 años, responde pensando siempre en el hijo o hija de
-              menor edad.
+              <strong>Si tienes más de un hijo o hija con edades comprendidas entre los 10 y los 16 años, responde pensando siempre en el hijo o hija de menor edad.</strong>
             </p>
 
             <p>

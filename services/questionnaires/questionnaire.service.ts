@@ -11,8 +11,6 @@ import {
   type Question,
 } from "@/lib/constants/questionnaires";
 
-import type { User } from "@supabase/supabase-js";
-
 import type {
   QuestionnaireProgress,
   QuestionnaireType,
@@ -42,17 +40,11 @@ const QUESTION_MAP = new Map<string, Question>(
 
 const ERROR_INVALID_TYPE = "Tipo de cuestionario no válido.";
 
-const ERROR_UNAUTHENTICATED = "Usuario no autenticado.";
-
 const ERROR_EMPTY_ANSWERS = "No se han proporcionado respuestas.";
 
 const ERROR_CHECK = "No se ha podido comprobar el estado del cuestionario.";
 
 const ERROR_SUBMISSION = "No se ha podido crear el registro del cuestionario.";
-
-const ERROR_COMPLETED = "Este cuestionario ya ha sido completado.";
-
-const ERROR_PRE_REQUIRED = "Debes completar primero la evaluación inicial.";
 
 const ERROR_GET_COMPLETED =
   "No se han podido recuperar los cuestionarios completados.";
@@ -61,22 +53,6 @@ function validateQuestionnaireType(questionnaireType: QuestionnaireType): void {
   if (!VALID_QUESTIONNAIRE_TYPES.includes(questionnaireType)) {
     throw new Error(ERROR_INVALID_TYPE);
   }
-}
-
-async function getAuthenticatedUserWithRefresh(): Promise<User | null> {
-  const user = await getUser();
-
-  if (user) {
-    return user;
-  }
-
-  const { data, error } = await supabase.auth.refreshSession();
-
-  if (error || !data.user) {
-    return null;
-  }
-
-  return data.user;
 }
 
 function validateAnswers(answers: QuestionnaireAnswers): void {
@@ -156,57 +132,31 @@ export async function submitQuestionnaire(
 
   validateAnswers(answers);
 
-  const user = await getAuthenticatedUserWithRefresh();
-
-  if (!user) {
-    throw new Error(ERROR_UNAUTHENTICATED);
-  }
-
-  const alreadyCompleted = await hasCompletedQuestionnaireByUser(
-    user.id,
-    questionnaireType,
-  );
-
-  if (alreadyCompleted) {
-    throw new Error(ERROR_COMPLETED);
-  }
-
-  if (questionnaireType === "post") {
-    const hasCompletedPre = await hasCompletedQuestionnaireByUser(
-      user.id,
-      "pre",
-    );
-
-    if (!hasCompletedPre) {
-      throw new Error(ERROR_PRE_REQUIRED);
-    }
-  }
-
   const requestBody = JSON.stringify({
     questionnaireType,
     answers,
   });
 
-  async function sendSubmissionRequest() {
+  async function sendSubmission() {
     return fetch("/api/questionnaires/submit", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "same-origin",
+      cache: "no-store",
       body: requestBody,
     });
   }
 
-  let response = await sendSubmissionRequest();
+  let response = await sendSubmission();
 
-  // Si la sesión ha quedado obsoleta mientras el participante
-  // estaba respondiendo, renovamos la sesión y repetimos el envío
-  // una única vez.
   if (response.status === 401) {
-    const { data, error } = await supabase.auth.refreshSession();
+    const { data: refreshData, error: refreshError } =
+      await supabase.auth.refreshSession();
 
-    if (!error && data.session) {
-      response = await sendSubmissionRequest();
+    if (!refreshError && refreshData.session) {
+      response = await sendSubmission();
     }
   }
 
