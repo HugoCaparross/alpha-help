@@ -144,7 +144,7 @@ export async function GET() {
                     ? material.release_date_spain
                     : material.release_date_latam;
 
-                const available = isReleased(releaseDate);
+                const available = material.material_order <= 1 || isReleased(releaseDate);
 
                 let thumbnailUrl = material.thumbnail_url || "/images/logo.png";
                 if (material.thumbnail_url && getStoragePath(material.thumbnail_url, THUMBNAIL_BUCKET)) {

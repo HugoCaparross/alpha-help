@@ -19,6 +19,7 @@ const SELECT_FIELDS = `
   region,
   release_date_spain,
   release_date_latam,
+  live_ended_at,
   created_at,
   updated_at
 `;

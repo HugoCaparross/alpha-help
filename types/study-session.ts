@@ -8,13 +8,13 @@ export interface Session {
   readonly zoomRecordingUrl: string | null;
   readonly thumbnailUrl: string;
   readonly sessionOrder: number;
-  readonly releaseDateSpain: string;
-  readonly releaseDateLatam: string;
+  readonly releaseDateSpain: string | null;
+  readonly releaseDateLatam: string | null;
   readonly liveEndedAt: string | null;
 }
 
 export interface SessionWithStatus extends Session {
-  readonly releaseDate: string;
+  readonly releaseDate: string | null;
   readonly status: SessionStatus;
   readonly canJoinLive: boolean;
   readonly canWatchRecording: boolean;

@@ -65,13 +65,13 @@ async function getCurrentRegion(): Promise<Region> {
   return profile.region;
 }
 
-function getReleaseDate(session: Session, region: Region): string {
+function getReleaseDate(session: Session, region: Region): string | null {
   return isSpain(region) ? session.releaseDateSpain : session.releaseDateLatam;
 }
 
 function getSessionStatus(session: Session, region: Region, now = Date.now()): SessionWithStatus {
   const releaseDate = getReleaseDate(session, region);
-  const start = Date.parse(releaseDate);
+  const start = releaseDate ? Date.parse(releaseDate) : Number.NaN;
   const joinFrom = start - LIVE_JOIN_LEAD_MINUTES * 60_000;
   const endedAt = session.liveEndedAt ? Date.parse(session.liveEndedAt) : Number.NaN;
 

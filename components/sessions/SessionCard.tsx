@@ -9,8 +9,8 @@ interface SessionCardProps {
 }
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-function formatDate(date: string): string {
-  const timestamp = Date.parse(date);
+function formatDate(date: string | null): string {
+  const timestamp = date ? Date.parse(date) : Number.NaN;
   return Number.isFinite(timestamp) ? dateFormatter.format(timestamp) : "Fecha pendiente";
 }
 
@@ -64,8 +64,9 @@ export default function SessionCard({ session, completed, onOpen }: SessionCardP
 
         {isUpcoming && (
           <div className="session-card__status-message">
-            <span className="session-card__status-title">Próxima sesión</span>
-            <span>El acceso en directo se habilitará 15 minutos antes de la hora de inicio.</span>
+            <span className="session-card__status-title">Sesión bloqueada</span>
+            <span>Esta sesión permanecerá bloqueada hasta 15 minutos antes del comienzo.</span>
+            <span>Comienza: {formatDate(session.releaseDate)}</span>
           </div>
         )}
 

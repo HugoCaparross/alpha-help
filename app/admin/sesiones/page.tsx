@@ -620,7 +620,7 @@ export default function AdminSessionsPage() {
             />
 
             <span className="admin-form__hint">
-              Esta es la fecha real de la sesión en {activeRegion}. El material correspondiente se abrirá automáticamente al día siguiente.
+              Esta es la fecha y hora de comienzo de la sesión en {activeRegion}. El acceso al directo se habilitará automáticamente 15 minutos antes y permanecerá disponible hasta que cierres el directo.
             </span>
           </div>
 

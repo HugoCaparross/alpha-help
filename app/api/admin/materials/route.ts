@@ -179,7 +179,9 @@ export async function POST(request: Request) {
 
   let releaseDate: string;
 
-  if (releaseDateMode === "now") {
+  if (materialOrder <= 1) {
+    releaseDate = new Date().toISOString();
+  } else if (releaseDateMode === "now") {
     releaseDate = new Date().toISOString();
   } else {
     const timestamp = Date.parse(releaseDateRaw);
