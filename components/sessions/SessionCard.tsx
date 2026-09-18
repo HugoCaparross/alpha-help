@@ -1,148 +1,92 @@
 import Image from "next/image";
-
 import { Calendar, CheckCircle2, Lock, PlayCircle, Video } from "lucide-react";
-
 import type { SessionWithStatus } from "@/types/study-session";
 
 interface SessionCardProps {
   readonly session: SessionWithStatus;
-
   readonly completed: boolean;
-
   readonly onOpen: (session: SessionWithStatus) => void;
 }
 
-const dateFormatter = new Intl.DateTimeFormat("es-ES", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-});
-
-const AVAILABLE_TEXT = "Disponible desde";
-
-const LOCKED_TEXT = "Bloqueada";
-
-const CTA_TEXT = "Ver sesión";
-
+const dateFormatter = new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 function formatDate(date: string): string {
-  return dateFormatter.format(Date.parse(date));
+  const timestamp = Date.parse(date);
+  return Number.isFinite(timestamp) ? dateFormatter.format(timestamp) : "Fecha pendiente";
 }
 
-/**
- * Tarjeta de una sesión
- * del programa.
- */
-export default function SessionCard({
-  session,
-  completed,
-  onOpen,
-}: SessionCardProps) {
-  const isAvailable = session.status === "available";
-
-  const formattedDate = formatDate(session.releaseDate);
-
-  const hasThumbnail =
-    typeof session.thumbnailUrl === "string" &&
-    session.thumbnailUrl.trim().length > 0;
-
-  const cardClassName = [
-    "session-card",
-    !isAvailable && "session-card--locked",
-    !hasThumbnail && "session-card--no-thumbnail",
-  ]
-    .filter(Boolean)
-    .join(" ");
+export default function SessionCard({ session, completed, onOpen }: SessionCardProps) {
+  const isUpcoming = session.status === "upcoming";
+  const isLive = session.status === "live";
+  const isEnded = session.status === "ended";
+  const canOpen = session.canJoinLive || session.canWatchRecording;
+  const hasThumbnail = typeof session.thumbnailUrl === "string" && session.thumbnailUrl.trim().length > 0;
 
   function handleOpen() {
-    if (!isAvailable) {
-      return;
-    }
-
+    if (!canOpen) return;
     onOpen(session);
   }
 
+  const cardClassName = [
+    "session-card",
+    isUpcoming && "session-card--upcoming",
+    isLive && "session-card--live",
+    isEnded && "session-card--ended",
+    !hasThumbnail && "session-card--no-thumbnail",
+  ].filter(Boolean).join(" ");
+
   return (
-    <article
-      className={cardClassName}
-      aria-labelledby={`session-title-${session.id}`}
-    >
+    <article className={cardClassName} aria-labelledby={`session-title-${session.id}`}>
       <div className="session-card__thumb">
-        {hasThumbnail && (
-          <Image
-            src={session.thumbnailUrl}
-            alt={session.title}
-            fill
-            loading="lazy"
-            priority={false}
-            sizes="(max-width: 768px) 100vw, 400px"
-            className="session-card__thumb-img"
-          />
+        {hasThumbnail && <Image src={session.thumbnailUrl} alt={session.title} fill loading="lazy" priority={false} sizes="(max-width: 768px) 100vw, 400px" className="session-card__thumb-img" />}
+        <span className="session-card__order">{session.sessionOrder === 0 ? "Introducción" : `Sesión ${session.sessionOrder}`}</span>
+
+        {isLive && (
+          <span className="session-card__live-badge session-card__zoom-badge"><Video size={13} aria-hidden="true" /> Directo</span>
         )}
 
-        <span className="session-card__order">
-          {session.sessionOrder === 0
-            ? "Introducción"
-            : `Sesión ${session.sessionOrder}`}
-        </span>
-
-        {isAvailable && (
-          <span className="session-card__live-badge session-card__zoom-badge">
-            <Video size={13} aria-hidden="true" />
-            Zoom
-          </span>
+        {isEnded && (
+          <span className="session-card__live-badge session-card__recording-badge"><PlayCircle size={13} aria-hidden="true" /> Diferido</span>
         )}
 
-        {isAvailable && completed && (
-          <span className="session-card__watched-badge">
-            <CheckCircle2 size={13} />
-            Vista
-          </span>
-        )}
-
-        {!isAvailable && (
-          <div className="session-card__lock-overlay" aria-hidden="true">
-            <Lock size={22} />
-
-            <span>{LOCKED_TEXT}</span>
-          </div>
+        {completed && (
+          <span className="session-card__watched-badge"><CheckCircle2 size={13} /> Vista</span>
         )}
       </div>
 
       <div className="session-card__body">
-        <h3 id={`session-title-${session.id}`} className="session-card__title">
-          {session.title}
-        </h3>
-
+        <h3 id={`session-title-${session.id}`} className="session-card__title">{session.title}</h3>
         <p className="session-card__desc">{session.description}</p>
 
-        {isAvailable ? (
-          <>
-            <div className="session-card__date">
-              <Calendar size={14} aria-hidden="true" />
+        <div className="session-card__date">
+          <Calendar size={14} aria-hidden="true" />
+          <span>{formatDate(session.releaseDate)}</span>
+        </div>
 
-              <span>
-                {`${AVAILABLE_TEXT} ${formattedDate}`}
-              </span>
-            </div>
+        {isUpcoming && (
+          <div className="session-card__status-message">
+            <span className="session-card__status-title">Próxima sesión</span>
+            <span>El acceso en directo se habilitará 15 minutos antes de la hora de inicio.</span>
+          </div>
+        )}
 
-            <button
-              type="button"
-              className="session-card__cta"
-              onClick={handleOpen}
-              aria-label={`Abrir la sesión "${session.title}"`}
-            >
-              <PlayCircle size={17} aria-hidden="true" />
+        {isLive && session.canJoinLive && (
+          <button type="button" className="session-card__cta" onClick={handleOpen} aria-label={`Unirse a la sesión "${session.title}"`}>
+            <Video size={17} aria-hidden="true" />
+            <span>Unirse a la sesión</span>
+          </button>
+        )}
 
-              <span>{CTA_TEXT}</span>
-            </button>
-          </>
-        ) : (
+        {isEnded && session.canWatchRecording && (
+          <button type="button" className="session-card__cta" onClick={handleOpen} aria-label={`Ver la grabación de "${session.title}"`}>
+            <PlayCircle size={17} aria-hidden="true" />
+            <span>Ver grabación</span>
+          </button>
+        )}
+
+        {isEnded && !session.canWatchRecording && (
           <div className="session-card__locked-cta">
             <Lock size={15} aria-hidden="true" />
-
-            <span>
-              Esta sesión estará disponible a partir del {formattedDate}.
-            </span>
+            <span>Grabación pendiente de publicación.</span>
           </div>
         )}
       </div>

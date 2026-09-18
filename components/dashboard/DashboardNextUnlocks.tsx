@@ -10,7 +10,7 @@ interface DashboardNextUnlocksProps {
 
 interface UnlockContent {
   title: string;
-  releaseDate: string;
+  releaseDate: string | null;
 }
 
 interface NextUnlockCardProps {
@@ -19,7 +19,11 @@ interface NextUnlockCardProps {
   emptyMessage: string;
 }
 
-function formatDate(date: string): string {
+function formatDate(date: string | null): string {
+  if (!date) {
+    return "Fecha pendiente";
+  }
+
   const parsed = new Date(date);
 
   if (Number.isNaN(parsed.getTime())) {
@@ -39,7 +43,12 @@ function NextUnlockCard({
   emptyMessage,
 }: NextUnlockCardProps) {
   return (
-    <article className={`dashboard-next-card ${content ? "dashboard-next-card--has-content" : "dashboard-next-card--empty"}`}>
+    <article
+      className={`dashboard-next-card ${content
+          ? "dashboard-next-card--has-content"
+          : "dashboard-next-card--empty"
+        }`}
+    >
       <div className="dashboard-next-icon" aria-hidden="true">
         <CalendarDays size={22} />
       </div>
@@ -49,13 +58,18 @@ function NextUnlockCard({
 
         {content ? (
           <>
-            <p className="dashboard-next-card-name">{content.title}</p>
+            <p className="dashboard-next-card-name">
+              {content.title}
+            </p>
+
             <p className="dashboard-next-card-date">
               {formatDate(content.releaseDate)}
             </p>
           </>
         ) : (
-          <p className="dashboard-next-card-empty">{emptyMessage}</p>
+          <p className="dashboard-next-card-empty">
+            {emptyMessage}
+          </p>
         )}
       </div>
     </article>
@@ -67,11 +81,17 @@ export default function DashboardNextUnlocks({
   nextMaterial,
 }: DashboardNextUnlocksProps) {
   const nextSessionContent = nextSession
-    ? { title: nextSession.title, releaseDate: nextSession.releaseDate }
+    ? {
+      title: nextSession.title,
+      releaseDate: nextSession.releaseDate,
+    }
     : null;
 
   const nextMaterialContent = nextMaterial
-    ? { title: nextMaterial.title, releaseDate: nextMaterial.releaseDate }
+    ? {
+      title: nextMaterial.title,
+      releaseDate: nextMaterial.releaseDate,
+    }
     : null;
 
   return (
@@ -79,7 +99,10 @@ export default function DashboardNextUnlocks({
       className="dashboard-section"
       aria-labelledby="dashboard-next-title"
     >
-      <h2 id="dashboard-next-title" className="dashboard-section-title">
+      <h2
+        id="dashboard-next-title"
+        className="dashboard-section-title"
+      >
         Próximos desbloqueos
       </h2>
 

@@ -46,7 +46,13 @@ export default function SesionesView() {
     }
   }, []);
 
-  useEffect(() => { void loadSessions(); }, [loadSessions]);
+  useEffect(() => {
+    void loadSessions();
+    const interval = window.setInterval(() => {
+      void loadSessions();
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [loadSessions]);
 
   if (loading) return (
     <section className="sesiones-page" aria-busy="true">

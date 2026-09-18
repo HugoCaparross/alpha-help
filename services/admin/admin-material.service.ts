@@ -20,7 +20,8 @@ export interface AdminMaterialInput {
   materialOrder: number;
 
   region: "España" | "Latinoamérica";
-
+  releaseDateMode: "now" | "scheduled";
+  releaseDate?: string;
 
   thumbnailUrl?: string;
   pdfUrl?: string;
@@ -56,7 +57,10 @@ export async function saveAdminMaterial(
   form.set("materialOrder", String(input.materialOrder));
 
   form.set("region", input.region);
-
+  form.set("releaseDateMode", input.releaseDateMode);
+  if (input.releaseDate) {
+    form.set("releaseDate", input.releaseDate);
+  }
 
   if (input.thumbnailUrl) {
     form.set("thumbnailUrl", input.thumbnailUrl);

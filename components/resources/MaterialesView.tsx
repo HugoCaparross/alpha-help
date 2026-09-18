@@ -12,7 +12,7 @@ import type { MaterialType, StudyMaterialWithStatus } from "@/types/study-materi
 import "@/components/styles/materiales.css";
 
 const PAGE_TITLE = "Recursos";
-const PAGE_DESCRIPTION = "Aquí encontrarás los documentos que complementan la introducción y las nueve sesiones del programa. Cada recurso se abre automáticamente el día siguiente a la sesión correspondiente y solo podrás acceder a él después de completar la evaluación inicial.";
+const PAGE_DESCRIPTION = "Aquí encontrarás los documentos que complementan la introducción y las sesiones del programa. Cada recurso se publica según la fecha configurada para tu región.";
 const LOADING_MESSAGE = "Preparando los recursos...";
 const LOAD_ERROR = "No se han podido cargar los recursos. Inténtalo de nuevo.";
 const EMPTY_MATERIALS: GroupedStudyMaterials = { support: [], extended: [] };
@@ -90,7 +90,7 @@ export default function MaterialesView() {
           <div className="materiales-calendar-trigger__content">
             <p className="materiales-calendar-trigger__eyebrow">Calendario de apertura</p>
             <h2 id="materiales-calendar-trigger-title" className="materiales-calendar-trigger__title">Consulta cuándo se abre cada material</h2>
-            <p className="materiales-calendar-trigger__description">Los materiales se liberan automáticamente el día siguiente a la sesión correspondiente.</p>
+            <p className="materiales-calendar-trigger__description">Cada material se publica de forma independiente según la fecha configurada para tu región.</p>
           </div>
           <button
             type="button"
@@ -116,7 +116,7 @@ export default function MaterialesView() {
               </div>
               <div>
                 <h3>Cuándo se abre cada material</h3>
-                <p>La fecha se calcula automáticamente como el día siguiente a la sesión correspondiente. La fecha mostrada es la que determina el acceso en tu programa.</p>
+                <p>La fecha mostrada es la que determina cuándo estará disponible cada material en tu programa.</p>
               </div>
             </div>
 
@@ -157,8 +157,8 @@ export default function MaterialesView() {
             <div className="materiales-access-notice">
               <div className="materiales-access-notice__icon" aria-hidden="true"><CalendarDays size={20} /></div>
               <div className="materiales-access-notice__content">
-                <p className="materiales-access-notice__title">Acceso condicionado</p>
-                <p className="materiales-access-notice__text">Para consultar cualquier material debes haber completado la evaluación inicial y haber alcanzado la fecha de apertura indicada en el calendario. La misma regla se aplica a las versiones extendidas.</p>
+                <p className="materiales-access-notice__title">Publicación independiente</p>
+                <p className="materiales-access-notice__text">La disponibilidad de cada material depende únicamente de su fecha de publicación. No es necesario completar la evaluación inicial ni realizar una sesión para acceder a un recurso que ya esté publicado.</p>
               </div>
             </div>
           </div>

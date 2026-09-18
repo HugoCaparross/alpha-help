@@ -10,6 +10,7 @@ import { SPAIN_SESSION_DATES } from "@/lib/constants/study-calendar";
 import {
   deleteAdminSession,
   listAdminSessions,
+  setAdminSessionLiveEnded,
   saveAdminSession,
   type AdminRegion,
   type AdminSessionRow,
@@ -70,6 +71,19 @@ function toDatetimeLocal(
   )}:${pad(
     date.getMinutes(),
   )}`;
+}
+
+function getAdminLiveState(session: AdminSessionRow | undefined): "upcoming" | "live" | "ended" | "none" {
+  if (!session) return "none";
+  if (session.live_ended_at) return "ended";
+  const releaseDate = activeDateForSession(session);
+  const timestamp = Date.parse(releaseDate ?? "");
+  if (!Number.isFinite(timestamp)) return "upcoming";
+  return Date.now() >= timestamp - 15 * 60_000 ? "live" : "upcoming";
+}
+
+function activeDateForSession(session: AdminSessionRow): string | null {
+  return session.region === "España" ? session.release_date_spain : session.release_date_latam;
 }
 
 export default function AdminSessionsPage() {
@@ -301,6 +315,23 @@ export default function AdminSessionsPage() {
       selectedOrder,
     );
 
+  async function handleLiveStateChange() {
+    if (!existing) return;
+    const currentlyEnded = Boolean(existing.live_ended_at);
+    setSaving(true);
+    setError("");
+    setSuccess("");
+    try {
+      await setAdminSessionLiveEnded(existing.id, !currentlyEnded);
+      setSuccess(currentlyEnded ? "Acceso en directo reabierto." : "Acceso en directo cerrado. Ahora la sesión se mostrará como diferida.");
+      await loadSessions();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error inesperado.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <section>
       <header className="admin-header">
@@ -313,7 +344,7 @@ export default function AdminSessionsPage() {
         </p>
 
         <p className="admin-header__description">
-          La fecha que indiques aquí es la fecha de la sesión. Los materiales asociados se abrirán automáticamente al día siguiente, después de completar la evaluación inicial.
+          Las sesiones aparecen en la web desde que se configuran. En España el horario es fijo a las 19:00 h. El acceso a Zoom se habilita 15 minutos antes y permanece abierto hasta que cierres el directo desde este panel. Latinoamérica mantiene su calendario y horario propios.
         </p>
       </header>
 
@@ -426,17 +457,14 @@ export default function AdminSessionsPage() {
               </span>
 
               {item && releaseDate && (
-                <span className="admin-slot__date">
-                  {new Intl.DateTimeFormat("es-ES", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(
-                    new Date(releaseDate),
-                  )}
-                </span>
+                <>
+                  <span className={`admin-slot__session-state admin-slot__session-state--${getAdminLiveState(item)}`}>
+                    {getAdminLiveState(item) === "ended" ? "Directo cerrado" : getAdminLiveState(item) === "live" ? "Directo abierto" : "Próxima"}
+                  </span>
+                  <span className="admin-slot__date">
+                    {new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(releaseDate))}
+                  </span>
+                </>
               )}
             </button>
           );
@@ -612,6 +640,24 @@ export default function AdminSessionsPage() {
             >
               {success}
             </p>
+          )}
+
+          {existing && (
+            <section className="admin-session-live-control" aria-label="Control del directo">
+              <div>
+                <p className="admin-session-live-control__eyebrow">Estado del directo</p>
+                <h2>{existing.live_ended_at ? "Directo cerrado" : "Directo abierto hasta cierre manual"}</h2>
+                <p>{existing.live_ended_at ? "La tarjeta pública ha pasado a diferido. Si todavía necesitas volver a abrir el directo, puedes hacerlo desde aquí." : "Cuando la reunión termine, pulsa el botón para cerrar el acceso en directo. La tarjeta pública pasará entonces a diferido."}</p>
+              </div>
+              <button
+                type="button"
+                className={existing.live_ended_at ? "btn-secondary" : "btn-primary"}
+                onClick={() => void handleLiveStateChange()}
+                disabled={saving || (!existing.live_ended_at && getAdminLiveState(existing) !== "live")}
+              >
+                {existing.live_ended_at ? "Reabrir directo" : "Cerrar directo"}
+              </button>
+            </section>
           )}
 
           <div className="admin-form__actions">

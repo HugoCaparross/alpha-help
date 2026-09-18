@@ -56,7 +56,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   ]);
 
   const nextSession =
-    sessions.find(({ status }) => status === "locked") ?? null;
+    sessions.find(({ status }) => status === "upcoming") ?? null;
 
   const nextMaterial =
     materials.find(({ status }) => status === "locked") ?? null;

@@ -3,14 +3,11 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 import { generateThumbnail } from "@/lib/pdf/generate-thumbnail";
-import { getMaterialReleaseDate } from "@/lib/utils/material-release";
 
 const TABLE = "study_materials";
 
 const PDF_BUCKET = "study-materials";
-
 const THUMBNAIL_BUCKET = "study-material-thumbnails";
-
 const DEFAULT_THUMBNAIL = "/images/logo.png";
 
 const SELECT_FIELDS = `
@@ -78,10 +75,7 @@ function sanitizeFileName(name: string): string {
 }
 
 async function isRealPdf(file: File): Promise<boolean> {
-  const header = new Uint8Array(
-    await file.slice(0, 5).arrayBuffer(),
-  );
-
+  const header = new Uint8Array(await file.slice(0, 5).arrayBuffer());
   const signature = String.fromCharCode(...header);
 
   return signature === "%PDF-";
@@ -112,8 +106,7 @@ export async function GET() {
   if (error) {
     return NextResponse.json(
       {
-        error:
-          "No se han podido recuperar los materiales.",
+        error: "No se han podido recuperar los materiales.",
       },
       { status: 500 },
     );
@@ -124,9 +117,7 @@ export async function GET() {
   });
 }
 
-export async function POST(
-  request: Request,
-) {
+export async function POST(request: Request) {
   const auth = await requireAdmin();
 
   if (!auth.ok) {
@@ -136,49 +127,26 @@ export async function POST(
     );
   }
 
-  const form =
-    await request.formData();
+  const form = await request.formData();
 
-  const title =
-    form.get("title")?.toString().trim();
+  const title = form.get("title")?.toString().trim();
+  const description = form.get("description")?.toString().trim();
+  const materialType = form.get("materialType")?.toString();
+  const materialOrderRaw = form.get("materialOrder")?.toString();
+  const region = form.get("region")?.toString();
+  const thumbnailUrl = form.get("thumbnailUrl")?.toString().trim();
+  const existingPdfUrl = form.get("pdfUrl")?.toString().trim();
+  const file = form.get("file");
 
-  const description =
-    form.get("description")?.toString().trim();
-
-  const materialType =
-    form.get("materialType")?.toString();
-
-  const materialOrderRaw =
-    form.get("materialOrder")?.toString();
-
-  const region =
-    form.get("region")?.toString();
-
-  const thumbnailUrl =
-    form.get("thumbnailUrl")?.toString().trim();
-
-  const existingPdfUrl =
-    form.get("pdfUrl")?.toString().trim();
-
-  const file =
-    form.get("file");
-
-  const materialOrder =
-    materialOrderRaw
-      ? Number(materialOrderRaw)
-      : null;
+  const materialOrder = materialOrderRaw
+    ? Number(materialOrderRaw)
+    : null;
 
   if (
     !title ||
     !description ||
-    (
-      materialType !== "support" &&
-      materialType !== "extended"
-    ) ||
-    (
-      region !== "España" &&
-      region !== "Latinoamérica"
-    ) ||
+    (materialType !== "support" && materialType !== "extended") ||
+    (region !== "España" && region !== "Latinoamérica") ||
     materialOrder === null ||
     Number.isNaN(materialOrder) ||
     !Number.isInteger(materialOrder) ||
@@ -187,83 +155,50 @@ export async function POST(
   ) {
     return NextResponse.json(
       {
-        error:
-          "Faltan campos obligatorios o son inválidos.",
+        error: "Faltan campos obligatorios o son inválidos.",
       },
       { status: 400 },
     );
   }
 
-  const admin =
-    createAdminClient();
+  const admin = createAdminClient();
 
-  /*
-   * La fecha de liberación NO se introduce
-   * manualmente.
-   *
-   * Se obtiene de la sesión correspondiente
-   * y se calcula como el día siguiente.
-   */
-  const {
-    data: sessionData,
-    error: sessionError,
-  } = await admin
-    .from("study_sessions")
-    .select(
-      "release_date_spain, release_date_latam",
-    )
-    .eq("region", region)
-    .eq(
-      "session_order",
-      materialOrder,
-    )
-    .maybeSingle();
+  const releaseDateMode = form.get("releaseDateMode")?.toString();
+  const releaseDateRaw =
+    form.get("releaseDate")?.toString().trim() ?? "";
 
-  if (sessionError) {
+  if (
+    releaseDateMode !== "now" &&
+    releaseDateMode !== "scheduled"
+  ) {
     return NextResponse.json(
-      {
-        error:
-          "No se ha podido recuperar el calendario de sesiones.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const sessionReleaseDate =
-    region === "España"
-      ? sessionData?.release_date_spain
-      : sessionData?.release_date_latam;
-
-  if (!sessionReleaseDate) {
-    return NextResponse.json(
-      {
-        error:
-          "Configura primero la fecha de la sesión correspondiente. El material se libera automáticamente al día siguiente de la sesión.",
-      },
+      { error: "La modalidad de publicación no es válida." },
       { status: 400 },
     );
   }
 
-  const calculatedReleaseDate =
-    getMaterialReleaseDate(
-      sessionReleaseDate,
-    );
+  let releaseDate: string;
 
-  if (!calculatedReleaseDate) {
-    return NextResponse.json(
-      {
-        error:
-          "La fecha de la sesión no es válida.",
-      },
-      { status: 400 },
-    );
+  if (releaseDateMode === "now") {
+    releaseDate = new Date().toISOString();
+  } else {
+    const timestamp = Date.parse(releaseDateRaw);
+
+    if (!releaseDateRaw || !Number.isFinite(timestamp)) {
+      return NextResponse.json(
+        {
+          error:
+            "La fecha de publicación programada no es válida.",
+        },
+        { status: 400 },
+      );
+    }
+
+    releaseDate = new Date(timestamp).toISOString();
   }
 
-  let pdfUrl =
-    existingPdfUrl || "";
-
-  let generatedThumbnailUrl =
-    "";
+  let pdfUrl = existingPdfUrl || "";
+  let generatedThumbnailUrl = "";
 
   /*
    * Si se sube un PDF nuevo:
@@ -273,74 +208,45 @@ export async function POST(
    * - Se guarda únicamente su path interno.
    * - Nunca se guarda una URL pública.
    */
-  if (
-    file instanceof File &&
-    file.size > 0
-  ) {
-    if (
-      !(await isRealPdf(file))
-    ) {
+  if (file instanceof File && file.size > 0) {
+    if (!(await isRealPdf(file))) {
       return NextResponse.json(
         {
-          error:
-            "El archivo debe ser un PDF válido.",
+          error: "El archivo debe ser un PDF válido.",
         },
         { status: 400 },
       );
     }
 
-    await ensureBucket(
-      admin,
-      PDF_BUCKET,
-    );
-
-    await ensureBucket(
-      admin,
-      THUMBNAIL_BUCKET,
-    );
+    await ensureBucket(admin, PDF_BUCKET);
+    await ensureBucket(admin, THUMBNAIL_BUCKET);
 
     const storageRegion =
       region === "España"
         ? "spain"
         : "latam";
 
-    const path =
-      `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
-        file.name ||
-        "material.pdf",
-      )}`;
+    const path = `${storageRegion}/${materialType}/${materialOrder}-${Date.now()}-${sanitizeFileName(
+      file.name || "material.pdf",
+    )}`;
 
-    const arrayBuffer =
-      await file.arrayBuffer();
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfBuffer = Buffer.from(arrayBuffer);
 
-    const pdfBuffer =
-      Buffer.from(arrayBuffer);
-
-    const {
-      error: uploadError,
-    } = await admin.storage
+    const { error: uploadError } = await admin.storage
       .from(PDF_BUCKET)
-      .upload(
-        path,
-        pdfBuffer,
-        {
-          contentType:
-            "application/pdf",
-          upsert: true,
-        },
-      );
+      .upload(path, pdfBuffer, {
+        contentType: "application/pdf",
+        upsert: true,
+      });
 
     if (uploadError) {
-      console.error(
-        uploadError,
-      );
+      console.error(uploadError);
 
       return NextResponse.json(
         {
-          error:
-            uploadError.message,
-          details:
-            uploadError,
+          error: uploadError.message,
+          details: uploadError,
         },
         { status: 500 },
       );
@@ -354,36 +260,22 @@ export async function POST(
     pdfUrl = path;
 
     try {
-      const thumbnailBuffer =
-        await generateThumbnail(
-          pdfBuffer,
-        );
+      const thumbnailBuffer = await generateThumbnail(pdfBuffer);
 
-      const thumbnailPath =
-        path.replace(
-          /\.pdf$/i,
-          ".png",
-        );
+      const thumbnailPath = path.replace(
+        /\.pdf$/i,
+        ".png",
+      );
 
-      const {
-        error: thumbnailError,
-      } = await admin.storage
-        .from(
-          THUMBNAIL_BUCKET,
-        )
-        .upload(
-          thumbnailPath,
-          thumbnailBuffer,
-          {
-            contentType:
-              "image/png",
-            upsert: true,
-          },
-        );
+      const { error: thumbnailError } = await admin.storage
+        .from(THUMBNAIL_BUCKET)
+        .upload(thumbnailPath, thumbnailBuffer, {
+          contentType: "image/png",
+          upsert: true,
+        });
 
       if (!thumbnailError) {
-        generatedThumbnailUrl =
-          thumbnailPath;
+        generatedThumbnailUrl = thumbnailPath;
       }
     } catch (error) {
       console.error(
@@ -399,15 +291,13 @@ export async function POST(
   if (!pdfUrl) {
     return NextResponse.json(
       {
-        error:
-          "Debes adjuntar un archivo PDF.",
+        error: "Debes adjuntar un archivo PDF.",
       },
       { status: 400 },
     );
   }
 
-  const now =
-    new Date().toISOString();
+  const now = new Date().toISOString();
 
   /*
    * Un material es único por:
@@ -415,23 +305,14 @@ export async function POST(
    * - tipo
    * - orden
    */
-  const {
-    data: existing,
-  } = await admin
+  const { data: existing } = await admin
     .from(TABLE)
-    .select("id")
-    .eq(
-      "material_order",
-      materialOrder,
+    .select(
+      "id, release_date_spain, release_date_latam",
     )
-    .eq(
-      "material_type",
-      materialType,
-    )
-    .eq(
-      "region",
-      region,
-    )
+    .eq("material_order", materialOrder)
+    .eq("material_type", materialType)
+    .eq("region", region)
     .maybeSingle();
 
   const payload = {
@@ -448,77 +329,61 @@ export async function POST(
       thumbnailUrl ||
       DEFAULT_THUMBNAIL,
 
-    material_order:
-      materialOrder,
-
-    material_type:
-      materialType,
-
+    material_order: materialOrder,
+    material_type: materialType,
     region,
 
     /*
-     * Solo se rellena la columna
-     * correspondiente a la región.
-     *
-     * La fecha procede del calendario
-     * de sesiones + 1 día.
+     * Si estamos trabajando con España,
+     * actualizamos su fecha y conservamos
+     * la fecha existente de Latinoamérica.
      */
     release_date_spain:
       region === "España"
-        ? calculatedReleaseDate
-        : null,
+        ? releaseDate
+        : existing?.release_date_spain ?? null,
 
+    /*
+     * Si estamos trabajando con Latinoamérica,
+     * actualizamos su fecha y conservamos
+     * la fecha existente de España.
+     */
     release_date_latam:
-      region ===
-        "Latinoamérica"
-        ? calculatedReleaseDate
-        : null,
+      region === "Latinoamérica"
+        ? releaseDate
+        : existing?.release_date_latam ?? null,
 
     updated_at: now,
   };
 
-  const query =
-    existing
-      ? admin
-        .from(TABLE)
-        .update(payload)
-        .eq(
-          "id",
-          existing.id,
-        )
-      : admin
-        .from(TABLE)
-        .insert(payload);
+  const query = existing
+    ? admin
+      .from(TABLE)
+      .update(payload)
+      .eq("id", existing.id)
+    : admin
+      .from(TABLE)
+      .insert(payload);
 
-  const {
-    error,
-  } = await query;
+  const { error } = await query;
 
   if (error) {
     console.error(
       "Error guardando material:",
       {
-        code:
-          error.code,
-        message:
-          error.message,
-        details:
-          error.details,
-        hint:
-          error.hint,
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
       },
     );
 
     return NextResponse.json(
       {
-        error:
-          error.message,
-        code:
-          error.code,
-        details:
-          error.details,
-        hint:
-          error.hint,
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
       },
       { status: 500 },
     );

@@ -1,4 +1,4 @@
-export type SessionStatus = "available" | "locked";
+export type SessionStatus = "upcoming" | "live" | "ended";
 
 export interface Session {
   readonly id: string;
@@ -10,9 +10,12 @@ export interface Session {
   readonly sessionOrder: number;
   readonly releaseDateSpain: string;
   readonly releaseDateLatam: string;
+  readonly liveEndedAt: string | null;
 }
 
 export interface SessionWithStatus extends Session {
   readonly releaseDate: string;
   readonly status: SessionStatus;
+  readonly canJoinLive: boolean;
+  readonly canWatchRecording: boolean;
 }

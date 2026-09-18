@@ -1,23 +1,13 @@
 import { supabase } from "@/lib/supabase/client";
 import { getProfile } from "@/lib/supabase/getProfile";
-
 import { getDatabaseRegion, isSpain, type Region } from "@/lib/utils/regions";
-
 import type { Session, SessionWithStatus } from "@/types/study-session";
 
 const STUDY_SESSIONS_TABLE = "study_sessions";
-
-/**
- * El programa contiene 10 contenidos:
- *
- * 0 = Introducción
- * 1-9 = nueve sesiones
- */
 export const TOTAL_STUDY_SESSIONS = 10;
-
 const FIRST_SESSION_ORDER = 0;
-
 const LAST_SESSION_ORDER = 9;
+export const LIVE_JOIN_LEAD_MINUTES = 15;
 
 const SESSION_FIELDS = `
   id,
@@ -28,32 +18,24 @@ const SESSION_FIELDS = `
   thumbnail_url,
   session_order,
   release_date_spain,
-  release_date_latam
+  release_date_latam,
+  live_ended_at
 `;
 
 const ERROR_GET_SESSIONS = "No se han podido recuperar las sesiones.";
-
-const ERROR_PROFILE_NOT_FOUND =
-  "No se ha podido recuperar el perfil del participante.";
+const ERROR_PROFILE_NOT_FOUND = "No se ha podido recuperar el perfil del participante.";
 
 interface SessionRow {
   id: string;
-
   title: string;
-
   description: string;
-
   zoom_url: string;
   zoom_recording_url: string | null;
-
   thumbnail_url: string;
-
   session_order: number;
-
   release_date_spain: string;
-
   release_date_latam: string;
-
+  live_ended_at: string | null;
 }
 
 function mapSession(row: SessionRow): Session {
@@ -67,26 +49,19 @@ function mapSession(row: SessionRow): Session {
     sessionOrder: row.session_order,
     releaseDateSpain: row.release_date_spain,
     releaseDateLatam: row.release_date_latam,
+    liveEndedAt: row.live_ended_at,
   };
 }
 
 function normalizeSessions(sessions: Session[]): Session[] {
   return sessions
-    .filter(
-      (session) =>
-        session.sessionOrder >= FIRST_SESSION_ORDER &&
-        session.sessionOrder <= LAST_SESSION_ORDER,
-    )
-    .sort((first, second) => first.sessionOrder - second.sessionOrder);
+    .filter((session) => session.sessionOrder >= FIRST_SESSION_ORDER && session.sessionOrder <= LAST_SESSION_ORDER)
+    .sort((a, b) => a.sessionOrder - b.sessionOrder);
 }
 
 async function getCurrentRegion(): Promise<Region> {
   const profile = await getProfile();
-
-  if (!profile) {
-    throw new Error(ERROR_PROFILE_NOT_FOUND);
-  }
-
+  if (!profile) throw new Error(ERROR_PROFILE_NOT_FOUND);
   return profile.region;
 }
 
@@ -94,80 +69,52 @@ function getReleaseDate(session: Session, region: Region): string {
   return isSpain(region) ? session.releaseDateSpain : session.releaseDateLatam;
 }
 
-function isReleased(releaseDate: string): boolean {
-  const timestamp = Date.parse(releaseDate);
+function getSessionStatus(session: Session, region: Region, now = Date.now()): SessionWithStatus {
+  const releaseDate = getReleaseDate(session, region);
+  const start = Date.parse(releaseDate);
+  const joinFrom = start - LIVE_JOIN_LEAD_MINUTES * 60_000;
+  const endedAt = session.liveEndedAt ? Date.parse(session.liveEndedAt) : Number.NaN;
 
-  return Number.isFinite(timestamp) && timestamp <= Date.now();
-}
+  if (Number.isFinite(endedAt) && endedAt <= now) {
+    return { ...session, releaseDate, status: "ended", canJoinLive: false, canWatchRecording: Boolean(session.zoomRecordingUrl?.trim()) };
+  }
 
-export function isSessionAvailable(session: Session, region: Region): boolean {
-  return isReleased(getReleaseDate(session, region));
-}
+  if (!Number.isFinite(start)) {
+    return { ...session, releaseDate, status: "upcoming", canJoinLive: false, canWatchRecording: false };
+  }
 
-function mapSessionWithStatus(
-  session: Session,
-  region: Region,
-): SessionWithStatus {
+  const canJoinLive = now >= joinFrom;
   return {
     ...session,
-
-    releaseDate: getReleaseDate(session, region),
-
-    status: isSessionAvailable(session, region) ? "available" : "locked",
+    releaseDate,
+    status: canJoinLive ? "live" : "upcoming",
+    canJoinLive: canJoinLive && Boolean(session.zoomUrl.trim()),
+    canWatchRecording: false,
   };
 }
 
-/**
- * Recupera únicamente las sesiones
- * correspondientes a la región del
- * participante autenticado.
- *
- * La aplicación utiliza:
- *   spain
- *   latam
- *
- * La base de datos utiliza:
- *   España
- *   Latinoamérica
- */
 export async function getSessions(region?: Region): Promise<Session[]> {
   const currentRegion = region ?? (await getCurrentRegion());
-
   const databaseRegion = getDatabaseRegion(currentRegion);
-
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
     .eq("region", databaseRegion)
     .gte("session_order", FIRST_SESSION_ORDER)
     .lte("session_order", LAST_SESSION_ORDER)
-    .order("session_order", {
-      ascending: true,
-    });
+    .order("session_order", { ascending: true });
 
   if (error) {
     console.error("[study-session.service][getSessions]", error);
-
     throw new Error(ERROR_GET_SESSIONS);
   }
 
-  return normalizeSessions(
-    (data ?? []).map((row) => mapSession(row as SessionRow)),
-  );
+  return normalizeSessions((data ?? []).map((row) => mapSession(row as SessionRow)));
 }
 
-/**
- * Recupera una sesión concreta,
- * asegurándose de que pertenece a
- * la región del participante.
- */
-export async function getSessionById(
-  sessionId: string,
-): Promise<Session | null> {
+export async function getSessionById(sessionId: string): Promise<Session | null> {
   const region = await getCurrentRegion();
-
   const databaseRegion = getDatabaseRegion(region);
-
   const { data, error } = await supabase
     .from(STUDY_SESSIONS_TABLE)
     .select(SESSION_FIELDS)
@@ -177,54 +124,26 @@ export async function getSessionById(
 
   if (error) {
     console.error("[study-session.service][getSessionById]", error);
-
     throw new Error(ERROR_GET_SESSIONS);
   }
-
-  if (!data) {
-    return null;
-  }
-
+  if (!data) return null;
   const session = mapSession(data as SessionRow);
-
-  if (
-    session.sessionOrder < FIRST_SESSION_ORDER ||
-    session.sessionOrder > LAST_SESSION_ORDER
-  ) {
-    return null;
-  }
-
-  return session;
+  return session.sessionOrder >= FIRST_SESSION_ORDER && session.sessionOrder <= LAST_SESSION_ORDER ? session : null;
 }
 
-/**
- * Devuelve todas las sesiones de la región del participante junto con
- * su estado de publicación por fecha.
- */
 export async function getSessionsWithStatus(): Promise<SessionWithStatus[]> {
   const region = await getCurrentRegion();
-
   const sessions = await getSessions(region);
-
-  return sessions.map((session) => mapSessionWithStatus(session, region));
+  const now = Date.now();
+  return sessions.map((session) => getSessionStatus(session, region, now));
 }
 
-/**
- * Devuelve únicamente las sesiones
- * cuya fecha de publicación ya ha llegado.
- */
 export async function getAvailableSessions(): Promise<SessionWithStatus[]> {
   const sessions = await getSessionsWithStatus();
-
-  return sessions.filter(({ status }) => status === "available");
+  return sessions.filter((session) => session.status === "live");
 }
 
-/**
- * Devuelve la siguiente sesión
- * todavía bloqueada por fecha.
- */
 export async function getNextSession(): Promise<SessionWithStatus | null> {
   const sessions = await getSessionsWithStatus();
-
-  return sessions.find(({ status }) => status === "locked") ?? null;
+  return sessions.find((session) => session.status === "upcoming") ?? null;
 }

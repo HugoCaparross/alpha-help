@@ -16,19 +16,12 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { getMaterialReleaseDate } from "@/lib/utils/material-release";
-
 import {
   deleteAdminMaterial,
   listAdminMaterials,
   saveAdminMaterial,
   type AdminMaterialRow,
 } from "@/services/admin/admin-material.service";
-
-import {
-  listAdminSessions,
-  type AdminSessionRow,
-} from "@/services/admin/admin-session.service";
 
 type MaterialType =
   | "support"
@@ -69,35 +62,28 @@ const REGION_TABS: {
 interface FormState {
   title: string;
   description: string;
+  releaseDateMode: "now" | "scheduled";
+  releaseDate: string;
 }
 
 const EMPTY_FORM: FormState = {
   title: "",
   description: "",
+  releaseDateMode: "now",
+  releaseDate: "",
 };
 
-const adminDateFormatter = new Intl.DateTimeFormat("es-ES", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatAdminDate(value: string | null | undefined): string {
-  if (!value) return "Pendiente";
-  const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp)
-    ? adminDateFormatter.format(timestamp)
-    : "Pendiente";
+function toDatetimeLocal(value: string | null | undefined): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (number: number) => String(number).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export default function AdminMaterialsPage() {
   const [materials, setMaterials] =
     useState<AdminMaterialRow[]>([]);
-
-  const [sessions, setSessions] =
-    useState<AdminSessionRow[]>([]);
 
   const [activeType, setActiveType] =
     useState<MaterialType>(
@@ -149,16 +135,8 @@ export default function AdminMaterialsPage() {
       setLoading(true);
 
       try {
-        const [
-          materialsData,
-          sessionsData,
-        ] = await Promise.all([
-          listAdminMaterials(),
-          listAdminSessions(),
-        ]);
-
+        const materialsData = await listAdminMaterials();
         setMaterials(materialsData);
-        setSessions(sessionsData);
       } catch (err) {
         setError(
           err instanceof Error
@@ -205,34 +183,6 @@ export default function AdminMaterialsPage() {
       activeRegion,
     ]);
 
-  const sessionByOrder =
-    useMemo(() => {
-      const map =
-        new Map<
-          number,
-          AdminSessionRow
-        >();
-
-      sessions
-        .filter(
-          (session) =>
-            session.region ===
-            activeRegion,
-        )
-        .forEach(
-          (session) =>
-            map.set(
-              session.session_order,
-              session,
-            ),
-        );
-
-      return map;
-    }, [
-      sessions,
-      activeRegion,
-    ]);
-
   const selectSlot =
     useCallback(
       (order: number) => {
@@ -247,11 +197,20 @@ export default function AdminMaterialsPage() {
           );
 
         if (existing) {
+          const existingReleaseDate =
+            activeRegion === "España"
+              ? existing.release_date_spain
+              : existing.release_date_latam;
+
           setForm({
-            title:
-              existing.title,
-            description:
-              existing.description
+            title: existing.title,
+            description: existing.description,
+            releaseDateMode:
+              existingReleaseDate &&
+                Date.parse(existingReleaseDate) > Date.now()
+                ? "scheduled"
+                : "now",
+            releaseDate: toDatetimeLocal(existingReleaseDate),
           });
         } else {
           setForm(
@@ -321,8 +280,9 @@ export default function AdminMaterialsPage() {
           activeType,
         materialOrder:
           selectedOrder,
-        region:
-          activeRegion,
+        region: activeRegion,
+        releaseDateMode: form.releaseDateMode,
+        releaseDate: form.releaseDate ? new Date(form.releaseDate).toISOString() : undefined,
         pdfUrl:
           existing?.pdf_url,
         file,
@@ -397,23 +357,14 @@ export default function AdminMaterialsPage() {
           España y Latinoamérica
           son programas
           independientes.
-          Las fechas de
-          liberación se
-          calculan
-          automáticamente
-          según el calendario
-          de cada región.
+          La publicación de
+          cada material se
+          programa de forma
+          independiente por región.
         </p>
 
         <p className="admin-header__description">
-          El material se abre
-          al día siguiente de
-          la sesión
-          correspondiente y
-          solo después de que
-          el participante haya
-          completado la
-          evaluación inicial.
+          Los materiales no dependen de las sesiones ni de la evaluación inicial. Puedes publicarlos inmediatamente o programar su fecha de publicación.
         </p>
 
         <p className="admin-header__description">
@@ -430,7 +381,7 @@ export default function AdminMaterialsPage() {
       </header>
 
       <div className="admin-form__hint" style={{ marginBottom: "1.5rem" }}>
-        La fecha de apertura no se puede editar desde este panel. Se calcula automáticamente a partir de la fecha de la sesión correspondiente y queda fijada para cada región: España o Latinoamérica.
+        La disponibilidad depende únicamente de la publicación configurada para este material y esta región.
       </div>
 
       <div className="admin-tabs">
@@ -687,42 +638,60 @@ export default function AdminMaterialsPage() {
           </div>
 
 
-          {(() => {
-            const session = sessionByOrder.get(selectedOrder);
-            const sessionDate = activeRegion === "España"
-              ? session?.release_date_spain
-              : session?.release_date_latam;
-            const materialReleaseDate = getMaterialReleaseDate(sessionDate);
+          <section className="admin-material-calendar" aria-label="Publicación del material">
+            <div className="admin-material-calendar__header">
+              <div>
+                <p className="admin-material-calendar__eyebrow">Publicación</p>
+                <h2>Cuándo podrá consultarse este material</h2>
+              </div>
+              <span className={`admin-material-calendar__status ${form.releaseDateMode === "scheduled" ? "admin-material-calendar__status--scheduled" : "admin-material-calendar__status--now"}`}>
+                {form.releaseDateMode === "scheduled" ? "Programado" : "Publicar ahora"}
+              </span>
+            </div>
 
-            return (
-              <section className="admin-material-calendar" aria-label="Calendario de apertura del material">
-                <div className="admin-material-calendar__header">
-                  <div>
-                    <p className="admin-material-calendar__eyebrow">Calendario de apertura</p>
-                    <h2>Cuándo podrá consultarse este material</h2>
-                  </div>
-                  <span className={`admin-material-calendar__status ${materialReleaseDate ? "admin-material-calendar__status--scheduled" : "admin-material-calendar__status--pending"}`}>
-                    {materialReleaseDate ? "Programado" : "Pendiente"}
-                  </span>
-                </div>
+            <div className="admin-publication-options" role="radiogroup" aria-label="Modalidad de publicación">
+              <label className={`admin-publication-option ${form.releaseDateMode === "now" ? "admin-publication-option--active" : ""}`}>
+                <input
+                  type="radio"
+                  name="releaseDateMode"
+                  value="now"
+                  checked={form.releaseDateMode === "now"}
+                  onChange={() => setForm((prev) => ({ ...prev, releaseDateMode: "now" }))}
+                />
+                <span>Publicar ahora</span>
+                <small>El material queda disponible inmediatamente.</small>
+              </label>
 
-                <div className="admin-material-calendar__grid">
-                  <div>
-                    <span>Fecha de la sesión</span>
-                    <strong>{formatAdminDate(sessionDate)}</strong>
-                  </div>
-                  <div>
-                    <span>Fecha de apertura del material</span>
-                    <strong>{formatAdminDate(materialReleaseDate)}</strong>
-                  </div>
-                </div>
+              <label className={`admin-publication-option ${form.releaseDateMode === "scheduled" ? "admin-publication-option--active" : ""}`}>
+                <input
+                  type="radio"
+                  name="releaseDateMode"
+                  value="scheduled"
+                  checked={form.releaseDateMode === "scheduled"}
+                  onChange={() => setForm((prev) => ({ ...prev, releaseDateMode: "scheduled" }))}
+                />
+                <span>Programar publicación</span>
+                <small>Elige la fecha y hora a partir de la que estará disponible.</small>
+              </label>
+            </div>
 
-                <p className="admin-material-calendar__hint">
-                  La fecha de apertura se calcula automáticamente como el día siguiente a la sesión. No se puede editar desde este panel.
-                </p>
-              </section>
-            );
-          })()}
+            {form.releaseDateMode === "scheduled" && (
+              <div className="admin-form__row admin-publication-date">
+                <label htmlFor="releaseDate">Fecha y hora de publicación — {activeRegion}</label>
+                <input
+                  id="releaseDate"
+                  type="datetime-local"
+                  required
+                  value={form.releaseDate}
+                  onChange={(event) => setForm((prev) => ({ ...prev, releaseDate: event.target.value }))}
+                />
+              </div>
+            )}
+
+            <p className="admin-material-calendar__hint">
+              No se requiere completar la evaluación inicial ni realizar una sesión. La fecha de publicación es la única condición de acceso.
+            </p>
+          </section>
 
           <div className="admin-form__actions">
             <button
