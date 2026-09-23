@@ -2,12 +2,11 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
+import { fetchAllRows } from "@/lib/supabase/fetchAll";
 import { buildCsv, csvResponse } from "@/lib/utils/csv";
 
 /**
- * Número máximo de hijos que puede
- * registrar un participante (ver
- * validators/register.ts, MAX_CHILDREN).
+ * Número máximo de hijos que puede registrar un participante.
  */
 const MAX_CHILDREN = 5;
 
@@ -63,10 +62,6 @@ const SELECT_FIELDS = `
   updated_at
 `;
 
-/**
- * Columnas base, en un orden lógico
- * estable pensado para SPSS/R/JASP.
- */
 const BASE_COLUMNS = [
   "participant_code",
   "email",
@@ -86,27 +81,21 @@ const BASE_COLUMNS = [
   "family_structure",
 ] as const;
 
-/**
- * Convierte un booleano a 1/0
- * numérico (más cómodo para SPSS
- * que TRUE/FALSE).
- */
-function boolToNumber(value: boolean | null | undefined): number {
+function boolToNumber(
+  value: boolean | null | undefined,
+): number {
   return value ? 1 : 0;
 }
 
-/**
- * Genera las columnas child_1_age,
- * child_1_gender, child_1_support,
- * child_2_..., hasta MAX_CHILDREN,
- * siempre presentes aunque estén
- * vacías.
- */
 function buildChildColumns(): string[] {
   const columns: string[] = [];
 
-  for (let i = 1; i <= MAX_CHILDREN; i += 1) {
-    columns.push(`child_${i}_age`, `child_${i}_gender`, `child_${i}_support`);
+  for (let index = 1; index <= MAX_CHILDREN; index += 1) {
+    columns.push(
+      `child_${index}_age`,
+      `child_${index}_gender`,
+      `child_${index}_support`,
+    );
   }
 
   return columns;
@@ -115,74 +104,119 @@ function buildChildColumns(): string[] {
 /**
  * GET /api/admin/export/users
  *
- * Exporta el registro completo de
- * participantes, una fila por usuario,
- * en formato compatible con SPSS/R/
- * JASP/Excel (RFC 4180, UTF-8 con BOM,
- * separador por comas, una columna por
- * variable, hijos desnormalizados en
- * columnas child_N_*).
+ * Exporta todos los participantes registrados.
+ *
+ * La consulta se pagina automáticamente y continúa hasta que Supabase
+ * no devuelve más registros.
  */
 export async function GET() {
   const auth = await requireAdmin();
 
   if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
+    return NextResponse.json(
+      { error: auth.message },
+      { status: auth.status },
+    );
   }
 
   const admin = createAdminClient();
 
-  const { data, error } = await admin
-    .from("profiles")
-    .select(SELECT_FIELDS)
-    .order("created_at", { ascending: true });
+  const profilesResult = await fetchAllRows<ProfileRow>(
+    (from, to) =>
+      admin
+        .from("profiles")
+        .select(SELECT_FIELDS)
+        .order("created_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to),
+  );
 
-  if (error) {
+  if (profilesResult.error) {
+    console.error(
+      "Users export error:",
+      profilesResult.error,
+    );
+
     return NextResponse.json(
-      { error: "No se han podido exportar los datos de registro." },
+      {
+        error:
+          "No se han podido exportar los datos de registro.",
+      },
       { status: 500 },
     );
   }
 
-  const profiles = (data ?? []) as unknown as ProfileRow[];
+  const profiles = profilesResult.data;
 
-  const columns = [...BASE_COLUMNS, ...buildChildColumns()];
+  const columns = [
+    ...BASE_COLUMNS,
+    ...buildChildColumns(),
+  ];
 
-  const rows = profiles.map((profile) => {
+  const rows: Record<string, unknown>[] = [];
+
+  for (const profile of profiles) {
     const row: Record<string, unknown> = {
       participant_code: profile.participant_code,
       email: profile.email,
       region: profile.region,
       role: profile.role,
-      accepted_policy: boolToNumber(profile.accepted_policy),
+      accepted_policy: boolToNumber(
+        profile.accepted_policy,
+      ),
       accepted_at: profile.accepted_at ?? "",
       gender: profile.gender ?? "",
       age: profile.age ?? "",
-      education_level: profile.education_level ?? "",
-      employment_status: profile.employment_status ?? "",
-      marital_status: profile.marital_status ?? "",
-      socioeconomic_level: profile.socioeconomic_level ?? "",
-      school_type: profile.school_type ?? "",
-      school_center: profile.school_center ?? "",
-      number_of_children: profile.number_of_children ?? "",
-      family_structure: profile.family_structure ?? "",
+      education_level:
+        profile.education_level ?? "",
+      employment_status:
+        profile.employment_status ?? "",
+      marital_status:
+        profile.marital_status ?? "",
+      socioeconomic_level:
+        profile.socioeconomic_level ?? "",
+      school_type:
+        profile.school_type ?? "",
+      school_center:
+        profile.school_center ?? "",
+      number_of_children:
+        profile.number_of_children ?? "",
+      family_structure:
+        profile.family_structure ?? "",
     };
 
-    const children = Array.isArray(profile.children) ? profile.children : [];
+    const children = Array.isArray(profile.children)
+      ? profile.children
+      : [];
 
-    for (let i = 1; i <= MAX_CHILDREN; i += 1) {
-      const child = children[i - 1];
+    for (
+      let index = 1;
+      index <= MAX_CHILDREN;
+      index += 1
+    ) {
+      const child = children[index - 1];
 
-      row[`child_${i}_age`] = child?.age ?? "";
-      row[`child_${i}_gender`] = child?.gender ?? "";
-      row[`child_${i}_support`] =
-        child === undefined ? "" : boolToNumber(child.psychologicalSupport);
+      row[`child_${index}_age`] =
+        child?.age ?? "";
+
+      row[`child_${index}_gender`] =
+        child?.gender ?? "";
+
+      row[`child_${index}_support`] =
+        child === undefined
+          ? ""
+          : boolToNumber(
+            child.psychologicalSupport,
+          );
     }
 
-    return row;
-  });
+    rows.push(row);
+  }
 
   const csv = buildCsv(columns, rows);
 
-  return csvResponse(csv, "registro-participantes.csv");
+  return csvResponse(
+    csv,
+    "registro-participantes.csv",
+  );
 }
