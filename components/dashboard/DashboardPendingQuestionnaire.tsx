@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+
 import {
     ArrowRight,
     BookOpen,
@@ -7,70 +10,61 @@ import {
 } from "lucide-react";
 
 interface DashboardPendingQuestionnaireProps {
-    readonly preCompleted: boolean;
+    preCompleted: boolean;
 }
 
-/**
- * Tarjeta contextual del cuestionario inicial.
- *
- * Antes de completar el PRE:
- * - comunica que falta una tarea;
- * - explica que es el primer paso;
- * - lleva directamente al cuestionario.
- *
- * Después de completar el PRE:
- * - confirma que el primer paso ya está realizado;
- * - refuerza el progreso conseguido;
- * - dirige directamente a los materiales del programa.
- */
 export default function DashboardPendingQuestionnaire({
     preCompleted,
 }: DashboardPendingQuestionnaireProps) {
-    if (!preCompleted) {
+    if (preCompleted) {
         return (
             <section
-                className="dashboard-pending-questionnaire dashboard-pending-questionnaire--pending"
-                aria-labelledby="dashboard-pending-questionnaire-title"
+                className="dashboard-questionnaire-status dashboard-questionnaire-status--completed"
+                aria-labelledby="dashboard-questionnaire-status-title"
             >
-                <div
-                    className="dashboard-pending-questionnaire__icon"
-                    aria-hidden="true"
-                >
-                    <ClipboardCheck
+                <div className="dashboard-questionnaire-status__accent" />
+
+                <div className="dashboard-questionnaire-status__icon">
+                    <CheckCircle2
                         size={24}
                         strokeWidth={2}
+                        aria-hidden="true"
                     />
                 </div>
 
-                <div className="dashboard-pending-questionnaire__content">
-                    <span className="dashboard-pending-questionnaire__eyebrow">
-                        Primer paso
+                <div className="dashboard-questionnaire-status__content">
+                    <span className="dashboard-questionnaire-status__eyebrow">
+                        Primer paso completado
                     </span>
 
                     <h2
-                        id="dashboard-pending-questionnaire-title"
-                        className="dashboard-pending-questionnaire__title"
+                        id="dashboard-questionnaire-status-title"
+                        className="dashboard-questionnaire-status__title"
                     >
-                        Cuestionario inicial pendiente
+                        Cuestionario inicial completado
                     </h2>
 
-                    <p className="dashboard-pending-questionnaire__description">
-                        Para comenzar tu participación, primero debes completar el
-                        cuestionario inicial. Es el primer paso antes de acceder al resto
-                        del programa.
+                    <p className="dashboard-questionnaire-status__description">
+                        Ya has completado el cuestionario inicial. Puedes continuar
+                        consultando los materiales disponibles del programa.
                     </p>
                 </div>
 
                 <Link
-                    href="/cuestionarios/pre"
-                    prefetch
-                    className="dashboard-pending-questionnaire__cta btn-primary"
-                    aria-label="Completar el cuestionario inicial"
+                    href="/recursos"
+                    className="dashboard-questionnaire-status__action"
                 >
-                    <span>Completar cuestionario inicial</span>
+                    <BookOpen
+                        size={18}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                    />
+
+                    <span>Consultar materiales</span>
 
                     <ArrowRight
-                        size={18}
+                        size={17}
+                        strokeWidth={2}
                         aria-hidden="true"
                     />
                 </Link>
@@ -80,52 +74,47 @@ export default function DashboardPendingQuestionnaire({
 
     return (
         <section
-            className="dashboard-pending-questionnaire dashboard-pending-questionnaire--completed"
-            aria-labelledby="dashboard-completed-questionnaire-title"
+            className="dashboard-questionnaire-status dashboard-questionnaire-status--pending"
+            aria-labelledby="dashboard-questionnaire-status-title"
         >
-            <div
-                className="dashboard-pending-questionnaire__icon"
-                aria-hidden="true"
-            >
-                <CheckCircle2
+            <div className="dashboard-questionnaire-status__accent" />
+
+            <div className="dashboard-questionnaire-status__icon">
+                <ClipboardCheck
                     size={24}
                     strokeWidth={2}
+                    aria-hidden="true"
                 />
             </div>
 
-            <div className="dashboard-pending-questionnaire__content">
-                <span className="dashboard-pending-questionnaire__eyebrow">
-                    Primer paso completado
+            <div className="dashboard-questionnaire-status__content">
+                <span className="dashboard-questionnaire-status__eyebrow">
+                    Primer paso
                 </span>
 
                 <h2
-                    id="dashboard-completed-questionnaire-title"
-                    className="dashboard-pending-questionnaire__title"
+                    id="dashboard-questionnaire-status-title"
+                    className="dashboard-questionnaire-status__title"
                 >
-                    Cuestionario inicial completado
+                    Cuestionario inicial pendiente
                 </h2>
 
-                <p className="dashboard-pending-questionnaire__description">
-                    ¡Ya has completado el primer paso! Ahora puedes continuar con los
-                    materiales del programa y avanzar en tu participación.
+                <p className="dashboard-questionnaire-status__description">
+                    Para comenzar tu participación en el estudio, completa primero el
+                    cuestionario inicial. Después podrás acceder al resto de contenidos
+                    del programa.
                 </p>
             </div>
 
             <Link
-                href="/recursos"
-                prefetch
-                className="dashboard-pending-questionnaire__cta btn-primary"
-                aria-label="Acceder a los materiales del programa"
+                href="/cuestionarios/pre"
+                className="dashboard-questionnaire-status__action"
             >
-                <BookOpen
-                    size={18}
-                    aria-hidden="true"
-                />
-
-                <span>Ver materiales</span>
+                <span>Completar cuestionario</span>
 
                 <ArrowRight
-                    size={18}
+                    size={17}
+                    strokeWidth={2}
                     aria-hidden="true"
                 />
             </Link>
