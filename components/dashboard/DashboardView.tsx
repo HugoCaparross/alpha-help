@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardInfo from "./DashboardInfo";
 import DashboardNextUnlocks from "./DashboardNextUnlocks";
+import DashboardPendingQuestionnaire from "./DashboardPendingQuestionnaire";
 import DashboardProgress from "./DashboardProgress";
 import DashboardQuickActions from "./DashboardQuickActions";
 
@@ -105,6 +106,12 @@ export default function DashboardView() {
       <DashboardHeader
         participantCode={
           dashboard.participantCode
+        }
+      />
+
+      <DashboardPendingQuestionnaire
+        preCompleted={
+          dashboard.preCompleted
         }
       />
 
