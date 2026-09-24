@@ -140,7 +140,7 @@
    Tarjeta contextual del cuestionario inicial
 ========================================================= */
 
-.dashboard-initial-questionnaire {
+.dashboard-questionnaire-status {
   position: relative;
 
   display: grid;
@@ -172,7 +172,7 @@
     background-color 0.2s ease;
 }
 
-.dashboard-initial-questionnaire__accent {
+.dashboard-questionnaire-status__accent {
   position: absolute;
 
   inset: 0 auto 0 0;
@@ -183,7 +183,7 @@
     var(--radius-lg) 0 0 var(--radius-lg);
 }
 
-.dashboard-initial-questionnaire__icon {
+.dashboard-questionnaire-status__icon {
   position: relative;
   z-index: 1;
 
@@ -201,14 +201,14 @@
   border-radius: var(--radius-md);
 }
 
-.dashboard-initial-questionnaire__content {
+.dashboard-questionnaire-status__content {
   position: relative;
   z-index: 1;
 
   min-width: 0;
 }
 
-.dashboard-initial-questionnaire__eyebrow {
+.dashboard-questionnaire-status__eyebrow {
   display: block;
 
   margin-bottom: 0.3rem;
@@ -222,7 +222,7 @@
   text-transform: uppercase;
 }
 
-.dashboard-initial-questionnaire__title {
+.dashboard-questionnaire-status__title {
   margin: 0;
 
   font-size: 1.15rem;
@@ -232,7 +232,7 @@
   overflow-wrap: anywhere;
 }
 
-.dashboard-initial-questionnaire__description {
+.dashboard-questionnaire-status__description {
   max-width: 760px;
 
   margin: 0.4rem 0 0;
@@ -244,7 +244,7 @@
   word-break: break-word;
 }
 
-.dashboard-initial-questionnaire__cta {
+.dashboard-questionnaire-status__action {
   position: relative;
   z-index: 1;
 
@@ -285,7 +285,7 @@
    ESTADO PENDIENTE
 ========================================================= */
 
-.dashboard-initial-questionnaire--pending {
+.dashboard-questionnaire-status--pending {
   border-color: rgba(220, 38, 38, 0.2);
 
   background:
@@ -294,11 +294,11 @@
       #fffafa 100%);
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__accent {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__accent {
   background: #dc2626;
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__icon {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__icon {
   border-color: rgba(220, 38, 38, 0.16);
 
   background: rgba(220, 38, 38, 0.08);
@@ -306,19 +306,19 @@
   color: #dc2626;
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__eyebrow {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__eyebrow {
   color: #b91c1c;
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__title {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__title {
   color: #7f1d1d;
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__description {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__description {
   color: #6b3030;
 }
 
-.dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__cta {
+.dashboard-questionnaire-status--pending .dashboard-questionnaire-status__action {
   border-color: #dc2626;
 
   background: #dc2626;
@@ -334,7 +334,7 @@
    ESTADO COMPLETADO
 ========================================================= */
 
-.dashboard-initial-questionnaire--completed {
+.dashboard-questionnaire-status--completed {
   border-color: rgba(47, 125, 91, 0.18);
 
   background:
@@ -343,11 +343,11 @@
       #f9fdfb 100%);
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__accent {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__accent {
   background: #2f7d5b;
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__icon {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__icon {
   border-color: rgba(47, 125, 91, 0.16);
 
   background: rgba(47, 125, 91, 0.08);
@@ -355,19 +355,19 @@
   color: #2f7d5b;
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__eyebrow {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__eyebrow {
   color: #28704f;
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__title {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__title {
   color: #215f44;
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__description {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__description {
   color: #3d5f4d;
 }
 
-.dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__cta {
+.dashboard-questionnaire-status--completed .dashboard-questionnaire-status__action {
   border-color: #2f7d5b;
 
   background: #2f7d5b;
@@ -383,32 +383,32 @@
    INTERACCIONES
 ========================================================= */
 
-.dashboard-initial-questionnaire__cta:focus-visible {
+.dashboard-questionnaire-status__action:focus-visible {
   outline: 2px solid currentColor;
 
   outline-offset: 3px;
 }
 
 @media (hover: hover) {
-  .dashboard-initial-questionnaire:hover {
+  .dashboard-questionnaire-status:hover {
     transform: translateY(-1px);
 
     box-shadow: var(--shadow-hover);
   }
 
-  .dashboard-initial-questionnaire--pending .dashboard-initial-questionnaire__cta:hover {
+  .dashboard-questionnaire-status--pending .dashboard-questionnaire-status__action:hover {
     border-color: #b91c1c;
 
     background: #b91c1c;
   }
 
-  .dashboard-initial-questionnaire--completed .dashboard-initial-questionnaire__cta:hover {
+  .dashboard-questionnaire-status--completed .dashboard-questionnaire-status__action:hover {
     border-color: #286e50;
 
     background: #286e50;
   }
 
-  .dashboard-initial-questionnaire__cta:hover {
+  .dashboard-questionnaire-status__action:hover {
     transform: translateY(-1px);
   }
 }
@@ -514,8 +514,9 @@
   width: 100%;
   min-width: 0;
 
+  /* 2 columnas en escritorio */
   grid-template-columns:
-    repeat(4,
+    repeat(2,
       minmax(0, 1fr));
 
   gap: 1rem;
@@ -938,15 +939,15 @@
     max-width: 920px;
   }
 
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     padding: 1.5rem 1.75rem 1.5rem 1.6rem;
   }
 
-  .dashboard-initial-questionnaire__title {
+  .dashboard-questionnaire-status__title {
     font-size: 1.2rem;
   }
 
-  .dashboard-initial-questionnaire__description {
+  .dashboard-questionnaire-status__description {
     font-size: 0.96rem;
   }
 
@@ -1008,14 +1009,14 @@
         2.5rem);
   }
 
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     grid-template-columns:
       auto minmax(0, 1fr);
 
     align-items: start;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     grid-column: 1 / -1;
 
     width: fit-content;
@@ -1066,14 +1067,14 @@
         2.6rem);
   }
 
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     grid-template-columns:
       auto minmax(0, 1fr);
 
     align-items: start;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     grid-column: 1 / -1;
 
     width: fit-content;
@@ -1131,7 +1132,7 @@
     line-height: 1.75;
   }
 
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     grid-template-columns:
       auto minmax(0, 1fr);
 
@@ -1142,7 +1143,7 @@
     padding: 1.25rem;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     grid-column: 1 / -1;
 
     width: 100%;
@@ -1190,7 +1191,7 @@
 ========================================================= */
 
 @media (max-width: 768px) {
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     grid-template-columns:
       auto minmax(0, 1fr);
 
@@ -1201,7 +1202,7 @@
     padding: 1.2rem 1.2rem 1.2rem 1.1rem;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     grid-column: 1 / -1;
 
     width: 100%;
@@ -1209,7 +1210,7 @@
 }
 
 @media (max-width: 480px) {
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     gap: 0.875rem;
 
     padding: 1rem 1rem 1rem 0.9rem;
@@ -1217,27 +1218,27 @@
     border-radius: var(--radius-md);
   }
 
-  .dashboard-initial-questionnaire__icon {
+  .dashboard-questionnaire-status__icon {
     width: 3rem;
     height: 3rem;
   }
 
-  .dashboard-initial-questionnaire__eyebrow {
+  .dashboard-questionnaire-status__eyebrow {
     font-size: 0.66rem;
   }
 
-  .dashboard-initial-questionnaire__title {
+  .dashboard-questionnaire-status__title {
     font-size: 1rem;
   }
 
-  .dashboard-initial-questionnaire__description {
+  .dashboard-questionnaire-status__description {
     margin-top: 0.35rem;
 
     font-size: 0.86rem;
     line-height: 1.6;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     min-height: 3rem;
 
     padding-inline: 0.85rem;
@@ -1247,26 +1248,26 @@
 }
 
 @media (max-width: 375px) {
-  .dashboard-initial-questionnaire {
+  .dashboard-questionnaire-status {
     gap: 0.75rem;
 
     padding: 0.9rem 0.85rem 0.9rem 0.8rem;
   }
 
-  .dashboard-initial-questionnaire__icon {
+  .dashboard-questionnaire-status__icon {
     width: 2.75rem;
     height: 2.75rem;
   }
 
-  .dashboard-initial-questionnaire__title {
+  .dashboard-questionnaire-status__title {
     font-size: 0.95rem;
   }
 
-  .dashboard-initial-questionnaire__description {
+  .dashboard-questionnaire-status__description {
     font-size: 0.82rem;
   }
 
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status__action {
     font-size: 0.82rem;
   }
 }
@@ -1664,8 +1665,8 @@
   .dashboard-next-icon,
   .dashboard-info-icon,
   .dashboard-action-card--refined::after,
-  .dashboard-initial-questionnaire,
-  .dashboard-initial-questionnaire__cta {
+  .dashboard-questionnaire-status,
+  .dashboard-questionnaire-status__action {
     transition: none;
   }
 }
