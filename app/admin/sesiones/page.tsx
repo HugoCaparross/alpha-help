@@ -2,16 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-
 import { Edit3, LoaderCircle, Plus, Trash2 } from "lucide-react";
 
 import { SPAIN_SESSION_DATES } from "@/lib/constants/study-calendar";
-
 import {
   deleteAdminSession,
   listAdminSessions,
-  setAdminSessionLiveEnded,
   saveAdminSession,
+  setAdminSessionLiveEnded,
   type AdminRegion,
   type AdminSessionRow,
 } from "@/services/admin/admin-session.service";
@@ -21,12 +19,7 @@ const REGIONS: { id: AdminRegion; label: string }[] = [
   { id: "Latinoamérica", label: "Latinoamérica" },
 ];
 
-const TOTAL_SLOTS = 10;
-
-const SLOTS = Array.from(
-  { length: TOTAL_SLOTS },
-  (_, index) => index,
-);
+const SLOTS = Array.from({ length: 10 }, (_, index) => index);
 
 interface FormState {
   title: string;
@@ -34,6 +27,7 @@ interface FormState {
   zoomUrl: string;
   zoomRecordingUrl: string;
   thumbnailUrl: string;
+  thumbnailFile: File | null;
   sessionDate: string;
 }
 
@@ -43,47 +37,111 @@ const EMPTY_FORM: FormState = {
   zoomUrl: "",
   zoomRecordingUrl: "",
   thumbnailUrl: "",
+  thumbnailFile: null,
   sessionDate: "",
 };
 
+function getTimeZoneForRegion(region: AdminRegion): string {
+  return region === "Latinoamérica"
+    ? "America/Bogota"
+    : "Europe/Madrid";
+}
+
+function getDefaultTimeForRegion(region: AdminRegion): string {
+  return region === "Latinoamérica" ? "11:00" : "19:00";
+}
+
 function toDatetimeLocal(
   iso: string | null | undefined,
+  region: AdminRegion,
 ): string {
-  if (!iso) {
+  if (!iso) return "";
+
+  const timestamp = Date.parse(iso);
+
+  if (!Number.isFinite(timestamp)) {
     return "";
   }
 
-  const date = new Date(iso);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: getTimeZoneForRegion(region),
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date(timestamp));
 
-  if (Number.isNaN(date.getTime())) {
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  ) as Record<string, string>;
+
+  if (
+    !values.year ||
+    !values.month ||
+    !values.day ||
+    !values.hour ||
+    !values.minute
+  ) {
     return "";
   }
 
-  const pad = (value: number) =>
-    String(value).padStart(2, "0");
-
-  return `${date.getFullYear()}-${pad(
-    date.getMonth() + 1,
-  )}-${pad(
-    date.getDate(),
-  )}T${pad(
-    date.getHours(),
-  )}:${pad(
-    date.getMinutes(),
-  )}`;
+  return `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`;
 }
 
-function getAdminLiveState(session: AdminSessionRow | undefined): "upcoming" | "live" | "ended" | "none" {
-  if (!session) return "none";
-  if (session.live_ended_at) return "ended";
-  const releaseDate = activeDateForSession(session);
-  const timestamp = Date.parse(releaseDate ?? "");
-  if (!Number.isFinite(timestamp)) return "upcoming";
-  return Date.now() >= timestamp - 15 * 60_000 ? "live" : "upcoming";
+function activeDateForSession(
+  session: AdminSessionRow,
+): string | null {
+  return session.region === "España"
+    ? session.release_date_spain
+    : session.release_date_latam;
 }
 
-function activeDateForSession(session: AdminSessionRow): string | null {
-  return session.region === "España" ? session.release_date_spain : session.release_date_latam;
+function getAdminLiveState(
+  session: AdminSessionRow | undefined,
+): "upcoming" | "live" | "ended" | "none" {
+  if (!session) {
+    return "none";
+  }
+
+  if (session.live_ended_at) {
+    return "ended";
+  }
+
+  const timestamp = Date.parse(
+    activeDateForSession(session) ?? "",
+  );
+
+  if (!Number.isFinite(timestamp)) {
+    return "upcoming";
+  }
+
+  return Date.now() >= timestamp - 15 * 60_000
+    ? "live"
+    : "upcoming";
+}
+
+function formatAdminDate(
+  value: string,
+  region: AdminRegion,
+): string {
+  const timestamp = Date.parse(value);
+
+  if (!Number.isFinite(timestamp)) {
+    return "Fecha pendiente";
+  }
+
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: getTimeZoneForRegion(region),
+  }).format(new Date(timestamp));
 }
 
 export default function AdminSessionsPage() {
@@ -94,7 +152,7 @@ export default function AdminSessionsPage() {
     useState<AdminRegion>("España");
 
   const [selectedOrder, setSelectedOrder] =
-    useState<number>(0);
+    useState(0);
 
   const [mode, setMode] =
     useState<"create" | "edit">("create");
@@ -114,16 +172,18 @@ export default function AdminSessionsPage() {
   const [success, setSuccess] =
     useState("");
 
+  const [thumbnailInputKey, setThumbnailInputKey] =
+    useState(0);
+
   const loadSessions =
     useCallback(async () => {
       setLoading(true);
       setError("");
 
       try {
-        const data =
-          await listAdminSessions();
-
-        setSessions(data);
+        setSessions(
+          await listAdminSessions(),
+        );
       } catch (err) {
         setError(
           err instanceof Error
@@ -144,8 +204,7 @@ export default function AdminSessionsPage() {
       () =>
         sessions.filter(
           (session) =>
-            session.region ===
-            activeRegion,
+            session.region === activeRegion,
         ),
       [sessions, activeRegion],
     );
@@ -153,10 +212,7 @@ export default function AdminSessionsPage() {
   const sessionByOrder =
     useMemo(() => {
       const map =
-        new Map<
-          number,
-          AdminSessionRow
-        >();
+        new Map<number, AdminSessionRow>();
 
       visibleSessions.forEach(
         (session) => {
@@ -170,6 +226,9 @@ export default function AdminSessionsPage() {
       return map;
     }, [visibleSessions]);
 
+  const selectedSession =
+    sessionByOrder.get(selectedOrder);
+
   const selectSlot =
     useCallback(
       (order: number) => {
@@ -182,31 +241,54 @@ export default function AdminSessionsPage() {
 
         if (existing) {
           setMode("edit");
+
           setForm({
             title: existing.title,
             description: existing.description,
             zoomUrl: existing.zoom_url,
-            zoomRecordingUrl: existing.zoom_recording_url ?? "",
-            thumbnailUrl: existing.thumbnail_url ?? "",
-            sessionDate: toDatetimeLocal(
-              activeRegion === "España"
-                ? existing.release_date_spain
-                : existing.release_date_latam,
-            ),
+            zoomRecordingUrl:
+              existing.zoom_recording_url ?? "",
+            thumbnailUrl:
+              existing.thumbnail_url ?? "",
+            thumbnailFile: null,
+            sessionDate:
+              toDatetimeLocal(
+                activeRegion === "España"
+                  ? existing.release_date_spain
+                  : existing.release_date_latam,
+                activeRegion,
+              ),
           });
-        } else {
-          setMode("create");
-          const suggestedDate =
-            activeRegion === "España"
-              ? SPAIN_SESSION_DATES[order]
-              : undefined;
-          setForm({
-            ...EMPTY_FORM,
-            sessionDate: suggestedDate ? `${suggestedDate}T19:00` : "",
-          });
+
+          setThumbnailInputKey(
+            (value) => value + 1,
+          );
+
+          return;
         }
+
+        setMode("create");
+
+        const suggestedDate =
+          SPAIN_SESSION_DATES[order];
+
+        setForm({
+          ...EMPTY_FORM,
+          sessionDate: suggestedDate
+            ? `${suggestedDate}T${getDefaultTimeForRegion(
+              activeRegion,
+            )}`
+            : "",
+        });
+
+        setThumbnailInputKey(
+          (value) => value + 1,
+        );
       },
-      [activeRegion, sessionByOrder],
+      [
+        activeRegion,
+        sessionByOrder,
+      ],
     );
 
   function selectRegion(
@@ -216,6 +298,9 @@ export default function AdminSessionsPage() {
     setSelectedOrder(0);
     setMode("create");
     setForm(EMPTY_FORM);
+    setThumbnailInputKey(
+      (value) => value + 1,
+    );
     setError("");
     setSuccess("");
   }
@@ -230,28 +315,36 @@ export default function AdminSessionsPage() {
     setSuccess("");
 
     try {
-      const result =
-        await saveAdminSession({
-          title: form.title,
-          description:
-            form.description,
-          zoomUrl:
-            form.zoomUrl,
-          zoomRecordingUrl:
-            form.zoomRecordingUrl,
-          thumbnailUrl:
-            form.thumbnailUrl,
-          sessionOrder:
-            selectedOrder,
-          region:
-            activeRegion,
-          sessionDate: form.sessionDate
-            ? new Date(form.sessionDate).toISOString()
-            : undefined,
-        });
+      await saveAdminSession({
+        title: form.title,
+        description: form.description,
+        zoomUrl: form.zoomUrl,
+        zoomRecordingUrl:
+          form.zoomRecordingUrl,
+        thumbnailUrl:
+          form.thumbnailUrl,
+        thumbnailFile:
+          form.thumbnailFile,
+        sessionOrder:
+          selectedOrder,
+        region:
+          activeRegion,
+        sessionDate:
+          form.sessionDate ||
+          undefined,
+      });
 
       setSuccess(
         "Sesión guardada correctamente.",
+      );
+
+      setForm((previous) => ({
+        ...previous,
+        thumbnailFile: null,
+      }));
+
+      setThumbnailInputKey(
+        (value) => value + 1,
       );
 
       await loadSessions();
@@ -267,12 +360,7 @@ export default function AdminSessionsPage() {
   }
 
   async function handleDelete() {
-    const existing =
-      sessionByOrder.get(
-        selectedOrder,
-      );
-
-    if (!existing) {
+    if (!selectedSession) {
       return;
     }
 
@@ -290,10 +378,15 @@ export default function AdminSessionsPage() {
 
     try {
       await deleteAdminSession(
-        existing.id,
+        selectedSession.id,
       );
 
       setForm(EMPTY_FORM);
+
+      setThumbnailInputKey(
+        (value) => value + 1,
+      );
+
       setSuccess(
         "Sesión eliminada.",
       );
@@ -310,23 +403,39 @@ export default function AdminSessionsPage() {
     }
   }
 
-  const existing =
-    sessionByOrder.get(
-      selectedOrder,
-    );
-
   async function handleLiveStateChange() {
-    if (!existing) return;
-    const currentlyEnded = Boolean(existing.live_ended_at);
+    if (!selectedSession) {
+      return;
+    }
+
+    const currentlyEnded =
+      Boolean(
+        selectedSession.live_ended_at,
+      );
+
     setSaving(true);
     setError("");
     setSuccess("");
+
     try {
-      await setAdminSessionLiveEnded(existing.id, !currentlyEnded);
-      setSuccess(currentlyEnded ? "Acceso en directo reabierto." : "Acceso en directo cerrado. Ahora la sesión se mostrará como diferida.");
+      await setAdminSessionLiveEnded(
+        selectedSession.id,
+        !currentlyEnded,
+      );
+
+      setSuccess(
+        currentlyEnded
+          ? "Acceso en directo reabierto."
+          : "Acceso en directo cerrado. Ahora la sesión se mostrará como diferida.",
+      );
+
       await loadSessions();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error inesperado.",
+      );
     } finally {
       setSaving(false);
     }
@@ -340,11 +449,20 @@ export default function AdminSessionsPage() {
         </h1>
 
         <p className="admin-header__description">
-          Configura de forma independiente las sesiones de España y Latinoamérica. Cada región dispone de una introducción y nueve sesiones.
+          Configura de forma independiente
+          las sesiones de España y
+          Latinoamérica. Cada región dispone
+          de una introducción y nueve sesiones.
         </p>
 
         <p className="admin-header__description">
-          Las sesiones aparecen en la web desde que se configuran. En España el horario es fijo a las 19:00 h. El acceso a Zoom se habilita 15 minutos antes y permanece abierto hasta que cierres el directo desde este panel. Latinoamérica mantiene su calendario y horario propios.
+          En España el horario es fijo a las
+          19:00 h. En Latinoamérica se utiliza
+          11:00 h en Colombia y 10:00 h en
+          México. El acceso a Zoom se habilita
+          15 minutos antes y permanece abierto
+          hasta que cierres el directo desde
+          este panel.
         </p>
       </header>
 
@@ -354,8 +472,8 @@ export default function AdminSessionsPage() {
             key={region.id}
             type="button"
             className={`admin-tab ${activeRegion === region.id
-              ? "admin-tab--active"
-              : ""
+                ? "admin-tab--active"
+                : ""
               }`}
             onClick={() =>
               selectRegion(
@@ -368,32 +486,55 @@ export default function AdminSessionsPage() {
         ))}
       </div>
 
-      <div className="admin-content-mode" role="tablist" aria-label="Modo de gestión de sesiones">
+      <div
+        className="admin-content-mode"
+        role="tablist"
+        aria-label="Modo de gestión de sesiones"
+      >
         <button
           type="button"
-          className={`admin-content-mode__button ${mode === "create" ? "admin-content-mode__button--active" : ""}`}
+          className={`admin-content-mode__button ${mode === "create"
+              ? "admin-content-mode__button--active"
+              : ""
+            }`}
           onClick={() => {
-            const firstEmpty = SLOTS.find((slot) => !sessionByOrder.has(slot)) ?? 0;
+            const firstEmpty =
+              SLOTS.find(
+                (slot) =>
+                  !sessionByOrder.has(
+                    slot,
+                  ),
+              ) ?? 0;
+
             setMode("create");
-            selectSlot(firstEmpty);
-            setError("");
-            setSuccess("");
+            selectSlot(
+              firstEmpty,
+            );
           }}
         >
           <Plus size={17} />
           Crear desde cero
         </button>
+
         <button
           type="button"
-          className={`admin-content-mode__button ${mode === "edit" ? "admin-content-mode__button--active" : ""}`}
+          className={`admin-content-mode__button ${mode === "edit"
+              ? "admin-content-mode__button--active"
+              : ""
+            }`}
           onClick={() => {
-            const firstExisting = visibleSessions[0]?.session_order ?? 0;
+            const firstExisting =
+              visibleSessions[0]
+                ?.session_order ?? 0;
+
             setMode("edit");
-            selectSlot(firstExisting);
-            setError("");
-            setSuccess("");
+            selectSlot(
+              firstExisting,
+            );
           }}
-          disabled={!visibleSessions.length}
+          disabled={
+            !visibleSessions.length
+          }
         >
           <Edit3 size={17} />
           Editar existente
@@ -418,15 +559,24 @@ export default function AdminSessionsPage() {
               ? item?.release_date_spain
               : item?.release_date_latam;
 
+          const liveState =
+            getAdminLiveState(item);
+
           return (
             <button
               key={order}
               type="button"
-              onClick={() => selectSlot(order)}
-              disabled={mode === "create" ? Boolean(item) : !item}
+              onClick={() =>
+                selectSlot(order)
+              }
+              disabled={
+                mode === "create"
+                  ? Boolean(item)
+                  : !item
+              }
               className={`admin-slot ${item
-                ? "admin-slot--filled"
-                : ""
+                  ? "admin-slot--filled"
+                  : ""
                 } ${selectedOrder === order
                   ? "admin-slot--active"
                   : ""
@@ -452,17 +602,33 @@ export default function AdminSessionsPage() {
 
               <span className="admin-slot__status">
                 {item
-                  ? mode === "edit" ? "Editar" : "Ya configurada"
-                  : mode === "create" ? "Disponible para crear" : "Sin configurar"}
+                  ? mode === "edit"
+                    ? "Editar"
+                    : "Ya configurada"
+                  : mode === "create"
+                    ? "Disponible para crear"
+                    : "Sin configurar"}
               </span>
 
               {item && releaseDate && (
                 <>
-                  <span className={`admin-slot__session-state admin-slot__session-state--${getAdminLiveState(item)}`}>
-                    {getAdminLiveState(item) === "ended" ? "Directo cerrado" : getAdminLiveState(item) === "live" ? "Directo abierto" : "Próxima"}
+                  <span
+                    className={`admin-slot__session-state admin-slot__session-state--${liveState}`}
+                  >
+                    {liveState ===
+                      "ended"
+                      ? "Directo cerrado"
+                      : liveState ===
+                        "live"
+                        ? "Directo abierto"
+                        : "Próxima"}
                   </span>
+
                   <span className="admin-slot__date">
-                    {new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(releaseDate))}
+                    {formatAdminDate(
+                      releaseDate,
+                      activeRegion,
+                    )}
                   </span>
                 </>
               )}
@@ -478,12 +644,24 @@ export default function AdminSessionsPage() {
       ) : (
         <form
           className="admin-form"
-          onSubmit={handleSubmit}
+          onSubmit={
+            handleSubmit
+          }
         >
           <div className="admin-form__context">
             <div>
-              <span className="admin-form__context-label">{mode === "create" ? "Nueva sesión" : "Editando sesión existente"}</span>
-              <strong>{selectedOrder === 0 ? "Introducción" : `Sesión ${selectedOrder}`} · {activeRegion}</strong>
+              <span className="admin-form__context-label">
+                {mode === "create"
+                  ? "Nueva sesión"
+                  : "Editando sesión existente"}
+              </span>
+
+              <strong>
+                {selectedOrder === 0
+                  ? "Introducción"
+                  : `Sesión ${selectedOrder}`}{" "}
+                · {activeRegion}
+              </strong>
             </div>
           </div>
 
@@ -501,11 +679,14 @@ export default function AdminSessionsPage() {
               required
               value={form.title}
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  title:
-                    event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    title:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
           </div>
@@ -522,11 +703,14 @@ export default function AdminSessionsPage() {
                 form.description
               }
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  description:
-                    event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    description:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
           </div>
@@ -543,15 +727,21 @@ export default function AdminSessionsPage() {
               placeholder="https://zoom.us/j/..."
               value={form.zoomUrl}
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  zoomUrl: event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    zoomUrl:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
 
             <span className="admin-form__hint">
-              Enlace que utilizarán los participantes para entrar a la sesión en directo.
+              Enlace que utilizarán los
+              participantes para entrar a la
+              sesión en directo.
             </span>
           </div>
 
@@ -564,63 +754,129 @@ export default function AdminSessionsPage() {
               id="zoomRecordingUrl"
               type="url"
               placeholder="https://zoom.us/rec/..."
-              value={form.zoomRecordingUrl}
+              value={
+                form.zoomRecordingUrl
+              }
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  zoomRecordingUrl: event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    zoomRecordingUrl:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
 
             <span className="admin-form__hint">
-              Opcional. Puedes añadirlo después de celebrar la sesión.
+              Opcional. Puedes añadirlo
+              después de celebrar la sesión.
             </span>
           </div>
 
           <div className="admin-form__row">
-            <label htmlFor="thumbnailUrl">
+            <label htmlFor="thumbnailFile">
               Imagen de portada
+            </label>
+
+            <input
+              key={thumbnailInputKey}
+              id="thumbnailFile"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                const file =
+                  event.target.files?.[0] ??
+                  null;
+
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    thumbnailFile:
+                      file,
+                  }),
+                );
+              }}
+            />
+
+            {form.thumbnailFile && (
+              <span className="admin-form__hint">
+                Archivo seleccionado:{" "}
+                {form.thumbnailFile.name}
+              </span>
+            )}
+
+            <span className="admin-form__hint">
+              Puedes subir directamente una
+              imagen desde tu ordenador. Se
+              admiten imágenes en cualquier
+              formato reconocido como imagen
+              por el navegador.
+            </span>
+
+            <label htmlFor="thumbnailUrl">
+              O pega una URL pública
             </label>
 
             <input
               id="thumbnailUrl"
               type="url"
               placeholder="https://..."
-              value={form.thumbnailUrl}
+              value={
+                form.thumbnailUrl
+              }
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  thumbnailUrl: event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    thumbnailUrl:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
 
             <span className="admin-form__hint">
-              Opcional. Si no se indica, la tarjeta mostrará su diseño de portada sin imagen.
+              Si eliges una imagen y además
+              introduces una URL, se utilizará
+              la imagen subida.
             </span>
           </div>
 
           <div className="admin-form__row">
             <label htmlFor="sessionDate">
-              Fecha de la sesión — {activeRegion}
+              Fecha de la sesión —{" "}
+              {activeRegion}
             </label>
 
             <input
               id="sessionDate"
               type="datetime-local"
               required
-              value={form.sessionDate}
+              value={
+                form.sessionDate
+              }
               onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  sessionDate: event.target.value,
-                }))
+                setForm(
+                  (prev) => ({
+                    ...prev,
+                    sessionDate:
+                      event.target
+                        .value,
+                  }),
+                )
               }
             />
 
             <span className="admin-form__hint">
-              Esta es la fecha y hora de comienzo de la sesión en {activeRegion}. El acceso al directo se habilitará automáticamente 15 minutos antes y permanecerá disponible hasta que cierres el directo.
+              En Latinoamérica se utiliza la
+              hora de Colombia: 11:00 h Colombia
+              equivale a 10:00 h México. El
+              acceso al directo se habilita 15
+              minutos antes y permanece disponible
+              hasta que cierres el directo.
             </span>
           </div>
 
@@ -642,20 +898,50 @@ export default function AdminSessionsPage() {
             </p>
           )}
 
-          {existing && (
-            <section className="admin-session-live-control" aria-label="Control del directo">
+          {selectedSession && (
+            <section
+              className="admin-session-live-control"
+              aria-label="Control del directo"
+            >
               <div>
-                <p className="admin-session-live-control__eyebrow">Estado del directo</p>
-                <h2>{existing.live_ended_at ? "Directo cerrado" : "Directo abierto hasta cierre manual"}</h2>
-                <p>{existing.live_ended_at ? "La tarjeta pública ha pasado a diferido. Si todavía necesitas volver a abrir el directo, puedes hacerlo desde aquí." : "Cuando la reunión termine, pulsa el botón para cerrar el acceso en directo. La tarjeta pública pasará entonces a diferido."}</p>
+                <p className="admin-session-live-control__eyebrow">
+                  Estado del directo
+                </p>
+
+                <h2>
+                  {selectedSession.live_ended_at
+                    ? "Directo cerrado"
+                    : "Directo abierto hasta cierre manual"}
+                </h2>
+
+                <p>
+                  {selectedSession.live_ended_at
+                    ? "La tarjeta pública ha pasado a diferido. Si todavía necesitas volver a abrir el directo, puedes hacerlo desde aquí."
+                    : "Cuando la reunión termine, pulsa el botón para cerrar el acceso en directo. La tarjeta pública pasará entonces a diferido."}
+                </p>
               </div>
+
               <button
                 type="button"
-                className={existing.live_ended_at ? "btn-secondary" : "btn-primary"}
-                onClick={() => void handleLiveStateChange()}
-                disabled={saving || (!existing.live_ended_at && getAdminLiveState(existing) !== "live")}
+                className={
+                  selectedSession.live_ended_at
+                    ? "btn-secondary"
+                    : "btn-primary"
+                }
+                onClick={() =>
+                  void handleLiveStateChange()
+                }
+                disabled={
+                  saving ||
+                  (!selectedSession.live_ended_at &&
+                    getAdminLiveState(
+                      selectedSession,
+                    ) !== "live")
+                }
               >
-                {existing.live_ended_at ? "Reabrir directo" : "Cerrar directo"}
+                {selectedSession.live_ended_at
+                  ? "Reabrir directo"
+                  : "Cerrar directo"}
               </button>
             </section>
           )}
@@ -674,16 +960,20 @@ export default function AdminSessionsPage() {
                   />
                   Guardando...
                 </>
+              ) : mode === "create" ? (
+                "Crear sesión"
               ) : (
-                mode === "create" ? "Crear sesión" : "Guardar cambios"
+                "Guardar cambios"
               )}
             </button>
 
-            {existing && (
+            {selectedSession && (
               <button
                 type="button"
                 className="btn-secondary"
-                onClick={handleDelete}
+                onClick={() =>
+                  void handleDelete()
+                }
                 disabled={saving}
               >
                 <Trash2 size={16} />
