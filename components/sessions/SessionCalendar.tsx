@@ -12,32 +12,24 @@ import {
     type StudyCalendarItem,
 } from "@/lib/constants/study-calendar";
 
+import type { Region } from "@/lib/utils/regions";
+
 interface SessionCalendarProps {
-    region:
-    | "España"
-    | "Latinoamérica";
+    region: Region;
 }
 
 function formatDate(
-    value:
-        | string
-        | null
-        | undefined,
+    value: string | null | undefined,
 ): string {
     if (!value) {
         return "Por confirmar";
     }
 
-    const date =
-        new Date(
-            `${value}T12:00:00`,
-        );
+    const date = new Date(
+        `${value}T12:00:00`,
+    );
 
-    if (
-        Number.isNaN(
-            date.getTime(),
-        )
-    ) {
+    if (Number.isNaN(date.getTime())) {
         return "Por confirmar";
     }
 
@@ -53,66 +45,59 @@ function formatDate(
 
 function getRegionDate(
     item: StudyCalendarItem,
-    region:
-        | "España"
-        | "Latinoamérica",
+    region: Region,
 ): string {
-    return region ===
-        "España"
+    return region === "spain"
         ? item.spainDate
         : item.latamDate;
 }
 
-function getRegionDay(
-    region:
-        | "España"
-        | "Latinoamérica",
+function getRegionLabel(
+    region: Region,
 ): string {
-    return region ===
-        "España"
+    return region === "spain"
+        ? "España"
+        : "Latinoamérica";
+}
+
+function getRegionDay(
+    region: Region,
+): string {
+    return region === "spain"
         ? "Jueves"
         : "Sábado";
 }
 
 function getRegionTime(
-    region:
-        | "España"
-        | "Latinoamérica",
+    region: Region,
 ): string {
-    return region ===
-        "España"
+    return region === "spain"
         ? "19:00 h"
         : "10:00 h MEX · 11:00 h COL";
 }
 
 function getRegionDescription(
-    region:
-        | "España"
-        | "Latinoamérica",
+    region: Region,
 ): string {
-    return region ===
-        "España"
+    return region === "spain"
         ? "Sesiones en directo los jueves a las 19:00 h."
         : "Sesiones en directo los sábados a las 11:00 h en Colombia y 10:00 h en México.";
 }
 
-export function SessionCalendar({
+export default function SessionCalendar({
     region,
 }: SessionCalendarProps) {
+    const regionLabel =
+        getRegionLabel(region);
+
     const regionDay =
-        getRegionDay(
-            region,
-        );
+        getRegionDay(region);
 
     const regionTime =
-        getRegionTime(
-            region,
-        );
+        getRegionTime(region);
 
     const regionDescription =
-        getRegionDescription(
-            region,
-        );
+        getRegionDescription(region);
 
     return (
         <section className="session-calendar">
@@ -145,15 +130,13 @@ export function SessionCalendar({
                     />
 
                     <span>
-                        {region}
+                        {regionLabel}
                     </span>
                 </div>
             </header>
 
             <p className="session-calendar__description">
-                {
-                    regionDescription
-                }
+                {regionDescription}
             </p>
 
             <div className="session-calendar__schedule">
@@ -170,10 +153,7 @@ export function SessionCalendar({
                         </span>
 
                         <strong>
-                            {regionDay} ·{" "}
-                            {
-                                regionTime
-                            }
+                            {regionDay} · {regionTime}
                         </strong>
                     </div>
                 </div>
@@ -181,9 +161,7 @@ export function SessionCalendar({
 
             <div className="session-calendar__list">
                 {STUDY_CALENDAR.map(
-                    (
-                        item,
-                    ) => {
+                    (item) => {
                         const date =
                             getRegionDate(
                                 item,
@@ -192,26 +170,20 @@ export function SessionCalendar({
 
                         return (
                             <article
-                                key={
-                                    item.key
-                                }
+                                key={item.key}
                                 className={`session-calendar__item${!item.hasContent
-                                        ? " session-calendar__item--closing"
-                                        : ""
+                                    ? " session-calendar__item--closing"
+                                    : ""
                                     }`}
                             >
                                 <div className="session-calendar__item-number">
-                                    {
-                                        item.label
-                                    }
+                                    {item.label}
                                 </div>
 
                                 <div className="session-calendar__item-main">
                                     <div className="session-calendar__item-date">
                                         <CalendarDays
-                                            size={
-                                                15
-                                            }
+                                            size={15}
                                             strokeWidth={
                                                 1.8
                                             }
@@ -226,18 +198,14 @@ export function SessionCalendar({
                                     </div>
 
                                     <h3>
-                                        {
-                                            item.topic
-                                        }
+                                        {item.topic}
                                     </h3>
                                 </div>
 
                                 <div className="session-calendar__item-status">
                                     {item.hasContent ? (
                                         <CheckCircle2
-                                            size={
-                                                18
-                                            }
+                                            size={18}
                                             strokeWidth={
                                                 1.8
                                             }

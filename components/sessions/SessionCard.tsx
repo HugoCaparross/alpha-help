@@ -1,214 +1,263 @@
-"use client";
-
 import {
-    CalendarDays,
+    Calendar,
     CheckCircle2,
-    Clock3,
-    Globe2,
+    Lock,
+    PlayCircle,
+    Video,
 } from "lucide-react";
 
-import {
-    STUDY_CALENDAR,
-    type StudyCalendarItem,
-} from "@/lib/constants/study-calendar";
+import type {
+    SessionWithStatus,
+} from "@/types/study-session";
 
-interface SessionCalendarProps {
-    region: "España" | "Latinoamérica";
+interface SessionCardProps {
+    readonly session: SessionWithStatus;
+    readonly completed: boolean;
+    readonly onOpen: (
+        session: SessionWithStatus,
+    ) => void;
 }
 
-function formatDate(
-    value: string | null | undefined,
-): string {
-    if (!value) {
-        return "Por confirmar";
-    }
-
-    const date = new Date(
-        `${value}T12:00:00`,
-    );
-
-    if (Number.isNaN(date.getTime())) {
-        return "Por confirmar";
-    }
-
-    return new Intl.DateTimeFormat(
+const dateFormatter =
+    new Intl.DateTimeFormat(
         "es-ES",
         {
-            day: "numeric",
-            month: "long",
+            day: "2-digit",
+            month: "2-digit",
             year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         },
-    ).format(date);
-}
+    );
 
-function getRegionDate(
-    item: StudyCalendarItem,
-    region: "España" | "Latinoamérica",
+function formatDate(
+    date: string | null,
 ): string {
-    return region === "España"
-        ? item.spainDate
-        : item.latamDate;
+    const timestamp =
+        date
+            ? Date.parse(date)
+            : Number.NaN;
+
+    return Number.isFinite(
+        timestamp,
+    )
+        ? dateFormatter.format(
+            timestamp,
+        )
+        : "Fecha pendiente";
 }
 
-function getRegionDay(
-    region: "España" | "Latinoamérica",
-): string {
-    return region === "España"
-        ? "Jueves"
-        : "Sábado";
-}
+export default function SessionCard({
+    session,
+    completed,
+    onOpen,
+}: SessionCardProps) {
+    const isUpcoming =
+        session.status ===
+        "upcoming";
 
-function getRegionTime(
-    region: "España" | "Latinoamérica",
-): string {
-    return region === "España"
-        ? "19:00 h"
-        : "10:00 h MEX · 11:00 h COL";
-}
+    const isLive =
+        session.status ===
+        "live";
 
-function getRegionDescription(
-    region: "España" | "Latinoamérica",
-): string {
-    return region === "España"
-        ? "Sesiones en directo los jueves a las 19:00 h."
-        : "Sesiones en directo los sábados a las 11:00 h en Colombia y 10:00 h en México.";
-}
+    const isEnded =
+        session.status ===
+        "ended";
 
-export function SessionCalendar({
-    region,
-}: SessionCalendarProps) {
-    const regionDay =
-        getRegionDay(region);
+    const canOpen =
+        session.canJoinLive ||
+        session.canWatchRecording;
 
-    const regionTime =
-        getRegionTime(region);
+    const hasThumbnail =
+        typeof session.thumbnailUrl ===
+        "string" &&
+        session.thumbnailUrl.trim()
+            .length > 0;
 
-    const regionDescription =
-        getRegionDescription(region);
+    function handleOpen() {
+        if (!canOpen) {
+            return;
+        }
+
+        onOpen(session);
+    }
+
+    const cardClassName = [
+        "session-card",
+        isUpcoming &&
+        "session-card--upcoming",
+        isLive &&
+        "session-card--live",
+        isEnded &&
+        "session-card--ended",
+        !hasThumbnail &&
+        "session-card--no-thumbnail",
+    ]
+        .filter(Boolean)
+        .join(" ");
 
     return (
-        <section className="session-calendar">
-            <header className="session-calendar__header">
-                <div className="session-calendar__heading">
-                    <span className="session-calendar__icon">
-                        <CalendarDays
-                            size={20}
-                            strokeWidth={1.8}
+        <article
+            className={
+                cardClassName
+            }
+            aria-labelledby={`session-title-${session.id}`}
+        >
+            <div className="session-card__thumb">
+                {hasThumbnail && (
+                    <img
+                        src={
+                            session.thumbnailUrl
+                        }
+                        alt={
+                            session.title
+                        }
+                        loading="lazy"
+                        className="session-card__thumb-img"
+                    />
+                )}
+
+                <span className="session-card__order">
+                    {session.sessionOrder ===
+                        0
+                        ? "Introducción"
+                        : `Sesión ${session.sessionOrder}`}
+                </span>
+
+                {isLive && (
+                    <span className="session-card__live-badge session-card__zoom-badge">
+                        <Video
+                            size={13}
                             aria-hidden="true"
                         />
+                        Directo
                     </span>
+                )}
 
-                    <div>
-                        <p className="session-calendar__eyebrow">
-                            Calendario
-                        </p>
+                {isEnded && (
+                    <span className="session-card__live-badge session-card__recording-badge">
+                        <PlayCircle
+                            size={13}
+                            aria-hidden="true"
+                        />
+                        Diferido
+                    </span>
+                )}
 
-                        <h2 className="session-calendar__title">
-                            Programa de sesiones
-                        </h2>
-                    </div>
-                </div>
+                {completed && (
+                    <span className="session-card__watched-badge">
+                        <CheckCircle2
+                            size={13}
+                            aria-hidden="true"
+                        />
+                        Vista
+                    </span>
+                )}
+            </div>
 
-                <div className="session-calendar__region">
-                    <Globe2
-                        size={17}
-                        strokeWidth={1.8}
+            <div className="session-card__body">
+                <h3
+                    id={`session-title-${session.id}`}
+                    className="session-card__title"
+                >
+                    {session.title}
+                </h3>
+
+                <p className="session-card__desc">
+                    {session.description}
+                </p>
+
+                <div className="session-card__date">
+                    <Calendar
+                        size={14}
                         aria-hidden="true"
                     />
 
                     <span>
-                        {region}
+                        {formatDate(
+                            session.releaseDate,
+                        )}
                     </span>
                 </div>
-            </header>
 
-            <p className="session-calendar__description">
-                {regionDescription}
-            </p>
-
-            <div className="session-calendar__schedule">
-                <div className="session-calendar__schedule-item">
-                    <Clock3
-                        size={17}
-                        strokeWidth={1.8}
-                        aria-hidden="true"
-                    />
-
-                    <div>
-                        <span className="session-calendar__schedule-label">
-                            Día y hora
+                {isUpcoming && (
+                    <div className="session-card__status-message">
+                        <span className="session-card__status-title">
+                            Sesión bloqueada
                         </span>
 
-                        <strong>
-                            {regionDay} · {regionTime}
-                        </strong>
+                        <span>
+                            Esta sesión permanecerá
+                            bloqueada hasta 15 minutos
+                            antes del comienzo.
+                        </span>
+
+                        <span>
+                            Comienza:{" "}
+                            {formatDate(
+                                session.releaseDate,
+                            )}
+                        </span>
                     </div>
-                </div>
-            </div>
-
-            <div className="session-calendar__list">
-                {STUDY_CALENDAR.map(
-                    (item) => {
-                        const date =
-                            getRegionDate(
-                                item,
-                                region,
-                            );
-
-                        return (
-                            <article
-                                key={item.key}
-                                className={`session-calendar__item${!item.hasContent
-                                        ? " session-calendar__item--closing"
-                                        : ""
-                                    }`}
-                            >
-                                <div className="session-calendar__item-number">
-                                    {item.label}
-                                </div>
-
-                                <div className="session-calendar__item-main">
-                                    <div className="session-calendar__item-date">
-                                        <CalendarDays
-                                            size={15}
-                                            strokeWidth={
-                                                1.8
-                                            }
-                                            aria-hidden="true"
-                                        />
-
-                                        <span>
-                                            {formatDate(
-                                                date,
-                                            )}
-                                        </span>
-                                    </div>
-
-                                    <h3>
-                                        {item.topic}
-                                    </h3>
-                                </div>
-
-                                <div className="session-calendar__item-status">
-                                    {item.hasContent ? (
-                                        <CheckCircle2
-                                            size={18}
-                                            strokeWidth={
-                                                1.8
-                                            }
-                                            aria-hidden="true"
-                                        />
-                                    ) : (
-                                        <span>
-                                            Cierre
-                                        </span>
-                                    )}
-                                </div>
-                            </article>
-                        );
-                    },
                 )}
+
+                {isLive &&
+                    session.canJoinLive && (
+                        <button
+                            type="button"
+                            className="session-card__cta"
+                            onClick={
+                                handleOpen
+                            }
+                            aria-label={`Unirse a la sesión "${session.title}"`}
+                        >
+                            <Video
+                                size={17}
+                                aria-hidden="true"
+                            />
+
+                            <span>
+                                Unirse a la sesión
+                            </span>
+                        </button>
+                    )}
+
+                {isEnded &&
+                    session.canWatchRecording && (
+                        <button
+                            type="button"
+                            className="session-card__cta"
+                            onClick={
+                                handleOpen
+                            }
+                            aria-label={`Ver la grabación de "${session.title}"`}
+                        >
+                            <PlayCircle
+                                size={17}
+                                aria-hidden="true"
+                            />
+
+                            <span>
+                                Ver grabación
+                            </span>
+                        </button>
+                    )}
+
+                {isEnded &&
+                    !session.canWatchRecording && (
+                        <div className="session-card__locked-cta">
+                            <Lock
+                                size={15}
+                                aria-hidden="true"
+                            />
+
+                            <span>
+                                Grabación pendiente de
+                                publicación.
+                            </span>
+                        </div>
+                    )}
             </div>
-        </section>
+        </article>
     );
 }
