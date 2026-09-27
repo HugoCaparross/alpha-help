@@ -50,7 +50,9 @@ interface SessionRow {
   | null;
   thumbnail_url: string;
   session_order: number;
-  release_date_spain: string;
+  release_date_spain:
+  | string
+  | null;
   release_date_latam:
   | string
   | null;
@@ -161,6 +163,7 @@ function getSessionStatus(
   ) {
     return {
       ...session,
+      region,
       releaseDate,
       status: "ended",
       canJoinLive: false,
@@ -178,6 +181,7 @@ function getSessionStatus(
   ) {
     return {
       ...session,
+      region,
       releaseDate,
       status: "upcoming",
       canJoinLive: false,
@@ -190,6 +194,7 @@ function getSessionStatus(
 
   return {
     ...session,
+    region,
     releaseDate,
     status: canJoinLive
       ? "live"

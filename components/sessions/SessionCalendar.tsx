@@ -100,7 +100,10 @@ export default function SessionCalendar({
         getRegionDescription(region);
 
     return (
-        <section className="session-calendar">
+        <section
+            className="session-calendar"
+            aria-labelledby="session-calendar-title"
+        >
             <header className="session-calendar__header">
                 <div className="session-calendar__heading">
                     <span className="session-calendar__icon">
@@ -116,13 +119,19 @@ export default function SessionCalendar({
                             Calendario
                         </p>
 
-                        <h2 className="session-calendar__title">
+                        <h2
+                            id="session-calendar-title"
+                            className="session-calendar__title"
+                        >
                             Programa de sesiones
                         </h2>
                     </div>
                 </div>
 
-                <div className="session-calendar__region">
+                <div
+                    className="session-calendar__region"
+                    aria-label={`Región: ${regionLabel}`}
+                >
                     <Globe2
                         size={17}
                         strokeWidth={1.8}

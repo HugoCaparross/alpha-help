@@ -18,33 +18,37 @@ interface SessionCardProps {
     ) => void;
 }
 
-const dateFormatter =
-    new Intl.DateTimeFormat(
+function formatDate(
+    date: string | null,
+    region: SessionWithStatus["region"],
+): string {
+    if (!date) {
+        return "Fecha pendiente";
+    }
+
+    const timestamp = Date.parse(date);
+
+    if (!Number.isFinite(timestamp)) {
+        return "Fecha pendiente";
+    }
+
+    const timeZone =
+        region === "spain"
+            ? "Europe/Madrid"
+            : "America/Bogota";
+
+    return new Intl.DateTimeFormat(
         "es-ES",
         {
+            timeZone,
             day: "2-digit",
             month: "2-digit",
             year: "numeric",
             hour: "2-digit",
             minute: "2-digit",
+            hour12: false,
         },
-    );
-
-function formatDate(
-    date: string | null,
-): string {
-    const timestamp =
-        date
-            ? Date.parse(date)
-            : Number.NaN;
-
-    return Number.isFinite(
-        timestamp,
-    )
-        ? dateFormatter.format(
-            timestamp,
-        )
-        : "Fecha pendiente";
+    ).format(timestamp);
 }
 
 export default function SessionCard({
@@ -176,6 +180,7 @@ export default function SessionCard({
                     <span>
                         {formatDate(
                             session.releaseDate,
+                            session.region,
                         )}
                     </span>
                 </div>
@@ -196,6 +201,7 @@ export default function SessionCard({
                             Comienza:{" "}
                             {formatDate(
                                 session.releaseDate,
+                                session.region,
                             )}
                         </span>
                     </div>
