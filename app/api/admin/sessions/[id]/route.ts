@@ -1,354 +1,241 @@
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
-import {
-  createServerClient as createAdminClient,
-} from "@/lib/supabase/admin";
+import { createServerClient as createAdminClient } from "@/lib/supabase/admin";
 
-const TABLE = "study_sessions";
+const STORAGE_BUCKET = "study-session-images";
 
-const IMAGE_BUCKET =
-  "study-session-images";
+function getStoragePathFromUrl(url: string): string | null {
+  const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
 
-interface RouteParams {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-function getManagedImagePath(
-  value: string | null,
-): string | null {
-  if (!value) {
-    return null;
-  }
-
-  const marker =
-    `/storage/v1/object/public/${IMAGE_BUCKET}/`;
-
-  const index =
-    value.indexOf(marker);
+  const index = url.indexOf(marker);
 
   if (index === -1) {
     return null;
   }
 
-  return (
-    value
-      .slice(
-        index +
-        marker.length,
-      )
-      .split("?")[0] ||
-    null
-  );
+  return decodeURIComponent(url.slice(index + marker.length));
+}
+
+async function removeManagedImage(
+  supabase: ReturnType<typeof createAdminClient>,
+  url: string | null | undefined,
+): Promise<void> {
+  if (!url) {
+    return;
+  }
+
+  const path = getStoragePathFromUrl(url);
+
+  if (!path) {
+    return;
+  }
+
+  await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+}
+
+interface RouteContext {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
 export async function GET(
   _request: Request,
-  {
-    params,
-  }: RouteParams,
+  context: RouteContext,
 ) {
-  const auth =
+  try {
     await requireAdmin();
 
-  if (!auth.ok) {
-    return NextResponse.json(
-      {
-        error:
-          auth.message,
-      },
-      {
-        status:
-          auth.status,
-      },
-    );
-  }
+    const { id } = await context.params;
 
-  const { id } =
-    await params;
+    const supabase = createAdminClient();
 
-  const admin =
-    createAdminClient();
-
-  const {
-    data,
-    error,
-  } =
-    await admin
-      .from(TABLE)
+    const { data, error } = await supabase
+      .from("study_sessions")
       .select(
-        "id,title,description,zoom_url,zoom_recording_url,thumbnail_url,session_order,region,release_date_spain,release_date_latam,live_ended_at,created_at,updated_at",
+        `
+                id,
+                title,
+                description,
+                zoom_url,
+                zoom_recording_url,
+                thumbnail_url,
+                session_order,
+                live_ended_at,
+                region,
+                release_date_spain,
+                release_date_latam
+                `,
       )
-      .eq(
-        "id",
-        id,
-      )
-      .maybeSingle();
+      .eq("id", id)
+      .single();
 
-  if (error) {
+    if (error) {
+      return NextResponse.json(
+        {
+          error: "No se ha podido cargar la sesión.",
+        },
+        {
+          status: 404,
+        },
+      );
+    }
+
+    return NextResponse.json({
+      session: data,
+    });
+  } catch (error) {
+    console.error("[GET /api/admin/sessions/:id]", error);
+
     return NextResponse.json(
       {
-        error:
-          "No se ha podido recuperar la sesión.",
+        error: "No autorizado.",
       },
       {
-        status: 500,
+        status: 401,
       },
     );
   }
-
-  if (!data) {
-    return NextResponse.json(
-      {
-        error:
-          "La sesión no existe.",
-      },
-      {
-        status: 404,
-      },
-    );
-  }
-
-  return NextResponse.json({
-    session: data,
-  });
 }
 
 export async function PATCH(
   request: Request,
-  {
-    params,
-  }: RouteParams,
+  context: RouteContext,
 ) {
-  const auth =
+  try {
     await requireAdmin();
 
-  if (!auth.ok) {
-    return NextResponse.json(
-      {
-        error:
-          auth.message,
-      },
-      {
-        status:
-          auth.status,
-      },
-    );
-  }
+    const { id } = await context.params;
 
-  const { id } =
-    await params;
+    const body = await request.json();
 
-  let body: unknown;
+    if (typeof body.liveEnded !== "boolean") {
+      return NextResponse.json(
+        {
+          error: "El estado indicado no es válido.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
 
-  try {
-    body =
-      await request.json();
-  } catch {
-    return NextResponse.json(
-      {
-        error:
-          "La petición contiene datos inválidos.",
-      },
-      {
-        status: 400,
-      },
-    );
-  }
+    const supabase = createAdminClient();
 
-  if (
-    !body ||
-    typeof body !==
-    "object" ||
-    typeof (
-      body as Record<
-        string,
-        unknown
-      >
-    ).liveEnded !==
-    "boolean"
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          "El estado del directo no es válido.",
-      },
-      {
-        status: 400,
-      },
-    );
-  }
-
-  const liveEnded =
-    (
-      body as Record<
-        string,
-        unknown
-      >
-    ).liveEnded as boolean;
-
-  const admin =
-    createAdminClient();
-
-  const {
-    error,
-  } =
-    await admin
-      .from(TABLE)
+    const { error } = await supabase
+      .from("study_sessions")
       .update({
-        live_ended_at:
-          liveEnded
-            ? new Date().toISOString()
-            : null,
-        updated_at:
-          new Date().toISOString(),
+        live_ended_at: body.liveEnded
+          ? new Date().toISOString()
+          : null,
+        updated_at: new Date().toISOString(),
       })
-      .eq(
-        "id",
-        id,
+      .eq("id", id);
+
+    if (error) {
+      console.error(
+        "[PATCH /api/admin/sessions/:id]",
+        error,
       );
 
-  if (error) {
-    console.error(
-      "[admin/sessions][PATCH]",
-      error,
-    );
+      return NextResponse.json(
+        {
+          error:
+            "No se ha podido actualizar el estado de la sesión.",
+        },
+        {
+          status: 500,
+        },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+    });
+  } catch (error) {
+    console.error("[PATCH /api/admin/sessions/:id]", error);
 
     return NextResponse.json(
       {
-        error:
-          "No se ha podido actualizar el estado de la sesión.",
+        error: "No se ha podido actualizar la sesión.",
       },
       {
         status: 500,
       },
     );
   }
-
-  return NextResponse.json({
-    ok: true,
-  });
 }
 
 export async function DELETE(
   _request: Request,
-  {
-    params,
-  }: RouteParams,
+  context: RouteContext,
 ) {
-  const auth =
+  try {
     await requireAdmin();
 
-  if (!auth.ok) {
-    return NextResponse.json(
-      {
-        error:
-          auth.message,
-      },
-      {
-        status:
-          auth.status,
-      },
-    );
-  }
+    const { id } = await context.params;
 
-  const { id } =
-    await params;
+    const supabase = createAdminClient();
 
-  const admin =
-    createAdminClient();
+    const { data: session, error: fetchError } = await supabase
+      .from("study_sessions")
+      .select("id, thumbnail_url")
+      .eq("id", id)
+      .single();
 
-  const {
-    data: session,
-    error:
-    sessionError,
-  } =
-    await admin
-      .from(TABLE)
-      .select(
-        "id, thumbnail_url",
-      )
-      .eq(
-        "id",
-        id,
-      )
-      .maybeSingle();
+    if (fetchError || !session) {
+      return NextResponse.json(
+        {
+          error: "La sesión no existe.",
+        },
+        {
+          status: 404,
+        },
+      );
+    }
 
-  if (sessionError) {
-    console.error(
-      "[admin/sessions][DELETE][GET]",
-      sessionError,
-    );
-
-    return NextResponse.json(
-      {
-        error:
-          "No se ha podido recuperar la sesión.",
-      },
-      {
-        status: 500,
-      },
-    );
-  }
-
-  if (!session) {
-    return NextResponse.json(
-      {
-        error:
-          "La sesión no existe.",
-      },
-      {
-        status: 404,
-      },
-    );
-  }
-
-  const {
-    error,
-  } =
-    await admin
-      .from(TABLE)
+    const { error: deleteError } = await supabase
+      .from("study_sessions")
       .delete()
-      .eq(
-        "id",
-        id,
+      .eq("id", id);
+
+    if (deleteError) {
+      console.error(
+        "[DELETE /api/admin/sessions/:id]",
+        deleteError,
       );
 
-  if (error) {
-    console.error(
-      "[admin/sessions][DELETE]",
-      error,
-    );
+      return NextResponse.json(
+        {
+          error: "No se ha podido eliminar la sesión.",
+        },
+        {
+          status: 500,
+        },
+      );
+    }
+
+    if (session.thumbnail_url) {
+      await removeManagedImage(
+        supabase,
+        session.thumbnail_url,
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+    });
+  } catch (error) {
+    console.error("[DELETE /api/admin/sessions/:id]", error);
 
     return NextResponse.json(
       {
-        error:
-          "No se ha podido eliminar la sesión.",
+        error: "No se ha podido eliminar la sesión.",
       },
       {
         status: 500,
       },
     );
   }
-
-  const imagePath =
-    getManagedImagePath(
-      session.thumbnail_url,
-    );
-
-  if (imagePath) {
-    await admin.storage
-      .from(
-        IMAGE_BUCKET,
-      )
-      .remove([
-        imagePath,
-      ]);
-  }
-
-  return NextResponse.json({
-    ok: true,
-  });
 }

@@ -1,249 +1,259 @@
 "use client";
 
-import { useState } from "react";
 import {
     CalendarDays,
+    CheckCircle2,
     Clock3,
+    Globe2,
 } from "lucide-react";
 
-import Modal from "@/components/ui/Modal";
-import type { Region } from "@/lib/utils/regions";
 import {
     STUDY_CALENDAR,
+    type StudyCalendarItem,
 } from "@/lib/constants/study-calendar";
 
 interface SessionCalendarProps {
-    readonly region: Region;
+    region:
+    | "España"
+    | "Latinoamérica";
 }
 
-const dateFormatter =
-    new Intl.DateTimeFormat(
+function formatDate(
+    value:
+        | string
+        | null
+        | undefined,
+): string {
+    if (!value) {
+        return "Por confirmar";
+    }
+
+    const date =
+        new Date(
+            `${value}T12:00:00`,
+        );
+
+    if (
+        Number.isNaN(
+            date.getTime(),
+        )
+    ) {
+        return "Por confirmar";
+    }
+
+    return new Intl.DateTimeFormat(
         "es-ES",
         {
             day: "numeric",
             month: "long",
             year: "numeric",
         },
-    );
-
-const REGION_COPY: Record<
-    Region,
-    {
-        label: string;
-        description: string;
-        columnTitle: string;
-        time: string;
-    }
-> = {
-    spain: {
-        label: "España",
-        description:
-            "Consulta las fechas oficiales de las sesiones del programa para España.",
-        columnTitle:
-            "España · jueves",
-        time: "19:00 h",
-    },
-
-    latam: {
-        label:
-            "Latinoamérica",
-        description:
-            "Consulta las fechas oficiales de las sesiones del programa para Latinoamérica.",
-        columnTitle:
-            "Latinoamérica · jueves",
-        time:
-            "10:00 MEX · 11:00 COL",
-    },
-};
-
-function formatDate(
-    value: string | null,
-): string {
-    if (!value) {
-        return "Pendiente de confirmar";
-    }
-
-    return dateFormatter.format(
-        new Date(
-            `${value}T12:00:00`,
-        ),
-    );
+    ).format(date);
 }
 
-export default function SessionCalendar({
+function getRegionDate(
+    item: StudyCalendarItem,
+    region:
+        | "España"
+        | "Latinoamérica",
+): string {
+    return region ===
+        "España"
+        ? item.spainDate
+        : item.latamDate;
+}
+
+function getRegionDay(
+    region:
+        | "España"
+        | "Latinoamérica",
+): string {
+    return region ===
+        "España"
+        ? "Jueves"
+        : "Sábado";
+}
+
+function getRegionTime(
+    region:
+        | "España"
+        | "Latinoamérica",
+): string {
+    return region ===
+        "España"
+        ? "19:00 h"
+        : "10:00 h MEX · 11:00 h COL";
+}
+
+function getRegionDescription(
+    region:
+        | "España"
+        | "Latinoamérica",
+): string {
+    return region ===
+        "España"
+        ? "Sesiones en directo los jueves a las 19:00 h."
+        : "Sesiones en directo los sábados a las 11:00 h en Colombia y 10:00 h en México.";
+}
+
+export function SessionCalendar({
     region,
 }: SessionCalendarProps) {
-    const [
-        calendarOpen,
-        setCalendarOpen,
-    ] = useState(false);
+    const regionDay =
+        getRegionDay(
+            region,
+        );
 
-    const copy =
-        REGION_COPY[region];
+    const regionTime =
+        getRegionTime(
+            region,
+        );
+
+    const regionDescription =
+        getRegionDescription(
+            region,
+        );
 
     return (
-        <>
-            <section
-                className="sesiones-calendar-trigger"
-                aria-labelledby="sesiones-calendar-trigger-title"
-            >
-                <div
-                    className="sesiones-calendar-trigger__icon"
-                    aria-hidden="true"
-                >
-                    <CalendarDays
-                        size={22}
-                    />
+        <section className="session-calendar">
+            <header className="session-calendar__header">
+                <div className="session-calendar__heading">
+                    <span className="session-calendar__icon">
+                        <CalendarDays
+                            size={20}
+                            strokeWidth={1.8}
+                            aria-hidden="true"
+                        />
+                    </span>
+
+                    <div>
+                        <p className="session-calendar__eyebrow">
+                            Calendario
+                        </p>
+
+                        <h2 className="session-calendar__title">
+                            Programa de sesiones
+                        </h2>
+                    </div>
                 </div>
 
-                <div className="sesiones-calendar-trigger__content">
-                    <p className="sesiones-calendar-trigger__eyebrow">
-                        Calendario del programa
-                    </p>
-
-                    <h2
-                        id="sesiones-calendar-trigger-title"
-                        className="sesiones-calendar-trigger__title"
-                    >
-                        Consulta las fechas de tus
-                        sesiones
-                    </h2>
-
-                    <p className="sesiones-calendar-trigger__description">
-                        {copy.description}
-                    </p>
-                </div>
-
-                <button
-                    type="button"
-                    className="sesiones-calendar-trigger__button"
-                    onClick={() =>
-                        setCalendarOpen(true)
-                    }
-                    aria-haspopup="dialog"
-                >
-                    <CalendarDays
+                <div className="session-calendar__region">
+                    <Globe2
                         size={17}
+                        strokeWidth={1.8}
                         aria-hidden="true"
                     />
 
                     <span>
-                        Ver calendario
+                        {region}
                     </span>
-                </button>
-            </section>
-
-            <Modal
-                open={calendarOpen}
-                title={`Calendario de sesiones · ${copy.label}`}
-                onClose={() =>
-                    setCalendarOpen(false)
-                }
-                maxWidth={1050}
-            >
-                <div className="sesiones-calendar-modal">
-                    <div className="sesiones-calendar-modal__intro">
-                        <div
-                            className="sesiones-calendar-modal__intro-icon"
-                            aria-hidden="true"
-                        >
-                            <CalendarDays
-                                size={20}
-                            />
-                        </div>
-
-                        <div>
-                            <h3>
-                                Fechas de las sesiones
-                            </h3>
-
-                            <p>
-                                {copy.description}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="sesiones-calendar__table-wrap">
-                        <table className="sesiones-calendar__table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Sesión
-                                    </th>
-
-                                    <th>
-                                        Temática
-                                    </th>
-
-                                    <th>
-                                        {copy.columnTitle}
-                                        <br />
-                                        {copy.time}
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {STUDY_CALENDAR.map(
-                                    (item) => (
-                                        <tr
-                                            key={
-                                                item.key
-                                            }
-                                            className={
-                                                !item.hasContent
-                                                    ? "sesiones-calendar__closing"
-                                                    : undefined
-                                            }
-                                        >
-                                            <td>
-                                                <span className="sesiones-calendar__session-badge">
-                                                    {item.label}
-                                                </span>
-                                            </td>
-
-                                            <td>
-                                                <strong>
-                                                    {item.topic}
-                                                </strong>
-
-                                                {!item.hasContent && (
-                                                    <span className="sesiones-calendar__no-content">
-                                                        Sin contenidos
-                                                    </span>
-                                                )}
-                                            </td>
-
-                                            <td>
-                                                <span className="sesiones-calendar__date">
-                                                    <Clock3
-                                                        size={15}
-                                                        aria-hidden="true"
-                                                    />
-
-                                                    {formatDate(
-                                                        region ===
-                                                            "spain"
-                                                            ? item.spainDate
-                                                            : item.latamDate,
-                                                    )}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ),
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p className="sesiones-calendar__note">
-                        La sesión de cierre es una
-                        sesión adicional de anuncio y
-                        cierre del programa; no tiene
-                        contenidos asociados.
-                    </p>
                 </div>
-            </Modal>
-        </>
+            </header>
+
+            <p className="session-calendar__description">
+                {
+                    regionDescription
+                }
+            </p>
+
+            <div className="session-calendar__schedule">
+                <div className="session-calendar__schedule-item">
+                    <Clock3
+                        size={17}
+                        strokeWidth={1.8}
+                        aria-hidden="true"
+                    />
+
+                    <div>
+                        <span className="session-calendar__schedule-label">
+                            Día y hora
+                        </span>
+
+                        <strong>
+                            {regionDay} ·{" "}
+                            {
+                                regionTime
+                            }
+                        </strong>
+                    </div>
+                </div>
+            </div>
+
+            <div className="session-calendar__list">
+                {STUDY_CALENDAR.map(
+                    (
+                        item,
+                    ) => {
+                        const date =
+                            getRegionDate(
+                                item,
+                                region,
+                            );
+
+                        return (
+                            <article
+                                key={
+                                    item.key
+                                }
+                                className={`session-calendar__item${!item.hasContent
+                                        ? " session-calendar__item--closing"
+                                        : ""
+                                    }`}
+                            >
+                                <div className="session-calendar__item-number">
+                                    {
+                                        item.label
+                                    }
+                                </div>
+
+                                <div className="session-calendar__item-main">
+                                    <div className="session-calendar__item-date">
+                                        <CalendarDays
+                                            size={
+                                                15
+                                            }
+                                            strokeWidth={
+                                                1.8
+                                            }
+                                            aria-hidden="true"
+                                        />
+
+                                        <span>
+                                            {formatDate(
+                                                date,
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    <h3>
+                                        {
+                                            item.topic
+                                        }
+                                    </h3>
+                                </div>
+
+                                <div className="session-calendar__item-status">
+                                    {item.hasContent ? (
+                                        <CheckCircle2
+                                            size={
+                                                18
+                                            }
+                                            strokeWidth={
+                                                1.8
+                                            }
+                                            aria-hidden="true"
+                                        />
+                                    ) : (
+                                        <span>
+                                            Cierre
+                                        </span>
+                                    )}
+                                </div>
+                            </article>
+                        );
+                    },
+                )}
+            </div>
+        </section>
     );
 }

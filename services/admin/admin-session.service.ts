@@ -1,6 +1,4 @@
-export type AdminRegion =
-  | "España"
-  | "Latinoamérica";
+export type AdminRegion = "España" | "Latinoamérica";
 
 export interface AdminSessionRow {
   id: string;
@@ -14,6 +12,8 @@ export interface AdminSessionRow {
   region: AdminRegion;
   release_date_spain: string | null;
   release_date_latam: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface AdminSessionInput {
@@ -25,6 +25,10 @@ export interface AdminSessionInput {
   thumbnailFile?: File | null;
   sessionOrder: number;
   region: AdminRegion;
+  /**
+   * Fecha/hora introducida por el administrador en la zona horaria
+   * correspondiente a la región.
+   */
   sessionDate?: string;
 }
 
@@ -32,120 +36,96 @@ export interface SaveAdminSessionResult {
   readonly ok: boolean;
 }
 
-const ERROR_LIST =
-  "No se han podido cargar las sesiones.";
+const ERROR_LIST = "No se han podido cargar las sesiones.";
+const ERROR_SAVE = "No se ha podido guardar la sesión.";
+const ERROR_DELETE = "No se ha podido eliminar la sesión.";
 
-const ERROR_SAVE =
-  "No se ha podido guardar la sesión.";
-
-const ERROR_DELETE =
-  "No se ha podido eliminar la sesión.";
-
-export async function listAdminSessions(): Promise<
-  AdminSessionRow[]
-> {
-  const response = await fetch(
-    "/api/admin/sessions",
-    {
-      cache: "no-store",
-    },
-  );
+export async function listAdminSessions(): Promise<AdminSessionRow[]> {
+  const response = await fetch("/api/admin/sessions", {
+    cache: "no-store",
+  });
 
   if (!response.ok) {
-    const data =
-      await response
-        .json()
-        .catch(() => null);
+    const data = await response.json().catch(() => null);
 
     throw new Error(
-      data?.error ??
-      ERROR_LIST,
+      data?.error ?? ERROR_LIST,
     );
   }
 
-  const { sessions } =
-    await response.json();
+  const data = await response.json();
 
-  return sessions as AdminSessionRow[];
+  return (data.sessions ?? []) as AdminSessionRow[];
 }
 
 export async function saveAdminSession(
   input: AdminSessionInput,
 ): Promise<SaveAdminSessionResult> {
-  const formData =
-    new FormData();
+  const formData = new FormData();
 
-  formData.set(
+  formData.append(
     "title",
     input.title,
   );
 
-  formData.set(
+  formData.append(
     "description",
     input.description,
   );
 
-  formData.set(
+  formData.append(
     "zoomUrl",
     input.zoomUrl,
   );
 
-  formData.set(
+  formData.append(
     "zoomRecordingUrl",
-    input.zoomRecordingUrl ??
-    "",
+    input.zoomRecordingUrl ?? "",
   );
 
-  formData.set(
+  formData.append(
     "thumbnailUrl",
-    input.thumbnailUrl ??
-    "",
+    input.thumbnailUrl ?? "",
   );
 
-  formData.set(
+  formData.append(
     "sessionOrder",
     String(input.sessionOrder),
   );
 
-  formData.set(
+  formData.append(
     "region",
     input.region,
   );
 
-  formData.set(
-    "sessionDate",
-    input.sessionDate ??
-    "",
-  );
-
-  if (
-    input.thumbnailFile &&
-    input.thumbnailFile.size > 0
-  ) {
-    formData.set(
-      "thumbnailFile",
-      input.thumbnailFile,
+  if (input.sessionDate) {
+    formData.append(
+      "sessionDate",
+      input.sessionDate,
     );
   }
 
-  const response =
-    await fetch(
-      "/api/admin/sessions",
-      {
-        method: "POST",
-        body: formData,
-      },
+  if (input.thumbnailFile) {
+    formData.append(
+      "thumbnailFile",
+      input.thumbnailFile,
+      input.thumbnailFile.name,
     );
+  }
+
+  const response = await fetch(
+    "/api/admin/sessions",
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
 
   if (!response.ok) {
-    const data =
-      await response
-        .json()
-        .catch(() => null);
+    const data = await response.json().catch(() => null);
 
     throw new Error(
-      data?.error ??
-      ERROR_SAVE,
+      data?.error ?? ERROR_SAVE,
     );
   }
 
@@ -158,26 +138,21 @@ export async function setAdminSessionLiveEnded(
   id: string,
   ended: boolean,
 ): Promise<void> {
-  const response =
-    await fetch(
-      `/api/admin/sessions/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-        body: JSON.stringify({
-          liveEnded: ended,
-        }),
+  const response = await fetch(
+    `/api/admin/sessions/${id}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        liveEnded: ended,
+      }),
+    },
+  );
 
   if (!response.ok) {
-    const data =
-      await response
-        .json()
-        .catch(() => null);
+    const data = await response.json().catch(() => null);
 
     throw new Error(
       data?.error ??
@@ -189,23 +164,18 @@ export async function setAdminSessionLiveEnded(
 export async function deleteAdminSession(
   id: string,
 ): Promise<void> {
-  const response =
-    await fetch(
-      `/api/admin/sessions/${id}`,
-      {
-        method: "DELETE",
-      },
-    );
+  const response = await fetch(
+    `/api/admin/sessions/${id}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   if (!response.ok) {
-    const data =
-      await response
-        .json()
-        .catch(() => null);
+    const data = await response.json().catch(() => null);
 
     throw new Error(
-      data?.error ??
-      ERROR_DELETE,
+      data?.error ?? ERROR_DELETE,
     );
   }
 }

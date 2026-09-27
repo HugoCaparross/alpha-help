@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import {
+  LATAM_SESSION_DATES,
+  SPAIN_SESSION_DATES,
+} from "@/lib/constants/study-calendar";
+import {
   createServerClient as createAdminClient,
 } from "@/lib/supabase/admin";
 
@@ -547,6 +551,92 @@ export async function POST(
     );
   }
 
+  const sessionTimestamp =
+    Date.parse(
+      normalizedSessionDate,
+    );
+
+  const validationTimeZone =
+    region === "España"
+      ? "Europe/Madrid"
+      : "America/Bogota";
+
+  const localParts =
+    Object.fromEntries(
+      new Intl.DateTimeFormat(
+        "en-CA",
+        {
+          timeZone:
+            validationTimeZone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        },
+      )
+        .formatToParts(
+          new Date(
+            sessionTimestamp,
+          ),
+        )
+        .map(
+          (part) => [
+            part.type,
+            part.value,
+          ],
+        ),
+    ) as Record<
+      string,
+      string
+    >;
+
+  const expectedDate =
+    (
+      region === "España"
+        ? SPAIN_SESSION_DATES
+        : LATAM_SESSION_DATES
+    )[sessionOrder];
+
+  const actualDate =
+    `${localParts.year}-${localParts.month}-${localParts.day}`;
+
+  const expectedWeekday =
+    region === "España"
+      ? "Thu"
+      : "Sat";
+
+  const expectedHour =
+    region === "España"
+      ? "19"
+      : "11";
+
+  if (
+    !expectedDate ||
+    actualDate !==
+    expectedDate ||
+    localParts.weekday !==
+    expectedWeekday ||
+    localParts.hour !==
+    expectedHour ||
+    localParts.minute !==
+    "00"
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          region === "España"
+            ? `La sesión ${sessionOrder} debe programarse el ${expectedDate} a las 19:00 h de España.`
+            : `La sesión ${sessionOrder} debe programarse el ${expectedDate} a las 11:00 h de Colombia (10:00 h de México).`,
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
   if (thumbnailUrlInput) {
     try {
       const parsed =
@@ -580,10 +670,8 @@ export async function POST(
   }
 
   if (
-    imageFile !==
-    null &&
-    imageFile !==
-    undefined &&
+    imageFile !== null &&
+    imageFile !== undefined &&
     !(imageFile instanceof File)
   ) {
     return NextResponse.json(
@@ -780,7 +868,8 @@ export async function POST(
   const payload = {
     title,
     description,
-    zoom_url: zoomUrl,
+    zoom_url:
+      zoomUrl,
     zoom_recording_url:
       zoomRecordingUrl ||
       null,
@@ -821,7 +910,8 @@ export async function POST(
 
   const {
     error,
-  } = await query;
+  } =
+    await query;
 
   if (error) {
     if (
