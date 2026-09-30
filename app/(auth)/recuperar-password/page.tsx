@@ -20,57 +20,130 @@ import { recoverPasswordSchema } from "@/validators";
 
 import "@/components/styles/reset-password.css";
 
+/**
+ * Obtiene la URL absoluta que Supabase utilizará
+ * para devolver al usuario después de enviar el
+ * correo de recuperación.
+ *
+ * En producción se recomienda definir:
+ *
+ * NEXT_PUBLIC_SITE_URL=https://alpha-help.org
+ *
+ * El fallback al origin actual permite que el flujo
+ * siga funcionando durante desarrollo local siempre
+ * que localhost esté incluido en las Redirect URLs
+ * de Supabase.
+ */
+function getRecoveryRedirectUrl(): string {
+  const configuredSiteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
+  if (configuredSiteUrl) {
+    return new URL(
+      "/restablecer-password",
+      configuredSiteUrl.endsWith("/")
+        ? configuredSiteUrl
+        : `${configuredSiteUrl}/`,
+    ).toString();
+  }
+
+  return new URL(
+    "/restablecer-password",
+    window.location.origin,
+  ).toString();
+}
+
 export default function RecoverPassword() {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] =
+    useState("");
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] =
+    useState(false);
 
-  function updateEmail(value: string) {
+  function updateEmail(
+    value: string,
+  ) {
     setError("");
     setEmail(value);
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     if (loading) {
       return;
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail =
+      email.trim().toLowerCase();
 
-    const result = recoverPasswordSchema.safeParse({
-      email: normalizedEmail,
-    });
+    const result =
+      recoverPasswordSchema.safeParse({
+        email: normalizedEmail,
+      });
 
     if (!result.success) {
-      setError(result.error.issues[0].message);
+      setError(
+        result.error.issues[0]?.message ??
+        "Introduce un correo electrónico válido.",
+      );
 
       return;
     }
 
     setLoading(true);
-
     setError("");
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(
-        normalizedEmail,
-        {
-          redirectTo: `${window.location.origin}/restablecer-password`,
-        },
-      );
+      const { error } =
+        await supabase.auth.resetPasswordForEmail(
+          normalizedEmail,
+          {
+            redirectTo:
+              getRecoveryRedirectUrl(),
+          },
+        );
 
       if (error) {
-        const message = error.message.toLowerCase();
+        const message =
+          error.message.toLowerCase();
 
-        if (message.includes("rate")) {
+        /**
+         * Supabase puede devolver distintos
+         * mensajes dependiendo de la configuración
+         * y del proveedor de correo.
+         */
+        if (
+          message.includes("rate") ||
+          message.includes("too many") ||
+          message.includes("limit")
+        ) {
           setError(
-            "Se han realizado demasiadas solicitudes. Inténtalo de nuevo dentro de unos minutos.",
+            "Se han realizado demasiadas solicitudes. Espera unos minutos antes de volver a solicitar otro enlace.",
+          );
+
+          return;
+        }
+
+        /**
+         * Error típico cuando redirectTo no está
+         * incluido en las Redirect URLs permitidas
+         * en Supabase.
+         */
+        if (
+          message.includes("redirect") ||
+          message.includes("url")
+        ) {
+          setError(
+            "El servicio de recuperación no tiene configurada correctamente la dirección de retorno. Contacta con el equipo de soporte.",
           );
 
           return;
@@ -83,9 +156,16 @@ export default function RecoverPassword() {
         return;
       }
 
+      /**
+       * No revelamos si el correo existe o no.
+       *
+       * Esto evita enumeración de usuarios.
+       */
       setSuccess(true);
     } catch {
-      setError("Se ha producido un error inesperado. Inténtalo de nuevo.");
+      setError(
+        "No hemos podido procesar tu solicitud. Comprueba tu conexión e inténtalo de nuevo.",
+      );
     } finally {
       setLoading(false);
     }
@@ -101,19 +181,30 @@ export default function RecoverPassword() {
             {success ? (
               <div className="recover-password-success">
                 <div className="recover-password-success-icon">
-                  <CheckCircle size={30} />
+                  <CheckCircle
+                    size={30}
+                    aria-hidden="true"
+                  />
                 </div>
 
-                <h1 className="recover-password-title">Revisa tu correo</h1>
+                <h1 className="recover-password-title">
+                  Revisa tu correo
+                </h1>
 
                 <p className="recover-password-description">
                   Si existe una cuenta asociada a este correo electrónico,
                   recibirás un enlace para restablecer tu contraseña.
                 </p>
 
-                <Link href="/login" className="btn-primary btn-full">
+                <Link
+                  href="/login"
+                  className="btn-primary btn-full"
+                >
                   Volver al inicio de sesión
-                  <ArrowRight size={18} />
+                  <ArrowRight
+                    size={18}
+                    aria-hidden="true"
+                  />
                 </Link>
               </div>
             ) : (
@@ -132,9 +223,18 @@ export default function RecoverPassword() {
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="recover-password-form">
+                <form
+                  onSubmit={
+                    handleSubmit
+                  }
+                  className="recover-password-form"
+                >
                   <div className="recover-password-input-wrapper">
-                    <Mail size={18} className="recover-password-icon" />
+                    <Mail
+                      size={18}
+                      className="recover-password-icon"
+                      aria-hidden="true"
+                    />
 
                     <input
                       type="email"
@@ -146,7 +246,13 @@ export default function RecoverPassword() {
                       placeholder="Correo electrónico"
                       className="recover-password-input"
                       value={email}
-                      onChange={(e) => updateEmail(e.target.value)}
+                      onChange={(
+                        event,
+                      ) =>
+                        updateEmail(
+                          event.target.value,
+                        )
+                      }
                     />
                   </div>
 
@@ -167,7 +273,12 @@ export default function RecoverPassword() {
                   >
                     {loading ? (
                       <>
-                        <LoaderCircle size={18} className="animate-spin" />
+                        <LoaderCircle
+                          size={18}
+                          className="animate-spin"
+                          aria-hidden="true"
+                        />
+
                         Enviando enlace...
                       </>
                     ) : (
@@ -178,7 +289,11 @@ export default function RecoverPassword() {
 
                 <div className="recover-password-footer">
                   <Link href="/login">
-                    <ArrowLeft size={16} />
+                    <ArrowLeft
+                      size={16}
+                      aria-hidden="true"
+                    />
+
                     Volver a iniciar sesión
                   </Link>
                 </div>

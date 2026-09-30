@@ -1,7 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
+
+import { usePathname } from "next/navigation";
 
 import { supabase } from "@/lib/supabase/client";
 import { authService } from "@/services/auth/auth.service";
@@ -33,23 +38,27 @@ const SESSION_CONFIG = {
    * Clave utilizada para sincronizar la
    * última actividad entre pestañas.
    */
-  storageKey: "alpha-help-last-active",
+  storageKey:
+    "alpha-help-last-active",
 } as const;
 
 /**
  * Eventos que se consideran actividad real
  * del usuario dentro de la aplicación.
  */
-const ACTIVITY_EVENTS: readonly (keyof WindowEventMap)[] = [
-  "mousemove",
-  "mousedown",
-  "pointerdown",
-  "pointermove",
-  "keydown",
-  "scroll",
-  "touchstart",
-  "wheel",
-];
+const ACTIVITY_EVENTS:
+  readonly (
+    keyof WindowEventMap
+  )[] = [
+    "mousemove",
+    "mousedown",
+    "pointerdown",
+    "pointermove",
+    "keydown",
+    "scroll",
+    "touchstart",
+    "wheel",
+  ];
 
 /**
  * Gestiona automáticamente el cierre de sesión
@@ -62,16 +71,48 @@ const ACTIVITY_EVENTS: readonly (keyof WindowEventMap)[] = [
  * - Sincronización de actividad entre pestañas.
  * - Evita múltiples intentos de cierre de sesión.
  * - Solo monitoriza sesiones autenticadas.
+ *
+ * IMPORTANTE:
+ *
+ * Las rutas de recuperación y restablecimiento
+ * de contraseña están expresamente excluidas.
+ *
+ * Supabase utiliza una sesión temporal durante
+ * la recuperación y dicha sesión nunca debe ser
+ * cerrada por el mecanismo general de inactividad
+ * de Alpha-Help.
  */
 export default function SessionTimeout() {
-  const router = useRouter();
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
+
   const isQuestionnaireRoute =
-    pathname?.startsWith("/cuestionarios") ?? false;
+    pathname?.startsWith(
+      "/cuestionarios",
+    ) ?? false;
 
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /**
+   * Recuperar y restablecer contraseña son
+   * flujos especiales de Supabase Auth.
+   *
+   * Nunca deben verse afectados por el cierre
+   * automático de sesión de la aplicación.
+   */
+  const isPasswordRecoveryRoute =
+    pathname ===
+    "/recuperar-password" ||
+    pathname ===
+    "/restablecer-password";
 
-  const isLoggingOutRef = useRef(false);
+  const timeoutRef =
+    useRef<
+      ReturnType<
+        typeof setTimeout
+      > | null
+    >(null);
+
+  const isLoggingOutRef =
+    useRef(false);
 
   /**
    * Guarda la fecha de la última actividad
@@ -79,28 +120,32 @@ export default function SessionTimeout() {
    * inactividad incluso si el navegador
    * permanece en segundo plano.
    */
-  const saveActivityTimestamp = useCallback(() => {
-    try {
-      localStorage.setItem(
-        SESSION_CONFIG.storageKey,
-        Date.now().toString(),
-      );
-    } catch {
-      // Ignorar errores del almacenamiento.
-    }
-  }, []);
+  const saveActivityTimestamp =
+    useCallback(() => {
+      try {
+        localStorage.setItem(
+          SESSION_CONFIG.storageKey,
+          Date.now().toString(),
+        );
+      } catch {
+        // Ignorar errores del almacenamiento.
+      }
+    }, []);
 
   /**
    * Elimina el timestamp de actividad al
    * quedar la sesión completamente cerrada.
    */
-  const clearActivityTimestamp = useCallback(() => {
-    try {
-      localStorage.removeItem(SESSION_CONFIG.storageKey);
-    } catch {
-      // Ignorar errores del almacenamiento.
-    }
-  }, []);
+  const clearActivityTimestamp =
+    useCallback(() => {
+      try {
+        localStorage.removeItem(
+          SESSION_CONFIG.storageKey,
+        );
+      } catch {
+        // Ignorar errores del almacenamiento.
+      }
+    }, []);
 
   /**
    * Cierra la sesión.
@@ -109,152 +154,219 @@ export default function SessionTimeout() {
    * invalidar la sesión local y sincronizar el
    * estado de autenticación con el resto de la app.
    */
-  const logout = useCallback(async () => {
-    if (isLoggingOutRef.current) {
-      return;
-    }
+  const logout =
+    useCallback(async () => {
+      if (
+        isLoggingOutRef.current
+      ) {
+        return;
+      }
 
-    isLoggingOutRef.current = true;
+      isLoggingOutRef.current =
+        true;
 
-    try {
-      await authService.logout();
-    } catch {
-      // La sesión puede haber expirado previamente.
-    } finally {
-      clearActivityTimestamp();
+      try {
+        await authService.logout();
+      } catch {
+        // La sesión puede haber expirado previamente.
+      } finally {
+        clearActivityTimestamp();
 
-      router.replace("/");
-      router.refresh();
-    }
-  }, [clearActivityTimestamp, router]);
+        window.location.assign(
+          "/",
+        );
+      }
+    }, [
+      clearActivityTimestamp,
+    ]);
 
   /**
    * Programa el cierre exactamente al alcanzar
    * el límite de inactividad.
    */
-  const scheduleTimeout = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  const scheduleTimeout =
+    useCallback(() => {
+      if (timeoutRef.current) {
+        clearTimeout(
+          timeoutRef.current,
+        );
+      }
 
-    let lastActivity: string | null = null;
-
-    try {
-      lastActivity = localStorage.getItem(
-        SESSION_CONFIG.storageKey,
-      );
-    } catch {
-      lastActivity = null;
-    }
-
-    const inactivityLimit =
-      SESSION_CONFIG.inactivityMinutes * 60 * 1000;
-
-    const elapsed = lastActivity
-      ? Math.max(0, Date.now() - Number(lastActivity))
-      : 0;
-
-    const remaining = Math.max(
-      0,
-      inactivityLimit - elapsed,
-    );
-
-    timeoutRef.current = setTimeout(() => {
-      let latestActivity: string | null = null;
+      let lastActivity:
+        | string
+        | null = null;
 
       try {
-        latestActivity = localStorage.getItem(
-          SESSION_CONFIG.storageKey,
-        );
+        lastActivity =
+          localStorage.getItem(
+            SESSION_CONFIG.storageKey,
+          );
       } catch {
-        latestActivity = null;
+        lastActivity = null;
       }
 
-      const latestElapsed = latestActivity
-        ? Date.now() - Number(latestActivity)
-        : inactivityLimit;
+      const inactivityLimit =
+        SESSION_CONFIG.inactivityMinutes *
+        60 *
+        1000;
 
-      /**
-       * Si otra pestaña registró actividad antes
-       * de que este temporizador se ejecutara,
-       * no se cierra la sesión.
-       */
-      if (latestElapsed < inactivityLimit) {
-        scheduleTimeout();
+      const elapsed =
+        lastActivity
+          ? Math.max(
+            0,
+            Date.now() -
+            Number(
+              lastActivity,
+            ),
+          )
+          : 0;
 
-        return;
-      }
+      const remaining =
+        Math.max(
+          0,
+          inactivityLimit -
+          elapsed,
+        );
 
-      void logout();
-    }, remaining);
-  }, [logout]);
+      timeoutRef.current =
+        setTimeout(() => {
+          let latestActivity:
+            | string
+            | null = null;
+
+          try {
+            latestActivity =
+              localStorage.getItem(
+                SESSION_CONFIG.storageKey,
+              );
+          } catch {
+            latestActivity =
+              null;
+          }
+
+          const latestElapsed =
+            latestActivity
+              ? Date.now() -
+              Number(
+                latestActivity,
+              )
+              : inactivityLimit;
+
+          /**
+           * Si otra pestaña registró actividad
+           * antes de que este temporizador se ejecutara,
+           * no se cierra la sesión.
+           */
+          if (
+            latestElapsed <
+            inactivityLimit
+          ) {
+            scheduleTimeout();
+
+            return;
+          }
+
+          void logout();
+        }, remaining);
+    }, [
+      logout,
+    ]);
 
   /**
    * Registra actividad y vuelve a programar
    * el cierre automático.
    */
-  const registerActivity = useCallback(() => {
-    if (isLoggingOutRef.current) {
-      return;
-    }
+  const registerActivity =
+    useCallback(() => {
+      if (
+        isLoggingOutRef.current
+      ) {
+        return;
+      }
 
-    saveActivityTimestamp();
-    scheduleTimeout();
-  }, [saveActivityTimestamp, scheduleTimeout]);
+      saveActivityTimestamp();
+      scheduleTimeout();
+    }, [
+      saveActivityTimestamp,
+      scheduleTimeout,
+    ]);
 
   /**
    * Comprueba el tiempo transcurrido desde la
    * última actividad registrada.
    */
-  const checkInactivity = useCallback(() => {
-    let lastActivity: string | null = null;
+  const checkInactivity =
+    useCallback(() => {
+      let lastActivity:
+        | string
+        | null = null;
 
-    try {
-      lastActivity = localStorage.getItem(
-        SESSION_CONFIG.storageKey,
-      );
-    } catch {
-      lastActivity = null;
-    }
+      try {
+        lastActivity =
+          localStorage.getItem(
+            SESSION_CONFIG.storageKey,
+          );
+      } catch {
+        lastActivity = null;
+      }
 
-    if (!lastActivity) {
-      registerActivity();
+      if (!lastActivity) {
+        registerActivity();
 
-      return;
-    }
+        return;
+      }
 
-    const elapsed = Date.now() - Number(lastActivity);
+      const elapsed =
+        Date.now() -
+        Number(
+          lastActivity,
+        );
 
-    if (
-      elapsed >=
-      SESSION_CONFIG.hiddenMinutes * 60 * 1000
-    ) {
-      void logout();
+      if (
+        elapsed >=
+        SESSION_CONFIG.hiddenMinutes *
+        60 *
+        1000
+      ) {
+        void logout();
 
-      return;
-    }
+        return;
+      }
 
-    scheduleTimeout();
-  }, [logout, registerActivity, scheduleTimeout]);
+      scheduleTimeout();
+    }, [
+      logout,
+      registerActivity,
+      scheduleTimeout,
+    ]);
 
   /**
    * Detecta cambios de visibilidad de la pestaña.
    */
-  const handleVisibilityChange = useCallback(() => {
-    if (document.visibilityState === "hidden") {
-      return;
-    }
+  const handleVisibilityChange =
+    useCallback(() => {
+      if (
+        document.visibilityState ===
+        "hidden"
+      ) {
+        return;
+      }
 
-    checkInactivity();
-  }, [checkInactivity]);
+      checkInactivity();
+    }, [
+      checkInactivity,
+    ]);
 
   /**
    * La página vuelve a mostrarse después de
    * haber estado en segundo plano o restaurada.
    */
-  const handlePageShow = useCallback(() => {
-    checkInactivity();
-  }, [checkInactivity]);
+  const handlePageShow =
+    useCallback(() => {
+      checkInactivity();
+    }, [
+      checkInactivity,
+    ]);
 
   /**
    * Sincroniza la actividad entre pestañas.
@@ -263,30 +375,68 @@ export default function SessionTimeout() {
    * de ALPHA-HELP, esta pestaña no debe cerrar
    * una sesión que sigue activa.
    */
-  const handleStorage = useCallback(
-    (event: StorageEvent) => {
-      if (
-        event.key !== SESSION_CONFIG.storageKey ||
-        !event.newValue
-      ) {
-        return;
-      }
+  const handleStorage =
+    useCallback(
+      (
+        event: StorageEvent,
+      ) => {
+        if (
+          event.key !==
+          SESSION_CONFIG.storageKey ||
+          !event.newValue
+        ) {
+          return;
+        }
 
-      scheduleTimeout();
-    },
-    [scheduleTimeout],
-  );
+        scheduleTimeout();
+      },
+      [
+        scheduleTimeout,
+      ],
+    );
 
   useEffect(() => {
-    if (isQuestionnaireRoute) {
+    /**
+     * El flujo de recuperación de contraseña
+     * queda completamente fuera del temporizador
+     * de sesión.
+     *
+     * No tocamos localStorage, no consultamos
+     * getSession() y no ejecutamos logout().
+     */
+    if (
+      isPasswordRecoveryRoute
+    ) {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+        clearTimeout(
+          timeoutRef.current,
+        );
+
+        timeoutRef.current =
+          null;
       }
 
-      // El cuestionario no está sujeto al cierre automático por inactividad.
-      // Reiniciamos la marca para que, al salir del cuestionario, el límite
-      // global de inactividad empiece a contar desde ese momento.
+      return;
+    }
+
+    if (isQuestionnaireRoute) {
+      if (timeoutRef.current) {
+        clearTimeout(
+          timeoutRef.current,
+        );
+
+        timeoutRef.current =
+          null;
+      }
+
+      /**
+       * El cuestionario no está sujeto al cierre
+       * automático por inactividad.
+       *
+       * Reiniciamos la marca para que, al salir
+       * del cuestionario, el límite global de
+       * inactividad empiece a contar desde ese momento.
+       */
       saveActivityTimestamp();
 
       return;
@@ -294,125 +444,132 @@ export default function SessionTimeout() {
 
     let mounted = true;
 
-    const stopMonitoring = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
+    const stopMonitoring =
+      () => {
+        if (timeoutRef.current) {
+          clearTimeout(
+            timeoutRef.current,
+          );
 
-      ACTIVITY_EVENTS.forEach((event) => {
-        window.removeEventListener(
-          event,
-          registerActivity,
-        );
-      });
+          timeoutRef.current =
+            null;
+        }
 
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange,
-      );
-
-      window.removeEventListener(
-        "pageshow",
-        handlePageShow,
-      );
-
-      window.removeEventListener(
-        "storage",
-        handleStorage,
-      );
-    };
-
-    const startMonitoring = () => {
-      if (!mounted || isLoggingOutRef.current) {
-        return;
-      }
-
-      let lastActivity: string | null = null;
-
-      try {
-        lastActivity = localStorage.getItem(
-          SESSION_CONFIG.storageKey,
-        );
-      } catch {
-        lastActivity = null;
-      }
-
-      const inactivityLimit =
-        SESSION_CONFIG.inactivityMinutes * 60 * 1000;
-
-      /**
-       * Si existe una marca anterior y ya han pasado
-       * 5 minutos, la sesión se cierra inmediatamente.
-       * Esto evita que una recarga o reapertura de la web
-       * reinicie artificialmente el contador.
-       */
-      if (
-        lastActivity &&
-        Date.now() - Number(lastActivity) >= inactivityLimit
-      ) {
-        void logout();
-
-        return;
-      }
-
-      if (!lastActivity) {
-        saveActivityTimestamp();
-      }
-
-      ACTIVITY_EVENTS.forEach((event) => {
-        window.addEventListener(
-          event,
-          registerActivity,
-          {
-            passive: true,
+        ACTIVITY_EVENTS.forEach(
+          (event) => {
+            window.removeEventListener(
+              event,
+              registerActivity,
+            );
           },
         );
-      });
 
-      document.addEventListener(
-        "visibilitychange",
-        handleVisibilityChange,
-      );
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
 
-      window.addEventListener(
-        "pageshow",
-        handlePageShow,
-      );
+        window.removeEventListener(
+          "pageshow",
+          handlePageShow,
+        );
 
-      window.addEventListener(
-        "storage",
-        handleStorage,
-      );
+        window.removeEventListener(
+          "storage",
+          handleStorage,
+        );
+      };
 
-      scheduleTimeout();
-    };
+    const startMonitoring =
+      () => {
+        if (
+          !mounted ||
+          isLoggingOutRef.current
+        ) {
+          return;
+        }
 
-    const initialize = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        let lastActivity:
+          | string
+          | null = null;
 
-      if (!mounted) {
-        return;
-      }
+        try {
+          lastActivity =
+            localStorage.getItem(
+              SESSION_CONFIG.storageKey,
+            );
+        } catch {
+          lastActivity = null;
+        }
 
-      if (!session) {
-        stopMonitoring();
-        clearActivityTimestamp();
+        const inactivityLimit =
+          SESSION_CONFIG.inactivityMinutes *
+          60 *
+          1000;
 
-        return;
-      }
+        /**
+         * Si existe una marca anterior y ya han
+         * pasado 5 minutos, la sesión se cierra
+         * inmediatamente.
+         *
+         * Esto evita que una recarga o reapertura
+         * de la web reinicie artificialmente el
+         * contador.
+         */
+        if (
+          lastActivity &&
+          Date.now() -
+          Number(
+            lastActivity,
+          ) >=
+          inactivityLimit
+        ) {
+          void logout();
 
-      startMonitoring();
-    };
+          return;
+        }
 
-    void initialize();
+        if (!lastActivity) {
+          saveActivityTimestamp();
+        }
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+        ACTIVITY_EVENTS.forEach(
+          (event) => {
+            window.addEventListener(
+              event,
+              registerActivity,
+              {
+                passive: true,
+              },
+            );
+          },
+        );
+
+        document.addEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
+
+        window.addEventListener(
+          "pageshow",
+          handlePageShow,
+        );
+
+        window.addEventListener(
+          "storage",
+          handleStorage,
+        );
+
+        scheduleTimeout();
+      };
+
+    const initialize =
+      async () => {
+        const {
+          data: { session },
+        } =
+          await supabase.auth.getSession();
+
         if (!mounted) {
           return;
         }
@@ -424,15 +581,42 @@ export default function SessionTimeout() {
           return;
         }
 
-        stopMonitoring();
         startMonitoring();
+      };
+
+    void initialize();
+
+    const {
+      data: {
+        subscription,
       },
-    );
+    } =
+      supabase.auth.onAuthStateChange(
+        (
+          _event,
+          session,
+        ) => {
+          if (!mounted) {
+            return;
+          }
+
+          if (!session) {
+            stopMonitoring();
+            clearActivityTimestamp();
+
+            return;
+          }
+
+          stopMonitoring();
+          startMonitoring();
+        },
+      );
 
     return () => {
       mounted = false;
 
       stopMonitoring();
+
       subscription.unsubscribe();
     };
   }, [
@@ -445,6 +629,7 @@ export default function SessionTimeout() {
     saveActivityTimestamp,
     scheduleTimeout,
     isQuestionnaireRoute,
+    isPasswordRecoveryRoute,
   ]);
 
   return null;
