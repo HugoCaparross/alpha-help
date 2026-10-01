@@ -11,6 +11,7 @@ export const SCHOOLS: Readonly<
     "Marni. Grupo Colegios Siglo XXI",
     "Colegio Educrea el Mirador",
     "Colegio Montesión Palma",
+    "CEIP Sant Vicent Ferrer",
     "Otros",
   ],
 
