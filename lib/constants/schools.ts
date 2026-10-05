@@ -23,6 +23,8 @@ export const SCHOOLS: Readonly<
     'Escuela Telesecundaria "Leona Vicario"',
     'Escuela Telesecundaria "Manuel C. Tello"',
     'Escuela Telesecundaria "Rafael Ramírez"',
+    'Mayor de los Andes"',
+    'Colegio Nueva York"',
     "Otros",
   ],
 };
