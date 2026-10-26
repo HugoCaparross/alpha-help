@@ -1,6 +1,11 @@
 "use client";
 
 import {
+    useEffect,
+    useState,
+} from "react";
+
+import {
     CalendarDays,
     CheckCircle2,
     Clock3,
@@ -14,90 +19,179 @@ import {
 
 import type { Region } from "@/lib/utils/regions";
 
+import {
+    getSessions,
+} from "@/services/sessions/study-session.service";
+
+import type {
+    Session,
+} from "@/types/study-session";
+
 interface SessionCalendarProps {
     region: Region;
 }
 
-function formatDate(
-    value: string | null | undefined,
-): string {
-    if (!value) {
-        return "Por confirmar";
-    }
-
-    const date = new Date(
-        `${value}T12:00:00`,
-    );
-
-    if (Number.isNaN(date.getTime())) {
-        return "Por confirmar";
-    }
-
-    return new Intl.DateTimeFormat(
-        "es-ES",
-        {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-        },
-    ).format(date);
-}
-
-function getRegionDate(
-    item: StudyCalendarItem,
-    region: Region,
-): string {
+function getTimeZone(region: Region): string {
     return region === "spain"
-        ? item.spainDate
-        : item.latamDate;
+        ? "Europe/Madrid"
+        : "America/Bogota";
 }
 
-function getRegionLabel(
-    region: Region,
-): string {
+function getRegionLabel(region: Region): string {
     return region === "spain"
         ? "España"
         : "Latinoamérica";
 }
 
-function getRegionDay(
-    region: Region,
-): string {
-    return region === "spain"
-        ? "Jueves"
-        : "Sábado";
+function getSessionOrder(
+    item: StudyCalendarItem,
+): number | null {
+    if (item.key === "closing") {
+        return null;
+    }
+
+    if (item.key === "0-1") {
+        return 0;
+    }
+
+    const order = Number(item.key);
+
+    return Number.isInteger(order)
+        ? order
+        : null;
 }
 
-function getRegionTime(
+function getSessionDate(
+    sessions: Session[],
+    item: StudyCalendarItem,
+    region: Region,
+): string | null {
+    const order = getSessionOrder(item);
+
+    if (order === null) {
+        return null;
+    }
+
+    const session = sessions.find(
+        (entry) => entry.sessionOrder === order,
+    );
+
+    if (!session) {
+        return null;
+    }
+
+    return region === "spain"
+        ? session.releaseDateSpain
+        : session.releaseDateLatam;
+}
+
+function formatDate(
+    value: string | null | undefined,
     region: Region,
 ): string {
-    return region === "spain"
-        ? "19:00 h"
-        : "10:00 h MEX · 11:00 h COL";
+    if (!value) {
+        return "Por confirmar";
+    }
+
+    const timestamp = Date.parse(value);
+
+    if (!Number.isFinite(timestamp)) {
+        return "Por confirmar";
+    }
+
+    return new Intl.DateTimeFormat("es-ES", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: getTimeZone(region),
+    }).format(new Date(timestamp));
+}
+
+function formatTime(
+    value: string | null | undefined,
+    region: Region,
+): string {
+    if (!value) {
+        return "";
+    }
+
+    const timestamp = Date.parse(value);
+
+    if (!Number.isFinite(timestamp)) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat("es-ES", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+        timeZone: getTimeZone(region),
+    }).format(new Date(timestamp)) + " h";
 }
 
 function getRegionDescription(
     region: Region,
 ): string {
     return region === "spain"
-        ? "Sesiones en directo los jueves a las 19:00 h."
-        : "Sesiones en directo los sábados a las 11:00 h en Colombia y 10:00 h en México.";
+        ? "Las fechas y horas corresponden a la programación vigente en España."
+        : "Las fechas y horas corresponden a la programación vigente en Latinoamérica. Los horarios se muestran en hora de Colombia.";
+}
+
+function getRegionTimeLabel(
+    region: Region,
+): string {
+    return region === "spain"
+        ? "Hora peninsular española"
+        : "Hora de Colombia";
 }
 
 export default function SessionCalendar({
     region,
 }: SessionCalendarProps) {
-    const regionLabel =
-        getRegionLabel(region);
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
 
-    const regionDay =
-        getRegionDay(region);
+    useEffect(() => {
+        let cancelled = false;
 
-    const regionTime =
-        getRegionTime(region);
+        async function loadCalendar() {
+            setLoading(true);
+            setLoadError(false);
 
-    const regionDescription =
-        getRegionDescription(region);
+            try {
+                const result = await getSessions(region);
+
+                if (!cancelled) {
+                    setSessions(result);
+                }
+            } catch (error) {
+                console.error(
+                    "[SessionCalendar] No se pudo cargar el calendario:",
+                    error,
+                );
+
+                if (!cancelled) {
+                    setSessions([]);
+                    setLoadError(true);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void loadCalendar();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [region]);
+
+    const regionLabel = getRegionLabel(region);
+    const regionDescription = getRegionDescription(region);
+    const regionTimeLabel = getRegionTimeLabel(region);
 
     return (
         <section
@@ -138,9 +232,7 @@ export default function SessionCalendar({
                         aria-hidden="true"
                     />
 
-                    <span>
-                        {regionLabel}
-                    </span>
+                    <span>{regionLabel}</span>
                 </div>
             </header>
 
@@ -158,31 +250,53 @@ export default function SessionCalendar({
 
                     <div>
                         <span className="session-calendar__schedule-label">
-                            Día y hora
+                            Horario
                         </span>
 
-                        <strong>
-                            {regionDay} · {regionTime}
-                        </strong>
+                        <strong>{regionTimeLabel}</strong>
                     </div>
                 </div>
             </div>
 
-            <div className="session-calendar__list">
-                {STUDY_CALENDAR.map(
-                    (item) => {
-                        const date =
-                            getRegionDate(
-                                item,
-                                region,
-                            );
+            {loadError && (
+                <p
+                    className="session-calendar__description"
+                    role="alert"
+                >
+                    No se ha podido cargar el calendario actualizado.
+                    Inténtalo de nuevo más tarde.
+                </p>
+            )}
+
+            {loading ? (
+                <p className="session-calendar__description">
+                    Cargando calendario...
+                </p>
+            ) : (
+                <div className="session-calendar__list">
+                    {STUDY_CALENDAR.map((item) => {
+                        const date = getSessionDate(
+                            sessions,
+                            item,
+                            region,
+                        );
+
+                        const formattedDate = formatDate(
+                            date,
+                            region,
+                        );
+
+                        const formattedTime = formatTime(
+                            date,
+                            region,
+                        );
 
                         return (
                             <article
                                 key={item.key}
                                 className={`session-calendar__item${!item.hasContent
-                                    ? " session-calendar__item--closing"
-                                    : ""
+                                        ? " session-calendar__item--closing"
+                                        : ""
                                     }`}
                             >
                                 <div className="session-calendar__item-number">
@@ -193,44 +307,44 @@ export default function SessionCalendar({
                                     <div className="session-calendar__item-date">
                                         <CalendarDays
                                             size={15}
-                                            strokeWidth={
-                                                1.8
-                                            }
+                                            strokeWidth={1.8}
                                             aria-hidden="true"
                                         />
 
-                                        <span>
-                                            {formatDate(
-                                                date,
-                                            )}
-                                        </span>
+                                        <span>{formattedDate}</span>
                                     </div>
 
-                                    <h3>
-                                        {item.topic}
-                                    </h3>
+                                    {formattedTime && (
+                                        <div className="session-calendar__item-date">
+                                            <Clock3
+                                                size={15}
+                                                strokeWidth={1.8}
+                                                aria-hidden="true"
+                                            />
+
+                                            <span>{formattedTime}</span>
+                                        </div>
+                                    )}
+
+                                    <h3>{item.topic}</h3>
                                 </div>
 
                                 <div className="session-calendar__item-status">
                                     {item.hasContent ? (
                                         <CheckCircle2
                                             size={18}
-                                            strokeWidth={
-                                                1.8
-                                            }
+                                            strokeWidth={1.8}
                                             aria-hidden="true"
                                         />
                                     ) : (
-                                        <span>
-                                            Cierre
-                                        </span>
+                                        <span>Cierre</span>
                                     )}
                                 </div>
                             </article>
                         );
-                    },
-                )}
-            </div>
+                    })}
+                </div>
+            )}
         </section>
     );
 }

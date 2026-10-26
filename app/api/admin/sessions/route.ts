@@ -1,18 +1,13 @@
+import { Buffer } from "node:buffer";
 import { NextResponse } from "next/server";
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
-import {
-  LATAM_SESSION_DATES,
-  SPAIN_SESSION_DATES,
-} from "@/lib/constants/study-calendar";
 import {
   createServerClient as createAdminClient,
 } from "@/lib/supabase/admin";
 
 const TABLE = "study_sessions";
-
-const IMAGE_BUCKET =
-  "study-session-images";
+const IMAGE_BUCKET = "study-session-images";
 
 const REGIONS = [
   "España",
@@ -21,9 +16,7 @@ const REGIONS = [
 
 const MIN_SESSION_ORDER = 0;
 const MAX_SESSION_ORDER = 9;
-
-const MAX_IMAGE_SIZE =
-  25 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 25 * 1024 * 1024;
 
 const SELECT_FIELDS = `
   id,
@@ -41,66 +34,36 @@ const SELECT_FIELDS = `
   updated_at
 `;
 
-function sanitizeFileName(
-  name: string,
-): string {
+function sanitizeFileName(name: string): string {
   const extension = name.includes(".")
     ? `.${name.split(".").pop()?.toLowerCase() ?? "img"}`
     : "";
 
-  const baseName =
-    name.replace(
-      /\.[^.]+$/,
-      "",
-    );
+  const baseName = name.replace(/\.[^.]+$/, "");
 
   const safeBase =
     baseName
       .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        "",
-      )
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        "-",
-      )
-      .replace(
-        /-+/g,
-        "-",
-      )
-      .replace(
-        /^-|-$/g,
-        "",
-      ) || "imagen";
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9_-]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") || "imagen";
 
   return `${safeBase}${extension}`;
 }
 
 async function ensureImageBucket(
-  admin: ReturnType<
-    typeof createAdminClient
-  >,
+  admin: ReturnType<typeof createAdminClient>,
 ) {
-  const {
-    data,
-    error,
-  } =
-    await admin.storage.getBucket(
-      IMAGE_BUCKET,
-    );
+  const { data, error } =
+    await admin.storage.getBucket(IMAGE_BUCKET);
 
   if (error && !data) {
-    const {
-      error: createError,
-    } =
-      await admin.storage.createBucket(
-        IMAGE_BUCKET,
-        {
-          public: true,
-          fileSizeLimit: "25MB",
-        },
-      );
+    const { error: createError } =
+      await admin.storage.createBucket(IMAGE_BUCKET, {
+        public: true,
+        fileSizeLimit: "25MB",
+      });
 
     if (createError) {
       throw new Error(
@@ -112,16 +75,11 @@ async function ensureImageBucket(
   }
 
   if (data && !data.public) {
-    const {
-      error: updateError,
-    } =
-      await admin.storage.updateBucket(
-        IMAGE_BUCKET,
-        {
-          public: true,
-          fileSizeLimit: "25MB",
-        },
-      );
+    const { error: updateError } =
+      await admin.storage.updateBucket(IMAGE_BUCKET, {
+        public: true,
+        fileSizeLimit: "25MB",
+      });
 
     if (updateError) {
       throw new Error(
@@ -131,9 +89,7 @@ async function ensureImageBucket(
   }
 }
 
-function isManagedImageUrl(
-  value: string,
-): boolean {
+function isManagedImageUrl(value: string): boolean {
   return value.includes(
     `/storage/v1/object/public/${IMAGE_BUCKET}/`,
   );
@@ -145,8 +101,7 @@ function getStoragePathFromPublicUrl(
   const marker =
     `/storage/v1/object/public/${IMAGE_BUCKET}/`;
 
-  const index =
-    value.indexOf(marker);
+  const index = value.indexOf(marker);
 
   if (index === -1) {
     return null;
@@ -154,15 +109,20 @@ function getStoragePathFromPublicUrl(
 
   return (
     value
-      .slice(
-        index +
-        marker.length,
-      )
-      .split("?")[0] ||
-    null
+      .slice(index + marker.length)
+      .split("?")[0] || null
   );
 }
 
+/**
+ * Convierte una fecha/hora local del panel en UTC.
+ *
+ * España: Europe/Madrid.
+ * Latinoamérica: America/Bogota.
+ *
+ * No comprueba fechas fijas del calendario: la programación
+ * se controla desde el panel de administración.
+ */
 function parseLocalDateTime(
   value: string,
   timeZone: string,
@@ -176,77 +136,90 @@ function parseLocalDateTime(
     return null;
   }
 
-  const [
-    ,
-    year,
-    month,
-    day,
-    hour,
-    minute,
-  ] = match;
+  const [, year, month, day, hour, minute] = match;
 
-  const candidate =
-    Date.UTC(
-      Number(year),
-      Number(month) - 1,
-      Number(day),
-      Number(hour),
-      Number(minute),
-      0,
-      0,
-    );
+  const yearNumber = Number(year);
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+  const hourNumber = Number(hour);
+  const minuteNumber = Number(minute);
 
-  const parts =
-    new Intl.DateTimeFormat(
-      "en-US",
-      {
-        timeZone,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23",
-      },
-    ).formatToParts(
-      new Date(candidate),
-    );
+  const candidate = Date.UTC(
+    yearNumber,
+    monthNumber - 1,
+    dayNumber,
+    hourNumber,
+    minuteNumber,
+  );
 
-  const values =
-    Object.fromEntries(
-      parts
-        .filter(
-          (part) =>
-            part.type !==
-            "literal",
-        )
-        .map((part) => [
-          part.type,
-          part.value,
-        ]),
-    ) as Record<
-      string,
-      string
-    >;
+  const candidateDate = new Date(candidate);
 
-  const localAsUtc =
-    Date.UTC(
-      Number(values.year),
-      Number(values.month) - 1,
-      Number(values.day),
-      Number(values.hour),
-      Number(values.minute),
-      0,
-      0,
-    );
+  // Date.UTC normaliza fechas imposibles; las rechazamos.
+  if (
+    candidateDate.getUTCFullYear() !== yearNumber ||
+    candidateDate.getUTCMonth() !== monthNumber - 1 ||
+    candidateDate.getUTCDate() !== dayNumber ||
+    candidateDate.getUTCHours() !== hourNumber ||
+    candidateDate.getUTCMinutes() !== minuteNumber
+  ) {
+    return null;
+  }
 
-  const offset =
-    localAsUtc -
-    candidate;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(candidateDate);
 
-  return new Date(
-    candidate - offset,
-  ).toISOString();
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  ) as Record<string, string>;
+
+  const localAsUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+  );
+
+  const offset = localAsUtc - candidate;
+  const result = new Date(candidate - offset);
+
+  // Evita aceptar horas locales inexistentes por el cambio horario.
+  const roundTrip = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(result);
+
+  const roundTripValues = Object.fromEntries(
+    roundTrip
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  ) as Record<string, string>;
+
+  if (
+    roundTripValues.year !== year ||
+    roundTripValues.month !== month ||
+    roundTripValues.day !== day ||
+    roundTripValues.hour !== hour ||
+    roundTripValues.minute !== minute
+  ) {
+    return null;
+  }
+
+  return result.toISOString();
 }
 
 function normalizeSessionDate(
@@ -255,69 +228,41 @@ function normalizeSessionDate(
 ): string | null {
   return parseLocalDateTime(
     value,
-    region ===
-      "Latinoamérica"
+    region === "Latinoamérica"
       ? "America/Bogota"
       : "Europe/Madrid",
   );
 }
 
 export async function GET() {
-  const auth =
-    await requireAdmin();
+  const auth = await requireAdmin();
 
   if (!auth.ok) {
     return NextResponse.json(
-      {
-        error:
-          auth.message,
-      },
-      {
-        status:
-          auth.status,
-      },
+      { error: auth.message },
+      { status: auth.status },
     );
   }
 
-  const admin =
-    createAdminClient();
+  const admin = createAdminClient();
 
-  const {
-    data,
-    error,
-  } =
-    await admin
-      .from(TABLE)
-      .select(
-        SELECT_FIELDS,
-      )
-      .order(
-        "region",
-        {
-          ascending: true,
-        },
-      )
-      .order(
-        "session_order",
-        {
-          ascending: true,
-        },
-      );
+  const { data, error } = await admin
+    .from(TABLE)
+    .select(SELECT_FIELDS)
+    .order("region", { ascending: true })
+    .order("session_order", { ascending: true });
 
   if (error) {
-    console.error(
-      "[admin/sessions][GET]",
-      error,
-    );
+    console.error("[admin/sessions][GET]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
 
     return NextResponse.json(
-      {
-        error:
-          "No se han podido recuperar las sesiones.",
-      },
-      {
-        status: 500,
-      },
+      { error: "No se han podido recuperar las sesiones." },
+      { status: 500 },
     );
   }
 
@@ -326,345 +271,146 @@ export async function GET() {
   });
 }
 
-export async function POST(
-  request: Request,
-) {
-  const auth =
-    await requireAdmin();
+export async function POST(request: Request) {
+  const auth = await requireAdmin();
 
   if (!auth.ok) {
     return NextResponse.json(
-      {
-        error:
-          auth.message,
-      },
-      {
-        status:
-          auth.status,
-      },
+      { error: auth.message },
+      { status: auth.status },
     );
   }
 
   let form: FormData;
 
   try {
-    form =
-      await request.formData();
+    form = await request.formData();
   } catch {
     return NextResponse.json(
-      {
-        error:
-          "La petición contiene datos inválidos.",
-      },
-      {
-        status: 400,
-      },
+      { error: "La petición contiene datos inválidos." },
+      { status: 400 },
     );
   }
 
-  const title =
-    form
-      .get("title")
-      ?.toString()
-      .trim() ?? "";
-
+  const title = form.get("title")?.toString().trim() ?? "";
   const description =
-    form
-      .get("description")
-      ?.toString()
-      .trim() ?? "";
-
-  const zoomUrl =
-    form
-      .get("zoomUrl")
-      ?.toString()
-      .trim() ?? "";
-
+    form.get("description")?.toString().trim() ?? "";
+  const zoomUrl = form.get("zoomUrl")?.toString().trim() ?? "";
   const zoomRecordingUrl =
-    form
-      .get("zoomRecordingUrl")
-      ?.toString()
-      .trim() ?? "";
-
+    form.get("zoomRecordingUrl")?.toString().trim() ?? "";
   const thumbnailUrlInput =
-    form
-      .get("thumbnailUrl")
-      ?.toString()
-      .trim() ?? "";
-
-  const region =
-    form
-      .get("region")
-      ?.toString();
-
-  const sessionOrder =
-    Number(
-      form.get(
-        "sessionOrder",
-      ),
-    );
-
+    form.get("thumbnailUrl")?.toString().trim() ?? "";
+  const region = form.get("region")?.toString();
+  const sessionOrder = Number(form.get("sessionOrder"));
   const sessionDate =
-    form
-      .get("sessionDate")
-      ?.toString()
-      .trim() ?? "";
-
-  const imageFile =
-    form.get(
-      "thumbnailFile",
-    );
+    form.get("sessionDate")?.toString().trim() ?? "";
+  const imageFile = form.get("thumbnailFile");
 
   if (!title) {
     return NextResponse.json(
-      {
-        error:
-          "El título de la sesión es obligatorio.",
-      },
-      {
-        status: 400,
-      },
+      { error: "El título de la sesión es obligatorio." },
+      { status: 400 },
     );
   }
 
   if (!description) {
     return NextResponse.json(
-      {
-        error:
-          "La descripción de la sesión es obligatoria.",
-      },
-      {
-        status: 400,
-      },
+      { error: "La descripción de la sesión es obligatoria." },
+      { status: 400 },
     );
   }
 
   if (!zoomUrl) {
     return NextResponse.json(
-      {
-        error:
-          "La URL de Zoom es obligatoria.",
-      },
-      {
-        status: 400,
-      },
+      { error: "La URL de Zoom es obligatoria." },
+      { status: 400 },
     );
   }
 
   try {
-    new URL(
-      zoomUrl,
-    );
+    const parsed = new URL(zoomUrl);
+
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error("Protocolo no permitido.");
+    }
   } catch {
     return NextResponse.json(
-      {
-        error:
-          "La URL de Zoom no es válida.",
-      },
-      {
-        status: 400,
-      },
+      { error: "La URL de Zoom no es válida." },
+      { status: 400 },
     );
   }
 
   if (zoomRecordingUrl) {
     try {
-      new URL(
-        zoomRecordingUrl,
-      );
+      const parsed = new URL(zoomRecordingUrl);
+
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        throw new Error("Protocolo no permitido.");
+      }
     } catch {
       return NextResponse.json(
-        {
-          error:
-            "La URL de la grabación de Zoom no es válida.",
-        },
-        {
-          status: 400,
-        },
+        { error: "La URL de la grabación de Zoom no es válida." },
+        { status: 400 },
       );
     }
   }
 
   if (!sessionDate) {
     return NextResponse.json(
-      {
-        error:
-          "La fecha de la sesión es obligatoria.",
-      },
-      {
-        status: 400,
-      },
+      { error: "La fecha de la sesión es obligatoria." },
+      { status: 400 },
+    );
+  }
+
+  if (!REGIONS.includes(region as (typeof REGIONS)[number])) {
+    return NextResponse.json(
+      { error: "La región de la sesión no es válida." },
+      { status: 400 },
     );
   }
 
   if (
-    !REGIONS.includes(
-      region as (typeof REGIONS)[number],
-    )
+    !Number.isInteger(sessionOrder) ||
+    sessionOrder < MIN_SESSION_ORDER ||
+    sessionOrder > MAX_SESSION_ORDER
   ) {
     return NextResponse.json(
-      {
-        error:
-          "La región de la sesión no es válida.",
-      },
-      {
-        status: 400,
-      },
+      { error: "El orden de la sesión no es válido." },
+      { status: 400 },
     );
   }
 
-  if (
-    !Number.isInteger(
-      sessionOrder,
-    ) ||
-    sessionOrder <
-    MIN_SESSION_ORDER ||
-    sessionOrder >
-    MAX_SESSION_ORDER
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          "El orden de la sesión no es válido.",
-      },
-      {
-        status: 400,
-      },
-    );
-  }
-
-  const normalizedSessionDate =
-    normalizeSessionDate(
-      sessionDate,
-      region as (typeof REGIONS)[number],
-    );
+  const normalizedSessionDate = normalizeSessionDate(
+    sessionDate,
+    region as (typeof REGIONS)[number],
+  );
 
   if (!normalizedSessionDate) {
     return NextResponse.json(
       {
         error:
-          "La fecha de la sesión no es válida.",
+          "La fecha u hora no es válida para la zona horaria seleccionada.",
       },
-      {
-        status: 400,
-      },
+      { status: 400 },
     );
   }
 
-  const sessionTimestamp =
-    Date.parse(
-      normalizedSessionDate,
-    );
-
-  const validationTimeZone =
-    region === "España"
-      ? "Europe/Madrid"
-      : "America/Bogota";
-
-  const localParts =
-    Object.fromEntries(
-      new Intl.DateTimeFormat(
-        "en-CA",
-        {
-          timeZone:
-            validationTimeZone,
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          weekday: "short",
-          hour: "2-digit",
-          minute: "2-digit",
-          hourCycle: "h23",
-        },
-      )
-        .formatToParts(
-          new Date(
-            sessionTimestamp,
-          ),
-        )
-        .map(
-          (part) => [
-            part.type,
-            part.value,
-          ],
-        ),
-    ) as Record<
-      string,
-      string
-    >;
-
-  const expectedDate =
-    (
-      region === "España"
-        ? SPAIN_SESSION_DATES
-        : LATAM_SESSION_DATES
-    )[sessionOrder];
-
-  const actualDate =
-    `${localParts.year}-${localParts.month}-${localParts.day}`;
-
-  const expectedWeekday =
-    region === "España"
-      ? "Thu"
-      : "Sat";
-
-  const expectedHour =
-    region === "España"
-      ? "19"
-      : "11";
-
-  if (
-    !expectedDate ||
-    actualDate !==
-    expectedDate ||
-    localParts.weekday !==
-    expectedWeekday ||
-    localParts.hour !==
-    expectedHour ||
-    localParts.minute !==
-    "00"
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          region === "España"
-            ? `La sesión ${sessionOrder} debe programarse el ${expectedDate} a las 19:00 h de España.`
-            : `La sesión ${sessionOrder} debe programarse el ${expectedDate} a las 11:00 h de Colombia (10:00 h de México).`,
-      },
-      {
-        status: 400,
-      },
-    );
-  }
+  // IMPORTANTE:
+  // Ya no hay ninguna comparación con SPAIN_SESSION_DATES
+  // ni LATAM_SESSION_DATES. El administrador puede cambiar
+  // libremente la fecha y hora de una sesión.
 
   if (thumbnailUrlInput) {
     try {
-      const parsed =
-        new URL(
-          thumbnailUrlInput,
-        );
+      const parsed = new URL(thumbnailUrlInput);
 
-      if (
-        ![
-          "http:",
-          "https:",
-        ].includes(
-          parsed.protocol,
-        )
-      ) {
-        throw new Error(
-          "unsupported protocol",
-        );
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        throw new Error("Protocolo no permitido.");
       }
     } catch {
       return NextResponse.json(
-        {
-          error:
-            "La URL de la imagen no es válida.",
-        },
-        {
-          status: 400,
-        },
+        { error: "La URL de la imagen no es válida." },
+        { status: 400 },
       );
     }
   }
@@ -675,301 +421,192 @@ export async function POST(
     !(imageFile instanceof File)
   ) {
     return NextResponse.json(
-      {
-        error:
-          "El archivo de imagen no es válido.",
-      },
-      {
-        status: 400,
-      },
+      { error: "El archivo de imagen no es válido." },
+      { status: 400 },
     );
   }
 
-  if (
-    imageFile instanceof File &&
-    imageFile.size > 0
-  ) {
-    if (
-      !imageFile.type.startsWith(
-        "image/",
-      )
-    ) {
+  if (imageFile instanceof File && imageFile.size > 0) {
+    if (!imageFile.type.startsWith("image/")) {
       return NextResponse.json(
-        {
-          error:
-            "El archivo seleccionado no es una imagen compatible.",
-        },
-        {
-          status: 400,
-        },
+        { error: "El archivo seleccionado no es una imagen compatible." },
+        { status: 400 },
       );
     }
 
-    if (
-      imageFile.size >
-      MAX_IMAGE_SIZE
-    ) {
+    if (imageFile.size > MAX_IMAGE_SIZE) {
       return NextResponse.json(
-        {
-          error:
-            "La imagen no puede superar los 25 MB.",
-        },
-        {
-          status: 400,
-        },
+        { error: "La imagen no puede superar los 25 MB." },
+        { status: 400 },
       );
     }
   }
 
-  const admin =
-    createAdminClient();
+  const admin = createAdminClient();
 
-  const {
-    data: existing,
-    error:
-    existingError,
-  } =
-    await admin
-      .from(TABLE)
-      .select(
-        "id, release_date_spain, release_date_latam, thumbnail_url",
-      )
-      .eq(
-        "region",
-        region,
-      )
-      .eq(
-        "session_order",
-        sessionOrder,
-      )
-      .maybeSingle();
+  const { data: existing, error: existingError } = await admin
+    .from(TABLE)
+    .select(
+      "id, release_date_spain, release_date_latam, thumbnail_url",
+    )
+    .eq("region", region)
+    .eq("session_order", sessionOrder)
+    .maybeSingle();
 
   if (existingError) {
-    console.error(
-      "[admin/sessions][CHECK_EXISTING]",
-      existingError,
-    );
+    console.error("[admin/sessions][CHECK_EXISTING]", {
+      code: existingError.code,
+      message: existingError.message,
+      details: existingError.details,
+      hint: existingError.hint,
+    });
 
     return NextResponse.json(
-      {
-        error:
-          "No se ha podido comprobar la sesión existente.",
-      },
-      {
-        status: 500,
-      },
+      { error: "No se ha podido comprobar la sesión existente." },
+      { status: 500 },
     );
   }
 
-  let uploadedThumbnailUrl =
-    "";
+  let uploadedThumbnailUrl = "";
+  let uploadedThumbnailPath = "";
 
-  let uploadedThumbnailPath =
-    "";
-
-  if (
-    imageFile instanceof File &&
-    imageFile.size > 0
-  ) {
+  if (imageFile instanceof File && imageFile.size > 0) {
     try {
-      await ensureImageBucket(
-        admin,
-      );
+      await ensureImageBucket(admin);
 
-      const safeName =
-        sanitizeFileName(
-          imageFile.name ||
-          "imagen",
-        );
+      const safeName = sanitizeFileName(
+        imageFile.name || "imagen",
+      );
 
       const path =
-        `${region ===
-          "España"
-          ? "spain"
-          : "latam"
-        }/${sessionOrder}/${crypto.randomUUID()}-${safeName}`;
+        `${region === "España" ? "spain" : "latam"}/${sessionOrder}/${crypto.randomUUID()}-${safeName}`;
 
-      const buffer =
-        Buffer.from(
-          await imageFile.arrayBuffer(),
-        );
+      const buffer = Buffer.from(
+        await imageFile.arrayBuffer(),
+      );
 
-      const {
-        error:
-        uploadError,
-      } =
-        await admin.storage
-          .from(
-            IMAGE_BUCKET,
-          )
-          .upload(
-            path,
-            buffer,
-            {
-              contentType:
-                imageFile.type,
-              upsert: false,
-              cacheControl:
-                "31536000",
-            },
-          );
+      const { error: uploadError } = await admin.storage
+        .from(IMAGE_BUCKET)
+        .upload(path, buffer, {
+          contentType: imageFile.type,
+          upsert: false,
+          cacheControl: "31536000",
+        });
 
       if (uploadError) {
-        throw new Error(
-          uploadError.message,
-        );
+        throw new Error(uploadError.message);
       }
 
-      const {
-        data:
-        publicUrlData,
-      } =
-        admin.storage
-          .from(
-            IMAGE_BUCKET,
-          )
-          .getPublicUrl(
-            path,
-          );
+      const { data: publicUrlData } = admin.storage
+        .from(IMAGE_BUCKET)
+        .getPublicUrl(path);
 
-      uploadedThumbnailUrl =
-        publicUrlData.publicUrl;
-
-      uploadedThumbnailPath =
-        path;
+      uploadedThumbnailUrl = publicUrlData.publicUrl;
+      uploadedThumbnailPath = path;
     } catch (error) {
-      console.error(
-        "[admin/sessions][IMAGE_UPLOAD]",
-        error,
-      );
+      console.error("[admin/sessions][IMAGE_UPLOAD]", error);
 
       return NextResponse.json(
         {
           error:
-            error instanceof
-              Error
+            error instanceof Error
               ? error.message
               : "No se ha podido subir la imagen.",
         },
-        {
-          status: 500,
-        },
+        { status: 500 },
       );
     }
   }
 
   const thumbnailUrl =
-    uploadedThumbnailUrl ||
-    thumbnailUrlInput;
+    uploadedThumbnailUrl || thumbnailUrlInput;
 
-  const now =
-    new Date().toISOString();
+  const now = new Date().toISOString();
 
   const payload = {
     title,
     description,
-    zoom_url:
-      zoomUrl,
-    zoom_recording_url:
-      zoomRecordingUrl ||
-      null,
-    thumbnail_url:
-      thumbnailUrl,
-    session_order:
-      sessionOrder,
+    zoom_url: zoomUrl,
+    zoom_recording_url: zoomRecordingUrl || null,
+    thumbnail_url: thumbnailUrl,
+    session_order: sessionOrder,
     region,
     release_date_spain:
       region === "España"
         ? normalizedSessionDate
-        : existing?.release_date_spain ??
-        null,
+        : existing?.release_date_spain ?? null,
     release_date_latam:
-      region ===
-        "Latinoamérica"
+      region === "Latinoamérica"
         ? normalizedSessionDate
-        : existing?.release_date_latam ??
-        null,
-    updated_at:
-      now,
+        : existing?.release_date_latam ?? null,
+    updated_at: now,
   };
 
-  const query =
-    existing
-      ? admin
-        .from(TABLE)
-        .update(payload)
-        .eq(
-          "id",
-          existing.id,
-        )
-      : admin
-        .from(TABLE)
-        .insert(
-          payload,
-        );
+  const query = existing
+    ? admin
+      .from(TABLE)
+      .update(payload)
+      .eq("id", existing.id)
+    : admin
+      .from(TABLE)
+      .insert(payload);
 
-  const {
-    error,
-  } =
-    await query;
+  const { error } = await query;
 
   if (error) {
-    if (
-      uploadedThumbnailPath
-    ) {
-      await admin.storage
-        .from(
-          IMAGE_BUCKET,
-        )
-        .remove([
-          uploadedThumbnailPath,
-        ]);
+    if (uploadedThumbnailPath) {
+      const { error: cleanupError } = await admin.storage
+        .from(IMAGE_BUCKET)
+        .remove([uploadedThumbnailPath]);
+
+      if (cleanupError) {
+        console.error(
+          "[admin/sessions][IMAGE_CLEANUP]",
+          cleanupError,
+        );
+      }
     }
 
-    console.error(
-      "[admin/sessions][SAVE]",
-      {
-        error,
-        payload,
-      },
-    );
+    console.error("[admin/sessions][SAVE]", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
 
     return NextResponse.json(
       {
-        error:
-          "No se ha podido guardar la sesión.",
+        error: `No se ha podido guardar la sesión: ${error.message}`,
+        code: error.code ?? null,
+        details: error.details ?? null,
+        hint: error.hint ?? null,
       },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
 
   if (
     existing?.thumbnail_url &&
-    isManagedImageUrl(
-      existing.thumbnail_url,
-    ) &&
-    existing.thumbnail_url !==
-    thumbnailUrl
+    isManagedImageUrl(existing.thumbnail_url) &&
+    existing.thumbnail_url !== thumbnailUrl
   ) {
-    const oldPath =
-      getStoragePathFromPublicUrl(
-        existing.thumbnail_url,
-      );
+    const oldPath = getStoragePathFromPublicUrl(
+      existing.thumbnail_url,
+    );
 
     if (oldPath) {
-      await admin.storage
-        .from(
-          IMAGE_BUCKET,
-        )
-        .remove([
-          oldPath,
-        ]);
+      const { error: removeError } = await admin.storage
+        .from(IMAGE_BUCKET)
+        .remove([oldPath]);
+
+      if (removeError) {
+        console.error(
+          "[admin/sessions][OLD_IMAGE_CLEANUP]",
+          removeError,
+        );
+      }
     }
   }
 
-  return NextResponse.json({
-    ok: true,
-  });
+  return NextResponse.json({ ok: true });
 }
