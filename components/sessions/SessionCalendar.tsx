@@ -1,13 +1,11 @@
 "use client";
 
-import {
-    useEffect,
-    useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import {
     CalendarDays,
     CheckCircle2,
+    ChevronDown,
     Clock3,
     Globe2,
 } from "lucide-react";
@@ -19,13 +17,8 @@ import {
 
 import type { Region } from "@/lib/utils/regions";
 
-import {
-    getSessions,
-} from "@/services/sessions/study-session.service";
-
-import type {
-    Session,
-} from "@/types/study-session";
+import { getSessions } from "@/services/sessions/study-session.service";
+import type { Session } from "@/types/study-session";
 
 interface SessionCalendarProps {
     region: Region;
@@ -38,27 +31,16 @@ function getTimeZone(region: Region): string {
 }
 
 function getRegionLabel(region: Region): string {
-    return region === "spain"
-        ? "España"
-        : "Latinoamérica";
+    return region === "spain" ? "España" : "Latinoamérica";
 }
 
-function getSessionOrder(
-    item: StudyCalendarItem,
-): number | null {
-    if (item.key === "closing") {
-        return null;
-    }
-
-    if (item.key === "0-1") {
-        return 0;
-    }
+function getSessionOrder(item: StudyCalendarItem): number | null {
+    if (item.key === "closing") return null;
+    if (item.key === "0-1") return 0;
 
     const order = Number(item.key);
 
-    return Number.isInteger(order)
-        ? order
-        : null;
+    return Number.isInteger(order) ? order : null;
 }
 
 function getSessionDate(
@@ -68,17 +50,13 @@ function getSessionDate(
 ): string | null {
     const order = getSessionOrder(item);
 
-    if (order === null) {
-        return null;
-    }
+    if (order === null) return null;
 
     const session = sessions.find(
         (entry) => entry.sessionOrder === order,
     );
 
-    if (!session) {
-        return null;
-    }
+    if (!session) return null;
 
     return region === "spain"
         ? session.releaseDateSpain
@@ -89,14 +67,12 @@ function formatDate(
     value: string | null | undefined,
     region: Region,
 ): string {
-    if (!value) {
-        return "Por confirmar";
-    }
+    if (!value) return "Fecha por confirmar";
 
     const timestamp = Date.parse(value);
 
     if (!Number.isFinite(timestamp)) {
-        return "Por confirmar";
+        return "Fecha por confirmar";
     }
 
     return new Intl.DateTimeFormat("es-ES", {
@@ -111,15 +87,11 @@ function formatTime(
     value: string | null | undefined,
     region: Region,
 ): string {
-    if (!value) {
-        return "";
-    }
+    if (!value) return "";
 
     const timestamp = Date.parse(value);
 
-    if (!Number.isFinite(timestamp)) {
-        return "";
-    }
+    if (!Number.isFinite(timestamp)) return "";
 
     return new Intl.DateTimeFormat("es-ES", {
         hour: "2-digit",
@@ -129,28 +101,15 @@ function formatTime(
     }).format(new Date(timestamp)) + " h";
 }
 
-function getRegionDescription(
-    region: Region,
-): string {
-    return region === "spain"
-        ? "Las fechas y horas corresponden a la programación vigente en España."
-        : "Las fechas y horas corresponden a la programación vigente en Latinoamérica. Los horarios se muestran en hora de Colombia.";
-}
-
-function getRegionTimeLabel(
-    region: Region,
-): string {
-    return region === "spain"
-        ? "Hora peninsular española"
-        : "Hora de Colombia";
-}
-
 export default function SessionCalendar({
     region,
 }: SessionCalendarProps) {
+    const [calendarOpen, setCalendarOpen] = useState(false);
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
+
+    const regionLabel = getRegionLabel(region);
 
     useEffect(() => {
         let cancelled = false;
@@ -167,7 +126,7 @@ export default function SessionCalendar({
                 }
             } catch (error) {
                 console.error(
-                    "[SessionCalendar] No se pudo cargar el calendario:",
+                    "[SessionCalendar] Error al cargar el calendario:",
                     error,
                 );
 
@@ -189,10 +148,6 @@ export default function SessionCalendar({
         };
     }, [region]);
 
-    const regionLabel = getRegionLabel(region);
-    const regionDescription = getRegionDescription(region);
-    const regionTimeLabel = getRegionTimeLabel(region);
-
     return (
         <section
             className="session-calendar"
@@ -210,14 +165,14 @@ export default function SessionCalendar({
 
                     <div>
                         <p className="session-calendar__eyebrow">
-                            Calendario
+                            Calendario del programa
                         </p>
 
                         <h2
                             id="session-calendar-title"
                             className="session-calendar__title"
                         >
-                            Programa de sesiones
+                            Consulta las fechas de tus sesiones
                         </h2>
                     </div>
                 </div>
@@ -237,7 +192,8 @@ export default function SessionCalendar({
             </header>
 
             <p className="session-calendar__description">
-                {regionDescription}
+                Consulta las fechas y los horarios de las sesiones
+                programadas para tu región.
             </p>
 
             <div className="session-calendar__schedule">
@@ -250,99 +206,171 @@ export default function SessionCalendar({
 
                     <div>
                         <span className="session-calendar__schedule-label">
-                            Horario
+                            Zona horaria
                         </span>
 
-                        <strong>{regionTimeLabel}</strong>
+                        <strong>
+                            {region === "spain"
+                                ? "España · Hora peninsular"
+                                : "Latinoamérica · Hora de Colombia"}
+                        </strong>
+
+                        {region === "latam" && (
+                            <span className="session-calendar__description">
+                                11:00 h en Colombia equivale a 10:00 h en México.
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {loadError && (
-                <p
-                    className="session-calendar__description"
-                    role="alert"
+            <button
+                type="button"
+                className="session-calendar__toggle"
+                onClick={() => setCalendarOpen((open) => !open)}
+                aria-expanded={calendarOpen}
+                aria-controls="session-calendar-content"
+            >
+                <CalendarDays
+                    size={18}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                />
+
+                <span>
+                    {calendarOpen ? "Ocultar calendario" : "Ver calendario"}
+                </span>
+
+                <ChevronDown
+                    size={18}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                    className={`session-calendar__toggle-icon${calendarOpen
+                            ? " session-calendar__toggle-icon--open"
+                            : ""
+                        }`}
+                />
+            </button>
+
+            {calendarOpen && (
+                <div
+                    id="session-calendar-content"
+                    className="session-calendar__content"
                 >
-                    No se ha podido cargar el calendario actualizado.
-                    Inténtalo de nuevo más tarde.
-                </p>
-            )}
+                    {loading ? (
+                        <p className="session-calendar__description">
+                            Cargando calendario...
+                        </p>
+                    ) : loadError ? (
+                        <div className="session-calendar__error" role="alert">
+                            <p>
+                                No se ha podido cargar el calendario actualizado.
+                            </p>
 
-            {loading ? (
-                <p className="session-calendar__description">
-                    Cargando calendario...
-                </p>
-            ) : (
-                <div className="session-calendar__list">
-                    {STUDY_CALENDAR.map((item) => {
-                        const date = getSessionDate(
-                            sessions,
-                            item,
-                            region,
-                        );
+                            <button
+                                type="button"
+                                className="session-calendar__retry"
+                                onClick={() => {
+                                    setLoadError(false);
+                                    setLoading(true);
 
-                        const formattedDate = formatDate(
-                            date,
-                            region,
-                        );
-
-                        const formattedTime = formatTime(
-                            date,
-                            region,
-                        );
-
-                        return (
-                            <article
-                                key={item.key}
-                                className={`session-calendar__item${!item.hasContent
-                                        ? " session-calendar__item--closing"
-                                        : ""
-                                    }`}
+                                    void getSessions(region)
+                                        .then((result) => {
+                                            setSessions(result);
+                                        })
+                                        .catch((error: unknown) => {
+                                            console.error(
+                                                "[SessionCalendar] Error al reintentar:",
+                                                error,
+                                            );
+                                            setLoadError(true);
+                                        })
+                                        .finally(() => {
+                                            setLoading(false);
+                                        });
+                                }}
                             >
-                                <div className="session-calendar__item-number">
-                                    {item.label}
-                                </div>
+                                Reintentar
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="session-calendar__list">
+                                {STUDY_CALENDAR.map((item) => {
+                                    const date = getSessionDate(
+                                        sessions,
+                                        item,
+                                        region,
+                                    );
 
-                                <div className="session-calendar__item-main">
-                                    <div className="session-calendar__item-date">
-                                        <CalendarDays
-                                            size={15}
-                                            strokeWidth={1.8}
-                                            aria-hidden="true"
-                                        />
+                                    return (
+                                        <article
+                                            key={item.key}
+                                            className={`session-calendar__item${!item.hasContent
+                                                    ? " session-calendar__item--closing"
+                                                    : ""
+                                                }`}
+                                        >
+                                            <div className="session-calendar__item-number">
+                                                {item.label}
+                                            </div>
 
-                                        <span>{formattedDate}</span>
-                                    </div>
+                                            <div className="session-calendar__item-main">
+                                                <div className="session-calendar__item-date">
+                                                    <CalendarDays
+                                                        size={15}
+                                                        strokeWidth={1.8}
+                                                        aria-hidden="true"
+                                                    />
 
-                                    {formattedTime && (
-                                        <div className="session-calendar__item-date">
-                                            <Clock3
-                                                size={15}
-                                                strokeWidth={1.8}
-                                                aria-hidden="true"
-                                            />
+                                                    <span>{formatDate(date, region)}</span>
+                                                </div>
 
-                                            <span>{formattedTime}</span>
-                                        </div>
-                                    )}
+                                                {date && (
+                                                    <div className="session-calendar__item-date">
+                                                        <Clock3
+                                                            size={15}
+                                                            strokeWidth={1.8}
+                                                            aria-hidden="true"
+                                                        />
 
-                                    <h3>{item.topic}</h3>
-                                </div>
+                                                        <span>{formatTime(date, region)}</span>
+                                                    </div>
+                                                )}
 
-                                <div className="session-calendar__item-status">
-                                    {item.hasContent ? (
-                                        <CheckCircle2
-                                            size={18}
-                                            strokeWidth={1.8}
-                                            aria-hidden="true"
-                                        />
-                                    ) : (
-                                        <span>Cierre</span>
-                                    )}
-                                </div>
-                            </article>
-                        );
-                    })}
+                                                <h3>{item.topic}</h3>
+
+                                                {!item.hasContent && (
+                                                    <span className="session-calendar__description">
+                                                        Sesión adicional de cierre.
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="session-calendar__item-status">
+                                                {item.hasContent ? (
+                                                    <CheckCircle2
+                                                        size={18}
+                                                        strokeWidth={1.8}
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : (
+                                                    <span>Cierre</span>
+                                                )}
+                                            </div>
+                                        </article>
+                                    );
+                                })}
+                            </div>
+
+                            <p className="session-calendar__note">
+                                Las fechas se obtienen de la programación guardada
+                                en la plataforma. La sesión de cierre no dispone
+                                actualmente de una fecha independiente en la tabla
+                                de sesiones.
+                            </p>
+                        </>
+                    )}
                 </div>
             )}
         </section>
