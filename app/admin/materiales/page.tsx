@@ -149,7 +149,11 @@ export default function AdminMaterialsPage() {
     }, []);
 
   useEffect(() => {
-    void loadMaterials();
+    const timeoutId = window.setTimeout(() => {
+      void loadMaterials();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadMaterials]);
 
   const materialByOrder =
@@ -220,6 +224,7 @@ export default function AdminMaterialsPage() {
       },
       [
         materialByOrder,
+        activeRegion,
       ],
     );
 

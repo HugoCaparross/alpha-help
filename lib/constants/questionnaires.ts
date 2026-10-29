@@ -1,5 +1,4 @@
 import type {
-  Questionnaire,
   QuestionnaireWithStatus,
 } from "@/types/questionnaire";
 
@@ -401,7 +400,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "help_confidence_5",
     required: true,
     question:
-      "Personal del centro educativo, como profesores/as, orientadores/as o tutores/as.",
+      "Profesores/as, orientadores/as u otros profesionales del centro educativo.",
   },
 
   {
@@ -409,7 +408,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "help_confidence_5",
     required: true,
     question:
-      "Amigos, familiares y otras redes de apoyo, como comunidades religiosas, asociaciones o clubes deportivos.",
+      "Familiares o amistades de confianza.",
   },
 
   {
@@ -417,15 +416,7 @@ export const CAPSM_QUESTIONS: Question[] = [
     scaleType: "help_probability_5",
     required: true,
     question:
-      "En general, ¿qué probabilidad habría de que buscaras apoyo en alguna de las opciones anteriores si tu hijo/a tuviera una dificultad relacionada con la salud mental?",
-  },
-
-  {
-    id: "capsm_23",
-    scaleType: "help_confidence_5",
-    required: true,
-    question:
-      "En general, ¿qué nivel de confianza tendrías para buscar ayuda si tu hijo/a estuviera experimentando una dificultad relacionada con la salud mental?",
+      "Si mi hijo/a tuviera un problema de salud mental, buscaría ayuda profesional.",
   },
 ];
 
@@ -435,8 +426,9 @@ export const PSOC_QUESTIONS: Question[] = [
     scaleType: "psoc_6",
     intro: PSOC_INTRO,
     required: true,
+    reverse: true,
     question:
-      "Es difícil, pero yo ya he aprendido a influir en mis hijos.",
+      "Los problemas de cuidado de los hijos/as me resultan fáciles de resolver.",
   },
 
   {
@@ -445,16 +437,15 @@ export const PSOC_QUESTIONS: Question[] = [
     required: true,
     reverse: true,
     question:
-      "Con la edad que tiene mi hijo, ser madre/padre no es agradable.",
+      "Aunque ser padre/madre puede ser gratificante, ahora mismo estoy frustrado/a con mi papel como padre/madre.",
   },
 
   {
     id: "psoc_3",
     scaleType: "psoc_6",
     required: true,
-    reverse: true,
     question:
-      "En las cosas que tienen que ver con mis hijos, me acuesto igual que me levanto, con la sensación de no haber terminado nada.",
+      "Voy a dormir cada noche con la sensación de que no he conseguido gran cosa.",
   },
 
   {
@@ -463,7 +454,7 @@ export const PSOC_QUESTIONS: Question[] = [
     required: true,
     reverse: true,
     question:
-      "No sé por qué, pero, aunque como padre/madre creo que controlo la situación, a veces siento como si la situación me controlara a mí.",
+      "A veces me pregunto si hago lo suficiente por mis hijos/as.",
   },
 
   {
@@ -472,7 +463,7 @@ export const PSOC_QUESTIONS: Question[] = [
     required: true,
     reverse: true,
     question:
-      "Mi madre/padre estaba mejor preparada/o que yo para ser una buena madre/padre.",
+      "Creo que tengo todas las habilidades necesarias para ser un buen padre/madre.",
   },
 
   {
@@ -480,7 +471,7 @@ export const PSOC_QUESTIONS: Question[] = [
     scaleType: "psoc_6",
     required: true,
     question:
-      "Yo sería capaz de decirle a unos padres primerizos qué es exactamente lo que tienen que hacer para ser buenos padres.",
+      "Ser padre/madre me hace sentir tenso/a y ansioso/a.",
   },
 
   {
@@ -488,7 +479,7 @@ export const PSOC_QUESTIONS: Question[] = [
     scaleType: "psoc_6",
     required: true,
     question:
-      "Ser padre/madre es algo llevadero y cualquier problema se resuelve fácilmente.",
+      "Ser padre/madre es manejable y los problemas se resuelven fácilmente.",
   },
 
   {
@@ -497,7 +488,7 @@ export const PSOC_QUESTIONS: Question[] = [
     required: true,
     reverse: true,
     question:
-      "Una de las cosas más difíciles de ser padre/madre es saber si lo estás haciendo bien o no.",
+      "Un problema difícil de resolver en mi papel como padre/madre es no saber exactamente cómo ayudar a mi hijo/a.",
   },
 
   {
@@ -506,15 +497,16 @@ export const PSOC_QUESTIONS: Question[] = [
     required: true,
     reverse: true,
     question:
-      "Como padre/madre, a veces siento que no doy abasto.",
+      "A veces siento que no puedo hacer las cosas bien como padre/madre.",
   },
 
   {
     id: "psoc_10",
     scaleType: "psoc_6",
     required: true,
+    reverse: true,
     question:
-      "He conseguido ser tan buen/a padre/madre como quería.",
+      "Cumplo con las expectativas que tenía antes de tener hijos/as.",
   },
 
   {
@@ -522,16 +514,15 @@ export const PSOC_QUESTIONS: Question[] = [
     scaleType: "psoc_6",
     required: true,
     question:
-      "Si hay alguien que sabe lo que le pasa a mi hijo/a cuando está raro/a, esa/e soy yo.",
+      "Si alguien pudiera resolver la mayoría de los problemas que tengo como padre/madre, probablemente sería más feliz.",
   },
 
   {
     id: "psoc_12",
     scaleType: "psoc_6",
     required: true,
-    reverse: true,
     question:
-      "Se me da mejor y disfruto más haciendo otras cosas diferentes a ser padre/madre.",
+      "Me resulta difícil decidir cómo criar a mis hijos/as.",
   },
 
   {
@@ -539,7 +530,7 @@ export const PSOC_QUESTIONS: Question[] = [
     scaleType: "psoc_6",
     required: true,
     question:
-      "Teniendo en cuenta el tiempo que llevo siendo padre/madre, me manejo muy bien con estas cosas.",
+      "Con el tiempo que llevo siendo padre/madre, me manejo muy bien con estas cosas.",
   },
 
   {

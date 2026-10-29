@@ -197,11 +197,17 @@ export default function ResetPassword() {
       getUrlErrorMessage();
 
     if (urlError) {
-      setError(
-        getRecoveryErrorMessage(
-          urlError,
-        ),
-      );
+      // Diferimos la actualización de estado hasta que termine el efecto.
+      recoveryCheckTimeout.current =
+        setTimeout(() => {
+          if (mounted) {
+            setError(
+              getRecoveryErrorMessage(
+                urlError,
+              ),
+            );
+          }
+        }, 0);
     }
 
     const finishSessionCheck = (
@@ -340,6 +346,17 @@ export default function ResetPassword() {
 
     return () => {
       mounted = false;
+
+      if (
+        recoveryCheckTimeout.current
+      ) {
+        clearTimeout(
+          recoveryCheckTimeout.current,
+        );
+
+        recoveryCheckTimeout.current =
+          null;
+      }
 
       subscription.unsubscribe();
 

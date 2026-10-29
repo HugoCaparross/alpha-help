@@ -51,7 +51,6 @@ export default function PdfViewer({
     if (!hasValidUrl) {
       // Estas actualizaciones reflejan que no existe
       // un documento válido para mostrar.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       setHasError(true);
 
@@ -64,7 +63,6 @@ export default function PdfViewer({
     }
 
     // Al cambiar el documento, reiniciamos el estado del visor.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setHasError(false);
 
