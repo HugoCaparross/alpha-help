@@ -15,29 +15,33 @@ function getRequiredEnv(name: string): string {
 }
 
 const SUPABASE_URL = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
-
-const SUPABASE_ANON_KEY = getRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+const SUPABASE_ANON_KEY = getRequiredEnv(
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+);
 
 export function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request,
   });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
+  const supabase = createServerClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
 
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          request.cookies.set(name, value);
-
-          response.cookies.set(name, value, options);
-        });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+        },
       },
     },
-  });
+  );
 
   return {
     supabase,

@@ -13,9 +13,7 @@ import type {
 interface SessionCardProps {
     readonly session: SessionWithStatus;
     readonly completed: boolean;
-    readonly onOpen: (
-        session: SessionWithStatus,
-    ) => void;
+    readonly onOpen: (session: SessionWithStatus) => void;
 }
 
 function formatDate(
@@ -37,18 +35,15 @@ function formatDate(
             ? "Europe/Madrid"
             : "America/Bogota";
 
-    return new Intl.DateTimeFormat(
-        "es-ES",
-        {
-            timeZone,
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        },
-    ).format(timestamp);
+    return new Intl.DateTimeFormat("es-ES", {
+        timeZone,
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    }).format(timestamp);
 }
 
 export default function SessionCard({
@@ -56,27 +51,16 @@ export default function SessionCard({
     completed,
     onOpen,
 }: SessionCardProps) {
-    const isUpcoming =
-        session.status ===
-        "upcoming";
-
-    const isLive =
-        session.status ===
-        "live";
-
-    const isEnded =
-        session.status ===
-        "ended";
+    const isUpcoming = session.status === "upcoming";
+    const isLive = session.status === "live";
+    const isEnded = session.status === "ended";
 
     const canOpen =
-        session.canJoinLive ||
-        session.canWatchRecording;
+        session.canJoinLive || session.canWatchRecording;
 
     const hasThumbnail =
-        typeof session.thumbnailUrl ===
-        "string" &&
-        session.thumbnailUrl.trim()
-            .length > 0;
+        typeof session.thumbnailUrl === "string" &&
+        session.thumbnailUrl.trim().length > 0;
 
     function handleOpen() {
         if (!canOpen) {
@@ -88,72 +72,54 @@ export default function SessionCard({
 
     const cardClassName = [
         "session-card",
-        isUpcoming &&
-        "session-card--upcoming",
-        isLive &&
-        "session-card--live",
-        isEnded &&
-        "session-card--ended",
-        !hasThumbnail &&
-        "session-card--no-thumbnail",
+        isUpcoming && "session-card--upcoming",
+        isLive && "session-card--live",
+        isEnded && "session-card--ended",
+        !hasThumbnail && "session-card--no-thumbnail",
     ]
         .filter(Boolean)
         .join(" ");
 
     return (
         <article
-            className={
-                cardClassName
-            }
+            className={cardClassName}
             aria-labelledby={`session-title-${session.id}`}
         >
             <div className="session-card__thumb">
                 {hasThumbnail && (
+                    // La clase existente controla el tamaño y el recorte de la imagen.
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
-                        src={
-                            session.thumbnailUrl
-                        }
-                        alt={
-                            session.title
-                        }
+                        src={session.thumbnailUrl}
+                        alt={session.title}
                         loading="lazy"
                         className="session-card__thumb-img"
                     />
                 )}
 
                 <span className="session-card__order">
-                    {session.sessionOrder ===
-                        0
+                    {session.sessionOrder === 0
                         ? "Introducción"
                         : `Sesión ${session.sessionOrder}`}
                 </span>
 
                 {isLive && (
                     <span className="session-card__live-badge session-card__zoom-badge">
-                        <Video
-                            size={13}
-                            aria-hidden="true"
-                        />
+                        <Video size={13} aria-hidden="true" />
                         Directo
                     </span>
                 )}
 
                 {isEnded && (
                     <span className="session-card__live-badge session-card__recording-badge">
-                        <PlayCircle
-                            size={13}
-                            aria-hidden="true"
-                        />
+                        <PlayCircle size={13} aria-hidden="true" />
                         Diferido
                     </span>
                 )}
 
                 {completed && (
                     <span className="session-card__watched-badge">
-                        <CheckCircle2
-                            size={13}
-                            aria-hidden="true"
-                        />
+                        <CheckCircle2 size={13} aria-hidden="true" />
                         Vista
                     </span>
                 )}
@@ -172,16 +138,10 @@ export default function SessionCard({
                 </p>
 
                 <div className="session-card__date">
-                    <Calendar
-                        size={14}
-                        aria-hidden="true"
-                    />
+                    <Calendar size={14} aria-hidden="true" />
 
                     <span>
-                        {formatDate(
-                            session.releaseDate,
-                            session.region,
-                        )}
+                        {formatDate(session.releaseDate, session.region)}
                     </span>
                 </div>
 
@@ -192,77 +152,47 @@ export default function SessionCard({
                         </span>
 
                         <span>
-                            Esta sesión permanecerá
-                            bloqueada hasta 15 minutos
+                            Esta sesión permanecerá bloqueada hasta 15 minutos
                             antes del comienzo.
                         </span>
 
                         <span>
                             Comienza:{" "}
-                            {formatDate(
-                                session.releaseDate,
-                                session.region,
-                            )}
+                            {formatDate(session.releaseDate, session.region)}
                         </span>
                     </div>
                 )}
 
-                {isLive &&
-                    session.canJoinLive && (
-                        <button
-                            type="button"
-                            className="session-card__cta"
-                            onClick={
-                                handleOpen
-                            }
-                            aria-label={`Unirse a la sesión "${session.title}"`}
-                        >
-                            <Video
-                                size={17}
-                                aria-hidden="true"
-                            />
+                {isLive && session.canJoinLive && (
+                    <button
+                        type="button"
+                        className="session-card__cta"
+                        onClick={handleOpen}
+                        aria-label={`Unirse a la sesión "${session.title}"`}
+                    >
+                        <Video size={17} aria-hidden="true" />
+                        <span>Unirse a la sesión</span>
+                    </button>
+                )}
 
-                            <span>
-                                Unirse a la sesión
-                            </span>
-                        </button>
-                    )}
+                {isEnded && session.canWatchRecording && (
+                    <button
+                        type="button"
+                        className="session-card__cta"
+                        onClick={handleOpen}
+                        aria-label={`Ver la grabación de "${session.title}"`}
+                    >
+                        <PlayCircle size={17} aria-hidden="true" />
+                        <span>Ver grabación</span>
+                    </button>
+                )}
 
-                {isEnded &&
-                    session.canWatchRecording && (
-                        <button
-                            type="button"
-                            className="session-card__cta"
-                            onClick={
-                                handleOpen
-                            }
-                            aria-label={`Ver la grabación de "${session.title}"`}
-                        >
-                            <PlayCircle
-                                size={17}
-                                aria-hidden="true"
-                            />
-
-                            <span>
-                                Ver grabación
-                            </span>
-                        </button>
-                    )}
-
-                {isEnded &&
-                    !session.canWatchRecording && (
-                        <div className="session-card__locked-cta">
-                            <Lock
-                                size={15}
-                                aria-hidden="true"
-                            />
-
-                            <span>
-                                Grabación pendiente de
-                                publicación.
-                            </span>
-                        </div>
-                    )}
+                {isEnded && !session.canWatchRecording && (
+                    <div className="session-card__locked-cta">
+                        <Lock size={15} aria-hidden="true" />
+                        <span>Grabación pendiente de publicación.</span>
+                    </div>
+                )}
             </div>
         </article>
     );

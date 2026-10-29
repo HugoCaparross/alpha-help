@@ -24,171 +24,104 @@ const LOAD_TIMEOUT = 10000;
 /**
  * Visor reutilizable de documentos PDF.
  *
- * IMPORTANTE:
+ * Solo debe recibir una pdfUrl cuando el servidor
+ * haya determinado que el material está disponible.
  *
- * Este componente solo debe recibir una pdfUrl
- * cuando el servidor haya determinado que el
- * material está disponible.
- *
- * Si recibe una URL vacía, el documento no se
- * carga y tampoco se muestra ninguna acción
- * relacionada con el PDF.
+ * Si recibe una URL vacía, no se muestra ninguna
+ * acción relacionada con el PDF.
  */
 export default function PdfViewer({
   title,
   pdfUrl,
 }: PdfViewerProps) {
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
-
-  const [
-    hasError,
-    setHasError,
-  ] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const loadTimeoutRef =
-    useRef<ReturnType<
-      typeof setTimeout
-    > | null>(null);
+    useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /**
-   * No permitimos inicializar el visor
-   * si no existe una URL válida.
-   */
   const hasValidUrl =
     typeof pdfUrl === "string" &&
     pdfUrl.trim().length > 0;
 
   /**
-   * Reinicia el estado cuando cambia
-   * el documento.
+   * Sincroniza el estado del visor con la URL actual.
    */
   useEffect(() => {
     if (!hasValidUrl) {
+      // Estas actualizaciones reflejan que no existe
+      // un documento válido para mostrar.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       setHasError(true);
 
-      if (
-        loadTimeoutRef.current
-      ) {
-        clearTimeout(
-          loadTimeoutRef.current,
-        );
-
-        loadTimeoutRef.current =
-          null;
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
       }
 
       return;
     }
 
+    // Al cambiar el documento, reiniciamos el estado del visor.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setHasError(false);
 
-    if (
-      loadTimeoutRef.current
-    ) {
-      clearTimeout(
-        loadTimeoutRef.current,
-      );
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
     }
 
-    loadTimeoutRef.current =
-      setTimeout(() => {
-        setLoading(false);
-        setHasError(true);
-      }, LOAD_TIMEOUT);
+    loadTimeoutRef.current = setTimeout(() => {
+      setLoading(false);
+      setHasError(true);
+    }, LOAD_TIMEOUT);
 
     return () => {
-      if (
-        loadTimeoutRef.current
-      ) {
-        clearTimeout(
-          loadTimeoutRef.current,
-        );
-
-        loadTimeoutRef.current =
-          null;
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
       }
     };
-  }, [
-    pdfUrl,
-    hasValidUrl,
-  ]);
+  }, [pdfUrl, hasValidUrl]);
 
-  const objectKey =
-    useMemo(
-      () => pdfUrl,
-      [pdfUrl],
-    );
+  const objectKey = useMemo(() => pdfUrl, [pdfUrl]);
 
   function handleLoaded() {
     setLoading(false);
 
-    if (
-      loadTimeoutRef.current
-    ) {
-      clearTimeout(
-        loadTimeoutRef.current,
-      );
-
-      loadTimeoutRef.current =
-        null;
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
     }
   }
 
   /**
-   * Descarga el documento.
-   *
-   * Esta acción solo puede ejecutarse
-   * cuando existe una URL válida.
+   * Descarga el documento únicamente si tiene URL.
    */
   function handleDownload() {
     if (!hasValidUrl) {
       return;
     }
 
-    const link =
-      document.createElement(
-        "a",
-      );
+    const link = document.createElement("a");
 
     link.href = pdfUrl;
 
-    link.download =
-      title
-        .toLowerCase()
-        .endsWith(".pdf")
-        ? title
-        : `${title}.pdf`;
+    link.download = title.toLowerCase().endsWith(".pdf")
+      ? title
+      : `${title}.pdf`;
 
-    link.rel =
-      "noopener noreferrer";
+    link.rel = "noopener noreferrer";
 
-    document.body.appendChild(
-      link,
-    );
-
+    document.body.appendChild(link);
     link.click();
-
-    document.body.removeChild(
-      link,
-    );
+    document.body.removeChild(link);
   }
 
   /**
-   * Cualquier material sin URL se considera
-   * no disponible.
-   *
-   * No se renderiza:
-   *
-   * - iframe;
-   * - object;
-   * - botón de descarga;
-   * - enlace;
-   * - visor PDF.
+   * Un material sin URL se considera no disponible.
+   * No se renderiza el visor ni la acción de descarga.
    */
   if (!hasValidUrl) {
     return (
@@ -196,9 +129,7 @@ export default function PdfViewer({
         className="pdf-viewer-error"
         role="alert"
       >
-        <p>
-          {ERROR_MESSAGE}
-        </p>
+        <p>{ERROR_MESSAGE}</p>
       </div>
     );
   }
@@ -214,12 +145,8 @@ export default function PdfViewer({
           <button
             type="button"
             className="pdf-viewer__button"
-            onClick={
-              handleDownload
-            }
-            disabled={
-              !hasValidUrl
-            }
+            onClick={handleDownload}
+            disabled={!hasValidUrl}
             aria-label={`Descargar ${title}`}
           >
             <Download
@@ -227,38 +154,29 @@ export default function PdfViewer({
               aria-hidden="true"
             />
 
-            <span>
-              Descargar
-            </span>
+            <span>Descargar</span>
           </button>
         </div>
       </header>
 
       <div className="pdf-viewer__content">
-        {loading &&
-          !hasError && (
-            <div className="pdf-viewer-loading">
-              <div
-                className="pdf-viewer-spinner"
-                aria-hidden="true"
-              />
+        {loading && !hasError && (
+          <div className="pdf-viewer-loading">
+            <div
+              className="pdf-viewer-spinner"
+              aria-hidden="true"
+            />
 
-              <p>
-                {
-                  LOADING_MESSAGE
-                }
-              </p>
-            </div>
-          )}
+            <p>{LOADING_MESSAGE}</p>
+          </div>
+        )}
 
         {hasError ? (
           <div
             className="pdf-viewer-error"
             role="alert"
           >
-            <p>
-              {ERROR_MESSAGE}
-            </p>
+            <p>{ERROR_MESSAGE}</p>
           </div>
         ) : (
           <object
@@ -267,13 +185,10 @@ export default function PdfViewer({
             type="application/pdf"
             className="pdf-viewer__object"
             aria-label={title}
-            onLoad={
-              handleLoaded
-            }
+            onLoad={handleLoaded}
           >
             <p>
-              Tu navegador no puede
-              mostrar este documento PDF.
+              Tu navegador no puede mostrar este documento PDF.
             </p>
           </object>
         )}

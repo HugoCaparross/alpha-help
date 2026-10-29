@@ -5,28 +5,20 @@ import {
 
 interface DashboardProgressProps {
   preCompleted: boolean;
-
   postCompleted: boolean;
-
   completedSessions: number;
-
   totalSessions: number;
-
   completedMaterials: number;
-
   totalMaterials: number;
 }
 
 interface ProgressItemData {
   title: string;
-
   completed: boolean;
-
   description?: string;
 }
 
-interface ProgressItemProps
-  extends ProgressItemData { }
+type ProgressItemProps = ProgressItemData;
 
 export default function DashboardProgress({
   preCompleted,
@@ -36,78 +28,43 @@ export default function DashboardProgress({
   completedMaterials,
   totalMaterials,
 }: DashboardProgressProps) {
-  const safeTotalSessions =
-    Math.max(
-      totalSessions,
-      1,
-    );
+  const safeTotalSessions = Math.max(totalSessions, 1);
+  const safeTotalMaterials = Math.max(totalMaterials, 1);
 
-  const safeTotalMaterials =
-    Math.max(
-      totalMaterials,
-      1,
-    );
+  const safeCompletedSessions = Math.min(
+    Math.max(completedSessions, 0),
+    safeTotalSessions,
+  );
 
-  const safeCompletedSessions =
-    Math.min(
-      Math.max(
-        completedSessions,
-        0,
-      ),
-      safeTotalSessions,
-    );
+  const safeCompletedMaterials = Math.min(
+    Math.max(completedMaterials, 0),
+    safeTotalMaterials,
+  );
 
-  const safeCompletedMaterials =
-    Math.min(
-      Math.max(
-        completedMaterials,
-        0,
-      ),
-      safeTotalMaterials,
-    );
-
-  const progressItems: readonly ProgressItemData[] =
-    [
-      {
-        title:
-          "Cuestionario inicial",
-
-        completed:
-          preCompleted,
-      },
-
-      {
-        title:
-          "Sesiones del programa",
-
-        completed:
-          safeCompletedSessions ===
-          safeTotalSessions,
-
-        description:
-          `${safeCompletedSessions} de ${safeTotalSessions} sesiones completadas`,
-      },
-
-      {
-        title:
-          "Materiales del programa",
-
-        completed:
-          safeCompletedMaterials ===
-          safeTotalMaterials,
-
-        description:
-          `${safeCompletedMaterials} de ${safeTotalMaterials} contenidos completados`,
-      },
-
-      {
-        title:
-          "Evaluación final",
-
-        completed:
-          postCompleted,
-      },
-    ];
+  const progressItems: readonly ProgressItemData[] = [
+    {
+      title: "Cuestionario inicial",
+      completed: preCompleted,
+    },
+    {
+      title: "Sesiones del programa",
+      completed:
+        safeCompletedSessions === safeTotalSessions,
+      description:
+        `${safeCompletedSessions} de ${safeTotalSessions} sesiones completadas`,
+    },
+    {
+      title: "Materiales del programa",
+      completed:
+        safeCompletedMaterials === safeTotalMaterials,
+      description:
+        `${safeCompletedMaterials} de ${safeTotalMaterials} contenidos completados`,
+    },
+    {
+      title: "Evaluación final",
+      completed: postCompleted,
+    },
+  ];
 
   return (
     <section
@@ -123,14 +80,12 @@ export default function DashboardProgress({
         </h2>
 
         <div className="dashboard-progress dashboard-progress--refined">
-          {progressItems.map(
-            (item) => (
-              <ProgressItem
-                key={item.title}
-                {...item}
-              />
-            ),
-          )}
+          {progressItems.map((item) => (
+            <ProgressItem
+              key={item.title}
+              {...item}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -143,7 +98,12 @@ function ProgressItem({
   description,
 }: ProgressItemProps) {
   return (
-    <div className={`dashboard-progress-item ${completed ? "dashboard-progress-item--completed" : "dashboard-progress-item--pending"}`}>
+    <div
+      className={`dashboard-progress-item ${completed
+          ? "dashboard-progress-item--completed"
+          : "dashboard-progress-item--pending"
+        }`}
+    >
       <div
         className="dashboard-progress-icon"
         aria-hidden="true"

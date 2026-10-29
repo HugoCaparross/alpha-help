@@ -19,147 +19,84 @@ const PAGE_TITLE = "Sesiones del programa";
 const PAGE_DESCRIPTION =
   "El programa está formado por una introducción, nueve sesiones y una sesión adicional de cierre sin contenidos.";
 
-const LOADING_MESSAGE =
-  "Preparando las sesiones...";
+const LOADING_MESSAGE = "Preparando las sesiones...";
 
 const ERROR_MESSAGE =
   "No se han podido cargar las sesiones. Inténtalo de nuevo.";
 
 export default function SesionesView() {
-  const [sessions, setSessions] =
-    useState<SessionWithStatus[]>(
-      [],
-    );
+  const [sessions, setSessions] = useState<SessionWithStatus[]>([]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [region, setRegion] = useState<Region | null>(null);
 
-  const [completedIds, setCompletedIds] =
-    useState<Set<string>>(
-      new Set(),
-    );
+  const loadSessions = useCallback(async () => {
+    setError("");
 
-  const [loading, setLoading] =
-    useState(true);
+    try {
+      const [profile, data, completed] = await Promise.all([
+        getProfile(),
+        getSessionsWithStatus(),
+        getCompletedSessionIds(),
+      ]);
 
-  const [error, setError] =
-    useState("");
+      if (!profile) {
+        throw new Error(
+          "No se ha podido recuperar el perfil del participante.",
+        );
+      }
 
-  const [region, setRegion] =
-    useState<Region | null>(
-      null,
-    );
+      setRegion(profile.region);
+      setSessions(data);
+      setCompletedIds(new Set(completed));
+    } catch (loadError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(loadError);
+      }
 
-  const loadSessions =
-    useCallback(
-      async () => {
-        setLoading(true);
-        setError("");
-
-        try {
-          const [
-            profile,
-            data,
-            completed,
-          ] =
-            await Promise.all([
-              getProfile(),
-              getSessionsWithStatus(),
-              getCompletedSessionIds(),
-            ]);
-
-          if (!profile) {
-            throw new Error(
-              "No se ha podido recuperar el perfil del participante.",
-            );
-          }
-
-          setRegion(
-            profile.region,
-          );
-
-          setSessions(
-            data,
-          );
-
-          setCompletedIds(
-            new Set(
-              completed,
-            ),
-          );
-        } catch (
-        loadError
-        ) {
-          if (
-            process
-              .env
-              .NODE_ENV ===
-            "development"
-          ) {
-            console.error(
-              loadError,
-            );
-          }
-
-          setSessions(
-            [],
-          );
-
-          setRegion(
-            null,
-          );
-
-          setCompletedIds(
-            new Set(),
-          );
-
-          setError(
-            ERROR_MESSAGE,
-          );
-        } finally {
-          setLoading(
-            false,
-          );
-        }
-      },
-      [],
-    );
+      setSessions([]);
+      setRegion(null);
+      setCompletedIds(new Set());
+      setError(ERROR_MESSAGE);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    void loadSessions();
+    let cancelled = false;
 
-    const interval =
-      window.setInterval(
-        () => {
-          void loadSessions();
-        },
-        30_000,
-      );
+    const refreshSessions = async () => {
+      if (!cancelled) {
+        await loadSessions();
+      }
+    };
 
-    return () =>
-      window.clearInterval(
-        interval,
-      );
+    void refreshSessions();
+
+    const interval = window.setInterval(() => {
+      void refreshSessions();
+    }, 30_000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, [loadSessions]);
 
   if (loading) {
     return (
-      <section
-        className="sesiones-page"
-        aria-busy="true"
-      >
+      <section className="sesiones-page" aria-busy="true">
         <PageHeader
-          title={
-            PAGE_TITLE
-          }
-          description={
-            PAGE_DESCRIPTION
-          }
+          title={PAGE_TITLE}
+          description={PAGE_DESCRIPTION}
         />
 
         <div className="sesiones-loading">
-          <p>
-            {
-              LOADING_MESSAGE
-            }
-          </p>
+          <p>{LOADING_MESSAGE}</p>
         </div>
       </section>
     );
@@ -169,12 +106,8 @@ export default function SesionesView() {
     return (
       <section className="sesiones-page">
         <PageHeader
-          title={
-            PAGE_TITLE
-          }
-          description={
-            PAGE_DESCRIPTION
-          }
+          title={PAGE_TITLE}
+          description={PAGE_DESCRIPTION}
         />
 
         <div
@@ -182,16 +115,15 @@ export default function SesionesView() {
           role="alert"
           aria-live="polite"
         >
-          <p>
-            {error}
-          </p>
+          <p>{error}</p>
 
           <button
             type="button"
             className="btn-primary"
-            onClick={() =>
-              void loadSessions()
-            }
+            onClick={() => {
+              setLoading(true);
+              void loadSessions();
+            }}
           >
             Reintentar
           </button>
@@ -203,35 +135,19 @@ export default function SesionesView() {
   return (
     <section className="sesiones-page">
       <PageHeader
-        title={
-          PAGE_TITLE
-        }
-        description={
-          PAGE_DESCRIPTION
-        }
+        title={PAGE_TITLE}
+        description={PAGE_DESCRIPTION}
       />
 
-      <SessionCalendar
-        region={
-          region ??
-          "spain"
-        }
-      />
+      <SessionCalendar region={region ?? "spain"} />
 
-      {sessions.length ===
-        0 ? (
+      {sessions.length === 0 ? (
         <SessionEmptyState />
       ) : (
         <SessionsGrid
-          sessions={
-            sessions
-          }
-          completedIds={
-            completedIds
-          }
-          onSessionCompleted={
-            loadSessions
-          }
+          sessions={sessions}
+          completedIds={completedIds}
+          onSessionCompleted={loadSessions}
         />
       )}
     </section>

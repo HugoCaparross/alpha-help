@@ -89,9 +89,7 @@ function renderItems(
         href={item.href}
         className={`sidebar-item ${active ? "sidebar-item--active" : ""
           }`}
-        aria-current={
-          active ? "page" : undefined
-        }
+        aria-current={active ? "page" : undefined}
       >
         <div className="sidebar-item-icon">
           <Icon size={20} />
@@ -117,13 +115,13 @@ export default function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [open, setOpen] =
-    useState(false);
-
-  const [isLoggingOut, setIsLoggingOut] =
-    useState(false);
+  const [open, setOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
+    // El cierre por cambio de ruta es una sincronización
+    // intencionada del estado del menú con la navegación.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false);
   }, [pathname]);
 
@@ -132,15 +130,21 @@ export default function MobileNav() {
       return;
     }
 
-    const previousOverflow =
-      document.body.style.overflow;
+    const previousOverflow = document.body.style.overflow;
 
-    document.body.style.overflow =
-      "hidden";
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow =
-        previousOverflow;
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
 
@@ -157,10 +161,7 @@ export default function MobileNav() {
       router.replace("/");
       router.refresh();
     } catch (error) {
-      if (
-        process.env.NODE_ENV ===
-        "development"
-      ) {
+      if (process.env.NODE_ENV === "development") {
         console.error(error);
       }
     } finally {
@@ -168,12 +169,10 @@ export default function MobileNav() {
     }
   }
 
-  const dashboardActive =
-    pathname === "/dashboard";
+  const dashboardActive = pathname === "/dashboard";
 
   const profileActive =
-    pathname === "/perfil" ||
-    pathname.startsWith("/perfil/");
+    pathname === "/perfil" || pathname.startsWith("/perfil/");
 
   return (
     <>
@@ -194,37 +193,24 @@ export default function MobileNav() {
         <button
           type="button"
           className="mobile-nav-toggle"
-          aria-label={
-            open
-              ? "Cerrar menú"
-              : "Abrir menú"
-          }
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={open}
-          onClick={() =>
-            setOpen((prev) => !prev)
-          }
+          aria-controls="mobile-nav-drawer"
+          onClick={() => setOpen((prev) => !prev)}
         >
-          {open ? (
-            <X size={22} />
-          ) : (
-            <Menu size={22} />
-          )}
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </header>
 
       {open && (
-        <div
-          className="mobile-nav-overlay"
-          role="presentation"
-        >
+        <div className="mobile-nav-overlay" role="presentation">
           <div
             className="mobile-nav-backdrop"
-            onClick={() =>
-              setOpen(false)
-            }
+            onClick={() => setOpen(false)}
           />
 
           <nav
+            id="mobile-nav-drawer"
             className="mobile-nav-drawer"
             aria-label="Navegación principal"
           >
@@ -236,15 +222,9 @@ export default function MobileNav() {
               <div className="sidebar-items">
                 <Link
                   href="/dashboard"
-                  className={`sidebar-item ${dashboardActive
-                      ? "sidebar-item--active"
-                      : ""
+                  className={`sidebar-item ${dashboardActive ? "sidebar-item--active" : ""
                     }`}
-                  aria-current={
-                    dashboardActive
-                      ? "page"
-                      : undefined
-                  }
+                  aria-current={dashboardActive ? "page" : undefined}
                 >
                   <div className="sidebar-item-icon">
                     <LayoutDashboard size={20} />
@@ -263,10 +243,7 @@ export default function MobileNav() {
               </h2>
 
               <div className="sidebar-items">
-                {renderItems(
-                  pathname,
-                  STUDY_NAVIGATION,
-                )}
+                {renderItems(pathname, STUDY_NAVIGATION)}
               </div>
             </section>
 
@@ -276,10 +253,7 @@ export default function MobileNav() {
               </h2>
 
               <div className="sidebar-items">
-                {renderItems(
-                  pathname,
-                  RESOURCES_NAVIGATION,
-                )}
+                {renderItems(pathname, RESOURCES_NAVIGATION)}
               </div>
             </section>
 
@@ -289,10 +263,7 @@ export default function MobileNav() {
               </h2>
 
               <div className="sidebar-items">
-                {renderItems(
-                  pathname,
-                  INFO_NAVIGATION,
-                )}
+                {renderItems(pathname, INFO_NAVIGATION)}
               </div>
             </section>
 
@@ -304,15 +275,9 @@ export default function MobileNav() {
               <div className="sidebar-items">
                 <Link
                   href="/perfil"
-                  className={`sidebar-item ${profileActive
-                      ? "sidebar-item--active"
-                      : ""
+                  className={`sidebar-item ${profileActive ? "sidebar-item--active" : ""
                     }`}
-                  aria-current={
-                    profileActive
-                      ? "page"
-                      : undefined
-                  }
+                  aria-current={profileActive ? "page" : undefined}
                 >
                   <div className="sidebar-item-icon">
                     <User size={20} />
@@ -326,12 +291,8 @@ export default function MobileNav() {
                 <button
                   type="button"
                   className="mobile-nav-logout"
-                  onClick={
-                    handleLogout
-                  }
-                  disabled={
-                    isLoggingOut
-                  }
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
                 >
                   <div className="sidebar-item-icon">
                     <LogOut size={20} />

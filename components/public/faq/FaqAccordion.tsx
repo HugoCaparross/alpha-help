@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-
+import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 
 import { FAQ_SECTIONS } from "./faq.data";
@@ -23,10 +22,8 @@ function createSlug(value: string): string {
  * Renderiza las respuestas del FAQ respetando:
  *
  * - Párrafos separados mediante saltos de línea.
- * - Listas marcadas con "•", incluso cuando todos los elementos
- *   están escritos en una misma línea.
- * - Negrita en la etiqueta inicial de los elementos con formato:
- *   "Septiembre: contenido..."
+ * - Listas marcadas con "•".
+ * - Negrita en las etiquetas iniciales con formato "Etiqueta: contenido".
  *
  * El texto original no se modifica.
  */
@@ -41,24 +38,12 @@ function FaqAnswer({ answer }: { answer: string }) {
   return (
     <div className="faq-answer-content">
       {blocks.map((block, index) => {
-        /*
-         * Detectamos si el bloque contiene viñetas.
-         *
-         * Esto permite transformar tanto:
-         *
-         * • Septiembre: ...
-         * • Octubre: ...
-         *
-         * como:
-         *
-         * Los temas serán: • Septiembre: ... • Octubre: ...
-         *
-         * en una lista visual real.
-         */
         const firstBulletIndex = block.indexOf("•");
 
         if (firstBulletIndex !== -1) {
-          const introduction = block.slice(0, firstBulletIndex).trim();
+          const introduction = block
+            .slice(0, firstBulletIndex)
+            .trim();
 
           const listItems = block
             .slice(firstBulletIndex)
@@ -90,7 +75,11 @@ function FaqAnswer({ answer }: { answer: string }) {
                       );
                     }
 
-                    return <li key={`${itemIndex}-${item}`}>{item}</li>;
+                    return (
+                      <li key={`${itemIndex}-${item}`}>
+                        {item}
+                      </li>
+                    );
                   })}
                 </ul>
               </div>
@@ -98,11 +87,6 @@ function FaqAnswer({ answer }: { answer: string }) {
           }
         }
 
-        /*
-         * Un bloque sin viñetas se trata como un párrafo.
-         * Los saltos de línea simples dentro del mismo bloque
-         * se convierten en espacios para evitar cortes artificiales.
-         */
         return (
           <p key={`${index}-${block.slice(0, 24)}`}>
             {block.replace(/\s*\n\s*/g, " ")}
@@ -118,18 +102,9 @@ function FaqAnswer({ answer }: { answer: string }) {
  */
 export default function FaqAccordion() {
   const [openItem, setOpenItem] = useState<string | null>(null);
-
   const [search, setSearch] = useState("");
 
   const normalizedSearch = search.trim().toLowerCase();
-
-  /**
-   * Cierra cualquier pregunta abierta
-   * cuando cambia la búsqueda.
-   */
-  useEffect(() => {
-    setOpenItem(null);
-  }, [normalizedSearch]);
 
   const filteredSections = useMemo(() => {
     return FAQ_SECTIONS.map((section) => ({
@@ -193,7 +168,10 @@ export default function FaqAccordion() {
 
                 const answerId = `answer-${key}`;
 
-                const isOpen = openItem === key;
+                // La pregunta solo permanece abierta mientras coincida
+                // la búsqueda con la que se abrió.
+                const scopedOpenItem = `${normalizedSearch}::${key}`;
+                const isOpen = openItem === scopedOpenItem;
 
                 return (
                   <article key={key} className="faq-card">
@@ -202,7 +180,9 @@ export default function FaqAccordion() {
                       className="faq-question"
                       aria-expanded={isOpen}
                       aria-controls={answerId}
-                      onClick={() => setOpenItem(isOpen ? null : key)}
+                      onClick={() =>
+                        setOpenItem(isOpen ? null : scopedOpenItem)
+                      }
                     >
                       <span>{item.question}</span>
 

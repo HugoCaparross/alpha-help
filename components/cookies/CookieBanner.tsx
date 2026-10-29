@@ -10,11 +10,19 @@ export default function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Show only if neither accepted nor rejected
-    const cookieConsent = localStorage.getItem("alphaHelpCookies");
-    if (!cookieConsent) {
-      setIsVisible(true);
-    }
+    const frameId = window.requestAnimationFrame(() => {
+      const cookieConsent = localStorage.getItem(
+        "alphaHelpCookies",
+      );
+
+      if (!cookieConsent) {
+        setIsVisible(true);
+      }
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
   }, []);
 
   const handleAccept = () => {
@@ -27,7 +35,9 @@ export default function CookieBanner() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className="cookie-banner">
@@ -35,17 +45,23 @@ export default function CookieBanner() {
         <div className="cookie-banner-card">
           <div className="cookie-banner-content">
             <div className="cookie-banner-header">
-              <Info size={20} className="text-accent" />
+              <Info
+                size={20}
+                className="text-accent"
+              />
 
-              <h3 className="cookie-banner-title">Uso de cookies</h3>
+              <h3 className="cookie-banner-title">
+                Uso de cookies
+              </h3>
             </div>
 
             <p className="cookie-banner-text">
-              Utilizamos cookies técnicas necesarias para el funcionamiento de
-              la plataforma (por ejemplo, para mantener tu sesión iniciada) y,
-              en su caso, cookies analíticas para mejorar la experiencia de
-              navegación. Puedes aceptarlas, rechazarlas o consultar más
-              información.
+              Utilizamos cookies técnicas necesarias para el
+              funcionamiento de la plataforma (por ejemplo,
+              para mantener tu sesión iniciada) y, en su caso,
+              cookies analíticas para mejorar la experiencia
+              de navegación. Puedes aceptarlas, rechazarlas o
+              consultar más información.
             </p>
           </div>
 
@@ -58,11 +74,17 @@ export default function CookieBanner() {
               Más información
             </Link>
 
-            <button onClick={handleReject} className="btn-secondary">
+            <button
+              onClick={handleReject}
+              className="btn-secondary"
+            >
               Rechazar
             </button>
 
-            <button onClick={handleAccept} className="btn-primary">
+            <button
+              onClick={handleAccept}
+              className="btn-primary"
+            >
               Aceptar todas
             </button>
           </div>
