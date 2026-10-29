@@ -1,3 +1,5 @@
+// lib/constants/study-calendar.ts
+
 export interface StudyCalendarItem {
     readonly key: string;
     readonly label: string;
@@ -46,7 +48,7 @@ export const STUDY_CALENDAR:
             spainDate:
                 "2026-10-29",
             latamDate:
-                "2026-10-31",
+                "2026-10-24",
             hasContent: true,
         },
 
@@ -106,7 +108,7 @@ export const STUDY_CALENDAR:
             spainDate:
                 "2027-03-11",
             latamDate:
-                "2027-03-13",
+                "2027-03-06",
             hasContent: true,
         },
 
@@ -165,12 +167,12 @@ export const LATAM_SESSION_DATES:
     Readonly<Record<number, string>> = {
     0: "2026-10-03",
     1: "2026-10-03",
-    2: "2026-10-31",
+    2: "2026-10-24",
     3: "2026-11-28",
     4: "2026-12-12",
     5: "2027-01-23",
     6: "2027-02-27",
-    7: "2027-03-13",
+    7: "2027-03-06",
     8: "2027-04-24",
     9: "2027-05-22",
 };
