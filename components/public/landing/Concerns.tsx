@@ -5,7 +5,6 @@ import {
   MessageCircle,
   Pill,
   ShieldAlert,
-  Smartphone,
   UsersRound,
 } from "lucide-react";
 

@@ -23,7 +23,6 @@ import type { QuestionnaireType } from "@/types/questionnaire";
 
 interface QuestionBlockProps {
   questionnaireId: QuestionnaireType;
-
   onComplete: () => void;
 }
 
@@ -47,9 +46,6 @@ const ALL_QUESTIONS = [
 
 const TOTAL_QUESTIONS = ALL_QUESTIONS.length;
 
-/**
- * Longitud de cada bloque del cuestionario.
- */
 const QUESTIONNAIRE_SEGMENTS = [
   CAPSM_QUESTIONS.length,
   PSOC_QUESTIONS.length,
@@ -62,38 +58,22 @@ const QUESTION_INDEX = new Map(
   ALL_QUESTIONS.map((question, index) => [question.id, index + 1]),
 );
 
-const REQUIRED_QUESTION_IDS = ALL_QUESTIONS.filter(
-  (question) => question.required,
-).map((question) => question.id);
-
 const ERROR_MESSAGES = {
   submit: "Ha ocurrido un error al guardar tus respuestas. Inténtalo de nuevo.",
 } as const;
 
-/**
- * Gestiona el flujo completo
- * del cuestionario.
- */
 export default function QuestionBlock({
   questionnaireId,
   onComplete,
 }: QuestionBlockProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
   const [answers, setAnswers] = useState<QuestionnaireAnswers>({});
-
   const answersRef = useRef<QuestionnaireAnswers>({});
-
   const isSubmittingRef = useRef(false);
-
   const [error, setError] = useState<string | null>(null);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [isTransitioning, setIsTransitioning] = useState(false);
-
   const autoAdvanceTimeout = useRef<number | null>(null);
 
   const currentStep = QUESTIONNAIRE_STEPS[currentStepIndex];
@@ -104,29 +84,20 @@ export default function QuestionBlock({
   const currentQuestion = currentStepQuestions[currentQuestionIndex];
 
   const sectionTitle = currentStep.title;
-
   const isFirstStep = currentStepIndex === 0;
-
   const isLastStep = currentStepIndex === QUESTIONNAIRE_STEPS.length - 1;
-
   const isFirstQuestion = currentQuestionIndex === 0;
 
   const isLastQuestionInStep =
     currentQuestionIndex === currentStepQuestions.length - 1;
 
-
   const currentQuestionPosition = currentQuestion
     ? (QUESTION_INDEX.get(currentQuestion.id) ?? 1)
     : 1;
 
-  /**
-   * Cancela cualquier avance automático
-   * pendiente.
-   */
   function clearAutoAdvanceTimeout() {
     if (autoAdvanceTimeout.current !== null) {
       window.clearTimeout(autoAdvanceTimeout.current);
-
       autoAdvanceTimeout.current = null;
     }
   }
@@ -137,11 +108,9 @@ export default function QuestionBlock({
     };
   }, []);
 
-  /**
-   * Envía el cuestionario
-   * al servidor.
-   */
-  async function finishQuestionnaire(answersToSubmit = answersRef.current) {
+  async function finishQuestionnaire(
+    answersToSubmit = answersRef.current,
+  ) {
     if (isSubmittingRef.current) {
       return;
     }
@@ -160,49 +129,35 @@ export default function QuestionBlock({
       }
 
       setError(ERROR_MESSAGES.submit);
-
       setIsSubmitting(false);
       isSubmittingRef.current = false;
-
       setIsTransitioning(false);
     }
   }
 
-  /**
-   * Avanza automáticamente
-   * a la siguiente pregunta
-   * o bloque.
-   */
-  async function goToNextQuestion(answersToSubmit = answersRef.current) {
+  async function goToNextQuestion(
+    answersToSubmit = answersRef.current,
+  ) {
     if (!currentQuestion || isSubmitting) {
       return;
     }
 
     if (!isLastQuestionInStep) {
       setCurrentQuestionIndex((previous) => previous + 1);
-
       setIsTransitioning(false);
-
       return;
     }
 
     if (!isLastStep) {
       setCurrentStepIndex((previous) => previous + 1);
-
       setCurrentQuestionIndex(0);
-
       setIsTransitioning(false);
-
       return;
     }
 
     await finishQuestionnaire(answersToSubmit);
   }
 
-  /**
-   * Guarda una respuesta y
-   * programa el avance automático.
-   */
   function handleAnswerChange(questionId: string, value: number) {
     if (isSubmitting || isTransitioning || isSubmittingRef.current) {
       return;
@@ -218,9 +173,6 @@ export default function QuestionBlock({
     setError(null);
     clearAutoAdvanceTimeout();
 
-    // La última respuesta se guarda inmediatamente.
-    // No esperamos al avance automático para evitar cualquier
-    // posible desfase entre el estado de React y el envío final.
     if (isLastStep && isLastQuestionInStep) {
       void finishQuestionnaire(nextAnswers);
       return;
@@ -232,43 +184,32 @@ export default function QuestionBlock({
       void goToNextQuestion(answersRef.current);
     }, AUTO_ADVANCE_DELAY);
   }
-  /**
-   * Regresa a la pregunta
-   * anterior.
-   */
+
   function handlePrevious() {
     if (isSubmitting || isTransitioning || isSubmittingRef.current) {
       return;
     }
 
     clearAutoAdvanceTimeout();
-
     setError(null);
 
     if (!isFirstQuestion) {
       setCurrentQuestionIndex((previous) => previous - 1);
-
       return;
     }
 
     if (!isFirstStep) {
       const previousStepIndex = currentStepIndex - 1;
-
       const previousStep = QUESTIONNAIRE_STEPS[previousStepIndex];
 
       const previousQuestions =
         QUESTIONS_BY_STEP[previousStep.id as keyof typeof QUESTIONS_BY_STEP];
 
       setCurrentStepIndex(previousStepIndex);
-
       setCurrentQuestionIndex(previousQuestions.length - 1);
     }
   }
 
-  /**
-   * Avanza manualmente a la
-   * siguiente pregunta.
-   */
   function handleNext() {
     if (
       !currentQuestion ||
@@ -280,7 +221,6 @@ export default function QuestionBlock({
     }
 
     clearAutoAdvanceTimeout();
-
     void goToNextQuestion(answersRef.current);
   }
 

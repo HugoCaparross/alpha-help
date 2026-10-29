@@ -6,7 +6,6 @@ import {
   Users,
   School,
   MessageCircle,
-  BookOpen,
 } from "lucide-react";
 
 /**

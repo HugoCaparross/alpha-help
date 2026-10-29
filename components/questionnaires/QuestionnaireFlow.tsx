@@ -76,7 +76,11 @@ export default function QuestionnaireFlow({ questionnaireId }: QuestionnaireFlow
   }, [questionnaireId, router]);
 
   useEffect(() => {
-    void loadQuestionnaire();
+    const loadTimeout = window.setTimeout(() => {
+      void loadQuestionnaire();
+    }, 0);
+
+    return () => window.clearTimeout(loadTimeout);
   }, [loadQuestionnaire]);
 
   switch (screen) {
