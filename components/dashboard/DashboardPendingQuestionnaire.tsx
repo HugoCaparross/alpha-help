@@ -16,11 +16,13 @@ interface DashboardPendingQuestionnaireProps {
 export default function DashboardPendingQuestionnaire({
     preCompleted,
 }: DashboardPendingQuestionnaireProps) {
+    // ESTADO 1: CUESTIONARIO INICIAL COMPLETADO
     if (preCompleted) {
         return (
             <section
                 className="dashboard-questionnaire-status dashboard-questionnaire-status--completed"
                 aria-labelledby="dashboard-questionnaire-status-title"
+                aria-live="polite"
             >
                 <div className="dashboard-questionnaire-status__accent" />
 
@@ -45,14 +47,19 @@ export default function DashboardPendingQuestionnaire({
                     </h2>
 
                     <p className="dashboard-questionnaire-status__description">
-                        Ya has completado el cuestionario inicial. Puedes continuar
-                        consultando los materiales disponibles del programa.
+                        ¡Perfecto! Tus respuestas se han guardado correctamente.
+                        Ya has completado el primer paso de tu participación
+                        en el estudio. Te recomendamos consultar ahora los
+                        manuales disponibles en el apartado Manuales, donde
+                        encontrarás información y orientaciones para seguir
+                        el programa.
                     </p>
                 </div>
 
                 <Link
                     href="/recursos"
                     className="dashboard-questionnaire-status__action"
+                    aria-label="Consultar los manuales del programa"
                 >
                     <BookOpen
                         size={18}
@@ -60,7 +67,7 @@ export default function DashboardPendingQuestionnaire({
                         aria-hidden="true"
                     />
 
-                    <span>Consultar materiales</span>
+                    <span>Consultar manuales</span>
 
                     <ArrowRight
                         size={17}
@@ -72,10 +79,12 @@ export default function DashboardPendingQuestionnaire({
         );
     }
 
+    // ESTADO 2: CUESTIONARIO INICIAL PENDIENTE
     return (
         <section
             className="dashboard-questionnaire-status dashboard-questionnaire-status--pending"
             aria-labelledby="dashboard-questionnaire-status-title"
+            aria-live="polite"
         >
             <div className="dashboard-questionnaire-status__accent" />
 
@@ -100,15 +109,16 @@ export default function DashboardPendingQuestionnaire({
                 </h2>
 
                 <p className="dashboard-questionnaire-status__description">
-                    Para comenzar tu participación en el estudio, completa primero el
-                    cuestionario inicial. Después podrás acceder al resto de contenidos
-                    del programa.
+                    Para comenzar tu participación en el estudio, completa
+                    primero el cuestionario inicial. Después podrás acceder
+                    al resto de contenidos del programa.
                 </p>
             </div>
 
             <Link
                 href="/cuestionarios/pre"
                 className="dashboard-questionnaire-status__action"
+                aria-label="Completar el cuestionario inicial"
             >
                 <span>Completar cuestionario</span>
 

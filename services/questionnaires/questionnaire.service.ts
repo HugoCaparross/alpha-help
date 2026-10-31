@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase/client";
-import { getUser } from "@/lib/supabase/getUser";
 
 import {
   CAPSM_QUESTIONS,
@@ -42,19 +41,37 @@ const ERROR_INVALID_TYPE = "Tipo de cuestionario no válido.";
 
 const ERROR_EMPTY_ANSWERS = "No se han proporcionado respuestas.";
 
-const ERROR_CHECK = "No se ha podido comprobar el estado del cuestionario.";
+const ERROR_CHECK =
+  "No se ha podido comprobar el estado del cuestionario.";
 
-const ERROR_SUBMISSION = "No se ha podido crear el registro del cuestionario.";
+const ERROR_SUBMISSION =
+  "No se ha podido crear el registro del cuestionario.";
 
 const ERROR_GET_COMPLETED =
   "No se han podido recuperar los cuestionarios completados.";
 
-function validateQuestionnaireType(questionnaireType: QuestionnaireType): void {
+interface QuestionnaireProgressResponse {
+  ok: boolean;
+  preCompleted: boolean;
+  postCompleted: boolean;
+  completed: QuestionnaireType[];
+  error?: string;
+}
+
+/**
+ * Comprueba que el tipo de cuestionario sea válido.
+ */
+function validateQuestionnaireType(
+  questionnaireType: QuestionnaireType,
+): void {
   if (!VALID_QUESTIONNAIRE_TYPES.includes(questionnaireType)) {
     throw new Error(ERROR_INVALID_TYPE);
   }
 }
 
+/**
+ * Valida las respuestas antes de enviarlas al servidor.
+ */
 function validateAnswers(answers: QuestionnaireAnswers): void {
   const entries = Object.entries(answers);
 
@@ -76,54 +93,19 @@ function validateAnswers(answers: QuestionnaireAnswers): void {
     const scale = SCALES[question.scaleType];
 
     if (value < MIN_ANSWER || value > scale.length) {
-      throw new Error(`La respuesta de "${questionId}" está fuera de rango.`);
+      throw new Error(
+        `La respuesta de "${questionId}" está fuera de rango.`,
+      );
     }
   }
 }
 
-async function hasCompletedQuestionnaireByUser(
-  userId: string,
-  questionnaireType: QuestionnaireType,
-): Promise<boolean> {
-  const { data: submission, error: submissionError } = await supabase
-    .from(SUBMISSIONS_TABLE)
-    .select("id")
-    .eq("user_id", userId)
-    .eq("questionnaire_type", questionnaireType)
-    .maybeSingle();
-
-  if (submissionError) {
-    throw new Error(ERROR_CHECK);
-  }
-
-  if (!submission) {
-    return false;
-  }
-
-  const requiredQuestionIds = ALL_QUESTIONS.filter(
-    (question) => question.required,
-  ).map((question) => question.id);
-
-  const { data: responses, error: responsesError } = await supabase
-    .from("questionnaire_responses")
-    .select("question_key")
-    .eq("submission_id", submission.id)
-    .eq("user_id", userId);
-
-  if (responsesError) {
-    throw new Error(ERROR_CHECK);
-  }
-
-  const responseKeys = new Set(
-    (responses ?? []).map((response) => response.question_key),
-  );
-
-  return (
-    responseKeys.size === requiredQuestionIds.length &&
-    requiredQuestionIds.every((questionId) => responseKeys.has(questionId))
-  );
-}
-
+/**
+ * Envía las respuestas al endpoint seguro del servidor.
+ *
+ * Si la sesión ha caducado, intenta renovarla antes
+ * de repetir el envío.
+ */
 export async function submitQuestionnaire(
   questionnaireType: QuestionnaireType,
   answers: QuestionnaireAnswers,
@@ -175,86 +157,88 @@ export async function submitQuestionnaire(
   };
 }
 
+/**
+ * Recupera el progreso de los cuestionarios del participante.
+ *
+ * La consulta se realiza mediante un endpoint del servidor
+ * para evitar problemas de lectura derivados de las políticas RLS.
+ *
+ * La respuesta no se almacena en caché.
+ */
+async function fetchQuestionnaireProgress(): Promise<QuestionnaireProgressResponse> {
+  try {
+    const response = await fetch("/api/questionnaires/progress", {
+      method: "GET",
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+
+    const payload = (await response.json().catch(() => null)) as
+      | QuestionnaireProgressResponse
+      | null;
+
+    if (!response.ok || !payload?.ok) {
+      throw new Error(payload?.error ?? ERROR_GET_COMPLETED);
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Error retrieving questionnaire progress:", error);
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error(ERROR_CHECK);
+  }
+}
+
+/**
+ * Comprueba si un cuestionario concreto está completado.
+ */
 export async function hasCompletedQuestionnaire(
   questionnaireType: QuestionnaireType,
 ): Promise<boolean> {
   validateQuestionnaireType(questionnaireType);
 
-  const user = await getUser();
+  const progress = await fetchQuestionnaireProgress();
 
-  if (!user) {
-    return false;
-  }
-
-  return hasCompletedQuestionnaireByUser(user.id, questionnaireType);
+  return questionnaireType === "pre"
+    ? progress.preCompleted
+    : progress.postCompleted;
 }
 
+/**
+ * Recupera todos los tipos de cuestionarios completados.
+ */
 export async function getCompletedQuestionnaires(): Promise<
   QuestionnaireType[]
 > {
-  const user = await getUser();
+  const progress = await fetchQuestionnaireProgress();
 
-  if (!user) {
-    return [];
-  }
-
-  const { data: submissions, error } = await supabase
-    .from(SUBMISSIONS_TABLE)
-    .select("id, questionnaire_type")
-    .eq("user_id", user.id);
-
-  if (error) {
-    throw new Error(ERROR_GET_COMPLETED);
-  }
-
-  const completed = await Promise.all(
-    ((submissions as Array<{ id: string; questionnaire_type: QuestionnaireType }> | null) ?? []).map(
-      async ({ id, questionnaire_type }) => {
-        const { data: responses, error: responsesError } = await supabase
-          .from("questionnaire_responses")
-          .select("question_key")
-          .eq("submission_id", id)
-          .eq("user_id", user.id);
-
-        if (responsesError) {
-          throw new Error(ERROR_GET_COMPLETED);
-        }
-
-        const responseKeys = new Set(
-          (responses ?? []).map((response) => response.question_key),
-        );
-
-        const requiredQuestionIds = ALL_QUESTIONS.filter(
-          (question) => question.required,
-        ).map((question) => question.id);
-
-        return responseKeys.size === requiredQuestionIds.length &&
-          requiredQuestionIds.every((questionId) => responseKeys.has(questionId))
-          ? questionnaire_type
-          : null;
-      },
-    ),
-  );
-
-  return completed.filter(
-    (questionnaireType): questionnaireType is QuestionnaireType =>
-      questionnaireType !== null,
-  );
+  return progress.completed;
 }
 
+/**
+ * Recupera el estado completo de los cuestionarios.
+ */
 export async function getQuestionnaireState(): Promise<QuestionnaireProgress> {
-  const [preCompleted, postCompleted] = await Promise.all([
-    hasCompletedQuestionnaire("pre"),
-
-    hasCompletedQuestionnaire("post"),
-  ]);
+  const progress = await fetchQuestionnaireProgress();
 
   return {
-    preCompleted,
-    postCompleted,
+    preCompleted: progress.preCompleted,
+    postCompleted: progress.postCompleted,
   };
 }
 
+/**
+ * Comprueba si el participante puede comenzar el cuestionario POST.
+ *
+ * Para ello:
+ * 1. Debe haber completado el cuestionario PRE.
+ * 2. El endpoint de disponibilidad debe confirmar que el POST
+ *    está habilitado según el flujo del estudio.
+ */
 export async function canStartPostQuestionnaire(): Promise<boolean> {
   const hasCompletedPre = await hasCompletedQuestionnaire("pre");
 
@@ -263,6 +247,8 @@ export async function canStartPostQuestionnaire(): Promise<boolean> {
   }
 
   const response = await fetch("/api/questionnaires/status", {
+    method: "GET",
+    credentials: "same-origin",
     cache: "no-store",
   });
 
