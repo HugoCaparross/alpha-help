@@ -22,9 +22,21 @@ const ALL_QUESTIONS: readonly Question[] = [
     ...KIDSCREEN_QUESTIONS,
 ];
 
-const REQUIRED_QUESTION_IDS = ALL_QUESTIONS
+const REQUIRED_QUESTION_IDS: readonly string[] = ALL_QUESTIONS
     .filter((question) => question.required)
     .map((question) => question.id);
+
+/**
+ * capsm_23 se añadió después de que una parte del grupo ya hubiera
+ * completado el PRE con 87 preguntas. Esa pregunta sigue apareciendo en el
+ * formulario para los nuevos participantes, pero no se exige para considerar
+ * completado el PRE de quienes ya lo habían terminado.
+ */
+const OPTIONAL_FOR_COMPLETION = new Set<string>(["capsm_23"]);
+
+const COMPLETION_REQUIRED_IDS: readonly string[] = REQUIRED_QUESTION_IDS.filter(
+    (id) => !OPTIONAL_FOR_COMPLETION.has(id),
+);
 
 interface SubmissionRow {
     id: string;
@@ -33,22 +45,47 @@ interface SubmissionRow {
 
 interface ResponseRow {
     submission_id: string | null;
-    questionnaire_type: QuestionnaireType;
+    questionnaire_type: QuestionnaireType | null;
     question_key: string;
 }
 
-function isComplete(questionKeys: Set<string>): boolean {
-    return (
-        questionKeys.size === REQUIRED_QUESTION_IDS.length &&
-        REQUIRED_QUESTION_IDS.every((questionId) =>
-            questionKeys.has(questionId),
-        )
+/**
+ * Un cuestionario está completado cuando existe su submission y las
+ * respuestas del participante para ese tipo cubren todas las obligatorias.
+ */
+function hasCompleted(
+    type: QuestionnaireType,
+    submissionRows: SubmissionRow[],
+    responseRows: ResponseRow[],
+): boolean {
+    const typeSubmissions = submissionRows.filter(
+        (submission) => submission.questionnaire_type === type,
     );
+
+    if (typeSubmissions.length === 0) {
+        return false;
+    }
+
+    const submissionIds = new Set(typeSubmissions.map((submission) => submission.id));
+
+    const answeredKeys = new Set<string>();
+
+    for (const response of responseRows) {
+        const belongsToType =
+            response.questionnaire_type === type ||
+            (response.submission_id !== null &&
+                submissionIds.has(response.submission_id));
+
+        if (belongsToType) {
+            answeredKeys.add(response.question_key);
+        }
+    }
+
+    return COMPLETION_REQUIRED_IDS.every((id) => answeredKeys.has(id));
 }
 
 export async function GET() {
     try {
-        // 1. Obtener y validar al usuario autenticado.
         const authClient = await createServerClient();
 
         const {
@@ -58,16 +95,11 @@ export async function GET() {
 
         if (authError || !user) {
             return NextResponse.json(
-                {
-                    ok: false,
-                    error: "Usuario no autenticado.",
-                },
+                { ok: false, error: "Usuario no autenticado." },
                 { status: 401 },
             );
         }
 
-        // 2. Consultar los registros desde el servidor.
-        // Se utiliza Service Role exclusivamente en este entorno.
         const admin = createAdminClient();
 
         const [
@@ -95,8 +127,7 @@ export async function GET() {
             return NextResponse.json(
                 {
                     ok: false,
-                    error:
-                        "No se ha podido recuperar el progreso de los cuestionarios.",
+                    error: "No se ha podido recuperar el progreso de los cuestionarios.",
                 },
                 { status: 500 },
             );
@@ -105,80 +136,17 @@ export async function GET() {
         const submissionRows = (submissions ?? []) as SubmissionRow[];
         const responseRows = (responses ?? []) as ResponseRow[];
 
-        // 3. Comprobar si un tipo de cuestionario está realmente completado.
-        function hasCompleted(type: QuestionnaireType): boolean {
-            const typeSubmissions = submissionRows.filter(
-                (submission) => submission.questionnaire_type === type,
-            );
-
-            if (typeSubmissions.length === 0) {
-                return false;
-            }
-
-            // Primero comprobamos las respuestas vinculadas
-            // directamente a cada envío.
-            for (const submission of typeSubmissions) {
-                const linkedKeys = new Set(
-                    responseRows
-                        .filter(
-                            (response) =>
-                                response.submission_id === submission.id &&
-                                response.questionnaire_type === type,
-                        )
-                        .map((response) => response.question_key),
-                );
-
-                if (isComplete(linkedKeys)) {
-                    return true;
-                }
-            }
-
-            // Compatibilidad con registros históricos:
-            // respuestas del usuario y tipo sin submission_id.
-            if (typeSubmissions.length === 1) {
-                const legacyKeys = new Set(
-                    responseRows
-                        .filter(
-                            (response) =>
-                                response.questionnaire_type === type &&
-                                response.submission_id === null,
-                        )
-                        .map((response) => response.question_key),
-                );
-
-                return isComplete(legacyKeys);
-            }
-
-            return false;
-        }
-
-        // 4. Obtener el estado PRE y POST.
-        const preCompleted = hasCompleted("pre");
-        const postCompleted = hasCompleted("post");
+        const preCompleted = hasCompleted("pre", submissionRows, responseRows);
+        const postCompleted = hasCompleted("post", submissionRows, responseRows);
 
         const completed: QuestionnaireType[] = [];
 
-        if (preCompleted) {
-            completed.push("pre");
-        }
+        if (preCompleted) completed.push("pre");
+        if (postCompleted) completed.push("post");
 
-        if (postCompleted) {
-            completed.push("post");
-        }
-
-        // 5. Devolver el resultado sin almacenar caché.
         return NextResponse.json(
-            {
-                ok: true,
-                preCompleted,
-                postCompleted,
-                completed,
-            },
-            {
-                headers: {
-                    "Cache-Control": "no-store, max-age=0",
-                },
-            },
+            { ok: true, preCompleted, postCompleted, completed },
+            { headers: { "Cache-Control": "no-store, max-age=0" } },
         );
     } catch (error) {
         console.error("Unexpected questionnaire progress error:", error);
@@ -186,8 +154,7 @@ export async function GET() {
         return NextResponse.json(
             {
                 ok: false,
-                error:
-                    "Se ha producido un error al comprobar el estado de los cuestionarios.",
+                error: "Se ha producido un error al comprobar el estado de los cuestionarios.",
             },
             { status: 500 },
         );

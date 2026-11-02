@@ -418,6 +418,14 @@ export const CAPSM_QUESTIONS: Question[] = [
     question:
       "Si mi hijo/a tuviera un problema de salud mental, buscaría ayuda profesional.",
   },
+
+  {
+    id: "capsm_23",
+    question:
+      "¿Qué nivel de confianza tendría para buscar ayuda si su hijo/a estuviera experimentando una dificultad relacionada con la salud mental?",
+    scaleType: "help_confidence_5",
+    required: true,
+  },
 ];
 
 export const PSOC_QUESTIONS: Question[] = [
